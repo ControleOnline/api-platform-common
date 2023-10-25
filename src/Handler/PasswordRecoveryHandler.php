@@ -12,7 +12,7 @@ use ControleOnline\Entity\PasswordRecovery;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\PeopleDomain;
 use ControleOnline\Entity\User;
-use ControleOnline\Repository\ConfigRepository;
+use App\Repository\ConfigRepository;
 use ControleOnline\Library\Utils\Hasher;
 
 class PasswordRecoveryHandler implements MessageHandlerInterface
@@ -27,7 +27,7 @@ class PasswordRecoveryHandler implements MessageHandlerInterface
   /**
    * Config repository
    *
-   * @var \ControleOnline\Repository\ConfigRepository
+   * @var \App\Repository\ConfigRepository
    */
   private $config;
 

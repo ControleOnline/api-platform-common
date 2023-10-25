@@ -12,7 +12,7 @@ use ControleOnline\Entity\OrderNf;
 use ControleOnline\Entity\SalesInvoiceTax;
 use ControleOnline\Entity\SalesOrder;
 use ControleOnline\Entity\SalesOrderInvoiceTax;
-use ControleOnline\Repository\SalesOrderRepository;
+use App\Repository\SalesOrderRepository;
 
 class GetOrderByNfHandler implements MessageHandlerInterface
 {
@@ -26,7 +26,7 @@ class GetOrderByNfHandler implements MessageHandlerInterface
   /**
    * People Repository
    *
-   * @var \ControleOnline\Repository\SalesOrderRepository
+   * @var \App\Repository\SalesOrderRepository
    */
   private $order;
 

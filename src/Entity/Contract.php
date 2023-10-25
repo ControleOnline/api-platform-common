@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\ContractRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\ContractRepository")
  */
 #[ApiResource(
     operations: [

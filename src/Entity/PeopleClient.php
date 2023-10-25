@@ -15,7 +15,7 @@ use Doctrine\Common\Collections\Collection;
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="people_client", uniqueConstraints={@ORM\UniqueConstraint (name="client_id", columns={"client_id", "company_id"})}, indexes={@ORM\Index (name="provider_id", columns={"company_id"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\PeopleClientRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\PeopleClientRepository")
  */
 #[ApiResource(operations: [new Put(uriTemplate: '/people_customers/{id}/change-status', controller: \ControleOnline\Controller\ChangeClientStatusAction::class, security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'edit\', object)', requirements: ['id' => '^\\d+$']), new Post(), new GetCollection()], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]
 class PeopleClient

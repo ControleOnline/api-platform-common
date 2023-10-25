@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="delivery_tax_group")
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\DeliveryTaxGroupRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\DeliveryTaxGroupRepository")
  */
 #[ApiResource(
     operations: [

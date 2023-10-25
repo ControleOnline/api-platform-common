@@ -11,7 +11,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiFilter;
-use ControleOnline\Repository\SchoolClassFilesRepository;
+use App\Repository\SchoolClassFilesRepository;
 use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})

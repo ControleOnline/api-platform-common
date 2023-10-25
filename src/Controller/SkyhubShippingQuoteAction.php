@@ -36,7 +36,7 @@ class SkyhubShippingQuoteAction
     private $security = null;
 
     /**
-     * @var \ControleOnline\Repository\ReceiveInvoiceRepository
+     * @var \App\Repository\ReceiveInvoiceRepository
      */
     private $repository = null;
 

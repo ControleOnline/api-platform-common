@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="country", uniqueConstraints={@ORM\UniqueConstraint (name="countryCode", columns={"countryCode"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\CountryRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\CountryRepository")
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['country_read']], denormalizationContext: ['groups' => ['country_write']])]
 class Country

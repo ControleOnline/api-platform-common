@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="category")
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\CategoryRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\CategoryRepository")
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'), new Put(security: 'is_granted(\'ROLE_CLIENT\')', denormalizationContext: ['groups' => ['category_edit']]), new Delete(security: 'is_granted(\'ROLE_CLIENT\')'), new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'), new GetCollection(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['category_read']], denormalizationContext: ['groups' => ['category_write']])]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact', 'parent' => 'exact', 'company' => 'exact'])]

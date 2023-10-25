@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\PeopleProfessionalRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\PeopleProfessionalRepository")
  */
 #[ApiResource(operations: [new Get(), new GetCollection(normalizationContext: ['groups' => ['people_professional:collection:get']])], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], security: 'is_granted(\'ROLE_CLIENT\')')]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['company.id' => 'exact', 'professional.id' => 'exact'])]

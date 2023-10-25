@@ -52,7 +52,7 @@ class CreateClientAction
     /**
      * PeopleClient Repository
      *
-     * @var \ControleOnline\Repository\PeopleClientRepository
+     * @var \App\Repository\PeopleClientRepository
      */
     private $clients  = null;
 
@@ -460,7 +460,7 @@ class CreateClientAction
     private function getMySalesmanCompany(): People
     {
         /**
-         * @var \ControleOnline\Repository\PeopleRepository
+         * @var \App\Repository\PeopleRepository
          */
         $repository = $this->manager->getRepository(People::class);
 
@@ -495,7 +495,7 @@ class CreateClientAction
             throw new \Exception('Provider not found');
 
         /**
-         * @var \ControleOnline\Repository\PeopleSalesmanRepository
+         * @var \App\Repository\PeopleSalesmanRepository
          */
         $salesman   = $this->manager->getRepository(PeopleSalesman::class);
         /**

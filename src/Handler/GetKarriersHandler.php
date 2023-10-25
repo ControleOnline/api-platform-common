@@ -6,7 +6,7 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 use ControleOnline\Entity\Karrier;
-use ControleOnline\Repository\KarrierRepository;
+use App\Repository\KarrierRepository;
 
 class GetKarriersHandler implements MessageHandlerInterface
 {

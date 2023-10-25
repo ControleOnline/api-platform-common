@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="order_tracking")
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\OrderTrackingRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\OrderTrackingRepository")
  */
 #[ApiResource(
     operations: [

@@ -19,7 +19,7 @@ class GetMySaleCompaniesAction
   /**
    * peopleSalesman repository
    *
-   * @var \ControleOnline\Repository\PeopleSalesmanRepository
+   * @var \App\Repository\PeopleSalesmanRepository
    */
   private $peopleSalesman;
 

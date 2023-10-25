@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="contract_model")
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\MyContractModelRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\MyContractModelRepository")
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['mycontractmodel_read']], denormalizationContext: ['groups' => ['mycontractmodel_write']])]
 class MyContractModel

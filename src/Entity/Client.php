@@ -22,7 +22,7 @@ use ControleOnline\Filter\ClientEntityFilter;
  * Client
  *
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\ClientRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\ClientRepository")
  * @ORM\Table (name="people")
  */
 #[ApiResource(

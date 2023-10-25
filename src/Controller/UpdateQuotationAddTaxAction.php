@@ -384,7 +384,7 @@ if ($new){
     private function getItauConfig(People $people): array
     {
         /**
-         * @var \ControleOnline\Repository\ConfigRepository
+         * @var \App\Repository\ConfigRepository
          */
         $confrepo = $this->manager->getRepository(Config::class);
         $configs  = $confrepo->getItauConfigByPeople($people);

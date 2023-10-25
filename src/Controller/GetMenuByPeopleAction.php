@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\Security;
-use ControleOnline\Repository\MenuRepository;
+use App\Repository\MenuRepository;
 
 
 class GetMenuByPeopleAction
@@ -36,7 +36,7 @@ class GetMenuByPeopleAction
   private $security = null;
 
   /**
-   * @var \ControleOnline\Repository\MenuRepository
+   * @var \App\Repository\MenuRepository
    */
   private $repository = null;
 

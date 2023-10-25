@@ -23,7 +23,7 @@ class GetSalesStatusAction
     /**
      * Quotation repository
      *
-     * @var \ControleOnline\Repository\QuotationRepository
+     * @var \App\Repository\QuotationRepository
      */
     private $quotation = null;
 

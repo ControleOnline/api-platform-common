@@ -117,7 +117,7 @@ class GetContractParticipantsAction
                 $search['country'] = strtolower($search['country']) == 'brasil' ? 'Brazil' : $search['country'];
 
                 /**
-                 * @var \ControleOnline\Repository\AddressRepository $addRepo
+                 * @var \App\Repository\AddressRepository $addRepo
                  */
                 $addRepo = $this->em->getRepository(Address::class);
                 $address = $addRepo->findOneByCityStateCountryOfPeople($search['city'], $search['state'], $search['country'], $people);

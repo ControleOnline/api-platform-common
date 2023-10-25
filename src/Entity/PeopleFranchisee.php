@@ -10,7 +10,7 @@ use Doctrine\Common\Collections\Collection;
 
 /**
  * @ORM\Table(name="people_franchisee", uniqueConstraints={@ORM\UniqueConstraint(name="franchisee_id", columns={"franchisee_id", "franchisor"})}, indexes={@ORM\Index(name="franchisor_id", columns={"franchisor"})})
- * @ORM\Entity(repositoryClass="ControleOnline\Repository\PeopleFranchiseeRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\PeopleFranchiseeRepository")
  * @ORM\EntityListeners({ControleOnline\Listener\LogListener::class}) 
  */
 class PeopleFranchisee

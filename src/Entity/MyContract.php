@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="contract")
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\MyContractRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\MyContractRepository")
  */
 #[ApiResource(
     operations: [

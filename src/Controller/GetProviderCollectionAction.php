@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 use ControleOnline\Entity\Provider;
 use ControleOnline\Entity\People;
-use ControleOnline\Repository\ProviderRepository;
+use App\Repository\ProviderRepository;
 
 class GetProviderCollectionAction
 {

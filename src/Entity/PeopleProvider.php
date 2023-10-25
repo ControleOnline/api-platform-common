@@ -15,7 +15,7 @@ use Doctrine\Common\Collections\Collection;
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="people_provider", uniqueConstraints={@ORM\UniqueConstraint (name="provider_id", columns={"provider_id", "company_id"})}, indexes={@ORM\Index (name="company_id", columns={"company_id"}), @ORM\Index(name="IDX_2C6E59348C03F15C", columns={"provider_id"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\PeopleProviderRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\PeopleProviderRepository")
  */
 #[ApiResource(
     operations: [

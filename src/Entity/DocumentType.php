@@ -15,7 +15,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="document_type")
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\DocumentTypeRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\DocumentTypeRepository")
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['document_type_read']], denormalizationContext: ['groups' => ['document_type_write']])]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['peopleType' => 'exact'])]

@@ -2,7 +2,7 @@
 
 namespace ControleOnline\Entity;
 
-use ControleOnline\Repository\SchoolClassLessonsRepository;
+use App\Repository\SchoolClassLessonsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

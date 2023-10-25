@@ -17,7 +17,7 @@ use Doctrine\Common\Collections\Collection;
  * File
  *
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\FileRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\FileRepository")
  * @ORM\Table (name="files", uniqueConstraints={@ORM\UniqueConstraint (name="url", columns={"url"}), @ORM\UniqueConstraint(name="path", columns={"path"})})
  */
 #[ApiResource(

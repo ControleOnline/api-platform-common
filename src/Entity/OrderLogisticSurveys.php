@@ -9,7 +9,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiFilter;
-use ControleOnline\Repository\OrderLogisticSurveysRepository;
+use App\Repository\OrderLogisticSurveysRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
 use DateTime;
 use DateTimeInterface;

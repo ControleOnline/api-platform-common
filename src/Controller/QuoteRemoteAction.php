@@ -8,7 +8,7 @@ use ControleOnline\Entity\SalesOrder;
 use ControleOnline\Entity\PeopleDomain;
 use ControleOnline\Entity\User;
 use ControleOnline\Entity\Order;
-use ControleOnline\Repository\TaxesRepository;
+use App\Repository\TaxesRepository;
 use ControleOnline\Library\Quote\View\Group as ViewGroup;
 use ControleOnline\Library\Quote\Core\DataBag;
 use ControleOnline\Entity\DeliveryRegion;

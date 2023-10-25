@@ -29,7 +29,7 @@ class GetClientCompanyAction
   /**
    * PeopleClient Repository
    *
-   * @var \ControleOnline\Repository\PeopleClientRepository
+   * @var \App\Repository\PeopleClientRepository
    */
   private $clients  = null;
 

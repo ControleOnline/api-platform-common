@@ -42,7 +42,7 @@ use stdClass;
 
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\PeopleRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\PeopleRepository")
  * @ORM\Table (name="people")
  */
 #[ApiResource(

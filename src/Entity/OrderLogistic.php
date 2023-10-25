@@ -13,7 +13,7 @@ use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ControleOnline\Repository\OrderLogisticRepository;
+use App\Repository\OrderLogisticRepository;
 use ControleOnline\Controller\CreateLogisticAction;
 use ControleOnline\Controller\UpdateLogisticAction;
 use ControleOnline\Entity\Status;
@@ -28,7 +28,7 @@ use ControleOnline\Filter\OrderLogisticEntityFilter;
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="order_logistic", indexes={@ORM\Index (name="provider_id", columns={"provider_id"}), @ORM\Index(name="order_id", columns={"order_id"}), @ORM\Index(name="status_id", columns={"status_id"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\OrderLogisticRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\OrderLogisticRepository")
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), 
     new Put(security: 'is_granted(\'ROLE_CLIENT\')', denormalizationContext: ['groups' => ['logistic_write']]), 

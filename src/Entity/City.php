@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="city", uniqueConstraints={@ORM\UniqueConstraint (name="city", columns={"city", "state_id"}), @ORM\UniqueConstraint(name="cod_ibge", columns={"cod_ibge"})}, indexes={@ORM\Index (name="state_id", columns={"state_id"}), @ORM\Index(name="seo", columns={"seo"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\CityRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\CityRepository")
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['city_read']], denormalizationContext: ['groups' => ['city_write']])]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['city' => 'ASC'])]

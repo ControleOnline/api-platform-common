@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="contract_product")
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\MyContractProductRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\MyContractProductRepository")
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), new Delete(security: 'is_granted(\'delete\', object)'), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'), new Post(securityPostDenormalize: 'is_granted(\'create\', object)')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['mycontractproduct_read']], denormalizationContext: ['groups' => ['mycontractproduct_write']])]
 #[ApiResource(uriTemplate: '/my_contracts/{id}/contract_products.{_format}', uriVariables: ['id' => new Link(fromClass: \ControleOnline\Entity\MyContract::class, identifiers: ['id'], toProperty: 'contract')], status: 200, normalizationContext: ['groups' => ['mycontractproduct_read']], operations: [new GetCollection()])]

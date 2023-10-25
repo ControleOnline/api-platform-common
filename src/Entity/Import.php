@@ -14,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="imports")
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\ImportRepository")
+ * @ORM\Entity (repositoryClass="App\Repository\ImportRepository")
  */
 #[ApiResource(operations: [new Delete(controller: \ControleOnline\Controller\DeleteImportAction::class, uriTemplate: 'import/{id}', security: 'is_granted(\'ROLE_CLIENT\')'), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: 'imports', controller: \ControleOnline\Controller\GetImportsAction::class, openapiContext: []), new Post(uriTemplate: 'import', controller: \ControleOnline\Controller\ImportAction::class, security: 'is_granted(\'ROLE_CLIENT\')', deserialize: false, openapiContext: ['consumes' => ['multipart/form-data']])], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]
 class Import

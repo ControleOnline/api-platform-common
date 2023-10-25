@@ -27,7 +27,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use ControleOnline\Entity\Contract;
 use ControleOnline\Entity\ContractModel;
 use ControleOnline\Entity\ContractPeople;
-use ControleOnline\Repository\ContractRepository;
+use App\Repository\ContractRepository;
 
 class SaveAcceptOrderPayerAction extends AbstractController
 {
