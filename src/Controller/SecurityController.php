@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use ControleOnline\Entity\User;
 use ControleOnline\Entity\People;
-use ControleOnline\Service\PeopleRoleService;
+use App\Service\PeopleRoleService;
 
 class SecurityController extends AbstractController
 {

@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\Phone;
-use ControleOnline\Service\PeopleService;
+use App\Service\PeopleService;
 
 class UpdateClientAction
 {
@@ -32,7 +32,7 @@ class UpdateClientAction
     /**
      * People Service
      *
-     * @var \ControleOnline\Service\PeopleService
+     * @var \App\Service\PeopleService
      */
     private $people   = null;
 

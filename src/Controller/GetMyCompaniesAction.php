@@ -9,7 +9,7 @@ use ControleOnline\Entity\PeopleDomain;
 use ControleOnline\Entity\PeopleEmployee;
 use ControleOnline\Entity\PeoplePackage;
 use ControleOnline\Entity\PeopleSalesman;
-use ControleOnline\Service\PeopleRoleService;
+use App\Service\PeopleRoleService;
 use ControleOnline\Entity\PackageModules;
 use ControleOnline\Entity\Module;
 

@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-use ControleOnline\Service\WordPressService;
+use App\Service\WordPressService;
 
 class PostsAction
 {

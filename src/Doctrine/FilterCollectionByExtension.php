@@ -38,7 +38,7 @@ use ControleOnline\Entity\Category;
 use ControleOnline\Entity\Hardware;
 use ControleOnline\Entity\Invoice;
 use ControleOnline\Entity\PurchasingOrderInvoice;
-use ControleOnline\Service\PeopleRoleService;
+use App\Service\PeopleRoleService;
 
 final class FilterCollectionByExtension
 implements QueryCollectionExtensionInterface, QueryItemExtensionInterface

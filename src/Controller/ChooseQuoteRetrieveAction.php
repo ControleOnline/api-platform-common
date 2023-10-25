@@ -14,8 +14,8 @@ use ControleOnline\Entity\People;
 use ControleOnline\Entity\Document;
 use ControleOnline\Entity\Language;
 
-use ControleOnline\Service\AddressService;
-use ControleOnline\Service\PeopleService;
+use App\Service\AddressService;
+use App\Service\PeopleService;
 use ControleOnline\Controller\ChooseQuoteAction;
 
 class ChooseQuoteRetrieveAction extends ChooseQuoteAction

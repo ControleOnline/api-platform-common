@@ -10,7 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use ControleOnline\Entity\Config;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\PeopleDomain;
-use ControleOnline\Service\PeopleRoleService;
+use App\Service\PeopleRoleService;
 
 class GetDefaultCompanyAction
 {

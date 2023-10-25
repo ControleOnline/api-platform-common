@@ -12,7 +12,7 @@ use ControleOnline\Entity\Carrier;
 use ControleOnline\Entity\Contract;
 use ControleOnline\Entity\ContractPeople;
 use ControleOnline\Entity\Document;
-use ControleOnline\Service\PeopleService;
+use App\Service\PeopleService;
 
 class CreateCarrierAction
 {
@@ -33,7 +33,7 @@ class CreateCarrierAction
   /**
    * People Service
    *
-   * @var \ControleOnline\Service\PeopleService
+   * @var \App\Service\PeopleService
    */
   private $people   = null;
 

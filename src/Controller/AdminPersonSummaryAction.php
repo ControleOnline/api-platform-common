@@ -13,7 +13,7 @@ use ControleOnline\Entity\User;
 use ControleOnline\Entity\Particulars;
 use ControleOnline\Entity\ParticularsType;
 use ControleOnline\Entity\PeopleClient;
-use ControleOnline\Service\PeopleService;
+use App\Service\PeopleService;
 
 class AdminPersonSummaryAction
 {
@@ -34,7 +34,7 @@ class AdminPersonSummaryAction
     /**
      * People Service
      *
-     * @var \ControleOnline\Service\PeopleService
+     * @var \App\Service\PeopleService
      */
     private $people   = null;
 

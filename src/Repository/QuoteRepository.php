@@ -28,7 +28,7 @@ use ControleOnline\Entity\PeopleStates;
 use ControleOnline\Entity\PeopleDomain;
 use ControleOnline\Entity\Quote;
 use ControleOnline\Library\Utils\Address as AddressComponents;
-use ControleOnline\Service\AddressService;
+use App\Service\AddressService;
 
 class QuoteRepository
 {

@@ -5,7 +5,7 @@ namespace ControleOnline\Library\Provider\Signature;
 use ControleOnline\Entity\People;
 use ControleOnline\Library\Provider\Signature\Document;
 use ControleOnline\Library\Provider\Signature\Signer;
-use ControleOnline\Service\SignatureService;
+use App\Service\SignatureService;
 use Doctrine\ORM\EntityManagerInterface;
 use ControleOnline\Entity\MyContract;
 use ControleOnline\Library\Provider\Signature\Exception\InvalidParameterException;

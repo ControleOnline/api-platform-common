@@ -11,7 +11,7 @@ use ControleOnline\Entity\SalesInvoiceTax as InvoiceTax;
 use ControleOnline\Entity\Status;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\Address;
-use ControleOnline\Service\AddressService;
+use App\Service\AddressService;
 
 class UpdateSalesOrderDacteAction
 {

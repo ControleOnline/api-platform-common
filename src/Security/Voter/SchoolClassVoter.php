@@ -7,7 +7,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
 use Doctrine\ORM\EntityManagerInterface;
 
-use ControleOnline\Service\PeopleRoleService;
+use App\Service\PeopleRoleService;
 use ControleOnline\Entity\SchoolClass;
 use ControleOnline\Entity\User;
 use ControleOnline\Entity\People;

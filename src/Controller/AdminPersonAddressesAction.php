@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Security;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\Person;
 use ControleOnline\Entity\Address;
-use ControleOnline\Service\AddressService;
+use App\Service\AddressService;
 
 class AdminPersonAddressesAction
 {
@@ -31,7 +31,7 @@ class AdminPersonAddressesAction
     /**
      * Address Service
      *
-     * @var \ControleOnline\Service\AddressService
+     * @var \App\Service\AddressService
      */
     private $address   = null;
 

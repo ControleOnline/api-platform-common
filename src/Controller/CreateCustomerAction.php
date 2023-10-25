@@ -14,8 +14,8 @@ use ControleOnline\Entity\People;
 use ControleOnline\Entity\Document;
 use ControleOnline\Entity\Email;
 use ControleOnline\Entity\PeopleEmployee;
-use ControleOnline\Service\PeopleService;
-use ControleOnline\Service\PeopleRoleService;
+use App\Service\PeopleService;
+use App\Service\PeopleRoleService;
 
 class CreateCustomerAction
 {
@@ -36,7 +36,7 @@ class CreateCustomerAction
     /**
      * People Service
      *
-     * @var \ControleOnline\Service\PeopleService
+     * @var \App\Service\PeopleService
      */
     private $people   = null;
 

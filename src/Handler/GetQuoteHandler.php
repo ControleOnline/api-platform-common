@@ -25,7 +25,7 @@ use ControleOnline\Repository\QuoteRepository;
 use ControleOnline\Library\Quote\View\Group as ViewGroup;
 use ControleOnline\Library\Quote\Core\DataBag;
 use ControleOnline\Library\Utils\Address;
-use ControleOnline\Service\PeopleRoleService;
+use App\Service\PeopleRoleService;
 
 class GetQuoteHandler implements MessageHandlerInterface
 {

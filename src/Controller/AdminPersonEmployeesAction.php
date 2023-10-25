@@ -12,9 +12,9 @@ use ControleOnline\Entity\People;
 use ControleOnline\Entity\Person;
 use ControleOnline\Entity\User;
 use ControleOnline\Entity\Email;
-use ControleOnline\Service\PeopleService;
+use App\Service\PeopleService;
 use ControleOnline\Entity\PeopleClient;
-use ControleOnline\Service\PeopleRoleService;
+use App\Service\PeopleRoleService;
 
 class AdminPersonEmployeesAction
 {
@@ -35,7 +35,7 @@ class AdminPersonEmployeesAction
     /**
      * People Service
      *
-     * @var \ControleOnline\Service\PeopleService
+     * @var \App\Service\PeopleService
      */
     private $people   = null;
 

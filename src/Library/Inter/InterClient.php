@@ -8,7 +8,7 @@ use ControleOnline\Entity\Invoice;
 use ControleOnline\Entity\Status;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\ReceiveInvoice;
-use ControleOnline\Service\AddressService;
+use App\Service\AddressService;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;

@@ -10,8 +10,8 @@ use Symfony\Component\Security\Core\Security;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Psr\Container\ContainerInterface;
 use ControleOnline\Resource\ResourceEntity;
-use ControleOnline\Service\PeopleService;
-use ControleOnline\Service\UserCompanyService;
+use App\Service\PeopleService;
+use App\Service\UserCompanyService;
 
 abstract class AbstractCustomResourceAction
 {

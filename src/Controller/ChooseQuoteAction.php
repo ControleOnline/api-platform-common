@@ -20,8 +20,8 @@ use ControleOnline\Entity\Document;
 use ControleOnline\Entity\DocumentType;
 use ControleOnline\Entity\PurchasingOrder;
 use ControleOnline\Entity\SalesOrder;
-use ControleOnline\Service\AddressService;
-use ControleOnline\Service\PeopleService;
+use App\Service\AddressService;
+use App\Service\PeopleService;
 
 class ChooseQuoteAction
 {
@@ -35,14 +35,14 @@ class ChooseQuoteAction
     /**
      * Address Service
      *
-     * @var \ControleOnline\Service\AddressService
+     * @var \App\Service\AddressService
      */
     protected $address = null;
 
     /**
      * People Service
      *
-     * @var \ControleOnline\Service\PeopleService
+     * @var \App\Service\PeopleService
      */
     protected $people = null;
 

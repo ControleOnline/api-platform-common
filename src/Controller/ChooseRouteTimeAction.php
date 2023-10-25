@@ -6,8 +6,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use ControleOnline\Entity\SalesOrder as Order;
-use ControleOnline\Service\AddressService;
-use ControleOnline\Service\PeopleService;
+use App\Service\AddressService;
+use App\Service\PeopleService;
 
 class ChooseRouteTimeAction
 {

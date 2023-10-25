@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\PeopleSalesman;
 use ControleOnline\Repository\PeopleRepository;
-use ControleOnline\Service\PeopleRoleService;
+use App\Service\PeopleRoleService;
 
 class GetCustomerCollectionAction
 {

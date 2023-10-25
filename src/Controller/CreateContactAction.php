@@ -10,8 +10,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\PeopleEmployee;
-use ControleOnline\Service\AddressService;
-use ControleOnline\Service\PeopleService;
+use App\Service\AddressService;
+use App\Service\PeopleService;
 
 class CreateContactAction
 {
@@ -32,14 +32,14 @@ class CreateContactAction
     /**
      * People Service
      *
-     * @var \ControleOnline\Service\PeopleService
+     * @var \App\Service\PeopleService
      */
     private $people  = null;
 
     /**
      * Address Service
      *
-     * @var \ControleOnline\Service\AddressService
+     * @var \App\Service\AddressService
      */
     private $address = null;
 

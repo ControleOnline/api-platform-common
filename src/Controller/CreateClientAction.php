@@ -15,9 +15,9 @@ use ControleOnline\Entity\People;
 use ControleOnline\Entity\PeopleClient;
 use ControleOnline\Entity\PeopleEmployee;
 use ControleOnline\Entity\PeopleSalesman;
-use ControleOnline\Service\PeopleService;
-use ControleOnline\Service\AddressService;
-use ControleOnline\Service\PeopleRoleService;
+use App\Service\PeopleService;
+use App\Service\AddressService;
+use App\Service\PeopleRoleService;
 
 class CreateClientAction
 {
@@ -38,7 +38,7 @@ class CreateClientAction
     /**
      * People Service
      *
-     * @var \ControleOnline\Service\PeopleService
+     * @var \App\Service\PeopleService
      */
     private $people   = null;
 
@@ -73,7 +73,7 @@ class CreateClientAction
     /**
      * Address Service
      *
-     * @var \ControleOnline\Service\AddressService
+     * @var \App\Service\AddressService
      */
     private $address = null;
 

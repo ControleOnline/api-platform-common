@@ -21,8 +21,8 @@ use ControleOnline\Entity\Document;
 use ControleOnline\Entity\Address;
 use ControleOnline\Entity\User;
 use ControleOnline\Entity\PurchasingOrder;
-use ControleOnline\Service\PeopleService;
-use ControleOnline\Service\AddressService;
+use App\Service\PeopleService;
+use App\Service\AddressService;
 
 /**
  * Class NuvemShopAction

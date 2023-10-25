@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use ControleOnline\Entity\PeopleProfessional;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\Document;
-use ControleOnline\Service\PeopleService;
+use App\Service\PeopleService;
 
 class CreateProfessionalAction
 {
@@ -30,7 +30,7 @@ class CreateProfessionalAction
     /**
      * People Service
      *
-     * @var \ControleOnline\Service\PeopleService
+     * @var \App\Service\PeopleService
      */
     private $people   = null;
 

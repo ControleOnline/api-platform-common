@@ -12,9 +12,9 @@ use ControleOnline\Entity\PeopleSalesman;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\Document;
 use ControleOnline\Entity\Email;
-use ControleOnline\Service\PeopleService;
-use ControleOnline\Service\PeopleRoleService;
-use ControleOnline\Service\AddressService;
+use App\Service\PeopleService;
+use App\Service\PeopleRoleService;
+use App\Service\AddressService;
 
 class CreatePeopleCustomerAction
 {
@@ -35,14 +35,14 @@ class CreatePeopleCustomerAction
     /**
      * People Service
      *
-     * @var \ControleOnline\Service\PeopleService
+     * @var \App\Service\PeopleService
      */
     private $people   = null;
 
     /**
      * Address Service
      *
-     * @var \ControleOnline\Service\AddressService
+     * @var \App\Service\AddressService
      */
     private $address  = null;
 

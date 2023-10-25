@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use ControleOnline\Service\SignatureService;
+use App\Service\SignatureService;
 
 class UpdateContractSignaturesFinishedAction
 {

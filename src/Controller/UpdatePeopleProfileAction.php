@@ -13,9 +13,9 @@ use ControleOnline\Entity\People;
 use ControleOnline\Entity\Phone;
 use ControleOnline\Entity\User;
 use ControleOnline\Entity\PeopleEmployee;
-use ControleOnline\Service\AddressService;
-use ControleOnline\Service\PeopleService;
-use ControleOnline\Service\PeopleRoleService;
+use App\Service\AddressService;
+use App\Service\PeopleService;
+use App\Service\PeopleRoleService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
