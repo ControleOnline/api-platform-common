@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 /**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="contract_people")
  * @ORM\Entity (repositoryClass="App\Repository\MyContractPeopleRepository")
  * @UniqueEntity (

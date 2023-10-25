@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Table(name="contract_model")
  * @ORM\Entity
- * @ORM\EntityListeners({ControleOnline\Listener\LogListener::class}) 
+ * @ORM\EntityListeners({App\Listener\LogListener::class}) 
  */
 class ContractModel
 {

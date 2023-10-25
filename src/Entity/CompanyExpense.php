@@ -17,7 +17,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use ControleOnline\Resource\ResourceEntity;
 /**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="company_expense")
  * @ORM\Entity (repositoryClass="App\Repository\CompanyExpenseRepository")
  */

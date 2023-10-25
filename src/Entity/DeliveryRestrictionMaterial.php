@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * DeliveryRestrictionMaterial
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="delivery_restriction_material", uniqueConstraints={@ORM\UniqueConstraint (name="people_id", columns={"people_id", "product_material_id"})}, indexes={@ORM\Index (name="product_material_id", columns={"product_material_id"}), @ORM\Index(name="IDX_3EA6FA873147C936", columns={"people_id"})})
  * @ORM\Entity
  * @ORM\Table (name="product_material", uniqueConstraints={@ORM\UniqueConstraint (name="material", columns={"material"})})

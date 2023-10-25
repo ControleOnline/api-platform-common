@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * Country
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="country", uniqueConstraints={@ORM\UniqueConstraint (name="countryCode", columns={"countryCode"})})
  * @ORM\Entity (repositoryClass="App\Repository\CountryRepository")
  */

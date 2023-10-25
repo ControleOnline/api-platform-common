@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Sector
  *
- * @ORM\EntityListeners({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners({App\Listener\LogListener::class})
  * @ORM\Table(name="sector", uniqueConstraints={@ORM\UniqueConstraint(name="sector", columns={"sector", "company_id"})}, indexes={@ORM\Index(name="company_id", columns={"company_id"})})
  * @ORM\Entity
  */

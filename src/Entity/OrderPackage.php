@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * OrderPackage
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="order_package", indexes={@ORM\Index (name="IDX_order_id", columns={"order_id"})})
  * @ORM\Entity
  */

@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * PeopleEmployee
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="people_employee", uniqueConstraints={@ORM\UniqueConstraint (name="employee_id", columns={"employee_id", "company_id"})}, indexes={@ORM\Index (name="company_id", columns={"company_id"})})
  * @ORM\Entity
  */

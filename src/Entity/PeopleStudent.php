@@ -12,7 +12,7 @@ use App\Repository\PeopleStudentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 /**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Entity (repositoryClass=PeopleStudentRepository::class)
  */
 #[ApiResource(operations: [new Get(), new GetCollection(normalizationContext: ['groups' => ['people_student:collection:get']])], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], security: 'is_granted(\'ROLE_CLIENT\')')]

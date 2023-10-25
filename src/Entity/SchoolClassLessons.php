@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=SchoolClassLessonsRepository::class)
- *  @ORM\EntityListeners({ControleOnline\Listener\LogListener::class})
+ *  @ORM\EntityListeners({App\Listener\LogListener::class})
  */
 class SchoolClassLessons
 {

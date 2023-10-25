@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * Document
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="document", uniqueConstraints={@ORM\UniqueConstraint (name="doc", columns={"document", "document_type_id"})}, indexes={@ORM\Index (name="type_2", columns={"document_type_id"}), @ORM\Index(name="file_id", columns={"file_id"}), @ORM\Index(name="type", columns={"people_id", "document_type_id"})})
  * @ORM\Entity (repositoryClass="App\Repository\DocumentRepository")
  */

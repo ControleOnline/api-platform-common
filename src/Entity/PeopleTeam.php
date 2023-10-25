@@ -10,7 +10,7 @@ use App\Repository\PeopleTeamRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 /**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Entity (repositoryClass=PeopleTeamRepository::class)
  */
 #[ApiResource(operations: [new Get()], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]

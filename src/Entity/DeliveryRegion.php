@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * DeliveryRegion
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="delivery_region", uniqueConstraints={@ORM\UniqueConstraint (name="region_id", columns={"region","people_id"})})
  * @ORM\Entity (repositoryClass="App\Repository\DeliveryRegionRepository")
  */

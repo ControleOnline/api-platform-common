@@ -16,7 +16,7 @@ use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Entity (repositoryClass=OrderLogisticSurveysRepository::class)
  * @ORM\Table (name="order_logistic_surveys")
  */

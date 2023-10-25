@@ -21,7 +21,7 @@ use ControleOnline\Filter\ClientEntityFilter;
 /**
  * Client
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Entity (repositoryClass="App\Repository\ClientRepository")
  * @ORM\Table (name="people")
  */

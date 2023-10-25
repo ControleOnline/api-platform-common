@@ -14,7 +14,7 @@ use ApiPlatform\Metadata\ApiFilter;
 use App\Repository\SchoolClassFilesRepository;
 use Doctrine\ORM\Mapping as ORM;
 /**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Entity (repositoryClass=SchoolClassFilesRepository::class)
  */
 #[ApiResource(formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]

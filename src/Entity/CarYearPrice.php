@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * CarYearPrice
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="car_year_price")
  * @ORM\Entity ()
  */

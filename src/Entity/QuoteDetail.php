@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * QuoteDetail
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="quote_detail", indexes={@ORM\Index (name="IDX_region_destination_id", columns={"region_destination_id"}),@ORM\Index(name="IDX_region_origin_id", columns={"region_origin_id"}),@ORM\Index(name="IDX_delivery_tax_id", columns={"delivery_tax_id"}),@ORM\Index(name="IDX_quote", columns={"quote_id"})})
  * @ORM\Entity (repositoryClass="App\Repository\QuoteDetailRepository")
  */

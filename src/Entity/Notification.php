@@ -17,7 +17,7 @@ use stdClass;
 /**
  * Module
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="notification", indexes={@ORM\Index (name="people_id", columns={"people_id"})})
  * @ORM\Entity
  * @ORM\Entity (repositoryClass="App\Repository\NotificationRepository")

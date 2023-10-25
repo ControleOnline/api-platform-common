@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Table (name="contract_people")
  * @ORM\Entity
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]
 #[ApiResource(uriTemplate: '/people/{id}/contracts_peoples.{_format}', uriVariables: ['id' => new Link(fromClass: \ControleOnline\Entity\People::class, identifiers: ['id'], toProperty: 'people')], status: 200, operations: [new GetCollection()])]

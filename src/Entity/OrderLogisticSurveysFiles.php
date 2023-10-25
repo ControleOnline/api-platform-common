@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=OrderLogisticSurveysFilesRepository::class)
- * @ORM\EntityListeners({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners({App\Listener\LogListener::class})
  * @ORM\Table (name="order_logistic_surveys_files")
  */
 class OrderLogisticSurveysFiles

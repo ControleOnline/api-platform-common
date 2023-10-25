@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="language_country", uniqueConstraints={@ORM\UniqueConstraint(name="language_id", columns={"language_id", "country_id"})}, indexes={@ORM\Index(name="country_id", columns={"country_id"}), @ORM\Index(name="IDX_F7BE1E3282F1BAF4", columns={"language_id"})})
  * @ORM\Entity
- * @ORM\EntityListeners({ControleOnline\Listener\LogListener::class}) 
+ * @ORM\EntityListeners({App\Listener\LogListener::class}) 
  */
 class LanguageCountry
 {

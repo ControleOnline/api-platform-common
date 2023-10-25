@@ -15,7 +15,7 @@ use stdClass;
 /**
  * TaskInteration
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Entity ()
  * @ORM\Table (name="task_interations")
  */

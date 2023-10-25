@@ -11,7 +11,7 @@ use Doctrine\Common\Collections\Collection;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\LanguageRepository")
  * @ORM\Table(name="language", uniqueConstraints={@ORM\UniqueConstraint(name="language", columns={"language"})})
- * @ORM\EntityListeners({ControleOnline\Listener\LogListener::class}) 
+ * @ORM\EntityListeners({App\Listener\LogListener::class}) 
  */
 class Language
 {

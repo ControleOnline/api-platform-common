@@ -15,7 +15,7 @@ use ControleOnline\Filter\ComissionInvoiceEntityFilter;
 /**
  * ComissionInvoice
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="invoice", indexes={@ORM\Index (name="invoice_subtype", columns={"invoice_subtype"})})
  * @ORM\Entity (repositoryClass="App\Repository\ComissionInvoiceRepository")
  */

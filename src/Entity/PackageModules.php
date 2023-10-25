@@ -12,7 +12,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Serializer\Annotation\Groups;
 /**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="package_modules", uniqueConstraints={@ORM\UniqueConstraint (name="package_id", columns={"package_id", "module_id"})}, indexes={@ORM\Index (name="module_id", columns={"module_id"}), @ORM\Index(name="IDX_A1EC265BF44CABFF", columns={"package_id"})})
  * @ORM\Entity (repositoryClass="App\Repository\PackageModulesRepository")
  */

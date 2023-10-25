@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * ContractProductPayment
- * @ORM\EntityListeners({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners({App\Listener\LogListener::class})
  * @ORM\Table(name="contract_product_payment", indexes={@ORM\Index(name="payer_id", columns={"payer_id"}), @ORM\Index(name="product_id", columns={"product_id"}), @ORM\Index(name="contract_id", columns={"contract_id"})})
  * @ORM\Entity
  */

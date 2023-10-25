@@ -18,7 +18,7 @@ use stdClass;
  * DiscountCoupon
  * SalesOrder
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="discount_coupon", uniqueConstraints={@ORM\UniqueConstraint (name="code", columns={"code"})}, indexes={@ORM\Index (name="creator_id", columns={"creator_id"}), @ORM\Index(name="client_id", columns={"client_id"})})
  * @ORM\Entity
  */

@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * Quotation
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="quote", indexes={
  *  @ORM\Index(name="IDX_city_destination_id", columns={"city_destination_id"}),
  *  @ORM\Index(name="IDX_city_origin_id", columns={"city_origin_id"}),

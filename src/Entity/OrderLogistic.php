@@ -26,7 +26,7 @@ use phpDocumentor\Reflection\Types\This;
 use ControleOnline\Filter\OrderLogisticEntityFilter;
 
 /**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="order_logistic", indexes={@ORM\Index (name="provider_id", columns={"provider_id"}), @ORM\Index(name="order_id", columns={"order_id"}), @ORM\Index(name="status_id", columns={"status_id"})})
  * @ORM\Entity (repositoryClass="App\Repository\OrderLogisticRepository")
  */

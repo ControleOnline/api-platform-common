@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Tax
  *
- * @ORM\EntityListeners({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners({App\Listener\LogListener::class})
  * @ORM\Table(name="tax", uniqueConstraints={@ORM\UniqueConstraint(name="tax_name", columns={"tax_name", "tax_type", "tax_subtype", "people_id", "state_origin_id", "state_destination_id"})}, indexes={@ORM\Index(name="region_destination_id", columns={"state_destination_id"}), @ORM\Index(name="people_id", columns={"people_id"}), @ORM\Index(name="region_origin_id", columns={"state_origin_id"})})
  * @ORM\Entity
  */

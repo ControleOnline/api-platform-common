@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * ProductMaterial
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'read\', object)'), new Put(security: 'is_granted(\'edit\', object)', denormalizationContext: ['groups' => ['product_material_edit']]), new Delete(security: 'is_granted(\'delete\', object)'), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'), new Post(securityPostDenormalize: 'is_granted(\'create\', object)')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['product_material_read']], denormalizationContext: ['groups' => ['product_material_write']])]
 class ProductMaterial

@@ -18,7 +18,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * Carrier
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Entity (repositoryClass="App\Repository\CarrierRepository")
  * @ORM\Table (name="people")
  */

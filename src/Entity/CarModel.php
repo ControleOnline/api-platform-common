@@ -14,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * CarManufacturer
  *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
+ * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="car_model")
  * @ORM\Entity ()
  */
