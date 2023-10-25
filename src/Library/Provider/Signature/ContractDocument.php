@@ -262,6 +262,7 @@ class ContractDocument
             $this->getRegex($values),
             array_values($values),
             $contract->getContractModel()->getContent()
+            // $contract->getHtmlContent()
         );
 
         if (!empty($content)) {

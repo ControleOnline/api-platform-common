@@ -17,7 +17,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\ContractRepository")
  */
-#[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), new Put(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/contracts/{id}/change/payment', controller: \ControleOnline\Controller\ChangeContractPaymentAction::class), new Put(uriTemplate: 'contracts/{id}/status/{status}', controller: \ControleOnline\Controller\ChangeContractStatusAction::class, openapiContext: []), new Post(), new GetCollection()], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]
+#[ApiResource(
+    operations: [
+        new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new Put(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/contracts/{id}/change/payment', controller: \ControleOnline\Controller\ChangeContractPaymentAction::class),
+        new Put(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/contracts/{id}/change', controller: \ControleOnline\Controller\ChangeContractAction::class),
+        new Put(uriTemplate: 'contracts/{id}/status/{status}', controller: \ControleOnline\Controller\ChangeContractStatusAction::class, openapiContext: []),
+        new Post(),
+        new GetCollection()
+    ],
+    formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']]
+)]
 class Contract
 {
     /**

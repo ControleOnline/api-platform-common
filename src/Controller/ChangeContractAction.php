@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use ControleOnline\Entity\Contract;
 use ControleOnline\Entity\SalesOrder;
 
-class ChangeContractPaymentAction
+class ChangeContractAction
 {
   /**
    * Entity Manager
@@ -27,27 +27,6 @@ class ChangeContractPaymentAction
   {
     try {
       $this->manager->getConnection()->beginTransaction();
-
-
-      $payload  = json_decode($request->getContent(), true);
-
-
-      /**
-       * @var \ControleOnline\Entity\SalesOrder $order  
-       */
-      $order = $this->manager->getRepository(SalesOrder::class)->findOneBy(
-        ['contract' => $data->getId()]
-      );
-
-
-      if ($order) {
-        // $data->setHtmlContent();
-        $order->addOtherInformations('paymentType', $payload['paymentType']);
-        // $this->manager->persist($data);
-        $this->manager->persist($order);
-      } else {
-        throw new \Exception("Order not found", 404);
-      }
 
       $this->manager->flush();
       $this->manager->getConnection()->commit();
