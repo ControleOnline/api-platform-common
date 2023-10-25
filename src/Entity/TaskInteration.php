@@ -19,7 +19,7 @@ use stdClass;
  * @ORM\Entity ()
  * @ORM\Table (name="task_interations")
  */
-#[ApiResource(operations: [new Put(security: 'is_granted(\'ROLE_CLIENT\')', denormalizationContext: ['groups' => ['task_interaction_write']]), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'), new Post(uriTemplate: 'task_interations/task/{task_id}', controller: \ControleOnline\Controller\CreateTaskInteractionAction::class, security: 'is_granted(\'ROLE_CLIENT\')', deserialize: false, openapiContext: ['consumes' => ['multipart/form-data']])], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], security: 'is_granted(\'ROLE_CLIENT\')', normalizationContext: ['groups' => ['task_interaction_read']], denormalizationContext: ['groups' => ['task_interaction_write']])]
+#[ApiResource(operations: [new Put(security: 'is_granted(\'ROLE_CLIENT\')', denormalizationContext: ['groups' => ['task_interaction_write']]), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'), new Post(uriTemplate: 'task_interations/task/{task_id}', controller: \App\Controller\CreateTaskInteractionAction::class, security: 'is_granted(\'ROLE_CLIENT\')', deserialize: false, openapiContext: ['consumes' => ['multipart/form-data']])], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], security: 'is_granted(\'ROLE_CLIENT\')', normalizationContext: ['groups' => ['task_interaction_read']], denormalizationContext: ['groups' => ['task_interaction_write']])]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['task' => 'exact', 'task.id' => 'exact', 'task.taskFor' => 'exact', 'registeredBy' => 'exact', 'type' => 'exact', 'visibility' => 'exact', 'read' => 'exact'])]
 class TaskInteration
 {

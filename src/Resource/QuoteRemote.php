@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use ControleOnline\Validator\Constraints as MyAssert;
 /**
  */
-#[ApiResource(operations: [new Post(uriTemplate: '/quotes/remote', controller: ControleOnline\Controller\QuoteRemoteAction::class)], security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')')]
+#[ApiResource(operations: [new Post(uriTemplate: '/quotes/remote', controller: App\Controller\QuoteRemoteAction::class)], security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')')]
 final class QuoteRemote extends ResourceEntity
 {
     /**

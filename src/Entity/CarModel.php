@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table (name="car_model")
  * @ORM\Entity ()
  */
-#[ApiResource(operations: [new Get(), new Put(), new Patch(), new Delete(), new GetCollection(uriTemplate: 'car_models_search', controller: \ControleOnline\Controller\SearchCarModelAction::class, openapiContext: [])], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]
+#[ApiResource(operations: [new Get(), new Put(), new Patch(), new Delete(), new GetCollection(uriTemplate: 'car_models_search', controller: \App\Controller\SearchCarModelAction::class, openapiContext: [])], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]
 class CarModel
 {
     /**

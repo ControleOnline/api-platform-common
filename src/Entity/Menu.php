@@ -10,8 +10,8 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiFilter;
-use ControleOnline\Controller\GetActionByPeopleAction;
-use ControleOnline\Controller\GetMenuByPeopleAction;
+use App\Controller\GetActionByPeopleAction;
+use App\Controller\GetMenuByPeopleAction;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -39,11 +39,11 @@ use stdClass;
         new Post(security: 'is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(
             uriTemplate: '/menus-people',
-            controller: \ControleOnline\Controller\GetMenuByPeopleAction::class
+            controller: \App\Controller\GetMenuByPeopleAction::class
         ),
         new GetCollection(
             uriTemplate: '/actions/people',
-            controller: \ControleOnline\Controller\GetActionByPeopleAction::class
+            controller: \App\Controller\GetActionByPeopleAction::class
         )
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],

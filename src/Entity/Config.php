@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity (repositoryClass="App\Repository\ConfigRepository")
  */
 #[ApiResource(operations: [new GetCollection(security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')', 
-uriTemplate: '/configs/app-config', controller: \ControleOnline\Controller\GetAppConfigAction::class)], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]
+uriTemplate: '/configs/app-config', controller: \App\Controller\GetAppConfigAction::class)], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]
 class Config
 {
     /**

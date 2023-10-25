@@ -31,25 +31,25 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Get(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/quotations/{id}/optional-taxes',
-            controller: \ControleOnline\Controller\GetQuotationOptionalTaxesAction::class
+            controller: \App\Controller\GetQuotationOptionalTaxesAction::class
         ), new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/quotations/{id}/add-deliverytax',
-            controller: \ControleOnline\Controller\UpdateQuotationAddTaxAction::class
+            controller: \App\Controller\UpdateQuotationAddTaxAction::class
         ),
         new Get(
             uriTemplate: '/quotations/{id}/get-pdf',
-            controller: \ControleOnline\Controller\GetQuotationPdfAction::class
+            controller: \App\Controller\GetQuotationPdfAction::class
         ),
         new Get(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/quote_detail/{id}',
-            controller: \ControleOnline\Controller\GetQuoteDetailTaxesAction::class
+            controller: \App\Controller\GetQuoteDetailTaxesAction::class
         ), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/skyhub/shipping-quote',
-            controller: \ControleOnline\Controller\SkyhubShippingQuoteAction::class
+            controller: \App\Controller\SkyhubShippingQuoteAction::class
         )
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],

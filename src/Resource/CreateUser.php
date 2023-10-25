@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use ControleOnline\Validator\Constraints as MyAssert;
 /**
  */
-#[ApiResource(operations: [new Post(uriTemplate: '/users', controller: ControleOnline\Controller\CreateUserAction::class, securityPostDenormalize: 'is_granted(\'create\', object)')], security: 'is_granted(\'IS_AUTHENTICATED\')')]
+#[ApiResource(operations: [new Post(uriTemplate: '/users', controller: App\Controller\CreateUserAction::class, securityPostDenormalize: 'is_granted(\'create\', object)')], security: 'is_granted(\'IS_AUTHENTICATED\')')]
 final class CreateUser extends ResourceEntity
 {
     /**

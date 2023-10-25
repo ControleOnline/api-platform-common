@@ -10,34 +10,34 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiFilter;
-use ControleOnline\Controller\AdminPersonCompaniesAction;
-use ControleOnline\Controller\AdminPersonFilesAction;
-use ControleOnline\Controller\AdminPersonUsersAction;
-use ControleOnline\Controller\CreateContactAction;
-use ControleOnline\Controller\CreatePeopleCustomerAction;
-use ControleOnline\Controller\CreateProfessionalAction;
-use ControleOnline\Controller\DownloadPersonFileAction;
-use ControleOnline\Controller\GetClientCompanyAction;
-use ControleOnline\Controller\GetCloseProfessionalsAction;
-use ControleOnline\Controller\GetCustomerCollectionAction;
-use ControleOnline\Controller\GetDefaultCompanyAction;
-use ControleOnline\Controller\GetMyCompaniesAction;
-use ControleOnline\Controller\GetMySaleCompaniesAction;
-use ControleOnline\Controller\GetPeopleMeAction;
-use ControleOnline\Controller\GetProfessionalCollectionAction;
+use App\Controller\AdminPersonCompaniesAction;
+use App\Controller\AdminPersonFilesAction;
+use App\Controller\AdminPersonUsersAction;
+use App\Controller\CreateContactAction;
+use App\Controller\CreatePeopleCustomerAction;
+use App\Controller\CreateProfessionalAction;
+use App\Controller\DownloadPersonFileAction;
+use App\Controller\GetClientCompanyAction;
+use App\Controller\GetCloseProfessionalsAction;
+use App\Controller\GetCustomerCollectionAction;
+use App\Controller\GetDefaultCompanyAction;
+use App\Controller\GetMyCompaniesAction;
+use App\Controller\GetMySaleCompaniesAction;
+use App\Controller\GetPeopleMeAction;
+use App\Controller\GetProfessionalCollectionAction;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ControleOnline\Controller\SearchClassesPeopleAction;
-use ControleOnline\Controller\SearchContactAction;
-use ControleOnline\Controller\SearchContactCompanyAction;
-use ControleOnline\Controller\SearchCustomerSalesmanAction;
-use ControleOnline\Controller\SearchLessonsPeopleAction;
-use ControleOnline\Controller\SearchPeopleAction;
-use ControleOnline\Controller\SearchTasksPeopleAction;
-use ControleOnline\Controller\UpdatePeopleProfileAction;
-use ControleOnline\Controller\VerifyPeopleStatusAction;
+use App\Controller\SearchClassesPeopleAction;
+use App\Controller\SearchContactAction;
+use App\Controller\SearchContactCompanyAction;
+use App\Controller\SearchCustomerSalesmanAction;
+use App\Controller\SearchLessonsPeopleAction;
+use App\Controller\SearchPeopleAction;
+use App\Controller\SearchTasksPeopleAction;
+use App\Controller\UpdatePeopleProfileAction;
+use App\Controller\VerifyPeopleStatusAction;
 use stdClass;
 
 /**
@@ -53,36 +53,36 @@ use stdClass;
         new Get(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/people/{id}/contact',
-            controller: \ControleOnline\Controller\SearchContactAction::class
+            controller: \App\Controller\SearchContactAction::class
         ),
 
         new Put(
             security: 'is_granted(\'edit\', object)',
             uriTemplate: '/people/{id}/profile/{component}',
             requirements: ['component' => '^(phone|address|email|user|document|employee)+$'],
-            controller: \ControleOnline\Controller\UpdatePeopleProfileAction::class
+            controller: \App\Controller\UpdatePeopleProfileAction::class
         ),
 
         new Get(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/people/{id}/status',
-            controller: \ControleOnline\Controller\VerifyPeopleStatusAction::class
+            controller: \App\Controller\VerifyPeopleStatusAction::class
         ),
 
         new Get(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/people/{id}/classes',
-            controller: \ControleOnline\Controller\SearchClassesPeopleAction::class
+            controller: \App\Controller\SearchClassesPeopleAction::class
         ),
 
         new Get(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/people/{id}/lessons',
-            controller: \ControleOnline\Controller\SearchLessonsPeopleAction::class
+            controller: \App\Controller\SearchLessonsPeopleAction::class
         ),
         new Put(
             uriTemplate: '/customers/{id}/change-status',
-            controller: \ControleOnline\Controller\ChangeStatusAction::class,
+            controller: \App\Controller\ChangeStatusAction::class,
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)'
         ),
@@ -95,187 +95,187 @@ use stdClass;
             uriTemplate: '/customers/{id}/employees',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmployeesAction::class
+            controller: \App\Controller\AdminPersonEmployeesAction::class
         ),
         new Put(
             uriTemplate: '/customers/{id}/employees',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmployeesAction::class
+            controller: \App\Controller\AdminPersonEmployeesAction::class
         ),
         new Delete(
             uriTemplate: '/customers/{id}/employees',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmployeesAction::class
+            controller: \App\Controller\AdminPersonEmployeesAction::class
         ),
         new Get(
             uriTemplate: '/customers/{id}/addresses',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonAddressesAction::class
+            controller: \App\Controller\AdminPersonAddressesAction::class
         ),
         new Put(
             uriTemplate: '/customers/{id}/addresses',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonAddressesAction::class
+            controller: \App\Controller\AdminPersonAddressesAction::class
         ),
         new Delete(
             uriTemplate: '/customers/{id}/addresses',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonAddressesAction::class
+            controller: \App\Controller\AdminPersonAddressesAction::class
         ),
         new Get(
             uriTemplate: '/customers/{id}/documents',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonDocumentsAction::class
+            controller: \App\Controller\AdminPersonDocumentsAction::class
         ),
         new Put(
             uriTemplate: '/customers/{id}/documents',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonDocumentsAction::class
+            controller: \App\Controller\AdminPersonDocumentsAction::class
         ),
         new Delete(
             uriTemplate: '/customers/{id}/documents',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonDocumentsAction::class
+            controller: \App\Controller\AdminPersonDocumentsAction::class
         ),
         new Get(
             uriTemplate: '/customers/{id}/billing',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonBillingAction::class
+            controller: \App\Controller\AdminPersonBillingAction::class
         ),
         new Put(
             uriTemplate: '/customers/{id}/billing',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonBillingAction::class
+            controller: \App\Controller\AdminPersonBillingAction::class
         ),
         new Get(
             uriTemplate: '/customers/{id}/phones',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonPhonesAction::class
+            controller: \App\Controller\AdminPersonPhonesAction::class
         ),
         new Put(
             uriTemplate: '/customers/{id}/phones',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonPhonesAction::class
+            controller: \App\Controller\AdminPersonPhonesAction::class
         ),
         new Delete(
             uriTemplate: '/customers/{id}/phones',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonPhonesAction::class
+            controller: \App\Controller\AdminPersonPhonesAction::class
         ),
         new Get(
             uriTemplate: '/customers/{id}/emails',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmailsAction::class
+            controller: \App\Controller\AdminPersonEmailsAction::class
         ),
         new Put(
             uriTemplate: '/customers/{id}/emails',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmailsAction::class
+            controller: \App\Controller\AdminPersonEmailsAction::class
         ),
         new Delete(
             uriTemplate: '/customers/{id}/emails',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmailsAction::class
+            controller: \App\Controller\AdminPersonEmailsAction::class
         ),
         new Get(
             uriTemplate: '/customers/{id}/users',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonUsersAction::class
+            controller: \App\Controller\AdminPersonUsersAction::class
         ),
         new Put(
             uriTemplate: '/customers/{id}/users',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonUsersAction::class
+            controller: \App\Controller\AdminPersonUsersAction::class
         ),
         new Delete(
             uriTemplate: '/customers/{id}/users',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonUsersAction::class
+            controller: \App\Controller\AdminPersonUsersAction::class
         ),
         new Get(
             uriTemplate: '/customers/{id}/salesman',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminCustomerSalesmanAction::class
+            controller: \App\Controller\AdminCustomerSalesmanAction::class
         ),
         new Put(
             uriTemplate: '/customers/{id}/salesman',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminCustomerSalesmanAction::class
+            controller: \App\Controller\AdminCustomerSalesmanAction::class
         ),
         new Delete(
             uriTemplate: '/customers/{id}/salesman',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminCustomerSalesmanAction::class
+            controller: \App\Controller\AdminCustomerSalesmanAction::class
         ),
         new Get(
             uriTemplate: '/customers/{id}/summary',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonSummaryAction::class
+            controller: \App\Controller\AdminPersonSummaryAction::class
         ),
         new Put(
             uriTemplate: '/customers/{id}/summary',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonSummaryAction::class
+            controller: \App\Controller\AdminPersonSummaryAction::class
         ),
         new Get(
             uriTemplate: '/customers/{id}/files',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonFilesAction::class
+            controller: \App\Controller\AdminPersonFilesAction::class
         ),
         new Get(
             uriTemplate: '/customers/{id}/files/{fileId}',
             requirements: ['id' => '^\\d+$', 'fileId' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\DownloadPersonFileAction::class
+            controller: \App\Controller\DownloadPersonFileAction::class
         ),
         new Delete(
             uriTemplate: '/customers/{id}/files',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonFilesAction::class
+            controller: \App\Controller\AdminPersonFilesAction::class
         ),
         new Get(
             uriTemplate: '/customers/{id}/companies',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonCompaniesAction::class
+            controller: \App\Controller\AdminPersonCompaniesAction::class
         ),
         new Put(
             uriTemplate: '/customers/{id}/companies',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonCompaniesAction::class
+            controller: \App\Controller\AdminPersonCompaniesAction::class
         ),
         new Delete(
             uriTemplate: '/customers/{id}/companies',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonCompaniesAction::class
+            controller: \App\Controller\AdminPersonCompaniesAction::class
         ),
         new Get(
             uriTemplate: '/professionals/{id}',
@@ -286,178 +286,178 @@ use stdClass;
             uriTemplate: '/professionals/{id}/summary',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonSummaryAction::class
+            controller: \App\Controller\AdminPersonSummaryAction::class
         ),
         new Put(
             uriTemplate: '/professionals/{id}/summary',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonSummaryAction::class
+            controller: \App\Controller\AdminPersonSummaryAction::class
         ),
         new Get(
             uriTemplate: '/professionals/{id}/employees',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmployeesAction::class
+            controller: \App\Controller\AdminPersonEmployeesAction::class
         ),
         new Put(
             uriTemplate: '/professionals/{id}/employees',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmployeesAction::class
+            controller: \App\Controller\AdminPersonEmployeesAction::class
         ),
         new Delete(
             uriTemplate: '/professionals/{id}/employees',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmployeesAction::class
+            controller: \App\Controller\AdminPersonEmployeesAction::class
         ),
         new Get(
             uriTemplate: '/professionals/{id}/addresses',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonAddressesAction::class
+            controller: \App\Controller\AdminPersonAddressesAction::class
         ),
         new Put(
             uriTemplate: '/professionals/{id}/addresses',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonAddressesAction::class
+            controller: \App\Controller\AdminPersonAddressesAction::class
         ),
         new Delete(
             uriTemplate: '/professionals/{id}/addresses',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonAddressesAction::class
+            controller: \App\Controller\AdminPersonAddressesAction::class
         ),
         new Get(
             uriTemplate: '/professionals/{id}/documents',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonDocumentsAction::class
+            controller: \App\Controller\AdminPersonDocumentsAction::class
         ),
         new Put(
             uriTemplate: '/professionals/{id}/documents',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonDocumentsAction::class
+            controller: \App\Controller\AdminPersonDocumentsAction::class
         ),
         new Delete(
             uriTemplate: '/professionals/{id}/documents',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonDocumentsAction::class
+            controller: \App\Controller\AdminPersonDocumentsAction::class
         ),
         new Get(
             uriTemplate: '/professionals/{id}/emails',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmailsAction::class
+            controller: \App\Controller\AdminPersonEmailsAction::class
         ),
         new Put(
             uriTemplate: '/professionals/{id}/emails',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmailsAction::class
+            controller: \App\Controller\AdminPersonEmailsAction::class
         ),
         new Delete(
             uriTemplate: '/professionals/{id}/emails',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmailsAction::class
+            controller: \App\Controller\AdminPersonEmailsAction::class
         ),
         new Get(
             uriTemplate: '/professionals/{id}/phones',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonPhonesAction::class
+            controller: \App\Controller\AdminPersonPhonesAction::class
         ),
         new Put(
             uriTemplate: '/professionals/{id}/phones',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonPhonesAction::class
+            controller: \App\Controller\AdminPersonPhonesAction::class
         ),
         new Delete(
             uriTemplate: '/professionals/{id}/phones',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonPhonesAction::class
+            controller: \App\Controller\AdminPersonPhonesAction::class
         ),
         new Get(
             uriTemplate: '/professionals/{id}/billing',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonBillingAction::class
+            controller: \App\Controller\AdminPersonBillingAction::class
         ),
         new Put(
             uriTemplate: '/professionals/{id}/billing',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonBillingAction::class
+            controller: \App\Controller\AdminPersonBillingAction::class
         ),
 
         new Get(
             uriTemplate: '/professionals/{id}/files',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonFilesAction::class
+            controller: \App\Controller\AdminPersonFilesAction::class
         ),
 
         new Get(
             uriTemplate: '/professionals/{id}/files/{fileId}',
             requirements: ['id' => '^\\d+$', 'fileId' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\DownloadPersonFileAction::class
+            controller: \App\Controller\DownloadPersonFileAction::class
         ),
 
         new Delete(
             uriTemplate: '/professionals/{id}/files',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonFilesAction::class
+            controller: \App\Controller\AdminPersonFilesAction::class
         ),
 
         new Get(
             uriTemplate: '/professionals/{id}/users',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonUsersAction::class
+            controller: \App\Controller\AdminPersonUsersAction::class
         ),
 
         new Put(
             uriTemplate: '/professionals/{id}/users',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonUsersAction::class
+            controller: \App\Controller\AdminPersonUsersAction::class
         ),
 
         new Delete(
             uriTemplate: '/professionals/{id}/users',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonUsersAction::class
+            controller: \App\Controller\AdminPersonUsersAction::class
         ),
 
         new Get(
             uriTemplate: '/professionals/{id}/companies',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonCompaniesAction::class
+            controller: \App\Controller\AdminPersonCompaniesAction::class
         ),
 
         new Put(
             uriTemplate: '/professionals/{id}/companies',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonCompaniesAction::class
+            controller: \App\Controller\AdminPersonCompaniesAction::class
         ),
 
         new Delete(
             uriTemplate: '/professionals/{id}/companies',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonCompaniesAction::class
+            controller: \App\Controller\AdminPersonCompaniesAction::class
         ),
 
         new GetCollection(
@@ -468,83 +468,83 @@ use stdClass;
         new GetCollection(
             security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')',
             uriTemplate: '/people/company/default',
-            controller: \ControleOnline\Controller\GetDefaultCompanyAction::class
+            controller: \App\Controller\GetDefaultCompanyAction::class
         ),
 
         new Post(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/people/customer',
-            controller: \ControleOnline\Controller\CreatePeopleCustomerAction::class
+            controller: \App\Controller\CreatePeopleCustomerAction::class
         ),
 
         new GetCollection(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/customers',
-            controller: \ControleOnline\Controller\GetCustomerCollectionAction::class
+            controller: \App\Controller\GetCustomerCollectionAction::class
         ),
 
         new GetCollection(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/customers/search-salesman',
-            controller: \ControleOnline\Controller\SearchCustomerSalesmanAction::class
+            controller: \App\Controller\SearchCustomerSalesmanAction::class
         ),
         new Post(
             uriTemplate: '/customers/files',
             security: 'is_granted(\'ROLE_CLIENT\')',
-            controller: \ControleOnline\Controller\UploadPersonFilesAction::class,
+            controller: \App\Controller\UploadPersonFilesAction::class,
             deserialize: false
         ),
         new Post(
             uriTemplate: '/people/contact',
-            controller: \ControleOnline\Controller\CreateContactAction::class
+            controller: \App\Controller\CreateContactAction::class
         ),
         new GetCollection(
             uriTemplate: '/people/companies/my',
-            controller: \ControleOnline\Controller\GetMyCompaniesAction::class
+            controller: \App\Controller\GetMyCompaniesAction::class
         ),
         new GetCollection(
             uriTemplate: '/people/my-sale-companies',
-            controller: \ControleOnline\Controller\GetMySaleCompaniesAction::class
+            controller: \App\Controller\GetMySaleCompaniesAction::class
         ),
         new GetCollection(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/people-search',
-            controller: \ControleOnline\Controller\SearchPeopleAction::class
+            controller: \App\Controller\SearchPeopleAction::class
         ),
         new GetCollection(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/people/contact',
-            controller: \ControleOnline\Controller\SearchContactCompanyAction::class
+            controller: \App\Controller\SearchContactCompanyAction::class
         ),
         new GetCollection(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/people/client-company',
-            controller: \ControleOnline\Controller\GetClientCompanyAction::class
+            controller: \App\Controller\GetClientCompanyAction::class
         ),
         new GetCollection(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/people/me',
-            controller: \ControleOnline\Controller\GetPeopleMeAction::class
+            controller: \App\Controller\GetPeopleMeAction::class
         ),
         new GetCollection(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/tasks/people',
-            controller: \ControleOnline\Controller\SearchTasksPeopleAction::class
+            controller: \App\Controller\SearchTasksPeopleAction::class
         ),
         new GetCollection(
             uriTemplate: '/people/professionals/close/{lat}/{lng}',
             openapiContext: [],
-            controller: \ControleOnline\Controller\GetCloseProfessionalsAction::class
+            controller: \App\Controller\GetCloseProfessionalsAction::class
         ),
         new Post(
             uriTemplate: '/professionals',
-            controller: \ControleOnline\Controller\CreateProfessionalAction::class,
+            controller: \App\Controller\CreateProfessionalAction::class,
             securityPostDenormalize: 'is_granted(\'create\', object)'
         ),
         new GetCollection(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/professionals',
-            controller: \ControleOnline\Controller\GetProfessionalCollectionAction::class
+            controller: \App\Controller\GetProfessionalCollectionAction::class
         )
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],

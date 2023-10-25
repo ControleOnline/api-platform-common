@@ -22,7 +22,7 @@ use stdClass;
  * @ORM\Table (name="discount_coupon", uniqueConstraints={@ORM\UniqueConstraint (name="code", columns={"code"})}, indexes={@ORM\Index (name="creator_id", columns={"creator_id"}), @ORM\Index(name="client_id", columns={"client_id"})})
  * @ORM\Entity
  */
-#[ApiResource(operations: [new Get(uriTemplate: '/coupon/{id}', security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\') and previous_object.canAccess(user))'), new GetCollection(extraProperties: ['filters' => [DiscountCouponEntityFilter::class]], security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/coupons'), new Post(uriTemplate: '/coupons', controller: \ControleOnline\Controller\CreateCouponAction::class)], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], filters: [\ControleOnline\Filter\DiscountCouponEntityFilter::class], normalizationContext: ['groups' => ['coupon_read']], denormalizationContext: ['groups' => ['coupon_write']])]
+#[ApiResource(operations: [new Get(uriTemplate: '/coupon/{id}', security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\') and previous_object.canAccess(user))'), new GetCollection(extraProperties: ['filters' => [DiscountCouponEntityFilter::class]], security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/coupons'), new Post(uriTemplate: '/coupons', controller: \App\Controller\CreateCouponAction::class)], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], filters: [\ControleOnline\Filter\DiscountCouponEntityFilter::class], normalizationContext: ['groups' => ['coupon_read']], denormalizationContext: ['groups' => ['coupon_write']])]
 class DiscountCoupon
 {
     /**

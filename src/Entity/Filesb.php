@@ -24,31 +24,31 @@ use Doctrine\ORM\Mapping as ORM;
         new Get(
             uriTemplate: '/filesb/{id}',
             requirements: ['id' => '^\\d+$'],
-            controller: \ControleOnline\Controller\AdminFilesController::class,
+            controller: \App\Controller\AdminFilesController::class,
             defaults: ['_api_receive' => false]
         ), new Post(
             uriTemplate: '/filesb',
-            controller: \ControleOnline\Controller\AdminFilesController::class,
+            controller: \App\Controller\AdminFilesController::class,
             defaults: ['_api_receive' => false]
         ), new Post(
             uriTemplate: '/filesb/{id}',
             requirements: ['id' => '^\\d+$'],
-            controller: \ControleOnline\Controller\AdminFilesController::class,
+            controller: \App\Controller\AdminFilesController::class,
             defaults: ['_api_receive' => false]
         ), new Delete(
             uriTemplate: '/filesb/{id}',
             requirements: ['id' => '^\\d+$'],
-            controller: \ControleOnline\Controller\AdminFilesController::class,
+            controller: \App\Controller\AdminFilesController::class,
             defaults: ['_api_receive' => false]
         ),
         new Get(
             uriTemplate: '/filesb/{id}/download',
             requirements: ['id' => '^\\d+$'],
-            controller: \ControleOnline\Controller\DownloadFilesGlobal::class,
+            controller: \App\Controller\DownloadFilesGlobal::class,
             defaults: ['_api_receive' => false]
         ), new GetCollection(
             uriTemplate: '/filesb',
-            controller: \ControleOnline\Controller\AdminFilesController::class
+            controller: \App\Controller\AdminFilesController::class
         )
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],

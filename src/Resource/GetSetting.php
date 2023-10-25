@@ -8,7 +8,7 @@ use ApiPlatform\Metadata\ApiFilter;
 use Symfony\Component\Validator\Constraints as Assert;
 /**
  */
-#[ApiResource(operations: [new Get(uriTemplate: '/configs/{id}', requirements: ['id' => '^\\d+$'], controller: ControleOnline\Controller\GetSettingAction::class, security: 'is_granted(\'read\', object)')], security: 'is_granted(\'IS_AUTHENTICATED_FULLY\')')]
+#[ApiResource(operations: [new Get(uriTemplate: '/configs/{id}', requirements: ['id' => '^\\d+$'], controller: App\Controller\GetSettingAction::class, security: 'is_granted(\'read\', object)')], security: 'is_granted(\'IS_AUTHENTICATED_FULLY\')')]
 final class GetSetting extends ResourceEntity
 {
     /**

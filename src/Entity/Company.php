@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use ControleOnline\Validator\Constraints as MyAssert;
 /**
  */
-#[ApiResource(operations: [new Post(status: 202), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/company/get_cnpj', controller: \ControleOnline\Controller\CompanyCnpjAction::class)], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], security: 'is_granted(\'ROLE_CLIENT\')', messenger: true)]
+#[ApiResource(operations: [new Post(status: 202), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/company/get_cnpj', controller: \App\Controller\CompanyCnpjAction::class)], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], security: 'is_granted(\'ROLE_CLIENT\')', messenger: true)]
 final class Company
 {
     /**

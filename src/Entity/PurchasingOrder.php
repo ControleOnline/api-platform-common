@@ -34,58 +34,58 @@ use stdClass;
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/purchasing/orders/{id}/choose-quote',
-            controller: \ControleOnline\Controller\ChooseQuoteAction::class
+            controller: \App\Controller\ChooseQuoteAction::class
         ), new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/purchasing/orders/choose/{id}/quote',
-            controller: \ControleOnline\Controller\ChooseQuoteAction::class
+            controller: \App\Controller\ChooseQuoteAction::class
         ),
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/purchasing/orders/choose/{id}/payment',
-            controller: \ControleOnline\Controller\ChooseQuotePaymentAction::class
+            controller: \App\Controller\ChooseQuotePaymentAction::class
         ), new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/purchasing/orders/choose/{id}/retrieve',
-            controller: \ControleOnline\Controller\ChooseQuoteRetrieveAction::class
+            controller: \App\Controller\ChooseQuoteRetrieveAction::class
         ),
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/purchasing/orders/choose/{id}/delivery',
-            controller: \ControleOnline\Controller\ChooseQuoteDeliveryAction::class
+            controller: \App\Controller\ChooseQuoteDeliveryAction::class
         ), new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/purchasing/orders/choose/{id}/payer',
-            controller: \ControleOnline\Controller\ChooseQuotePayerAction::class
+            controller: \App\Controller\ChooseQuotePayerAction::class
         ),
         new Post(
             security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\') and previous_object.canAccess(user))',
             uriTemplate: '/purchasing/orders/{id}/other-informations',
-            controller: \ControleOnline\Controller\AddOtherInformationsAction::class
+            controller: \App\Controller\AddOtherInformationsAction::class
         ),
         new Get(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/purchasing/orders/{id}/detail/status',
-            controller: \ControleOnline\Controller\GetPurchasingStatusAction::class
+            controller: \App\Controller\GetPurchasingStatusAction::class
         ),
         new Get(
             security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\') and previous_object.canAccess(user))',
             uriTemplate: '/purchasing/orders/{id}/detail/summary',
-            controller: \ControleOnline\Controller\GetPurchasingOrderSummaryAction::class
+            controller: \App\Controller\GetPurchasingOrderSummaryAction::class
         ),
         new Get(
             security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\') and previous_object.canAccess(user))',
             uriTemplate: '/purchasing/orders/{id}/detail/quotation',
-            controller: \ControleOnline\Controller\GetPurchasingOrderQuotationAction::class
+            controller: \App\Controller\GetPurchasingOrderQuotationAction::class
         ),
         new Get(
             security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\') and previous_object.canAccess(user))',
             uriTemplate: '/purchasing/orders/{id}/detail/invoice',
-            controller: \ControleOnline\Controller\GetPurchasingOrderInvoiceAction::class
+            controller: \App\Controller\GetPurchasingOrderInvoiceAction::class
         ), new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/purchasing/orders/{id}/update-status',
-            controller: \ControleOnline\Controller\UpdatePurchasingStatusAction::class
+            controller: \App\Controller\UpdatePurchasingStatusAction::class
         ), new GetCollection(
             extraProperties: ['filters' => [PurchasingOrderEntityFilter::class]],
             security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')',

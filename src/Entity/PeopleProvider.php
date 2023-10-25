@@ -21,7 +21,7 @@ use Doctrine\Common\Collections\Collection;
     operations: [
         new Put(
             uriTemplate: '/people_providers/{id}/change-status',
-            controller: \ControleOnline\Controller\ChangeProviderStatusAction::class,
+            controller: \App\Controller\ChangeProviderStatusAction::class,
             security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'edit\', object)',
             requirements: ['id' => '^\\d+$']
         ),

@@ -27,7 +27,7 @@ use stdClass;
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(
             uriTemplate: '/email/find',
-            controller: \ControleOnline\Controller\SearchEmailAction::class
+            controller: \App\Controller\SearchEmailAction::class
         )
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],

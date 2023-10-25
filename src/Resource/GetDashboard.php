@@ -6,7 +6,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiFilter;
-use ControleOnline\Controller\GetDashboardsAction;
+use App\Controller\GetDashboardsAction;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(

@@ -21,7 +21,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new Post(security: 'is_granted(\'edit\', object)', uriTemplate: '/tracking', controller: \ControleOnline\Controller\CreateTrackingAction::class),
+        new Post(security: 'is_granted(\'edit\', object)', uriTemplate: '/tracking', controller: \App\Controller\CreateTrackingAction::class),
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],

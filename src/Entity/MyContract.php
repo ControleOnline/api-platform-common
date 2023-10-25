@@ -36,57 +36,57 @@ use Symfony\Component\Validator\Constraints as Assert;
         ), new Get(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/my_contracts/{id}/participants',
-            controller: \ControleOnline\Controller\GetContractParticipantsAction::class
+            controller: \App\Controller\GetContractParticipantsAction::class
         ),
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/my_contracts/{id}/create-addendum',
-            controller: \ControleOnline\Controller\CreateContractAddendumAction::class,
+            controller: \App\Controller\CreateContractAddendumAction::class,
             normalizationContext: ['groups' => ['mycontract_addendum_read']]
         ), new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/my_contracts/{id}/cancel-contract',
-            controller: \ControleOnline\Controller\UpdateCancelContractAction::class,
+            controller: \App\Controller\UpdateCancelContractAction::class,
             validationContext: ['groups' => ['mycontract_cancel_validation']],
             denormalizationContext: ['groups' => ['mycontract_cancel_edit']],
             normalizationContext: ['groups' => ['mycontract_addendum_read']]
         ), new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/my_contracts/{id}/request-signatures',
-            controller: \ControleOnline\Controller\UpdateContractRequestSignaturesAction::class,
+            controller: \App\Controller\UpdateContractRequestSignaturesAction::class,
             normalizationContext: ['groups' => ['mycontract_addendum_read']]
         ), new Put(
             security: 'is_granted(\'edit\', object)',
             uriTemplate: '/my_contracts/{id}/create-schedule',
-            controller: \ControleOnline\Controller\CreateTeamScheduleAction::class
+            controller: \App\Controller\CreateTeamScheduleAction::class
         ),
         new Get(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/my_contracts/{id}/document',
-            controller: \ControleOnline\Controller\GetContractDocumentAction::class
+            controller: \App\Controller\GetContractDocumentAction::class
         ),
         new Put(
             security: 'is_granted(\'edit\', object)',
             uriTemplate: '/my_contracts/{id}/add-product',
-            controller: \ControleOnline\Controller\UpdateContractAddProductAction::class
+            controller: \App\Controller\UpdateContractAddProductAction::class
         ), new Get(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/my_contracts/{id}/products',
-            controller: \ControleOnline\Controller\GetContractProductsAction::class
+            controller: \App\Controller\GetContractProductsAction::class
         ),
         new Get(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/my_contracts/{id}/pdf-contract',
-            controller: \ControleOnline\Controller\GetContractPdfAction::class
+            controller: \App\Controller\GetContractPdfAction::class
         ), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'), new Post(
             uriTemplate: '/my_contracts/provider/{provider}/order/{order}',
             securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')',
-            controller: \ControleOnline\Controller\CreateContractAction::class
+            controller: \App\Controller\CreateContractAction::class
         ), new Post(
             uriTemplate: '/my_contracts/signatures-finished/{provider}',
             requirements: ['provider' => '^(clicksign|zapsign)+$'],
-            controller: \ControleOnline\Controller\UpdateContractSignaturesFinishedAction::class
+            controller: \App\Controller\UpdateContractSignaturesFinishedAction::class
         )
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],

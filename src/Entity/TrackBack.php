@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table (name="order_tracking")
  * @ORM\Entity (repositoryClass="App\Repository\OrderTrackingRepository")
  */
-#[ApiResource(operations: [new GetCollection(uriTemplate: 'track/back/{orderId}/{document}', controller: \ControleOnline\Controller\GetTrackBackAction::class, openapiContext: [])], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')')]
+#[ApiResource(operations: [new GetCollection(uriTemplate: 'track/back/{orderId}/{document}', controller: \App\Controller\GetTrackBackAction::class, openapiContext: [])], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')')]
 class TrackBack extends OrderTracking
 {
 }

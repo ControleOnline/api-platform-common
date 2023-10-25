@@ -8,7 +8,7 @@ use ApiPlatform\Metadata\ApiFilter;
 use Symfony\Component\Validator\Constraints as Assert;
 /**
  */
-#[ApiResource(operations: [new Post(uriTemplate: '/invoices', controller: ControleOnline\Controller\CreateInvoiceAction::class, securityPostDenormalize: 'is_granted(\'create\', object)')], security: 'is_granted(\'IS_AUTHENTICATED\')')]
+#[ApiResource(operations: [new Post(uriTemplate: '/invoices', controller: App\Controller\CreateInvoiceAction::class, securityPostDenormalize: 'is_granted(\'create\', object)')], security: 'is_granted(\'IS_AUTHENTICATED\')')]
 final class CreateInvoice extends ResourceEntity
 {
     /**

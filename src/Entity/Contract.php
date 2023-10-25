@@ -20,9 +20,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new Put(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/contracts/{id}/change/payment', controller: \ControleOnline\Controller\ChangeContractPaymentAction::class),
-        new Put(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/contracts/{id}/change', controller: \ControleOnline\Controller\ChangeContractAction::class),
-        new Put(uriTemplate: 'contracts/{id}/status/{status}', controller: \ControleOnline\Controller\ChangeContractStatusAction::class, openapiContext: []),
+        new Put(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/contracts/{id}/change/payment', controller: \App\Controller\ChangeContractPaymentAction::class),
+        new Put(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/contracts/{id}/change', controller: \App\Controller\ChangeContractAction::class),
+        new Put(uriTemplate: 'contracts/{id}/status/{status}', controller: \App\Controller\ChangeContractStatusAction::class, openapiContext: []),
         new Post(),
         new GetCollection()
     ],

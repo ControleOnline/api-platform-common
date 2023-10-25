@@ -2,7 +2,7 @@
 
 namespace ControleOnline\Library\Inter;
 
-use ControleOnline\Controller\GetProviderDataPerInvoiceId;
+use App\Controller\GetProviderDataPerInvoiceId;
 use ControleOnline\Entity\Address;
 use ControleOnline\Entity\Invoice;
 use ControleOnline\Entity\Status;

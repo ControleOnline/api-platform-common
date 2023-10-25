@@ -14,12 +14,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ControleOnline\Controller\UploadSchoolClassFileAction;
+use App\Controller\UploadSchoolClassFileAction;
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Entity (repositoryClass="App\Repository\SchoolClassRepository")
  */
-#[ApiResource(operations: [new Get(normalizationContext: ['groups' => ['school_class:item:get']]), new Put(denormalizationContext: ['groups' => ['school_class:item:put']]), new Put(uriTemplate: '/school_classes/{id}/date-status', denormalizationContext: ['groups' => ['school_class:item:date_status']], security: 'is_granted(\'edit_date_status\', object)'), new Post(uriTemplate: '/school_classes/{id}/upload_file', controller: \ControleOnline\Controller\UploadSchoolClassFileAction::class, deserialize: false, security: 'is_granted(\'ROLE_CLIENT\')', validationContext: ['groups' => ['Default', 'order_upload_nf']], openapiContext: ['consumes' => ['multipart/form-data']]), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/school_classes/professional-classes', controller: \ControleOnline\Controller\GetSchoolProfessionalClassesCollectionAction::class)], denormalizationContext: ['groups' => ['school_class:write']], security: 'is_granted(\'ROLE_CLIENT\')')]
+#[ApiResource(operations: [new Get(normalizationContext: ['groups' => ['school_class:item:get']]), new Put(denormalizationContext: ['groups' => ['school_class:item:put']]), new Put(uriTemplate: '/school_classes/{id}/date-status', denormalizationContext: ['groups' => ['school_class:item:date_status']], security: 'is_granted(\'edit_date_status\', object)'), new Post(uriTemplate: '/school_classes/{id}/upload_file', controller: \App\Controller\UploadSchoolClassFileAction::class, deserialize: false, security: 'is_granted(\'ROLE_CLIENT\')', validationContext: ['groups' => ['Default', 'order_upload_nf']], openapiContext: ['consumes' => ['multipart/form-data']]), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/school_classes/professional-classes', controller: \App\Controller\GetSchoolProfessionalClassesCollectionAction::class)], denormalizationContext: ['groups' => ['school_class:write']], security: 'is_granted(\'ROLE_CLIENT\')')]
 class SchoolClass
 {
     /**

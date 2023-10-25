@@ -17,7 +17,7 @@ use Doctrine\Common\Collections\Collection;
  * @ORM\Table (name="people_carrier", uniqueConstraints={@ORM\UniqueConstraint (name="carrier_id", columns={"carrier_id", "company_id"})}, indexes={@ORM\Index (name="company_id", columns={"company_id"}), @ORM\Index(name="IDX_2C6E59348C03F15C", columns={"carrier_id"})})
  * @ORM\Entity (repositoryClass="App\Repository\PeopleCarrierRepository")
  */
-#[ApiResource(operations: [new Put(uriTemplate: '/people_carriers/{id}/change-status', controller: \ControleOnline\Controller\ChangeCarrierStatusAction::class, security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'edit\', object)', requirements: ['id' => '^\\d+$']), new Post(), new GetCollection()], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]
+#[ApiResource(operations: [new Put(uriTemplate: '/people_carriers/{id}/change-status', controller: \App\Controller\ChangeCarrierStatusAction::class, security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'edit\', object)', requirements: ['id' => '^\\d+$']), new Post(), new GetCollection()], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]
 class PeopleCarrier
 {
     /**

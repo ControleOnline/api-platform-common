@@ -33,161 +33,161 @@ use Symfony\Component\Serializer\Annotation\Groups;
             uriTemplate: '/carriers/{id}/summary',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonSummaryAction::class
+            controller: \App\Controller\AdminPersonSummaryAction::class
         ),
         new Put(
             uriTemplate: '/carriers/{id}/summary',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonSummaryAction::class
+            controller: \App\Controller\AdminPersonSummaryAction::class
         ),
         new Get(
             uriTemplate: '/carriers/{id}/employees',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmployeesAction::class
+            controller: \App\Controller\AdminPersonEmployeesAction::class
         ),
         new Put(
             uriTemplate: '/carriers/{id}/employees',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmployeesAction::class
+            controller: \App\Controller\AdminPersonEmployeesAction::class
         ),
         new Delete(
             uriTemplate: '/carriers/{id}/employees',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmployeesAction::class
+            controller: \App\Controller\AdminPersonEmployeesAction::class
         ),
         new Get(
             uriTemplate: '/carriers/{id}/addresses',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonAddressesAction::class
+            controller: \App\Controller\AdminPersonAddressesAction::class
         ),
         new Put(
             uriTemplate: '/carriers/{id}/addresses',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonAddressesAction::class
+            controller: \App\Controller\AdminPersonAddressesAction::class
         ),
         new Delete(
             uriTemplate: '/carriers/{id}/addresses',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonAddressesAction::class
+            controller: \App\Controller\AdminPersonAddressesAction::class
         ),
         new Get(
             uriTemplate: '/carriers/{id}/documents',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonDocumentsAction::class
+            controller: \App\Controller\AdminPersonDocumentsAction::class
         ),
         new Put(
             uriTemplate: '/carriers/{id}/documents',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonDocumentsAction::class
+            controller: \App\Controller\AdminPersonDocumentsAction::class
         ),
         new Delete(
             uriTemplate: '/carriers/{id}/documents',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonDocumentsAction::class
+            controller: \App\Controller\AdminPersonDocumentsAction::class
         ),
         new Get(
             uriTemplate: '/carriers/{id}/emails',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmailsAction::class
+            controller: \App\Controller\AdminPersonEmailsAction::class
         ),
         new Put(
             uriTemplate: '/carriers/{id}/emails',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmailsAction::class
+            controller: \App\Controller\AdminPersonEmailsAction::class
         ),
         new Delete(
             uriTemplate: '/carriers/{id}/emails',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonEmailsAction::class
+            controller: \App\Controller\AdminPersonEmailsAction::class
         ),
         new Get(
             uriTemplate: '/carriers/{id}/phones',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonPhonesAction::class
+            controller: \App\Controller\AdminPersonPhonesAction::class
         ),
         new Put(
             uriTemplate: '/carriers/{id}/phones',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonPhonesAction::class
+            controller: \App\Controller\AdminPersonPhonesAction::class
         ),
         new Delete(
             uriTemplate: '/carriers/{id}/phones',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonPhonesAction::class
+            controller: \App\Controller\AdminPersonPhonesAction::class
         ),
         new Get(
             uriTemplate: '/carriers/{id}/billing',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonBillingAction::class
+            controller: \App\Controller\AdminPersonBillingAction::class
         ),
         new Put(
             uriTemplate: '/carriers/{id}/billing',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonBillingAction::class
+            controller: \App\Controller\AdminPersonBillingAction::class
         ), new Get(
             uriTemplate: '/carriers/{id}/files',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonFilesAction::class
+            controller: \App\Controller\AdminPersonFilesAction::class
         ),
         new Get(
             uriTemplate: '/carriers/{id}/files/{fileId}',
             requirements: ['id' => '^\\d+$', 'fileId' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\DownloadPersonFileAction::class
+            controller: \App\Controller\DownloadPersonFileAction::class
         ),
         new Delete(
             uriTemplate: '/carriers/{id}/files',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonFilesAction::class
+            controller: \App\Controller\AdminPersonFilesAction::class
         ),
         new Get(
             uriTemplate: '/carriers/{id}/regions',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminPersonRegionsAction::class
+            controller: \App\Controller\AdminPersonRegionsAction::class
         ),
         new Put(
             uriTemplate: '/carriers/{id}/regions',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonRegionsAction::class
+            controller: \App\Controller\AdminPersonRegionsAction::class
         ),
         new Put(
             uriTemplate: '/carriers/{id}/regions/{regionId}',
             requirements: ['id' => '^\\d+$', 'regionId' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminPersonRegionsAction::class
+            controller: \App\Controller\AdminPersonRegionsAction::class
         ),
         new Delete(
             uriTemplate: '/carriers/{id}/regions',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'delete\', object)',
-            controller: \ControleOnline\Controller\AdminPersonRegionsAction::class
+            controller: \App\Controller\AdminPersonRegionsAction::class
         ),
         new Post(
             uriTemplate: '/carriers/{id}/upload-logo',
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\UploadPersonImageAction::class,
+            controller: \App\Controller\UploadPersonImageAction::class,
             deserialize: false,
             openapiContext: ['consumes' => ['multipart/form-data']]
         ),
@@ -195,28 +195,28 @@ use Symfony\Component\Serializer\Annotation\Groups;
             uriTemplate: '/carriers/{id}/integration',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'read\', object)',
-            controller: \ControleOnline\Controller\AdminCarrierIntegrationAction::class
+            controller: \App\Controller\AdminCarrierIntegrationAction::class
         ),
         new Put(
             uriTemplate: '/carriers/{id}/integration',
             requirements: ['id' => '^\\d+$'],
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\AdminCarrierIntegrationAction::class
+            controller: \App\Controller\AdminCarrierIntegrationAction::class
         ),
         new Post(
             uriTemplate: '/carriers/{id}/rates',
             security: 'is_granted(\'edit\', object)',
-            controller: \ControleOnline\Controller\GetRemoteCarrierRatesAction::class
+            controller: \App\Controller\GetRemoteCarrierRatesAction::class
         ),
         new Post(
             uriTemplate: '/carriers',
-            controller: \ControleOnline\Controller\CreateCarrierAction::class,
+            controller: \App\Controller\CreateCarrierAction::class,
             securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'
         ),
         new GetCollection(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/carriers',
-            controller: \ControleOnline\Controller\GetCarrierCollectionAction::class)
+            controller: \App\Controller\GetCarrierCollectionAction::class)
         ],
         formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
         security: 'is_granted(\'ROLE_CLIENT\')',

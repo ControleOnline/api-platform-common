@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  */
 #[ApiResource(operations: [new Delete(uriTemplate: '/invoices/{id}', requirements: ['id' => '^\\d+$'], 
-controller: ControleOnline\Controller\DeleteInvoiceAction::class, 
+controller: App\Controller\DeleteInvoiceAction::class, 
 security: 'is_granted(\'delete\', object)')], security: 'is_granted(\'IS_AUTHENTICATED_FULLY\')')]
 final class DeleteInvoice extends ResourceEntity
 {

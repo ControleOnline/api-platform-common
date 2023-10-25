@@ -34,11 +34,11 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/task/{id}',
-            controller: \ControleOnline\Controller\CreateTaskAction::class
+            controller: \App\Controller\CreateTaskAction::class
         ),
         new Post(
             uriTemplate: '/task',
-            controller: \ControleOnline\Controller\CreateTaskAction::class,
+            controller: \App\Controller\CreateTaskAction::class,
             securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'
         ),
         new GetCollection(

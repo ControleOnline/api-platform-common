@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table (name="labels")
  * @ORM\Entity ()
  */
-#[ApiResource(operations: [new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'), new Post(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/label/{orderId}', openapiContext: [], controller: \ControleOnline\Controller\CreateNewLabel::class)], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]
+#[ApiResource(operations: [new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'), new Post(security: 'is_granted(\'ROLE_CLIENT\')', uriTemplate: '/label/{orderId}', openapiContext: [], controller: \App\Controller\CreateNewLabel::class)], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]
 class Label
 {
     /**

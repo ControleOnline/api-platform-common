@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Table (name="invoice_tax")
  * @ORM\Entity
  */
-#[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), new Get(security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')', uriTemplate: '/sales_invoice_taxes/{id}/download-nf', requirements: ['id' => '[\\w-]+'], controller: \ControleOnline\Controller\DownloadOrderNFAction::class), new Post(uriTemplate: '/sales_invoice_taxes/upload-nf', controller: \ControleOnline\Controller\UploadOrderNFAction::class, deserialize: false, security: 'is_granted(\'ROLE_CLIENT\')', validationContext: ['groups' => ['Default', 'order_upload_nf']], openapiContext: ['consumes' => ['multipart/form-data']])], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['invoice_tax_read']], denormalizationContext: ['groups' => ['invoice_tax_write']])]
+#[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), new Get(security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')', uriTemplate: '/sales_invoice_taxes/{id}/download-nf', requirements: ['id' => '[\\w-]+'], controller: \App\Controller\DownloadOrderNFAction::class), new Post(uriTemplate: '/sales_invoice_taxes/upload-nf', controller: \App\Controller\UploadOrderNFAction::class, deserialize: false, security: 'is_granted(\'ROLE_CLIENT\')', validationContext: ['groups' => ['Default', 'order_upload_nf']], openapiContext: ['consumes' => ['multipart/form-data']])], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['invoice_tax_read']], denormalizationContext: ['groups' => ['invoice_tax_write']])]
 class SalesInvoiceTax
 {
     /**
