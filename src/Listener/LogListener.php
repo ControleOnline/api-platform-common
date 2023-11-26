@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Listener;
+namespace ControleOnline\Listener;
 
-use App\Entity\Log;
 use Doctrine\ORM\Event\PreFlushEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Event\LifecycleEventArgs;
@@ -29,7 +28,7 @@ class LogListener
     {
 
         // foreach ($this->log as $log) {
-            /*
+        /*
             $l = new Log();
             $l->setObject(json_encode($log['object']));
             $l->setUser($this->user);
