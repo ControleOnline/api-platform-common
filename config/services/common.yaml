@@ -7,7 +7,3 @@ services:
         tags: ["doctrine.repository_service"]
         arguments:
             $registry: '@doctrine'        
-
-    ControleOnline\Controller\:
-        resource: "../../vendor/controleonline/common/src/Controller"
-        tags: ["controller.service_arguments"]    
