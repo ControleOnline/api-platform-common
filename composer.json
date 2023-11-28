@@ -7,7 +7,7 @@
       "ControleOnline\\Repository\\": "vendor/controleonline/common/src/Repository/",
       "ControleOnline\\Entity\\": "vendor/controleonline/common/src/Entity/",
       "ControleOnline\\Controller\\": "vendor/controleonline/common/src/Controller/",
-      "ControleOnline\\Listener\\": "vendor/controleonline/common/src/Listener/"
+      "ControleOnline\\Listener\\": "src/Listener/"
     }
   },
   "authors": [
