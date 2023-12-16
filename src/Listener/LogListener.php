@@ -125,7 +125,7 @@ class LogListener
 
     private function log()
     {
-        if (get_class($this->entity) == 'App\Entity\Webapi\Usuario')
+        if (get_class($this->entity) == 'ControleOnline\Entity\Webapi\Usuario')
             $this->user = $this->entity;
         else
             $this->log[] =

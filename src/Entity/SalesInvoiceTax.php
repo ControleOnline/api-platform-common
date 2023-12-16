@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace ControleOnline\Entity;
 
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Get;
@@ -30,7 +30,7 @@ class SalesInvoiceTax
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="App\Entity\SalesOrderInvoiceTax", mappedBy="invoiceTax")
+     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\SalesOrderInvoiceTax", mappedBy="invoiceTax")
      */
     private $order;
     /**
@@ -42,7 +42,7 @@ class SalesInvoiceTax
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="App\Entity\ServiceInvoiceTax", mappedBy="service_invoice_tax")
+     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\ServiceInvoiceTax", mappedBy="service_invoice_tax")
      */
     private $service_invoice_tax;
     /**
@@ -165,10 +165,10 @@ class SalesInvoiceTax
     /**
      * Add ServiceInvoiceTax
      *
-     * @param \App\Entity\ServiceInvoiceTax $service_invoice_tax
+     * @param \ControleOnline\Entity\ServiceInvoiceTax $service_invoice_tax
      * @return InvoiceTax
      */
-    public function addServiceInvoiceTax(\App\Entity\ServiceInvoiceTax $service_invoice_tax)
+    public function addServiceInvoiceTax(\ControleOnline\Entity\ServiceInvoiceTax $service_invoice_tax)
     {
         $this->service_invoice_tax[] = $service_invoice_tax;
         return $this;
@@ -176,9 +176,9 @@ class SalesInvoiceTax
     /**
      * Remove ServiceInvoiceTax
      *
-     * @param \App\Entity\ServiceInvoiceTax $service_invoice_tax
+     * @param \ControleOnline\Entity\ServiceInvoiceTax $service_invoice_tax
      */
-    public function removeServiceInvoiceTax(\App\Entity\ServiceInvoiceTax $service_invoice_tax)
+    public function removeServiceInvoiceTax(\ControleOnline\Entity\ServiceInvoiceTax $service_invoice_tax)
     {
         $this->service_invoice_tax->removeElement($service_invoice_tax);
     }

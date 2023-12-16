@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace ControleOnline\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -57,7 +57,7 @@ class MenuRole
     /**
      * Get the value of menu
      */
-    public function getMenu(): \App\Entity\Menu
+    public function getMenu(): \ControleOnline\Entity\Menu
     {
         return $this->menu;
     }
@@ -65,7 +65,7 @@ class MenuRole
     /**
      * Set the value of menu
      */
-    public function setMenu(\App\Entity\Menu $menu): self
+    public function setMenu(\ControleOnline\Entity\Menu $menu): self
     {
         $this->menu = $menu;
 
@@ -75,7 +75,7 @@ class MenuRole
     /**
      * Get the value of role
      */
-    public function getRole(): \App\Entity\Role
+    public function getRole(): \ControleOnline\Entity\Role
     {
         return $this->role;
     }
@@ -83,7 +83,7 @@ class MenuRole
     /**
      * Set the value of role
      */
-    public function setRole(\App\Entity\Role $role): self
+    public function setRole(\ControleOnline\Entity\Role $role): self
     {
         $this->role = $role;
 

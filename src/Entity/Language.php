@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace ControleOnline\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
@@ -35,7 +35,7 @@ class Language
 
     /**
      *
-     * @ORM\OneToMany(targetEntity="App\Entity\People", mappedBy="language")
+     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\People", mappedBy="language")
      */
     private $people;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace ControleOnline\Entity;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\ApiResource;
@@ -25,9 +25,9 @@ class Config
      */
     private $id;
     /**
-     * @var \App\Entity\People
+     * @var \ControleOnline\Entity\People
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\People")
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\People")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
      * })
@@ -63,10 +63,10 @@ class Config
     /**
      * Set people
      *
-     * @param \App\Entity\People $people
+     * @param \ControleOnline\Entity\People $people
      * @return PeopleConfigKey
      */
-    public function setPeople(\App\Entity\People $people = null)
+    public function setPeople(\ControleOnline\Entity\People $people = null)
     {
         $this->people = $people;
         return $this;
@@ -74,7 +74,7 @@ class Config
     /**
      * Get people
      *
-     * @return \App\Entity\People
+     * @return \ControleOnline\Entity\People
      */
     public function getPeople()
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace ControleOnline\Entity;
 
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\ApiResource;

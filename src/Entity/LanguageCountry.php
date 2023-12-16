@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace ControleOnline\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -23,9 +23,9 @@ class LanguageCountry
     private $id;
 
     /**
-     * @var \App\Entity\Language
+     * @var \ControleOnline\Entity\Language
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Language")
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Language")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="language_id", referencedColumnName="id")
      * })
@@ -33,9 +33,9 @@ class LanguageCountry
     private $language;
 
     /**
-     * @var \App\Entity\Country
+     * @var \ControleOnline\Entity\Country
      *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Country", inversedBy="languageCountry")
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Country", inversedBy="languageCountry")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="country_id", referencedColumnName="id")
      * })
@@ -55,10 +55,10 @@ class LanguageCountry
     /**
      * Set language
      *
-     * @param \App\Entity\Language $language
+     * @param \ControleOnline\Entity\Language $language
      * @return LanguageCountry
      */
-    public function setLanguage(\App\Entity\Language $language = null)
+    public function setLanguage(\ControleOnline\Entity\Language $language = null)
     {
         $this->language = $language;
 
@@ -68,7 +68,7 @@ class LanguageCountry
     /**
      * Get language
      *
-     * @return \App\Entity\Language
+     * @return \ControleOnline\Entity\Language
      */
     public function getLanguage()
     {
@@ -78,10 +78,10 @@ class LanguageCountry
     /**
      * Set country
      *
-     * @param \App\Entity\Country $country
+     * @param \ControleOnline\Entity\Country $country
      * @return LanguageCountry
      */
-    public function setCountry(\App\Entity\Country $country = null)
+    public function setCountry(\ControleOnline\Entity\Country $country = null)
     {
         $this->country = $country;
 
@@ -91,7 +91,7 @@ class LanguageCountry
     /**
      * Get country
      *
-     * @return \App\Entity\Country
+     * @return \ControleOnline\Entity\Country
      */
     public function getCountry()
     {

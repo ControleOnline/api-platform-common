@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace ControleOnline\Entity;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\ApiResource;
@@ -31,7 +31,7 @@ class Theme
      */
     private $path;
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\People", mappedBy="file")
+     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\People", mappedBy="file")
      */
     private $people;
     public function __construct()

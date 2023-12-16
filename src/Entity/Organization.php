@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity;
+namespace ControleOnline\Entity;
 
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Put;
@@ -57,21 +57,21 @@ class Organization extends Person
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="App\Entity\Document", mappedBy="people")
+     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\Document", mappedBy="people")
      * @Groups({"organization_read"})
      */
     private $document;
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="App\Entity\PeopleEmployee", mappedBy="company")
+     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\PeopleEmployee", mappedBy="company")
      * @Groups({"organization_read"})
      */
     private $peopleEmployee;
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="App\Entity\PeopleEmployee", mappedBy="employee")
+     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\PeopleEmployee", mappedBy="employee")
      * @ORM\OrderBy({"company" = "ASC"})
      */
     private $peopleCompany;
