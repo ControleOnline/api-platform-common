@@ -26,7 +26,7 @@ use stdClass;
  *
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table(name="routes", uniqueConstraints={@ORM\UniqueConstraint(name="route", columns={"route"})}, indexes={@ORM\Index(name="module_id", columns={"module_id"})})
- * @ORM\Entity (repositoryClass="App\Repository\RouteRepository")
+ * @ORM\Entity (repositoryClass="ControleOnline\Repository\RouteRepository")
  * @ORM\Entity
  */
 

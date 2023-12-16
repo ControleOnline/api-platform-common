@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repository;
+namespace ControleOnline\Repository;
 
 use ControleOnline\Entity\Menu;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;

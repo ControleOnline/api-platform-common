@@ -20,7 +20,7 @@ use stdClass;
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="notification", indexes={@ORM\Index (name="people_id", columns={"people_id"})})
  * @ORM\Entity
- * @ORM\Entity (repositoryClass="App\Repository\NotificationRepository")
+ * @ORM\Entity (repositoryClass="ControleOnline\Repository\NotificationRepository")
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\') and previous_object.canAccess(user))'), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['notifications_read']], denormalizationContext: ['groups' => ['notifications_write']])]
 class Notification

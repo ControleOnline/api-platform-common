@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="config", uniqueConstraints={@ORM\UniqueConstraint (name="people_id", columns={"people_id","config_key"})})
- * @ORM\Entity (repositoryClass="App\Repository\ConfigRepository")
+ * @ORM\Entity (repositoryClass="ControleOnline\Repository\ConfigRepository")
  */
 #[ApiResource(operations: [new GetCollection(security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')', 
 uriTemplate: '/configs/app-config', controller: \App\Controller\GetAppConfigAction::class)], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]

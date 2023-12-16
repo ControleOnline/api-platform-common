@@ -9,7 +9,7 @@ use ApiPlatform\Metadata\ApiFilter;
 use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
- * @ORM\Entity (repositoryClass="App\Repository\FileRepository")
+ * @ORM\Entity (repositoryClass="ControleOnline\Repository\FileRepository")
  * @ORM\Table (name="file", uniqueConstraints={@ORM\UniqueConstraint (name="url", columns={"url"}), @ORM\UniqueConstraint(name="path", columns={"path"})})
  */
 #[ApiResource(operations: [new GetCollection(security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')', uriTemplate: '/configs/app-theme', controller: 'App\\Controller\\GetAppThemeAction')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]

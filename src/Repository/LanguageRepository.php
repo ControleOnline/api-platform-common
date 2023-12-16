@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repository;
+namespace ControleOnline\Repository;
 
 use ControleOnline\Entity\Language;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;

@@ -9,7 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\LanguageRepository")
+ * @ORM\Entity(repositoryClass="ControleOnline\Repository\LanguageRepository")
  * @ORM\Table(name="language", uniqueConstraints={@ORM\UniqueConstraint(name="language", columns={"language"})})
  * @ORM\EntityListeners({App\Listener\LogListener::class}) 
  */

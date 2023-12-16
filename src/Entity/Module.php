@@ -23,7 +23,7 @@ use stdClass;
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="module", uniqueConstraints={@ORM\UniqueConstraint (name="UX_MODULE_NAME", columns={"name"})})
  * @ORM\Entity
- * @ORM\Entity (repositoryClass="App\Repository\ModuleRepository")
+ * @ORM\Entity (repositoryClass="ControleOnline\Repository\ModuleRepository")
  */
 #[ApiResource(
     operations: [

@@ -14,7 +14,7 @@ use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
- * @ORM\Entity (repositoryClass="App\Repository\OrganizationRepository")
+ * @ORM\Entity (repositoryClass="ControleOnline\Repository\OrganizationRepository")
  * @ORM\Table (name="people")
  */
 #[ApiResource(operations: [new Get(uriTemplate: '/companies/{id}', requirements: ['id' => '^\\d+$'], security: 'is_granted(\'read\', object)'), new Get(uriTemplate: '/companies/{id}/salesman', requirements: ['id' => '^\\d+$'], security: 'is_granted(\'read\', object)', controller: \App\Controller\AdminCompanySalesmanAction::class), new Put(uriTemplate: '/companies/{id}/salesman', requirements: ['id' => '^\\d+$'], security: 'is_granted(\'edit\', object)', controller: \App\Controller\AdminCompanySalesmanAction::class), new Delete(uriTemplate: '/companies/{id}/salesman', requirements: ['id' => '^\\d+$'], security: 'is_granted(\'delete\', object)', controller: \App\Controller\AdminCompanySalesmanAction::class)], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], security: 'is_granted(\'ROLE_CLIENT\')', normalizationContext: ['groups' => ['organization_read']], denormalizationContext: ['groups' => ['organization_write']])]
