@@ -2,11 +2,15 @@
 
 namespace ControleOnline\Repository;
 
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\ResultSetMapping;
 
-class KarrierRepository
+class KarrierRepository extends ServiceEntityRepository
 {
+
+  protected $manager;
+  
   public function __construct(EntityManagerInterface $manager)
   {
     $this->manager = $manager;
