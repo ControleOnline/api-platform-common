@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Symfony\Component\Security\Core\Security;
 use App\Library\Quote\Exception\EmptyResultsException;
+use Doctrine\Persistence\ManagerRegistry;
 
 class TaxesRepository
 {
@@ -14,8 +15,12 @@ class TaxesRepository
   private static $output = [];
   private static $first;
   private static $second;
+  
+  private $user       = null;
+  
+  private $manager       = null;
 
-  public function __construct(EntityManagerInterface $manager, Security $security)
+  public function __construct(ManagerRegistry $registry,EntityManagerInterface $manager, Security $security)
   {
     $this->manager = $manager;
     $this->user    = $security->getUser();
