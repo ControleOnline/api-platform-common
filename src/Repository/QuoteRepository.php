@@ -29,6 +29,7 @@ use ControleOnline\Entity\PeopleDomain;
 use ControleOnline\Entity\Quote;
 use App\Library\Utils\Address as AddressComponents;
 use App\Service\AddressService;
+use Doctrine\Persistence\ManagerRegistry;
 
 class QuoteRepository
 {
@@ -43,8 +44,9 @@ class QuoteRepository
   private $user       = null;
 
   private $address    = null;
+  private $reqs;
 
-  public function __construct(EntityManagerInterface $manager, Security $security, RequestStack $request, AddressService $address)
+  public function __construct(ManagerRegistry $registry,EntityManagerInterface $manager, Security $security, RequestStack $request, AddressService $address)
   {
     $this->em      = $manager;
     $this->memo    = new \App\Library\Utils\Memory();
