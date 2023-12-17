@@ -7,13 +7,25 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiFilter;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\Get;
+
+
 /**
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="config", uniqueConstraints={@ORM\UniqueConstraint (name="people_id", columns={"people_id","config_key"})})
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\ConfigRepository")
  */
-#[ApiResource(operations: [new GetCollection(security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')', 
-uriTemplate: '/configs/app-config', controller: \App\Controller\GetAppConfigAction::class)], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']])]
+#[ApiResource(
+    operations: [
+        new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
+        new GetCollection(
+            security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')',
+            uriTemplate: '/configs/app-config',
+            controller: \App\Controller\GetAppConfigAction::class
+        )
+    ],
+    formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']]
+)]
 class Config
 {
     /**
