@@ -4,8 +4,15 @@
 `composer require controleonline/common:dev-master`
 
 
+Add Service import:
+config\services.yaml
 
-Create a new fila on controllers:
+```yaml
+imports:
+    - { resource: "../vendor/controleonline/common/config/services/common.yaml" }    
+```
+
+Create a new file on controllers:
 config\routes\controllers\common.yaml
 
 ```yaml
