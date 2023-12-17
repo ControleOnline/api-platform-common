@@ -3,6 +3,6 @@ api_platform:
         paths:
             [
                 "%kernel.project_dir%/vendor/controleonline/common/src/Entity",
-                "%kernel.project_dir%/vendor/controleonline/common/Resource",
+                "%kernel.project_dir%/vendor/controleonline/common/src/Resource",
             ]
     
