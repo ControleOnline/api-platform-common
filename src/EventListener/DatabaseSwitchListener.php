@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 class DatabaseSwitchListener
 {
     private $connection;
+    private $domain;
 
     public function __construct(Connection $connection)
     {
@@ -19,7 +20,8 @@ class DatabaseSwitchListener
 
     public function onKernelRequest(RequestEvent $event)
     {
-        $params = $this->getDbData($event->getRequest());
+        $this->domain = $this->getDomain($event->getRequest());
+        $params = $this->getDbData();
 
         $this->connection->close();
         $this->connection->__construct(
@@ -31,34 +33,11 @@ class DatabaseSwitchListener
         $this->connection->connect();
     }
 
-    private function getDbData(Request $request)
+    private function getDbData()
     {
-
-
-        $domain = $request->get(
-            'app-domain',
-            $request->headers->get(
-                'app-domain',
-                $request->headers->get(
-                    'App-Domain',
-                    $request->headers->get(
-                        'domain',
-                        $request->headers->get(
-                            'Domain',
-                            null
-                        )
-                    )
-                )
-            )
-        );
-
-        if (!$domain)
-            throw new Exception('Please define header or get param "app-domain" ' . $domain, 301);
-
-
         $params = $this->connection->getParams();
         $sql = 'SELECT db_host, db_name, db_port, db_user, db_password FROM `databases` WHERE app_host = :app_host';
-        $statement = $this->connection->executeQuery($sql, ['app_host' => $domain]);
+        $statement = $this->connection->executeQuery($sql, ['app_host' => $this->domain]);
         $result = $statement->fetchAssociative();
         $params['host'] = $result['db_host'];
         $params['port'] = $result['db_port'];
@@ -67,5 +46,26 @@ class DatabaseSwitchListener
         $params['password'] = $result['db_password'];
 
         return $params;
+    }
+
+    private function getDomain(Request $request)
+    {
+
+        $this->domain = $request->get(
+            'app-domain',
+            $request->headers->get(
+                'app-domain',
+                $request->headers->get(
+                    'domain',
+                    $request->headers->get(
+                        'Domain',
+                        null
+                    )
+                )
+            )
+        );
+
+        if (!$this->domain)
+            throw new Exception('Please define header or get param "app-domain"', 301);
     }
 }
