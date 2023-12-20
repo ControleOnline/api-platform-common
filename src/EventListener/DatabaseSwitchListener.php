@@ -33,14 +33,14 @@ class DatabaseSwitchListener
 
     private function getDbData(Request $request)
     {
-        $host = $request->headers->get('domain', $request->get('domain'), null);
-        if (!$host)
-            throw new Exception('Please define header param "domain"', 301);
+        $domain = $request->headers->get('domain', $request->get('domain'), null);
+        if (!$domain)
+            throw new Exception('Please define header param "domain" ' . $domain, 301);
 
 
         $params = $this->connection->getParams();
         $sql = 'SELECT db_host, db_name, db_port, db_user, db_password FROM `databases` WHERE app_host = :app_host';
-        $statement = $this->connection->executeQuery($sql, ['app_host' => $host]);
+        $statement = $this->connection->executeQuery($sql, ['app_host' => $domain]);
         $result = $statement->fetchAssociative();
         $params['host'] = $result['db_host'];
         $params['port'] = $result['db_port'];
