@@ -11,4 +11,4 @@ services:
         arguments:
             $connection: '@doctrine.dbal.default_connection'
         tags:
-            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+            - { name: 'kernel.event_listener', event: 'kernel.request', method: 'onKernelRequest', priority: 512 }
