@@ -39,7 +39,7 @@ class DatabaseSwitchListener
                 $request->get('domain')
             );
         if (!$domain)
-            throw new Exception('Please define header param "domain" ' . $domain, 301);
+            throw new Exception('Please define header param "app-domain" ' . $domain, 301);
 
 
         $params = $this->connection->getParams();
