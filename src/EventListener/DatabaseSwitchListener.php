@@ -36,11 +36,11 @@ class DatabaseSwitchListener
         $domain = $request->headers->get(
             'domain',
             $request->headers->get(
-                'Domain',
-                $request->get('domain', $request->get('Domain', null))
+                'app-domain',
+                $request->get('app-domain', $request->get('Domain', null))
             )
         );
-        
+
         if (!$domain)
             throw new Exception('Please define header param "domain" ' . $domain, 301);
 
