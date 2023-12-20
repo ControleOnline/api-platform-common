@@ -33,22 +33,27 @@ class DatabaseSwitchListener
 
     private function getDbData(Request $request)
     {
+
+
         $domain = $request->get(
             'app-domain',
             $request->headers->get(
                 'app-domain',
                 $request->headers->get(
-                    'domain',
+                    'App-Domain',
                     $request->headers->get(
-                        'Domain',
-                        null
+                        'domain',
+                        $request->headers->get(
+                            'Domain',
+                            null
+                        )
                     )
                 )
             )
         );
 
         if (!$domain)
-            throw new Exception('Please define header param "app-domain" ' . $domain, 301);
+            throw new Exception('Please define header or get param "app-domain" ' . $domain, 301);
 
 
         $params = $this->connection->getParams();
