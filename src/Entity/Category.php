@@ -16,14 +16,28 @@ use ApiPlatform\Metadata\ApiFilter;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="category")
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\CategoryRepository")
  */
-#[ApiResource(operations: [
-    new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')')
-    , new Put(security: 'is_granted(\'ROLE_CLIENT\')', denormalizationContext: ['groups' => ['category_edit']]), new Delete(security: 'is_granted(\'ROLE_CLIENT\')'), new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'), new GetCollection(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['category_read']], denormalizationContext: ['groups' => ['category_write']])]
+#[ApiResource(
+    operations: [
+        new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'), new Put(
+            security: 'is_granted(\'ROLE_CLIENT\')',
+            denormalizationContext: ['groups' =>
+            ['category_write']]
+        ),
+        new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
+        new GetCollection(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')')
+    ],
+    formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
+    normalizationContext: ['groups' => ['category_read']],
+    denormalizationContext: ['groups' =>
+    ['category_write']]
+)]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact', 'parent' => 'exact', 'company' => 'exact'])]
 #[ApiFilter(filterClass: ExistsFilter::class, properties: ['parent'])]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['name' => 'ASC'])]
@@ -42,7 +56,7 @@ class Category
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=100, nullable=false)
-     * @Groups({"menu_read","category_read", "category_write", "company_expense_read", "category_edit","queue_read"})
+     * @Groups({"menu_read","category_read", "category_write", "company_expense_read", "queue_read"})
      * @Assert\NotBlank
      * @Assert\Type(type={"string"})
      */
@@ -63,7 +77,7 @@ class Category
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=true)
      * })
-     * @Groups({"category_read", "category_write", "category_edit","menu_read","queue_read"})
+     * @Groups({"category_read", "category_write", "category_write","menu_read","queue_read"})
      */
     private $parent;
     /**
@@ -81,7 +95,7 @@ class Category
      * @var string
      *
      * @ORM\Column(name="icon", type="string", length=50, nullable=false)
-     * @Groups({"category_read", "category_write", "company_expense_read", "category_edit","menu_read","queue_read"})   
+     * @Groups({"category_read", "category_write", "company_expense_read", "category_write","menu_read","queue_read"})   
      * @Assert\Type(type={"string"})
      */
     private $icon;
@@ -89,7 +103,7 @@ class Category
      * @var string
      *
      * @ORM\Column(name="color", type="string", length=50, nullable=false)
-     * @Groups({"category_read", "category_write", "company_expense_read", "category_edit","menu_read","queue_read"})   
+     * @Groups({"category_read", "category_write", "company_expense_read", "category_write","menu_read","queue_read"})   
      * @Assert\Type(type={"string"})
      */
     private $color;
@@ -125,7 +139,7 @@ class Category
         $this->parent = $category;
         return $this;
     }
-    public function getParent() : ?Category
+    public function getParent(): ?Category
     {
         return $this->parent;
     }
@@ -148,7 +162,7 @@ class Category
     /**
      * Set the value of icon
      */
-    public function setIcon($icon) : self
+    public function setIcon($icon): self
     {
         $this->icon = $icon;
         return $this;
@@ -163,7 +177,7 @@ class Category
     /**
      * Set the value of color
      */
-    public function setColor($color) : self
+    public function setColor($color): self
     {
         $this->color = $color;
         return $this;
