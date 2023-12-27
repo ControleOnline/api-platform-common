@@ -26,8 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'), new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
-            denormalizationContext: ['groups' =>
-            ['category_write']]
+            denormalizationContext: ['groups' =>            ['category_write']]
         ),
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
@@ -35,10 +34,8 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['category_read']],
-    denormalizationContext: ['groups' =>
-    ['category_write']]
+    denormalizationContext: ['groups' =>    ['category_write']]
 )]
-#[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact', 'parent' => 'exact', 'company' => 'exact'])]
 #[ApiFilter(filterClass: ExistsFilter::class, properties: ['parent'])]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['name' => 'ASC'])]
 class Category
@@ -51,6 +48,8 @@ class Category
      * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"category_read", "company_expense_read","menu_read"})
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
+
     private $id;
     /**
      * @var string
@@ -60,6 +59,8 @@ class Category
      * @Assert\NotBlank
      * @Assert\Type(type={"string"})
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['name' => 'partial'])]
+
     private $name;
     /**
      * @var string
@@ -69,6 +70,8 @@ class Category
      * @Assert\NotBlank
      * @Assert\Type(type={"string"})
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact'])]
+
     private $context;
     /**
      * @var \ControleOnline\Entity\Category
@@ -79,6 +82,8 @@ class Category
      * })
      * @Groups({"category_read", "category_write", "category_write","menu_read","queue_read"})
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['parent' => 'exact'])]
+
     private $parent;
     /**
      * @var \ControleOnline\Entity\People
@@ -90,6 +95,8 @@ class Category
      * @Groups({"category_read", "category_write","menu_read","queue_read"})
      * @Assert\NotBlank
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['company' => 'exact'])]
+
     private $company;
     /**
      * @var string
@@ -98,6 +105,8 @@ class Category
      * @Groups({"category_read", "category_write", "company_expense_read", "category_write","menu_read","queue_read"})   
      * @Assert\Type(type={"string"})
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['icon' => 'exact'])]
+
     private $icon;
     /**
      * @var string
@@ -106,6 +115,8 @@ class Category
      * @Groups({"category_read", "category_write", "company_expense_read", "category_write","menu_read","queue_read"})   
      * @Assert\Type(type={"string"})
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['color' => 'exact'])]
+
     private $color;
     /**
      * Get id
