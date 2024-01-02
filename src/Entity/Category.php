@@ -24,9 +24,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[ApiResource(
     operations: [
-        new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'), new Put(
+        new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
+        new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
-            denormalizationContext: ['groups' =>            ['category_write']]
+            denormalizationContext: ['groups' => ['category_write']]
         ),
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
@@ -34,7 +35,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['category_read']],
-    denormalizationContext: ['groups' =>    ['category_write']]
+    denormalizationContext: ['groups' => ['category_write']]
 )]
 #[ApiFilter(filterClass: ExistsFilter::class, properties: ['parent'])]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['name' => 'ASC'])]
