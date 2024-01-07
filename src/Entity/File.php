@@ -25,12 +25,12 @@ use Doctrine\Common\Collections\Collection;
         new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Get(
             security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')',
-            uriTemplate: '/files/download/{id}',                        
+            uriTemplate: '/files/download/{id}',
             controller: GetFileDataAction::class
         ),
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')
     ],
-    
+
     normalizationContext: ['groups' => ['file_read']],
     denormalizationContext: ['groups' => ['file_write']]
 )]
@@ -53,7 +53,13 @@ class File
      * @ORM\Column(type="string", length=255, nullable=false)
      * @Groups({"lesson_upload_file:post", "lesson:read"})
      */
-    private $path;
+    private $file_type;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=false)
+     */
+    private $content;
+
+
     /**
      * @ORM\OneToMany(targetEntity="ControleOnline\Entity\People", mappedBy="file")
      */
@@ -75,15 +81,7 @@ class File
     {
         return $this->url;
     }
-    public function setPath($path)
-    {
-        $this->path = $path;
-        return $this;
-    }
-    public function getPath()
-    {
-        return $this->path;
-    }
+
     public function addPeople(People $people)
     {
         $this->people[] = $people;
@@ -96,5 +94,41 @@ class File
     public function getPeople()
     {
         return $this->people;
+    }
+
+    /**
+     * Get the value of file_type
+     */
+    public function getFileType()
+    {
+        return $this->file_type;
+    }
+
+    /**
+     * Set the value of file_type
+     */
+    public function setFileType($file_type): self
+    {
+        $this->file_type = $file_type;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of content
+     */
+    public function getContent()
+    {
+        return $this->content;
+    }
+
+    /**
+     * Set the value of content
+     */
+    public function setContent($content): self
+    {
+        $this->content = $content;
+
+        return $this;
     }
 }
