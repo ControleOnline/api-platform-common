@@ -1,6 +1,6 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Filter;
 
 
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
