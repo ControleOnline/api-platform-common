@@ -13,6 +13,7 @@ use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
+use ControleOnline\Filter\CustomOrFilter;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -39,6 +40,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ApiFilter(filterClass: ExistsFilter::class, properties: ['parent'])]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['name' => 'ASC'])]
+#[ApiFilter(CustomOrFilter::class, properties: ['name', 'id', 'icon', 'color'])]
+
 class Category
 {
     /**
