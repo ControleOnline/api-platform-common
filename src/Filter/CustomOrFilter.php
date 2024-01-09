@@ -2,12 +2,14 @@
 
 namespace ControleOnline\Filter;
 
-use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
-use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\AbstractContextAwareFilter;
+//use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
+//use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+//use ApiPlatform\Metadata\Operation;
 use Doctrine\ORM\QueryBuilder;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 
-class CustomOrFilter extends AbstractFilter
+class CustomOrFilter extends AbstractContextAwareFilter
 {
     public function getDescription(string $resourceClass): array
     {
@@ -23,21 +25,27 @@ class CustomOrFilter extends AbstractFilter
         ];
     }
 
-    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, Operation $operation = null, array $context = []): void
+    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, string $operationName = null)
     {
         if ($property !== 'search') {
             return;
         }
 
-        $rootAlias = $queryBuilder->getRootAliases()[0];
-        foreach (array_keys($this->getProperties()) as $prop) { // we use array_keys() because getProperties() returns a map of property => strategy
-            if (!$this->isPropertyEnabled($prop, $resourceClass) || !$this->isPropertyMapped($prop, $resourceClass)) {
-                return;
+        $alias = $queryBuilder->getRootAliases()[0];
+        $andWhere = '';
+
+        foreach ($this->properties as $property => $propVal) {
+            $andWhere .= sprintf('%s.%s LIKE :search', $alias, $property);
+
+            next($this->properties);
+            $nextKey = key($this->properties);
+
+            if ($nextKey !== null) {
+                $andWhere .= ' OR ';
             }
-            $parameterName = $queryNameGenerator->generateParameterName($prop);
-            $queryBuilder
-                ->orWhere(sprintf('%s.%s LIKE :%s', $rootAlias, $prop, $parameterName))
-                ->setParameter($parameterName, "%" . $value . "%");
         }
+
+        $queryBuilder->andWhere($andWhere)
+            ->setParameter('search', '%' . $value . '%');
     }
 }
