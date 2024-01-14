@@ -10,6 +10,7 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+
 /**
  * @ORM\EntityListeners ({App\Listener\LogListener::class})
  * @ORM\Table (name="status", uniqueConstraints={@ORM\UniqueConstraint (name="status", columns={"status"})}, indexes={@ORM\Index (name="IDX_real_status", columns={"real_status"})})
@@ -25,8 +26,10 @@ class Status
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"hardware_read","logistic_read"})
+     * @Groups({"status_read","hardware_read","logistic_read"})
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
+
     private $id;
     /**
      * @var string
@@ -35,45 +38,63 @@ class Status
      * @Groups({"hardware_read","order_read", "invoice_read", "status_read", "order_detail_status_read", "logistic_read","queue_read",
      * "queue_people_queue_read"})
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['status' => 'exact'])]
+
     private $status;
     /**
      * @var string
      *
      * @ORM\Column(name="real_status", type="string",  nullable=false)
-     * @Groups({"hardware_read","order_read", "invoice_read", "status_read", "order_detail_status_read", "logistic_read","queue_read"})
+     * @Groups({"hardware_read","order_read", "invoice_read", "status_read", "order_detail_status_read", "logistic_read","queue_read",
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['realStatus' => 'exact'])]
+
     private $realStatus;
     /**
      * @var string
      *
      * @ORM\Column(name="visibility", type="string",  nullable=false)
+     * @Groups({"hardware_read","order_read", "invoice_read", "status_read", "order_detail_status_read", "logistic_read","queue_read",
+
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['visibility' => 'exact'])]
+
     private $visibility;
     /**
      * @var boolean
      *
      * @ORM\Column(name="notify", type="boolean",  nullable=false)
+     * @Groups({"hardware_read","order_read", "invoice_read", "status_read", "order_detail_status_read", "logistic_read","queue_read",
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['notify' => 'exact'])]
+
     private $notify;
     /**
      * @var boolean
      *
      * @ORM\Column(name="system", type="boolean",  nullable=false)
+     * @Groups({"hardware_read","order_read", "invoice_read", "status_read", "order_detail_status_read", "logistic_read","queue_read",
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['system' => 'exact'])]
+
     private $system;
     /**
      * @var string
      *
      * @ORM\Column(name="color", type="string",  nullable=false)
-     * @Groups({"hardware_read","order_read", "invoice_read", "status_read", "order_detail_status_read","queue_read"})
+     * @Groups({"hardware_read","order_read", "invoice_read", "status_read", "order_detail_status_read", "logistic_read","queue_read",
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['color' => 'exact'])]
+
     private $color;
     /**
      * @var string
      *
      * @ORM\Column(name="context", type="string",  nullable=false)
-     * @Groups({"hardware_read","order_read", "invoice_read", "status_read", "order_detail_status_read","queue_read"})
+     * @Groups({"hardware_read","order_read", "invoice_read", "status_read", "order_detail_status_read", "logistic_read","queue_read",
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact'])]
+
     private $context;
     /**
      * Get id
@@ -130,7 +151,7 @@ class Status
      * @param string $visibility
      * @return Status
      */
-    public function setVisibility(string $visibility) : self
+    public function setVisibility(string $visibility): self
     {
         $this->visibility = $visibility;
         return $this;
@@ -140,7 +161,7 @@ class Status
      *
      * @return string
      */
-    public function getVisibility() : string
+    public function getVisibility(): string
     {
         return $this->visibility;
     }
@@ -190,7 +211,7 @@ class Status
      * @param string $color
      * @return Status
      */
-    public function setColor(string $color) : self
+    public function setColor(string $color): self
     {
         $this->color = $color;
         return $this;
@@ -200,7 +221,7 @@ class Status
      *
      * @return string
      */
-    public function getColor() : string
+    public function getColor(): string
     {
         return $this->color;
     }
@@ -210,7 +231,7 @@ class Status
      * @param string $context
      * @return Status
      */
-    public function setContext(string $context) : self
+    public function setContext(string $context): self
     {
         $this->context = $context;
         return $this;
@@ -220,7 +241,7 @@ class Status
      *
      * @return string
      */
-    public function getContext() : string
+    public function getContext(): string
     {
         return $this->context;
     }
