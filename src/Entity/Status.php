@@ -36,6 +36,8 @@ class Status
      *
      * @ORM\Column(name="status", type="string",  nullable=false)
      * @Groups({"hardware_read","order_read", "invoice_read", "status_read", "order_detail_status_read", "logistic_read","queue_read", "queue_people_queue_read"})
+     * @Assert\NotBlank
+     * @Assert\Type(type={"string"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['status' => 'exact'])]
 
