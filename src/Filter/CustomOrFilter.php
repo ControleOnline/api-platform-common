@@ -33,19 +33,39 @@ class CustomOrFilter extends AbstractContextAwareFilter
 
         $alias = $queryBuilder->getRootAliases()[0];
         $andWhere = '';
+        $relations = [];
 
         foreach ($this->properties as $property => $propVal) {
+            $relation = explode('.', $property);
+
+            if (count($relation) > 1) {
+                if (!array_key_exists($relation[0], $relations)) {
+                    $relations[$relation[0]] = uniqid();
+                    $queryBuilder->leftJoin(sprintf('%s.%s', $alias, $relation[0]), 'i');
+                }
+
+                $queryBuilder->orWhere(sprintf('%s.%s LIKE :search', 'i', $relation[1]));
+                $queryBuilder->setParameter('search', '%' . $value . '%');
+                continue;
+            }
+
             $andWhere .= sprintf('%s.%s LIKE :search', $alias, $property);
 
             next($this->properties);
             $nextKey = key($this->properties);
 
-            if ($nextKey !== null) {
+            if ($nextKey !== null && !strpos($nextKey, '.') !== false) {
                 $andWhere .= ' OR ';
             }
         }
 
-        $queryBuilder->andWhere($andWhere)
-            ->setParameter('search', '%' . $value . '%');
+
+        if (empty($relations)) {
+            $queryBuilder->andWhere($andWhere);
+        } else {
+            $queryBuilder->orWhere($andWhere);
+        }
+
+        $queryBuilder->setParameter('search', '%' . $value . '%');
     }
 }
