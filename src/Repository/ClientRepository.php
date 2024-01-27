@@ -7,7 +7,7 @@ use ControleOnline\Entity\Status;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\PeopleClient;
 use ControleOnline\Entity\PeopleSalesman;
-use ControleOnline\Entity\SalesOrder;
+use ControleOnline\Entity\Order;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\Query\ResultSetMapping;
@@ -112,7 +112,7 @@ class ClientRepository extends ServiceEntityRepository
 
             case 'active':
 
-                $queryBuilder->innerJoin(SalesOrder::class,     'O'  , 'WITH', 'O.client = myclients.id');
+                $queryBuilder->innerJoin(Order::class,     'O'  , 'WITH', 'O.client = myclients.id');
                 $queryBuilder->innerJoin(People::class,         'C'  , 'WITH', 'C.id = O.provider');
                 $queryBuilder->innerJoin(PeopleSalesman::class, 'kkk', 'WITH', 'kkk.company = C.id');
                 $queryBuilder->innerJoin(People::class,         'S'  , 'WITH', 'S.id = kkk.salesman');
@@ -131,12 +131,12 @@ class ClientRepository extends ServiceEntityRepository
 
             case 'inactive':
 
-                $queryBuilder->innerJoin(SalesOrder::class,     'O'  , 'WITH', 'O.client = myclients.id');
+                $queryBuilder->innerJoin(Order::class,     'O'  , 'WITH', 'O.client = myclients.id');
                 $queryBuilder->innerJoin(People::class,         'C'  , 'WITH', 'C.id = O.provider');
                 $queryBuilder->innerJoin(PeopleSalesman::class, 'kkk', 'WITH', 'kkk.company = C.id');
                 $queryBuilder->innerJoin(People::class,         'S'  , 'WITH', 'S.id = kkk.salesman');
                 $queryBuilder->innerJoin(PeopleClient::class,   'PC' , 'WITH', 'PC.client = myclients.id AND PC.company_id = S.id');
-                $queryBuilder->leftJoin (SalesOrder::class,     'jj' , 'WITH', 'jj.client = myclients.id
+                $queryBuilder->leftJoin (Order::class,     'jj' , 'WITH', 'jj.client = myclients.id
                                                                              AND   (jj.status NOT IN (:statuses) OR jj.id IS NULL)
                                                                              AND   ((jj.orderDate  BETWEEN  :from_date AND :to_date) OR jj.id IS NULL)
                                                                              AND   (jj.provider = :provider  OR jj.id IS NULL)');
@@ -158,12 +158,12 @@ class ClientRepository extends ServiceEntityRepository
 
             case 'prospect':
 
-                $queryBuilder->innerJoin(SalesOrder::class,     'O' , 'WITH', 'O.client = myclients.id');
+                $queryBuilder->innerJoin(Order::class,     'O' , 'WITH', 'O.client = myclients.id');
                 $queryBuilder->innerJoin(People::class,         'C' , 'WITH', 'C.id = O.provider');
                 $queryBuilder->innerJoin(PeopleSalesman::class, 'PS', 'WITH', 'PS.company = C.id');
                 $queryBuilder->innerJoin(People::class,         'S' , 'WITH', 'S.id = PS.salesman');
                 $queryBuilder->innerJoin(PeopleClient::class,   'PC', 'WITH', 'PC.client = myclients.id AND PC.company_id = S.id');
-                $queryBuilder->leftJoin (SalesOrder::class,     'jj' , 'WITH', 'jj.client = myclients.id
+                $queryBuilder->leftJoin (Order::class,     'jj' , 'WITH', 'jj.client = myclients.id
                                                                              AND   (jj.status NOT IN (:statuses) OR jj.id IS NULL)                                                                             
                                                                              AND   (jj.provider = :provider  OR jj.id IS NULL)');
                 $queryBuilder->andWhere('O.provider = :provider');
@@ -181,7 +181,7 @@ class ClientRepository extends ServiceEntityRepository
 
             case 'new':
 
-                $queryBuilder->innerJoin(SalesOrder::class,     'O'  , 'WITH', 'O.client = myclients.id');
+                $queryBuilder->innerJoin(Order::class,     'O'  , 'WITH', 'O.client = myclients.id');
                 $queryBuilder->innerJoin(People::class,         'C'  , 'WITH', 'C.id = O.provider');
                 $queryBuilder->innerJoin(PeopleSalesman::class, 'kkk', 'WITH', 'kkk.company = C.id');
                 $queryBuilder->innerJoin(People::class,         'S'  , 'WITH', 'S.id = kkk.salesman');

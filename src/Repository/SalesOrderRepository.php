@@ -2,7 +2,7 @@
 
 namespace ControleOnline\Repository;
 
-use ControleOnline\Entity\SalesOrder AS Order;
+use ControleOnline\Entity\Order AS Order;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\DBAL\DBALException;
@@ -14,7 +14,7 @@ use Doctrine\ORM\Query\ResultSetMapping;
  * @method Order[]    findAll()
  * @method Order[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class SalesOrderRepository extends ServiceEntityRepository
+class OrderRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

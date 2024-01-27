@@ -13,7 +13,7 @@ use ApiPlatform\Metadata\Put;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
-use App\Filter\SalesOrderEntityFilter;
+use App\Filter\OrderEntityFilter;
 use ControleOnline\Entity\Order;
 use stdClass;
 
