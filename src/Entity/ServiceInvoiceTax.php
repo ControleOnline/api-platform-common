@@ -34,9 +34,9 @@ class ServiceInvoiceTax
     private $service_invoice_tax;
 
     /**
-     * @var \ControleOnline\Entity\PayInvoice
+     * @var \ControleOnline\Entity\Invoice
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\PayInvoice", inversedBy="service_invoice_tax")
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Invoice", inversedBy="service_invoice_tax")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="invoice_id", referencedColumnName="id")
      * })
@@ -102,10 +102,10 @@ class ServiceInvoiceTax
     /**
      * Set invoice
      *
-     * @param \ControleOnline\Entity\PayInvoice $invoice
+     * @param \ControleOnline\Entity\Invoice $invoice
      * @return Invoice
      */
-    public function setInvoice(\ControleOnline\Entity\PayInvoice $invoice = null)
+    public function setInvoice(\ControleOnline\Entity\Invoice $invoice = null)
     {
         $this->invoice = $invoice;
 
@@ -115,7 +115,7 @@ class ServiceInvoiceTax
     /**
      * Get invoice
      *
-     * @return \ControleOnline\Entity\PayInvoice
+     * @return \ControleOnline\Entity\Invoice
      */
     public function getInvoice()
     {
