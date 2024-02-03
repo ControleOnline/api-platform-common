@@ -24,9 +24,9 @@ class ServiceInvoiceTax
     private $id;
 
     /**
-     * @var \ControleOnline\Entity\InvoiceTax
+     * @var \ControleOnline\Entity\PurchasingInvoiceTax
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\InvoiceTax", inversedBy="service_invoice_tax")
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\PurchasingInvoiceTax", inversedBy="service_invoice_tax")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="invoice_tax_id", referencedColumnName="id")
      * })
@@ -34,9 +34,9 @@ class ServiceInvoiceTax
     private $service_invoice_tax;
 
     /**
-     * @var \ControleOnline\Entity\Invoice
+     * @var \ControleOnline\Entity\PayInvoice
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Invoice", inversedBy="service_invoice_tax")
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\PayInvoice", inversedBy="service_invoice_tax")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="invoice_id", referencedColumnName="id")
      * })
@@ -79,10 +79,10 @@ class ServiceInvoiceTax
     /**
      * Set service_invoice_tax
      *
-     * @param \ControleOnline\Entity\InvoiceTax $service_invoice_tax
+     * @param \ControleOnline\Entity\PurchasingInvoiceTax $service_invoice_tax
      * @return InvoiceTax
      */
-    public function setServiceInvoiceTax(\ControleOnline\Entity\InvoiceTax $service_invoice_tax = null)
+    public function setServiceInvoiceTax(\ControleOnline\Entity\PurchasingInvoiceTax $service_invoice_tax = null)
     {
         $this->service_invoice_tax = $service_invoice_tax;
 
@@ -92,7 +92,7 @@ class ServiceInvoiceTax
     /**
      * Get service_invoice_tax
      *
-     * @return \ControleOnline\Entity\InvoiceTax
+     * @return \ControleOnline\Entity\PurchasingInvoiceTax
      */
     public function getServiceInvoiceTax()
     {
@@ -102,10 +102,10 @@ class ServiceInvoiceTax
     /**
      * Set invoice
      *
-     * @param \ControleOnline\Entity\Invoice $invoice
+     * @param \ControleOnline\Entity\PayInvoice $invoice
      * @return Invoice
      */
-    public function setInvoice(\ControleOnline\Entity\Invoice $invoice = null)
+    public function setInvoice(\ControleOnline\Entity\PayInvoice $invoice = null)
     {
         $this->invoice = $invoice;
 
@@ -115,7 +115,7 @@ class ServiceInvoiceTax
     /**
      * Get invoice
      *
-     * @return \ControleOnline\Entity\Invoice
+     * @return \ControleOnline\Entity\PayInvoice
      */
     public function getInvoice()
     {
