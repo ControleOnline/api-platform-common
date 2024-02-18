@@ -1,14 +1,10 @@
 <?php
 
-namespace App\Controller;
+namespace ControleOnline\Controller;
 
 use ControleOnline\Entity\PeopleDomain;
-use ControleOnline\Entity\Theme;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
-
-
 
 class GetThemeColorsAction
 {
