@@ -27,11 +27,11 @@ use ControleOnline\Controller\GetThemeColorsAction;
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(
             security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')',
-            uriTemplate: '/themes-colors',
+            uriTemplate: '/themes-colors.css',
             controller: GetThemeColorsAction::class
         ),
     ],
-    formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
+    formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv'], 'css' => ['text/css']],
     normalizationContext: ['groups' => ['theme_read']],
     denormalizationContext: ['groups' => ['theme_write']]
 )]
