@@ -63,9 +63,6 @@ class GetThemeColorsAction
                 )
             )
         ));
-
-        if (!$domain)
-            throw new InvalidArgumentException('Please define header or get param "app-domain"', 301);
         return $domain;
     }
 }
