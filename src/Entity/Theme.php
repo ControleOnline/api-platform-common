@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\ApiFilter;
 use Doctrine\ORM\Mapping as ORM;
 use stdClass;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ControleOnline\Controller\GetThemeColorsAction;
 
 /**
  * theme
@@ -23,7 +24,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')
+        new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new GetCollection(
+            security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')',
+            uriTemplate: '/themes/colors',
+            controller: GetThemeColorsAction::class
+        ),
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['theme_read']],
