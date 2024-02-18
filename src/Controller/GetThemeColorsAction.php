@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Security;
 
 
 
-class AdminPersonRegionsAction
+class GetThemeColorsAction
 {
     /**
      * Entity Manager
