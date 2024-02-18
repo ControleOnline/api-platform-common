@@ -19,19 +19,10 @@ class GetThemeColorsAction
      */
     private $manager = null;
 
-    /**
-     * Request
-     *
-     * @var Request
-     */
-    private $request  = null;
 
-
-    public function __construct(EntityManagerInterface $manager, Security $security)
+    public function __construct(EntityManagerInterface $manager)
     {
         $this->manager     = $manager;
-        $this->security    = $security;
-        $this->currentUser = $security->getUser();
     }
 
     public function __invoke(Request $request)
