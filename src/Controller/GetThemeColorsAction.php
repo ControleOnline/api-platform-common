@@ -33,7 +33,7 @@ class GetThemeColorsAction
         $theme = $peopleDomain->getTheme();
         $css = ':root{' . PHP_EOL;
         foreach ($theme->getColors(true) as $index => $color) {
-            $css .= $index . ': ' . $color . ';' . PHP_EOL;
+            $css .= '    --q-' . $index . ': ' . $color . ';' . PHP_EOL;
         }
         $css .= '}';
         return new Response($css, Response::HTTP_OK, [
