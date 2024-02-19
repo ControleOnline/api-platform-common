@@ -34,9 +34,7 @@ class GetThemeColorsAction
         $css = ':root{' . PHP_EOL;
         foreach ($theme->getColors(true) as $index => $color) {
             $css .= '    --q-' . $index . ': ' . $color . ';' . PHP_EOL;
-        }
-        foreach ($theme->getColors(true) as $index => $color) {
-            $css .= '    --' . $index . ': ' . $color . ';' . PHP_EOL;
+            $css .= '    --'   . $index . ': ' . $color . ';' . PHP_EOL;
         }
         $css .= '}';
         return new Response($css, Response::HTTP_OK, [
