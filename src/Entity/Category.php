@@ -50,7 +50,7 @@ class Category
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"logistic_read","category_read", "company_expense_read","menu_read","invoice_read"})
+     * @Groups({"logistic_read","category_read","task_read", "company_expense_read","menu_read","invoice_read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
 
@@ -59,7 +59,7 @@ class Category
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=100, nullable=false)
-     * @Groups({"menu_read","logistic_read","category_read", "category_write", "company_expense_read", "queue_read","invoice_read"})
+     * @Groups({"menu_read","logistic_read","category_read","task_read", "category_write", "company_expense_read", "queue_read","invoice_read"})
      * @Assert\NotBlank
      * @Assert\Type(type={"string"})
      */
@@ -70,7 +70,7 @@ class Category
      * @var string
      *
      * @ORM\Column(name="context", type="string", length=100, nullable=false)
-     * @Groups({"logistic_read","category_read", "category_write","menu_read","queue_read","invoice_read"})
+     * @Groups({"logistic_read","category_read","task_read", "category_write","menu_read","queue_read","invoice_read"})
      * @Assert\NotBlank
      * @Assert\Type(type={"string"})
      */
@@ -84,7 +84,7 @@ class Category
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=true)
      * })
-     * @Groups({"logistic_read","category_read", "category_write", "category_write","menu_read","queue_read"})
+     * @Groups({"logistic_read","category_read","task_read", "category_write", "category_write","menu_read","queue_read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['parent' => 'exact'])]
 
@@ -96,7 +96,7 @@ class Category
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="company_id", referencedColumnName="id")
      * })
-     * @Groups({"logistic_read","category_read", "category_write","menu_read","queue_read","invoice_read"})
+     * @Groups({"logistic_read","category_read","task_read", "category_write","menu_read","queue_read","invoice_read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['company' => 'exact'])]
@@ -106,7 +106,7 @@ class Category
      * @var string
      *
      * @ORM\Column(name="icon", type="string", length=50, nullable=false)
-     * @Groups({"logistic_read","category_read", "category_write", "company_expense_read", "category_write","menu_read","queue_read","invoice_read"})   
+     * @Groups({"logistic_read","category_read","task_read", "category_write", "company_expense_read", "category_write","menu_read","queue_read","invoice_read"})   
      * @Assert\Type(type={"string"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['icon' => 'exact'])]
@@ -116,7 +116,7 @@ class Category
      * @var string
      *
      * @ORM\Column(name="color", type="string", length=50, nullable=false)
-     * @Groups({"logistic_read","category_read", "category_write", "company_expense_read", "category_write","menu_read","queue_read","invoice_read"})   
+     * @Groups({"logistic_read","category_read","task_read", "category_write", "company_expense_read", "category_write","menu_read","queue_read","invoice_read"})   
      * @Assert\Type(type={"string"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['color' => 'exact'])]
