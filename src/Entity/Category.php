@@ -80,7 +80,7 @@ class Category
     /**
      * @var \ControleOnline\Entity\Category
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Category" , cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Category")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=true)
      * })
