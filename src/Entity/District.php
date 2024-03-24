@@ -1,6 +1,6 @@
 <?php
 
-namespace ControleOnline\Entity\Address;
+namespace ControleOnline\Entity;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -47,7 +47,7 @@ class District
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\Address\Street", mappedBy="district")
+     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\Street", mappedBy="district")
      */
     private $street;
     /**
@@ -109,10 +109,10 @@ class District
     /**
      * Add street
      *
-     * @param \ControleOnline\Entity\Address\Street $street
+     * @param \ControleOnline\Entity\Street $street
      * @return District
      */
-    public function addStreet(\ControleOnline\Entity\Address\Street $street)
+    public function addStreet(\ControleOnline\Entity\Street $street)
     {
         $this->street[] = $street;
         return $this;
@@ -120,9 +120,9 @@ class District
     /**
      * Remove street
      *
-     * @param \ControleOnline\Entity\Address\Street $street
+     * @param \ControleOnline\Entity\Street $street
      */
-    public function removeStreet(\ControleOnline\Entity\Address\Street $street)
+    public function removeStreet(\ControleOnline\Entity\Street $street)
     {
         $this->street->removeElement($street);
     }

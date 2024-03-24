@@ -1,6 +1,6 @@
 <?php
 
-namespace ControleOnline\Entity\Address;
+namespace ControleOnline\Entity;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -58,7 +58,7 @@ class Street
     /**
      * @var Cep
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Address\Cep", inversedBy="street")
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Cep", inversedBy="street")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="cep_id", referencedColumnName="id", nullable=false)
      * })
@@ -68,7 +68,7 @@ class Street
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\Address\Address", mappedBy="street")
+     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\Address", mappedBy="street")
      */
     private $address;
     /**

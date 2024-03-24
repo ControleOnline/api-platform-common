@@ -1,6 +1,6 @@
 <?php
 
-namespace ControleOnline\Entity\Address;
+namespace ControleOnline\Entity;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -10,6 +10,7 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+
 /**
  * Address
  *
@@ -60,9 +61,9 @@ class Address
      */
     private $people;
     /**
-     * @var \ControleOnline\Entity\Address\Street
+     * @var \ControleOnline\Entity\Street
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Address\Street", inversedBy="address")
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Street", inversedBy="address")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="street_id", referencedColumnName="id", nullable=false)
      * })
@@ -211,10 +212,10 @@ class Address
     /**
      * Set street
      *
-     * @param \ControleOnline\Entity\Address\Street $street
+     * @param \ControleOnline\Entity\Street $street
      * @return Address
      */
-    public function setStreet(\ControleOnline\Entity\Address\Street $street = null)
+    public function setStreet(\ControleOnline\Entity\Street $street = null)
     {
         $this->street = $street;
         return $this;
@@ -222,7 +223,7 @@ class Address
     /**
      * Get street
      *
-     * @return \ControleOnline\Entity\Address\Street
+     * @return \ControleOnline\Entity\Street
      */
     public function getStreet()
     {

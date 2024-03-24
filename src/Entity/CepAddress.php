@@ -1,6 +1,6 @@
 <?php
 
-namespace ControleOnline\Entity\Address;
+namespace ControleOnline\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiProperty;

@@ -1,6 +1,6 @@
 <?php
 
-namespace ControleOnline\Entity\Address;
+namespace ControleOnline\Entity;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;

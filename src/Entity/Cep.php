@@ -1,6 +1,6 @@
 <?php
 
-namespace ControleOnline\Entity\Address;
+namespace ControleOnline\Entity;
 
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
@@ -37,7 +37,7 @@ class Cep
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\Address\Street", mappedBy="cep")
+     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\Street", mappedBy="cep")
      */
     private $street;
     /**
@@ -79,10 +79,10 @@ class Cep
     /**
      * Add street
      *
-     * @param \ControleOnline\Entity\Address\Street $street
+     * @param \ControleOnline\Entity\Street $street
      * @return Cep
      */
-    public function addStreet(\ControleOnline\Entity\Address\Street $street)
+    public function addStreet(\ControleOnline\Entity\Street $street)
     {
         $this->street[] = $street;
         return $this;
@@ -90,9 +90,9 @@ class Cep
     /**
      * Remove street
      *
-     * @param \ControleOnline\Entity\Address\Street $street
+     * @param \ControleOnline\Entity\Street $street
      */
-    public function removeStreet(\ControleOnline\Entity\Address\Street $street)
+    public function removeStreet(\ControleOnline\Entity\Street $street)
     {
         $this->street->removeElement($street);
     }

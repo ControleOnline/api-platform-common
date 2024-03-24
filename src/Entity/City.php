@@ -1,6 +1,6 @@
 <?php
 
-namespace ControleOnline\Entity\Address;
+namespace ControleOnline\Entity;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -69,9 +69,9 @@ class City
      */
     private $seo;
     /**
-     * @var \ControleOnline\Entity\Address\State
+     * @var \ControleOnline\Entity\State
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Address\State", inversedBy="city")
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\State", inversedBy="city")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="state_id", referencedColumnName="id", nullable=false)
      * })
