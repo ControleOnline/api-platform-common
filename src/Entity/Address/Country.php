@@ -1,6 +1,6 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity\Address;
 
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
@@ -168,7 +168,7 @@ class Country
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\State", mappedBy="country")
+     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\Address\State", mappedBy="country")
      */
     private $state;
     /**
@@ -540,10 +540,10 @@ class Country
     /**
      * Add state
      *
-     * @param \ControleOnline\Entity\State $state
+     * @param \ControleOnline\Entity\Address\State $state
      * @return Country
      */
-    public function addState(\ControleOnline\Entity\State $state)
+    public function addState(\ControleOnline\Entity\Address\State $state)
     {
         $this->state[] = $state;
         return $this;
@@ -551,9 +551,9 @@ class Country
     /**
      * Remove state
      *
-     * @param \ControleOnline\Entity\State $state
+     * @param \ControleOnline\Entity\Address\State $state
      */
-    public function removeState(\ControleOnline\Entity\State $state)
+    public function removeState(\ControleOnline\Entity\Address\State $state)
     {
         $this->state->removeElement($state);
     }

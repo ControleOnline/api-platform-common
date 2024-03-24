@@ -1,6 +1,6 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity\Address;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -69,9 +69,9 @@ class City
      */
     private $seo;
     /**
-     * @var \ControleOnline\Entity\State
+     * @var \ControleOnline\Entity\Address\State
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\State", inversedBy="city")
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Address\State", inversedBy="city")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="state_id", referencedColumnName="id", nullable=false)
      * })
@@ -124,10 +124,10 @@ class City
     /**
      * Set state
      *
-     * @param \ControleOnline\Entity\State $state
+     * @param State $state
      * @return City
      */
-    public function setState(\ControleOnline\Entity\State $state = null)
+    public function setState(State $state = null)
     {
         $this->state = $state;
         return $this;
@@ -135,7 +135,7 @@ class City
     /**
      * Get state
      *
-     * @return \ControleOnline\Entity\State
+     * @return State
      */
     public function getState()
     {
@@ -144,10 +144,10 @@ class City
     /**
      * Add district
      *
-     * @param \ControleOnline\Entity\District $district
+     * @param District $district
      * @return City
      */
-    public function addDistrict(\ControleOnline\Entity\District $district)
+    public function addDistrict(District $district)
     {
         $this->district[] = $district;
         return $this;
@@ -155,9 +155,9 @@ class City
     /**
      * Remove district
      *
-     * @param \ControleOnline\Entity\District $district
+     * @param District $district
      */
-    public function removeDistrict(\ControleOnline\Entity\District $district)
+    public function removeDistrict(District $district)
     {
         $this->district->removeElement($district);
     }

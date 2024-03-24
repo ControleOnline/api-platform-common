@@ -1,6 +1,6 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity\Address;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -35,7 +35,7 @@ class District
      */
     private $district;
     /**
-     * @var \ControleOnline\Entity\City
+     * @var City
      *
      * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\City", inversedBy="district")
      * @ORM\JoinColumns({
@@ -47,7 +47,7 @@ class District
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\Street", mappedBy="district")
+     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\Address\Street", mappedBy="district")
      */
     private $street;
     /**
@@ -89,10 +89,10 @@ class District
     /**
      * Set city
      *
-     * @param \ControleOnline\Entity\City $city
+     * @param City $city
      * @return District
      */
-    public function setCity(\ControleOnline\Entity\City $city = null)
+    public function setCity(City $city = null)
     {
         $this->city = $city;
         return $this;
@@ -100,7 +100,7 @@ class District
     /**
      * Get city
      *
-     * @return \ControleOnline\Entity\City
+     * @return City
      */
     public function getCity()
     {
@@ -109,10 +109,10 @@ class District
     /**
      * Add street
      *
-     * @param \ControleOnline\Entity\Street $street
+     * @param \ControleOnline\Entity\Address\Street $street
      * @return District
      */
-    public function addStreet(\ControleOnline\Entity\Street $street)
+    public function addStreet(\ControleOnline\Entity\Address\Street $street)
     {
         $this->street[] = $street;
         return $this;
@@ -120,9 +120,9 @@ class District
     /**
      * Remove street
      *
-     * @param \ControleOnline\Entity\Street $street
+     * @param \ControleOnline\Entity\Address\Street $street
      */
-    public function removeStreet(\ControleOnline\Entity\Street $street)
+    public function removeStreet(\ControleOnline\Entity\Address\Street $street)
     {
         $this->street->removeElement($street);
     }

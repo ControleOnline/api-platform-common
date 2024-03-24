@@ -1,6 +1,6 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity\Address;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -18,7 +18,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Table (name="state", uniqueConstraints={@ORM\UniqueConstraint (name="UF", columns={"UF"}), @ORM\UniqueConstraint(name="cod_ibge", columns={"cod_ibge"})}, indexes={@ORM\Index (name="country_id", columns={"country_id"})})
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\StateRepository")
  */
-#[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['state_read']], denormalizationContext: ['groups' => ['state_write']])]
+#[ApiResource(
+    operations: [
+        new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')
+    ],
+    formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
+    normalizationContext: ['groups' => ['state_read']],
+    denormalizationContext: ['groups' => ['state_write']]
+)]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['state' => 'ASC'])]
 class State
 {
@@ -54,7 +62,7 @@ class State
      */
     private $uf;
     /**
-     * @var \ControleOnline\Entity\Country
+     * @var Country
      *
      * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Country", inversedBy="state")
      * @ORM\JoinColumns({
@@ -128,10 +136,10 @@ class State
     /**
      * Set country
      *
-     * @param \ControleOnline\Entity\Country $country
+     * @param Country $country
      * @return State
      */
-    public function setCountry(\ControleOnline\Entity\Country $country = null)
+    public function setCountry(Country $country = null)
     {
         $this->country = $country;
         return $this;
@@ -139,7 +147,7 @@ class State
     /**
      * Get country
      *
-     * @return \ControleOnline\Entity\Country
+     * @return Country
      */
     public function getCountry()
     {
@@ -148,10 +156,10 @@ class State
     /**
      * Add city
      *
-     * @param \ControleOnline\Entity\City $city
+     * @param City $city
      * @return State
      */
-    public function addCity(\ControleOnline\Entity\City $city)
+    public function addCity(City $city)
     {
         $this->city[] = $city;
         return $this;
@@ -159,9 +167,9 @@ class State
     /**
      * Remove city
      *
-     * @param \ControleOnline\Entity\City $city
+     * @param City $city
      */
-    public function removeCity(\ControleOnline\Entity\City $city)
+    public function removeCity(City $city)
     {
         $this->city->removeElement($city);
     }
