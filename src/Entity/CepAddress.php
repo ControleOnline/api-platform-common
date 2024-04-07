@@ -68,7 +68,7 @@ final class CepAddress
      */
     public $provider;
 
-    public function __construct(string $id)
+    public function __construct($id)
     {
         $this->id = $id;
     }
