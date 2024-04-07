@@ -15,7 +15,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * Module
  *
- * @ORM\EntityListeners ({App\Listener\LogListener::class})
+ * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="module", uniqueConstraints={@ORM\UniqueConstraint (name="UX_MODULE_NAME", columns={"name"})})
  * @ORM\Entity
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\ModuleRepository")

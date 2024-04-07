@@ -17,7 +17,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * Menu
  *
- * @ORM\EntityListeners ({App\Listener\LogListener::class})
+ * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="menu", uniqueConstraints={@ORM\UniqueConstraint (name="route", columns={"route"})}, indexes={ @ORM\Index(name="category_id", columns={"category_id"})})
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\MenuRepository")
  * @ORM\Entity

@@ -17,7 +17,7 @@ use ControleOnline\Controller\GetThemeColorsAction;
 /**
  * theme
  *
- * @ORM\EntityListeners ({App\Listener\LogListener::class})
+ * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="theme")
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\ThemeRepository")
  */

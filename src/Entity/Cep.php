@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * Cep
  *
- * @ORM\EntityListeners ({App\Listener\LogListener::class})
+ * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="cep", uniqueConstraints={@ORM\UniqueConstraint (name="CEP", columns={"cep"})})
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\CepRepository")
  */

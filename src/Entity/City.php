@@ -15,7 +15,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * City
  *
- * @ORM\EntityListeners ({App\Listener\LogListener::class})
+ * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
  * @ORM\Table (name="city", uniqueConstraints={@ORM\UniqueConstraint (name="city", columns={"city", "state_id"}), @ORM\UniqueConstraint(name="cod_ibge", columns={"cod_ibge"})}, indexes={@ORM\Index (name="state_id", columns={"state_id"}), @ORM\Index(name="seo", columns={"seo"})})
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\CityRepository")
  */
