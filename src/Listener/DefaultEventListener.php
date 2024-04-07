@@ -37,13 +37,16 @@ class DefaultEventListener
     private function execute($entity, $method)
     {
         $serviceName = str_replace('Entity', 'Service', get_class($entity)) . 'Service';
-        if ($this->container->has($serviceName)) {
+
+        echo $serviceName;
+        //if ($this->container->has($serviceName)) {
             $service = $this->container->get($serviceName);
 
             if (method_exists($service, $method)) {
-                $service->$method($entity);
-                $this->manager->refresh($entity);
+                $entity = $service->$method($entity);
+                if ('afterPersist' === $method)
+                    $this->manager->refresh($entity);
             }
-        }
+        //}
     }
 }
