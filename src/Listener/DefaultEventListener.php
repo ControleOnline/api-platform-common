@@ -42,7 +42,7 @@ class DefaultEventListener
 
             if (method_exists($service, $method)) {
                 $entity = $service->$method($entity);
-                if ('afterPersist' === $method)
+                if ('afterPersist' === $method && $entity)
                     $this->manager->refresh($entity);
             }
         }
