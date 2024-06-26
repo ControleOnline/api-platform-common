@@ -5,7 +5,6 @@ namespace ControleOnline\Listener;
 use ControleOnline\Service\ExtraDataService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
-use Doctrine\ORM\Event\OnFlushEventArgs;
 
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -36,10 +35,6 @@ class DefaultEventListener
     public function postPersist(LifecycleEventArgs $args)
     {
         $this->execute($args->getEntity(), 'afterPersist');
-    }
-    public function     onFlush(OnFlushEventArgs $args)
-    {
-        $this->ExtraDataService->persist();
     }
 
     private function execute($entity, $method)

@@ -23,4 +23,6 @@ services:
             - { name: 'doctrine.event_listener', event: 'postPersist' }
             - { name: 'doctrine.event_listener', event: 'preUpdate' }
             - { name: 'doctrine.event_listener', event: 'postUpdate' }          
-            - { name: 'doctrine.event_listener', event: 'onFlush' }
+    ControleOnline\Listener\DefaultEventSubscriber:
+        tags:
+            - { name: 'doctrine.event_subscriber' }            
