@@ -2,6 +2,7 @@
 
 namespace ControleOnline\Listener;
 
+use ControleOnline\Service\ExtraDataService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,6 +12,7 @@ class DefaultEventListener
     public function __construct(
         private EntityManagerInterface $manager,
         private ContainerInterface $container,
+        private ExtraDataService $ExtraDataService
     ) {
     }
 
@@ -36,7 +38,8 @@ class DefaultEventListener
 
     private function execute($entity, $method)
     {
-        $serviceName = str_replace('Entity', 'Service', get_class($entity)) . 'Service';
+        $class = get_class($entity);
+        $serviceName = str_replace('Entity', 'Service', $class) . 'Service';
         if ($this->container->has($serviceName)) {
             $service = $this->container->get($serviceName);
 
@@ -46,5 +49,6 @@ class DefaultEventListener
                     $this->manager->refresh($entity);
             }
         }
+        $this->ExtraDataService->persist($class);
     }
 }

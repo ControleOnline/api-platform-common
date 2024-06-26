@@ -12,31 +12,16 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class HydratorService
 {
-    /**
-     * Entity Manager
-     *
-     * @var EntityManagerInterface
-     */
-    private $manager = null;
 
-    /**
-     * Security
-     *
-     * @var Security
-     */
-    private $security = null;
-    private $serializer;
     private $request;
     private $uri;
 
     public function __construct(
-        Security $security,
-        EntityManagerInterface $entityManager,
-        SerializerInterface $serializer,
+        private  EntityManagerInterface $manager,
+        private   SerializerInterface $serializer,
         RequestStack $requestStack
     ) {
-        $this->security = $security;
-        $this->manager = $entityManager;
+
         $this->serializer = $serializer;
         $this->request = $requestStack->getCurrentRequest();
         $this->uri = $this->request ? $this->request->getPathInfo() : '';
