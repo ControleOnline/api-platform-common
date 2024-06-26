@@ -14,6 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class ExtraDataService
 {
+    private static $persisted = false;
     private $request;
     public function __construct(
         private  EntityManagerInterface $manager,
@@ -23,6 +24,8 @@ class ExtraDataService
     }
     public function persist()
     {
+        if (self::$persisted == true)
+            return;
         $extra_data = json_decode($this->request->getContent(), true)['extra-data'] ?? null;
         if (!$extra_data)
             return;
@@ -43,7 +46,10 @@ class ExtraDataService
             $extraData->setEntityId($extra_data['entity_id']);
             $extraData->setValue($data);
             $this->manager->persist($extraData);
-            $this->manager->flush();
         }
+
+        self::$persisted = true;
+        $this->manager->flush();
+
     }
 }
