@@ -21,7 +21,7 @@ class ExtraDataService
     ) {
         $this->request = $requestStack->getCurrentRequest();
     }
-    public function persist($class)
+    public function persist()
     {
         $extra_data = $this->request->get('extra-data');
         if (!$extra_data)
