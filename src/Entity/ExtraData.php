@@ -37,7 +37,11 @@ use ApiPlatform\Metadata\Put;
     normalizationContext: ['groups' => ['extra_data_read']],
     denormalizationContext: ['groups' => ['extra_data_write']]
 )]
-#[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact', 'type' => 'exact', 'people' => 'exact'])]
+#[ApiFilter(filterClass: SearchFilter::class, properties: [
+    'id' => 'exact',
+    'extra_fields.context' => 'exact',
+    'entity_id' => 'exact', 'entity_name' => 'exact', 'people' => 'exact'
+])]
 
 class ExtraData
 {

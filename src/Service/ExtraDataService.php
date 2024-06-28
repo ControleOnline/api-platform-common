@@ -24,6 +24,8 @@ class ExtraDataService
     }
     public function persist($entity)
     {
+        $this->manager->persist($entity);
+        $this->manager->flush();
         $this->persistData(
             $entity->getId(),
             (new \ReflectionClass($entity::class))->getShortName()
