@@ -27,8 +27,8 @@ class ExtraDataService
         if (self::$persisted == true)
             return;
         self::$persisted = true;
-        $this->manager->persist($entity);
-        $this->manager->flush();
+        $this->manager->refresh($entity);
+        //$this->manager->flush();
         $this->persistData(
             $entity->getId(),
             (new \ReflectionClass($entity::class))->getShortName()
@@ -72,7 +72,7 @@ class ExtraDataService
             return;
         self::$persisted = true;
 
-        $extra_data = json_decode($this->request->getContent(), true)['extra-data'] ?? null;
+        $extra_data = json_decode($this->request->getContent(), true)['extra-data'] ?: null;
         if (!$extra_data)
             return;
 
