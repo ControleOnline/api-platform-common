@@ -24,6 +24,9 @@ class ExtraDataService
     }
     public function persist($entity)
     {
+        if (self::$persisted == true)
+            return;
+        self::$persisted = true;
         $this->manager->persist($entity);
         $this->manager->flush();
         $this->persistData(
@@ -33,10 +36,8 @@ class ExtraDataService
     }
     public function persistData($entity_id, $entity_name)
     {
-
-        if (self::$persisted == true || !$entity_id || !$entity_name)
+        if (!$entity_id || !$entity_name)
             return;
-
         $extra_data = json_decode($this->request->getContent(), true)['extra-data'] ?? null;
         if (!$extra_data)
             return;
@@ -61,12 +62,16 @@ class ExtraDataService
             $this->manager->persist($extraData);
         }
 
-        self::$persisted = true;
+
         $this->manager->flush();
     }
 
     public function  noChange()
     {
+        if (self::$persisted == true)
+            return;
+        self::$persisted = true;
+
         $extra_data = json_decode($this->request->getContent(), true)['extra-data'] ?? null;
         if (!$extra_data)
             return;
