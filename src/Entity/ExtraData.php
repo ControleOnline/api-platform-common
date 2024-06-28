@@ -39,7 +39,7 @@ use ApiPlatform\Metadata\Put;
 )]
 #[ApiFilter(filterClass: SearchFilter::class, properties: [
     'id' => 'exact',
-    'extra_fields.context' => 'exact',
+    'extra_fields' => 'exact',
     'entity_id' => 'exact', 'entity_name' => 'exact', 'people' => 'exact'
 ])]
 
