@@ -27,6 +27,11 @@ class ExtraDataService
         if (self::$persisted == true)
             return;
         self::$persisted = true;
+
+        $extra_data = json_decode($this->request->getContent(), true)['extra-data'] ?? null;
+        if (!$extra_data)
+            return;
+
         //$this->manager->persist($entity);
         //$this->manager->flush();
         $this->persistData(
@@ -34,7 +39,7 @@ class ExtraDataService
             (new \ReflectionClass($entity::class))->getShortName()
         );
     }
-    public function persistData($entity_id, $entity_name)
+    private function persistData($entity_id, $entity_name)
     {
         if (!$entity_id || !$entity_name)
             return;
