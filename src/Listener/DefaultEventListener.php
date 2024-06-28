@@ -49,5 +49,7 @@ class DefaultEventListener
                     $this->manager->refresh($entity);
             }
         }
+
+        $this->ExtraDataService->persist($entity);
     }
 }

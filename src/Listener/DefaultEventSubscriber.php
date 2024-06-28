@@ -29,6 +29,6 @@ class DefaultEventSubscriber implements EventSubscriber
 
     public function onFlush(OnFlushEventArgs $args)
     {
-        $this->ExtraDataService->persist();
+        $this->ExtraDataService->noChange();
     }
 }
