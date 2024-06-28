@@ -27,7 +27,7 @@ class ExtraDataService
         if (self::$persisted == true)
             return;
         self::$persisted = true;
-        $this->manager->refresh($entity);
+        $this->manager->persist($entity);
         //$this->manager->flush();
         $this->persistData(
             $entity->getId(),
