@@ -3,27 +3,23 @@
 namespace ControleOnline\Controller;
 
 use ControleOnline\Entity\PeopleDomain;
+use ControleOnline\Service\DomainService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Doctrine\ORM\EntityManagerInterface;
 
 class GetThemeColorsAction
 {
-    /**
-     * Entity Manager
-     *
-     * @var EntityManagerInterface
-     */
-    private $manager = null;
 
-    public function __construct(EntityManagerInterface $manager)
-    {
-        $this->manager = $manager;
+    public function __construct(
+        private EntityManagerInterface $manager,
+        private DomainService $domainService
+    ) {
     }
 
     public function __invoke(Request $request)
     {
-        $domain = $this->getDomain($request);
+        $domain = $this->domainService->getDomain($request);
         $peopleDomain = $this->manager->getRepository(PeopleDomain::class)->findOneBy(['domain' => $domain]);
 
         if (!$peopleDomain) {
@@ -40,30 +36,5 @@ class GetThemeColorsAction
         return new Response($css, Response::HTTP_OK, [
             'Content-Type' => 'text/css',
         ]);
-    }
-
-
-    /**
-     * @param Request $request
-     * @return string
-     */
-    private function getDomain(Request $request)
-    {
-
-        $domain = preg_replace("/[^a-zA-Z0-9.:_-]/", "", str_replace(
-            ['https://', 'http://'],
-            '',
-            $request->get(
-                'app-domain',
-                $request->headers->get(
-                    'app-domain',
-                    $request->headers->get(
-                        'referer',
-                        $request->server->get('HTTP_HOST')
-                    )
-                )
-            )
-        ));
-        return $domain;
     }
 }
