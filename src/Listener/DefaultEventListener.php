@@ -41,6 +41,7 @@ class DefaultEventListener
     {
         $class = get_class($entity);
         $serviceName = str_replace('Entity', 'Service', $class) . 'Service';
+        $this->ExtraDataService->persist($entity);
         if ($this->container->has($serviceName)) {
             $service = $this->container->get($serviceName);
             if (method_exists($service, $method)) {
@@ -49,7 +50,5 @@ class DefaultEventListener
                     $this->manager->refresh($entity);
             }
         }
-
-        $this->ExtraDataService->persist($entity);
     }
 }
