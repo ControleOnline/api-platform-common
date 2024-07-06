@@ -28,7 +28,9 @@ class ExtraDataService
             return;
         self::$persisted = true;
 
-        $extra_data = json_decode($this->request->getContent(), true)['extra-data'] ?? null;
+        $json =       json_decode($this->request->getContent(), true);
+        $extra_data = isset($json['extra-data']) ? $json['extra-data'] : null;
+
         if (!$extra_data)
             return;
 
@@ -43,7 +45,9 @@ class ExtraDataService
     {
         if (!$entity_id || !$entity_name)
             return;
-        $extra_data = json_decode($this->request->getContent(), true)['extra-data'] ?? null;
+        $json =       json_decode($this->request->getContent(), true);
+        $extra_data = isset($json['extra-data']) ? $json['extra-data'] : null;
+
         if (!$extra_data)
             return;
 
@@ -76,8 +80,8 @@ class ExtraDataService
         if (self::$persisted == true)
             return;
         self::$persisted = true;
-
-        $extra_data = json_decode($this->request->getContent(), true)['extra-data'] ?: null;
+        $json =       json_decode($this->request->getContent(), true);
+        $extra_data = isset($json['extra-data']) ? $json['extra-data'] : null;
         if (!$extra_data)
             return;
 
