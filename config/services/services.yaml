@@ -26,3 +26,6 @@ services:
     ControleOnline\Listener\DefaultEventSubscriber:
         tags:
             - { name: 'doctrine.event_subscriber' }        
+    ControleOnline\Service\PusherService:
+        arguments:
+            $pusher: '@gos_web_socket.wamp.pusher'
