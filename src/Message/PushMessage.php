@@ -4,9 +4,15 @@ namespace ControleOnline\Message;
 
 class PushMessage
 {
+
+    public  string $topic;
+    public  array $data;
+
     public function __construct(
-        public readonly string $topic,
-        public readonly array $data
+        string $topic,
+        array $data
     ) {
+        $this->topic =  $topic;
+        $this->data =  $data;
     }
 }
