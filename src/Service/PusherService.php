@@ -15,6 +15,8 @@ class PusherService
 
     public function push(array $data, string $topic)
     {
+
+        return;
         try {
             $message = new stdClass();
             $message->data = $data;
