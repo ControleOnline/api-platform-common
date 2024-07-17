@@ -25,4 +25,7 @@ services:
             - { name: 'doctrine.event_listener', event: 'postUpdate' }          
     ControleOnline\Listener\DefaultEventSubscriber:
         tags:
-            - { name: 'doctrine.event_subscriber' }            
+            - { name: 'doctrine.event_subscriber' }        
+
+    Gos\Bundle\WebSocketBundle\Pusher\PusherInterface:
+        alias: gos_web_socket.amqp.pusher                
