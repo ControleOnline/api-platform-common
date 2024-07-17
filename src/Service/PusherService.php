@@ -2,6 +2,7 @@
 
 namespace ControleOnline\Service;
 
+use ControleOnline\Message\PushMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class PusherService

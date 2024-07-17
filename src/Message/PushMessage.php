@@ -1,6 +1,6 @@
 <?php
 
-namespace ControleOnline\Service;
+namespace ControleOnline\Message;
 
 class PushMessage
 {
