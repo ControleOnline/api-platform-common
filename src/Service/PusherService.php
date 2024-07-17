@@ -2,7 +2,7 @@
 
 namespace ControleOnline\Service;
 
-use ControleOnline\Message\PushMessage;
+use stdClass;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class PusherService
@@ -16,7 +16,7 @@ class PusherService
     public function push(array $data, string $topic)
     {
         try {
-            $message = new PushMessage();
+            $message = new stdClass();
             $message->data = $data;
             $message->topic = $topic;
 
