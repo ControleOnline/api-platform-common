@@ -13,7 +13,7 @@ class PusherService
     ) {
     }
 
-    public function push($data, $topic)
+    public function push(array $data, string $topic)
     {
         try {
             $this->messageBus->dispatch(new PushMessage($topic, $data));
