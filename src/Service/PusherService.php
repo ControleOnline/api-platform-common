@@ -16,7 +16,10 @@ class PusherService
     public function push(array $data, string $topic)
     {
         try {
-            $message = new PushMessage($topic, $data);
+            $message = new PushMessage();
+            $message->data = $data;
+            $message->topic = $topic;
+
             $this->messageBus->dispatch($message);
         } catch (\Exception $e) {
             // Handle exception, e.g., log the error
