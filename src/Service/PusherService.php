@@ -14,6 +14,6 @@ class PusherService
 
     public function push($data, $topic)
     {
-        print_r($this->pusher->getPushers());
+        //print_r($this->pusher->getPushers());
     }
 }
