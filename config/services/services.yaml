@@ -26,6 +26,3 @@ services:
     ControleOnline\Listener\DefaultEventSubscriber:
         tags:
             - { name: 'doctrine.event_subscriber' }        
-
-    Gos\Bundle\WebSocketBundle\Pusher\PusherInterface:
-        alias: gos_web_socket.amqp.pusher                
