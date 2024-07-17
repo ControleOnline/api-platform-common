@@ -2,18 +2,23 @@
 
 namespace ControleOnline\Service;
 
-use Gos\Bundle\WebSocketBundle\Pusher\PusherRegistry;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class PusherService
 {
 
     public function __construct(
-        private PusherRegistry  $pusher
+        private MessageBusInterface $messageBus
     ) {
     }
 
     public function push($data, $topic)
     {
-        //print_r($this->pusher->getPushers());
+        try {
+            $this->messageBus->dispatch(new PushMessage($topic, $data));
+        } catch (\Exception $e) {
+            // Handle exception, e.g., log the error
+            throw $e; // Or rethrow for further handling
+        }
     }
 }
