@@ -28,4 +28,4 @@ services:
             - { name: 'doctrine.event_subscriber' }        
     ControleOnline\Service\PusherService:
         arguments:
-            $pusher: '@gos_web_socket.registry.server_push_handler'
+            $pusher: '@gos_web_socket.wamp.pusher'
