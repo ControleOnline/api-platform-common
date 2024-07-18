@@ -77,7 +77,7 @@ class Notification
     /**
      * @var bool
      *
-     * @ORM\Column(name="read", type="boolean", nullable=false)
+     * @ORM\Column(name="notifications_read", type="boolean", nullable=false)
      * @Groups({"notifications_read","notifications_write"})  
      */
     private $read;
