@@ -5,6 +5,7 @@ namespace ControleOnline\Service;
 use ControleOnline\Message\Notification;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Gos\Component\WebSocketClient\Wamp\Client;
 
 class PusherService
 {
@@ -17,9 +18,11 @@ class PusherService
     {
         try {
             $this->logger->info('Attempting to push message', ['data' => $data, 'topic' => $topic]);
+            $webSocketClient =  new Client('localhost', '8080');
+            $webSocketClient->connect();
+            $webSocketClient->publish($topic, json_encode($data));
+            $webSocketClient->disconnect();
 
-            $message = new Notification($data, $topic);
-            $this->messageBus->dispatch($message);
 
             $this->logger->info('Message dispatched successfully');
         } catch (\Exception $e) {
