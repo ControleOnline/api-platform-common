@@ -2,6 +2,7 @@
 
 namespace ControleOnline\Service;
 
+use ControleOnline\Message\Notification;
 use stdClass;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -18,10 +19,7 @@ class PusherService
 
         return;
         try {
-            $message = new stdClass();
-            $message->data = $data;
-            $message->topic = $topic;
-
+            $message = new Notification($data, $topic);
             $this->messageBus->dispatch($message);
         } catch (\Exception $e) {
             // Handle exception, e.g., log the error
