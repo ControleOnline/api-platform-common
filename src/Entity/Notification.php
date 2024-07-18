@@ -57,28 +57,28 @@ class Notification
      * @var string
      *
      * @ORM\Column(name="notification", type="text", length=65535, nullable=false)
-     * @Groups({"notifications_read"})  
+     * @Groups({"notifications_read","notifications_write"})  
      */
     private $notification;
     /**
      * @var string
      *
      * @ORM\Column(name="route", type="string", length=50, nullable=false)
-     * @Groups({"notifications_read"})  
+     * @Groups({"notifications_read","notifications_write"})  
      */
     private $route;
     /**
      * @var int
      *
      * @ORM\Column(name="route_id", type="integer", nullable=false)
-     * @Groups({"notifications_read"})  
+     * @Groups({"notifications_read","notifications_write"})  
      */
     private $routeId;
     /**
      * @var bool
      *
      * @ORM\Column(name="read", type="boolean", nullable=false)
-     * @Groups({"notifications_read"})  
+     * @Groups({"notifications_read","notifications_write"})  
      */
     private $read;
     /**
@@ -88,7 +88,7 @@ class Notification
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
      * })
-     * @Groups({"notifications_read"})  
+     * @Groups({"notifications_read","notifications_write"})  
      */
     private $people;
     /**
