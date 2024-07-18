@@ -26,7 +26,3 @@ services:
     ControleOnline\Listener\DefaultEventSubscriber:
         tags:
             - { name: 'doctrine.event_subscriber' }        
-    ControleOnline\Message\Notification:
-        arguments:
-            $data: []
-            $topic: 'general'

@@ -1,8 +1,0 @@
-# config/packages/messenger.yaml
-framework:
-    messenger:
-        transports:
-            gos_web_socket:
-                dsn: 'gos://localhost:8080' 
-        routing:
-            'ControleOnline\Message\Notification': gos_web_socket
