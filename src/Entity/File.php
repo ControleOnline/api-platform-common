@@ -44,14 +44,10 @@ class File
      * @Groups({"product_file_read","lesson_upload_file:post", "people_read", "task_interaction_read","display_read"})
      */
     private $id;
+
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"product_file_read","people_read", "lesson:read", "task_interaction_read","display_read"})
-     */
-    private $url;
-    /**
-     * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"lesson_upload_file:post", "lesson:read"})
+     * @Groups({"lesson_upload_file:post", "people_read", "lesson:read"})
      */
     private $file_type;
     /**
@@ -64,22 +60,15 @@ class File
      * @ORM\OneToMany(targetEntity="ControleOnline\Entity\People", mappedBy="file")
      */
     private $people;
+   
     public function __construct()
     {
         $this->people = new \Doctrine\Common\Collections\ArrayCollection();
     }
+   
     public function getId()
     {
         return $this->id;
-    }
-    public function setUrl($url)
-    {
-        $this->url = $url;
-        return $this;
-    }
-    public function getUrl()
-    {
-        return $this->url;
     }
 
     public function addPeople(People $people)
@@ -87,10 +76,12 @@ class File
         $this->people[] = $people;
         return $this;
     }
+
     public function removePeople(People $people)
     {
         $this->people->removeElement($people);
     }
+    
     public function getPeople()
     {
         return $this->people;
