@@ -20,16 +20,19 @@ class Language
      * @ORM\Column(type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Groups({"translate_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=10, nullable=false)
+     * @Groups({"translate_read"})
      */
     private $language;
 
     /**
      * @ORM\Column(type="boolean", nullable=false)
+     * @Groups({"translate_read"})
      */
     private $locked;
 
