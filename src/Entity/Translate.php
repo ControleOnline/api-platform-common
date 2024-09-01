@@ -20,8 +20,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="category")
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\CategoryRepository")
+ * @ORM\Table (name="translate")
+ * @ORM\Entity (repositoryClass="ControleOnline\Repository\TranslateRepository")
  */
 #[ApiResource(
     operations: [
@@ -38,9 +38,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext: ['groups' => ['translate_read']],
     denormalizationContext: ['groups' => ['translate_write']]
 )]
-#[ApiFilter(filterClass: ExistsFilter::class, properties: ['parent'])]
-#[ApiFilter(filterClass: OrderFilter::class, properties: ['name' => 'ASC'])]
-#[ApiFilter(CustomOrFilter::class, properties: ['name', 'id', 'icon', 'color'])]
+#[ApiFilter(filterClass: OrderFilter::class, properties: ['key' => 'ASC'])]
 
 class Translate
 {
