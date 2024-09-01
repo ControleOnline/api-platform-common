@@ -63,7 +63,6 @@ class Translate
      *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
      * })
      * @Groups({"translate_read","translate_write"})
-     * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
 
@@ -117,12 +116,11 @@ class Translate
      *
      * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Language")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="lang_id", referencedColumnName="id", nullable=true)
+     *   @ORM\JoinColumn(name="lang_id", referencedColumnName="id")
      * })
-     * @Assert\NotBlank
      * @Groups({"translate_read","translate_write"})
      */
-    #[ApiFilter(filterClass: SearchFilter::class, properties: ['language' => 'exact'])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['language.language' => 'exact'])]
 
     private $language;
 

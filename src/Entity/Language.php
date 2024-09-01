@@ -2,17 +2,44 @@
 
 namespace ControleOnline\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ControleOnline\Filter\CustomOrFilter;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="ControleOnline\Repository\LanguageRepository")
  * @ORM\Table(name="language", uniqueConstraints={@ORM\UniqueConstraint(name="language", columns={"language"})})
  * @ORM\EntityListeners({ControleOnline\Listener\LogListener::class}) 
  */
+
+ #[ApiResource(
+    operations: [
+        new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
+        new Put(
+            security: 'is_granted(\'ROLE_CLIENT\')',
+            denormalizationContext: ['groups' => ['language_read']]
+        ),
+        new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
+        new GetCollection(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')')
+    ],
+    formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
+    normalizationContext: ['groups' => ['language_read']],
+    denormalizationContext: ['groups' => ['language_write']]
+)]
+
 class Language
 {
     /**
@@ -20,19 +47,19 @@ class Language
      * @ORM\Column(type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"translate_read"})
+     * @Groups({"translate_read", "language_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=10, nullable=false)
-     * @Groups({"translate_read"})
+     * @Groups({"translate_read", "language_read"})
      */
     private $language;
 
     /**
      * @ORM\Column(type="boolean", nullable=false)
-     * @Groups({"translate_read"})
+     * @Groups({"translate_read", "language_read"})
      */
     private $locked;
 
