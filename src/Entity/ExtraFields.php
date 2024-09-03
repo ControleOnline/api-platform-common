@@ -52,12 +52,12 @@ class ExtraFields
      * @ORM\Column(name="field_name", type="string", length=255, nullable=false)
      * @Groups({"extra_fields_read", "extra_fields_write", "extra_data_read"})
      */
-    private $field_name;
+    private $name;
     /**
      * @ORM\Column(name="field_type", type="string", length=255, nullable=false)
      * @Groups({"extra_fields_read", "extra_fields_write", "extra_data_read"})
      */
-    private $field_type;
+    private $type;
     /**
      * @ORM\Column(name="context", type="string", length=255, nullable=false)
      * @Groups({"extra_fields_read", "extra_fields_write", "extra_data_read"})
@@ -72,66 +72,104 @@ class ExtraFields
      * @ORM\Column(name="field_configs", type="string", nullable=true)
      * @Groups({"extra_fields_read", "extra_fields_write", "extra_data_read"})
      */
-    private $field_configs;
+    private $configs;
+ 
+
     /**
-     * Constructor
-     */
-    public function __construct()
-    {
-    }
-    /**
-     * Get id
-     *
-     * @return integer
+     * Get the value of id
      */
     public function getId()
     {
         return $this->id;
     }
 
-    public function setFieldName($value): self
+    /**
+     * Get the value of name
+     */
+    public function getName()
     {
-        $this->field_name = $value;
+        return $this->name;
+    }
+
+    /**
+     * Set the value of name
+     */
+    public function setName($name): self
+    {
+        $this->name = $name;
+
         return $this;
     }
-    public function getFieldName()
+
+    /**
+     * Get the value of type
+     */
+    public function getType()
     {
-        return $this->field_name;
+        return $this->type;
     }
-    public function setFieldType($value): self
+
+    /**
+     * Set the value of type
+     */
+    public function setType($type): self
     {
-        $this->field_type = $value;
+        $this->type = $type;
+
         return $this;
     }
-    public function getFieldType()
-    {
-        return $this->field_type;
-    }
-    public function setContext($value): self
-    {
-        $this->context = $value;
-        return $this;
-    }
+
+    /**
+     * Get the value of context
+     */
     public function getContext()
     {
         return $this->context;
     }
-    public function setRequired($value): self
+
+    /**
+     * Set the value of context
+     */
+    public function setContext($context): self
     {
-        $this->required = $value;
+        $this->context = $context;
+
         return $this;
     }
+
+    /**
+     * Get the value of required
+     */
     public function getRequired()
     {
         return $this->required;
     }
-    public function setFieldConfigs($value): self
+
+    /**
+     * Set the value of required
+     */
+    public function setRequired($required): self
     {
-        $this->field_configs = $value;
+        $this->required = $required;
+
         return $this;
     }
-    public function getFieldConfigs()
+
+    /**
+     * Get the value of configs
+     */
+    public function getConfigs()
     {
-        return $this->field_configs;
+        return $this->configs;
+    }
+
+    /**
+     * Set the value of configs
+     */
+    public function setConfigs($configs): self
+    {
+        $this->configs = $configs;
+
+        return $this;
     }
 }
