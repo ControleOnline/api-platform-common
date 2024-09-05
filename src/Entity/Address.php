@@ -2,6 +2,7 @@
 
 namespace ControleOnline\Entity;
 
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
@@ -18,7 +19,19 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Table (name="address", uniqueConstraints={@ORM\UniqueConstraint (name="user_id_3", columns={"people_id", "number", "street_id", "complement"})}, indexes={@ORM\Index (name="user_id_2", columns={"people_id","nickname"}), @ORM\Index(name="user_id", columns={"people_id"}), @ORM\Index(name="cep_id", columns={"street_id"})})
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\AddressRepository")
  */
-#[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['address_read']], denormalizationContext: ['groups' => ['address_write']])]
+#[
+    ApiResource(
+        operations: [
+            new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
+            new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
+            new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
+           
+        ],
+        formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
+        normalizationContext: ['groups' => ['address_read']],
+        denormalizationContext: ['groups' => ['address_write']]
+    )
+]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
 class Address
 {
@@ -205,7 +218,7 @@ class Address
      *
      * @return \ControleOnline\Entity\People
      */
-    public function getPeople() : People
+    public function getPeople(): People
     {
         return $this->people;
     }
@@ -324,7 +337,7 @@ class Address
 
         return $this;
     }
-    
+
     /**
      * Get the value of search_for
      */
