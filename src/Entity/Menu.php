@@ -77,7 +77,7 @@ class Menu
      * @var string
      *
      * @ORM\Column(name="color", type="string", length=50, nullable=false, options={"default"="'$primary'"})
-     * @Groups({"menu_read"})  
+     * @Groups({"menu_read","menu_write"})  
      */
     private $color = '$primary';
     /**
