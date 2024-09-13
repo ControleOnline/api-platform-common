@@ -73,20 +73,7 @@ class Menu
      * @Groups({"menu_read","menu_write"})  
      */
     private $route;
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="color", type="string", length=50, nullable=false, options={"default"="'$primary'"})
-     * @Groups({"menu_read","menu_write"})  
-     */
-    private $color = '$primary';
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="icon", type="string", length=50, nullable=false)
-     * @Groups({"menu_read","menu_write"})  
-     */
-    private $icon;
+
 
     /**
      * @var \ControleOnline\Entity\Category
@@ -133,36 +120,6 @@ class Menu
     public function setRoute($route): self
     {
         $this->route = $route;
-        return $this;
-    }
-    /**
-     * Get the value of color
-     */
-    public function getColor(): string
-    {
-        return $this->color;
-    }
-    /**
-     * Set the value of color
-     */
-    public function setColor($color): self
-    {
-        $this->color = $color;
-        return $this;
-    }
-    /**
-     * Get the value of icon
-     */
-    public function getIcon(): string
-    {
-        return $this->icon;
-    }
-    /**
-     * Set the value of icon
-     */
-    public function setIcon($icon): self
-    {
-        $this->icon = $icon;
         return $this;
     }
 

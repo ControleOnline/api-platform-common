@@ -110,6 +110,8 @@ class GetMenuByPeopleAction
             category.name AS category_label,
             category.color AS category_color,
             routes.route AS route,
+            routes.color AS color,
+            routes.icon  AS icon,
             category.icon AS category_icon FROM menu             
              INNER JOIN category ON category.id = menu.category_id
              INNER JOIN menu_role ON menu.id = menu_role.menu_id

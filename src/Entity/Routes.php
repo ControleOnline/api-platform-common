@@ -11,8 +11,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiFilter;
-use App\Controller\GetActionByPeopleAction;
-use App\Controller\GetMenuByPeopleAction;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -62,8 +61,10 @@ class Routes
      * @var string
      *
      * @ORM\Column(name="route", type="string", length=50, nullable=false)
-     * @Groups({"menu_read","route_read"})   
+     * @Groups({"menu_read","route_read","route_write"})   
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['route' => 'exact'])]
+
     private $route;
 
     /**
@@ -73,10 +74,23 @@ class Routes
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="module_id", referencedColumnName="id")
      * })
-     * @Groups({"menu_read","route_read"})  
+     * @Groups({"menu_read","route_read","route_write"})  
      */
     private $module;
-
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="color", type="string", length=50, nullable=false, options={"default"="'$primary'"})
+     * @Groups({"menu_read","route_read","route_write"})  
+     */
+    private $color = '$primary';
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="icon", type="string", length=50, nullable=false)
+     * @Groups({"menu_read","route_read","route_write"})  
+     */
+    private $icon;
 
     /**
      * Get the value of id
@@ -129,6 +143,37 @@ class Routes
     {
         $this->module = $module;
 
+        return $this;
+    }
+
+    /**
+     * Get the value of color
+     */
+    public function getColor(): string
+    {
+        return $this->color;
+    }
+    /**
+     * Set the value of color
+     */
+    public function setColor($color): self
+    {
+        $this->color = $color;
+        return $this;
+    }
+    /**
+     * Get the value of icon
+     */
+    public function getIcon(): string
+    {
+        return $this->icon;
+    }
+    /**
+     * Set the value of icon
+     */
+    public function setIcon($icon): self
+    {
+        $this->icon = $icon;
         return $this;
     }
 }
