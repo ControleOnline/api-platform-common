@@ -112,6 +112,7 @@ class GetMenuByPeopleAction
             routes.route AS route,
             routes.color AS color,
             routes.icon  AS icon,
+            routes.module_id  AS module,
             category.icon AS category_icon FROM menu             
              INNER JOIN category ON category.id = menu.category_id
              INNER JOIN menu_role ON menu.id = menu_role.menu_id
@@ -145,6 +146,7 @@ class GetMenuByPeopleAction
         'icon' =>  $menu['icon'],
         'color' =>  $menu['color'],
         'route' =>  $menu['route'],
+        'module' =>  '/modules/' . $menu['module'],
       ];
     }
 
