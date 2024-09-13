@@ -2,13 +2,17 @@
 
 namespace ControleOnline\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiFilter;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\Get;
-
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Post;
 
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
@@ -18,13 +22,22 @@ use ApiPlatform\Metadata\Get;
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
+        new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new Post(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new Put(
+            security: 'is_granted(\'ROLE_CLIENT\')',
+            denormalizationContext: ['groups' => ['config_write']]
+        ),
         new GetCollection(
             security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')',
             uriTemplate: '/configs/app-config',
             controller: \App\Controller\GetAppConfigAction::class
         )
     ],
-    formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']]
+    formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
+    normalizationContext: ['groups' => ['config_read']],
+    denormalizationContext: ['groups' => ['config_write']]
 )]
 class Config
 {
@@ -34,6 +47,7 @@ class Config
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Groups({"config_read"}) 
      */
     private $id;
     /**
@@ -43,26 +57,51 @@ class Config
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
      * })
+     * @Groups({"config_read","config_write"}) 
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
+
     private $people;
     /**
      * @var string
      *
      * @ORM\Column(name="config_key", type="string", length=255, nullable=false)
+     * @Groups({"config_read","config_write"}) 
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['config_key' => 'exact'])]
+
     private $config_key;
     /**
      * @var string
      *
      * @ORM\Column(name="visibility", type="string", length=255, nullable=false)
+     * @Groups({"config_read","config_write"}) 
+
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['visibility' => 'exact'])]
+
     private $visibility;
     /**
      * @var string
      *
      * @ORM\Column(name="config_value", type="string", length=255, nullable=false)
+     * @Groups({"config_read","config_write"}) 
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['config_value' => 'exact'])]
+
     private $config_value;
+    /**
+     * @var \ControleOnline\Entity\Module
+     *
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Module")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="module_id", referencedColumnName="id")
+     * })
+     * @Groups({"config_read","config_write"}) 
+     */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['module' => 'exact'])]
+    private $module;
+
     /**
      * Get id
      *
@@ -78,7 +117,7 @@ class Config
      * @param \ControleOnline\Entity\People $people
      * @return PeopleConfigKey
      */
-    public function setPeople(\ControleOnline\Entity\People $people = null)
+    public function setPeople(People $people = null)
     {
         $this->people = $people;
         return $this;
@@ -151,5 +190,23 @@ class Config
     public function getConfigValue()
     {
         return $this->config_value;
+    }
+
+    /**
+     * Get the value of module
+     */
+    public function getModule()
+    {
+        return $this->module;
+    }
+
+    /**
+     * Set the value of module
+     */
+    public function setModule($module): self
+    {
+        $this->module = $module;
+
+        return $this;
     }
 }
