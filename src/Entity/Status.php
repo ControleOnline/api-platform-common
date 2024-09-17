@@ -17,7 +17,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table (name="status", uniqueConstraints={@ORM\UniqueConstraint (name="status", columns={"status"})}, indexes={@ORM\Index (name="IDX_real_status", columns={"real_status"})})
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\StatusRepository")
  */
-#[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], security: 'is_granted(\'ROLE_CLIENT\')', normalizationContext: ['groups' => ['status_read']], denormalizationContext: ['groups' => ['status_write']])]
+#[ApiResource(
+    operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), 
+    new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')],
+    formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
+    security: 'is_granted(\'ROLE_CLIENT\')',
+    normalizationContext: ['groups' => ['status_read']],
+    denormalizationContext: ['groups' => ['status_write']]
+)]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact', 'visibility' => 'exact', 'realStatus' => 'exact'])]
 class Status
 {
