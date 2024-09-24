@@ -18,8 +18,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\StatusRepository")
  */
 #[ApiResource(
-    operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), 
-    new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')],
+    operations: [
+        new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')
+    ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     security: 'is_granted(\'ROLE_CLIENT\')',
     normalizationContext: ['groups' => ['status_read']],
