@@ -1,4 +1,5 @@
 <?php
+
 namespace ControleOnline\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -7,34 +8,41 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use ControleOnline\Entity\File;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use ControleOnline\Service\HydratorService;
+use Exception;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class FileUploadController
 {
 
-    public function __construct(private EntityManagerInterface $em)
-    {
-    }
+    public function __construct(
+        private EntityManagerInterface $em,
+        private HydratorService $hydratorService
+    ) {}
 
-    public function upload(Request $request): Response
+    public function __invoke(Request $request): Response
     {
-        /** @var UploadedFile $file */
-        $file = $request->files->get('file');
 
-        if (!$file) {
-            throw new BadRequestHttpException('No file provided');
+        try {
+            $file = $request->files->get('file');
+
+            if (!$file) {
+                throw new BadRequestHttpException('No file provided');
+            }
+
+            $content = file_get_contents($file->getPathname());
+            $fileType = $file->getClientMimeType();
+            $originalFilename = $file->getClientOriginalName();
+
+            $fileEntity = new File();
+            $fileEntity->setContent($content);
+            $fileEntity->setFileType($fileType);
+
+            $this->em->persist($fileEntity);
+            $this->em->flush();
+            return new JsonResponse($this->hydratorService->item(File::class, $fileEntity->getId(), 'file_read'));
+        } catch (Exception $e) {
+            return new JsonResponse($this->hydratorService->error($e));
         }
-
-        $content = file_get_contents($file->getPathname()); 
-        $fileType = $file->getClientMimeType();
-        $originalFilename = $file->getClientOriginalName();
-
-        $fileEntity = new File();
-        $fileEntity->setContent($content);
-        $fileEntity->setFileType($fileType);
-
-        $this->em->persist($fileEntity);
-        $this->em->flush();
-
-        return new Response('File uploaded successfully', Response::HTTP_CREATED);
     }
 }

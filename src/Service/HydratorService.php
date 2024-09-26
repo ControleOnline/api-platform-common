@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 
 use Doctrine\ORM\EntityManagerInterface;
-
+use Exception;
 
 class HydratorService
 {
@@ -26,7 +26,11 @@ class HydratorService
         $this->request = $requestStack->getCurrentRequest();
         $this->uri = $this->request ? $this->request->getPathInfo() : '';
     }
-
+    public function error(Exception $e)
+    {
+        return $e;
+    }
+    
     public function collection($class, $groups,  mixed $arguments = [], int $limit = 0, int $page = 1, array $orderby = [])
     {
         $response = $this->getBasicResponse($class);
