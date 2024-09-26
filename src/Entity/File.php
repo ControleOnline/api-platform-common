@@ -14,7 +14,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 /**
  * File
  *
@@ -34,7 +36,7 @@ use Doctrine\Common\Collections\Collection;
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/files/upload',
             controller: FileUploadController::class,
-            deserialize: false // O ApiPlatform não tentará desserializar a requisição
+            deserialize: false
         ),
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')
     ],
@@ -49,14 +51,15 @@ class File
      * @ORM\Column(type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"product_file_read","lesson_upload_file:post", "people_read", "task_interaction_read","display_read"})
+     * @Groups({"file_read","people_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"lesson_upload_file:post", "people_read", "lesson:read"})
+     * @Groups({"file_read","people_read"})
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['file_type' => 'exact'])]
     private $file_type;
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
@@ -65,35 +68,29 @@ class File
 
 
     /**
-     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\People", mappedBy="file")
+     * @var \ControleOnline\Entity\People
+     *
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\People")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
+     * })
+     * @Groups({"file_read"})
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
+
     private $people;
-   
+
     public function __construct()
     {
         $this->people = new \Doctrine\Common\Collections\ArrayCollection();
     }
-   
+
     public function getId()
     {
         return $this->id;
     }
 
-    public function addPeople(People $people)
-    {
-        $this->people[] = $people;
-        return $this;
-    }
-
-    public function removePeople(People $people)
-    {
-        $this->people->removeElement($people);
-    }
-    
-    public function getPeople()
-    {
-        return $this->people;
-    }
+   
 
     /**
      * Get the value of file_type
@@ -127,6 +124,24 @@ class File
     public function setContent($content): self
     {
         $this->content = $content;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of people
+     */
+    public function getPeople()
+    {
+        return $this->people;
+    }
+
+    /**
+     * Set the value of people
+     */
+    public function setPeople($people): self
+    {
+        $this->people = $people;
 
         return $this;
     }

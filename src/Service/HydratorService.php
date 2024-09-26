@@ -30,7 +30,7 @@ class HydratorService
     {
         return $e;
     }
-    
+
     public function collection($class, $groups,  mixed $arguments = [], int $limit = 0, int $page = 1, array $orderby = [])
     {
         $response = $this->getBasicResponse($class);
@@ -53,11 +53,17 @@ class HydratorService
         return $response;
     }
 
-    public function item($class, $id, $groups)
+    public function data($data, $groups)
     {
-        $data =     $this->manager->getRepository($class)->find(preg_replace("/[^0-9]/", "", $id));
         $analisesSerialized = $this->serializer->serialize($data, 'jsonld', ['groups' => $groups]);
         return json_decode($analisesSerialized);
+    }
+
+
+    public function item($class, $id, $groups)
+    {
+        $data = $this->manager->getRepository($class)->find(preg_replace("/[^0-9]/", "", $id));
+        return $this->data($data, $groups);
     }
 
     private function getBasicResponse($class)
