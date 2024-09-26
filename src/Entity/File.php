@@ -4,10 +4,12 @@ namespace ControleOnline\Entity;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiFilter;
 use App\Controller\GetFileDataAction;
+use ControleOnline\Controller\FileUploadController;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -27,6 +29,12 @@ use Doctrine\Common\Collections\Collection;
             security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')',
             uriTemplate: '/files/download/{id}',
             controller: GetFileDataAction::class
+        ),
+        new Post(
+            security: 'is_granted(\'ROLE_CLIENT\')',
+            uriTemplate: '/files/upload',
+            controller: FileUploadController::class,
+            deserialize: false // O ApiPlatform não tentará desserializar a requisição
         ),
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')
     ],
