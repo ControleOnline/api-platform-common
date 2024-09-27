@@ -5,6 +5,7 @@ namespace ControleOnline\Entity;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiFilter;
@@ -35,6 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/files/download/{id}',
             controller: GetFileDataAction::class
         ),
+        new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/files/upload',
