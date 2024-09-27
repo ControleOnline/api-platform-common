@@ -17,6 +17,9 @@ use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use Symfony\Component\Validator\Constraints as Assert;
+
+
 /**
  * File
  *
@@ -58,9 +61,27 @@ class File
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
      * @Groups({"file_read","people_read"})
+     * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['file_type' => 'exact'])]
     private $file_type;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=false)
+     * @Groups({"file_read","people_read"})
+     * @Assert\NotBlank
+     */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['file_name' => 'exact'])]
+    private $file_name;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=false)
+     * @Groups({"file_read","people_read"})
+     * @Assert\NotBlank
+     */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['extension' => 'exact'])]
+    private $extension;
+
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
      */
@@ -90,7 +111,7 @@ class File
         return $this->id;
     }
 
-   
+
 
     /**
      * Get the value of file_type
@@ -142,6 +163,42 @@ class File
     public function setPeople($people): self
     {
         $this->people = $people;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of extension
+     */
+    public function getExtension()
+    {
+        return $this->extension;
+    }
+
+    /**
+     * Set the value of extension
+     */
+    public function setExtension($extension): self
+    {
+        $this->extension = $extension;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of file_name
+     */
+    public function getFileName()
+    {
+        return $this->file_name;
+    }
+
+    /**
+     * Set the value of file_name
+     */
+    public function setFileName($file_name): self
+    {
+        $this->file_name = $file_name;
 
         return $this;
     }

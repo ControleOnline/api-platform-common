@@ -27,18 +27,26 @@ class FileUploadController
         try {
             $file = $request->files->get('file');
             $people_id = $request->request->get('people');
+            $file_id = $request->request->get('id');
+
 
             if (!$file) {
                 throw new BadRequestHttpException('No file provided');
             }
 
             $content = file_get_contents($file->getPathname());
-            $fileType = $file->getClientMimeType();
+            $fileType = explode('/', $file->getClientMimeType());
             $originalFilename = $file->getClientOriginalName();
 
-            $fileEntity = new File();
+            if ($file_id)
+                $fileEntity = $this->em->getRepository(File::class)->find($file_id);
+            if (!$fileEntity)
+                $fileEntity = new File();
+
             $fileEntity->setContent($content);
-            $fileEntity->setFileType($fileType);
+            $fileEntity->setFileName($originalFilename);
+            $fileEntity->setFileType($fileType[0]);
+            $fileEntity->setExtension($fileType[1]);
             $fileEntity->setPeople(
                 $this->em->getRepository(People::class)->find($people_id)
             );
