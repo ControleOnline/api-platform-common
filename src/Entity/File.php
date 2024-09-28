@@ -5,6 +5,7 @@ namespace ControleOnline\Entity;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiProperty;
@@ -30,7 +31,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[ApiResource(
     operations: [
-        new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new Get(
+            security: 'is_granted(\'ROLE_CLIENT\')',
+            normalizationContext: ['groups' => ['file_item_read']],
+        ),
         new Get(
             security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')',
             uriTemplate: '/files/download/{id}',
@@ -43,9 +47,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             controller: FileUploadController::class,
             deserialize: false
         ),
-        new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')
+        new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new Post(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new Put(
+            security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))',
+            validationContext: ['groups' => ['file_write']],
+            denormalizationContext: ['groups' => ['file_write']]
+        )
     ],
-
     normalizationContext: ['groups' => ['file_read']],
     denormalizationContext: ['groups' => ['file_write']]
 )]
@@ -56,13 +65,13 @@ class File
      * @ORM\Column(type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"file_read","people_read"})
+     * @Groups({"file_read","file_item_read","contract_read","contract_model_read","people_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"file_read","people_read"})
+     * @Groups({"file_read","file_item_read","file_write","contract_read","contract_model_read","people_read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['file_type' => 'exact'])]
@@ -70,7 +79,7 @@ class File
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"file_read","people_read"})
+     * @Groups({"file_read","file_item_read","file_write","contract_read","contract_model_read","people_read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['file_name' => 'exact'])]
@@ -78,7 +87,7 @@ class File
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"file_read","people_read"})
+     * @Groups({"file_read","file_item_read","file_write","contract_read","contract_model_read","people_read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['extension' => 'exact'])]
@@ -86,9 +95,9 @@ class File
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
+     * @Groups({"file_item_read","file_write"})
      */
     private $content;
-
 
     /**
      * @var \ControleOnline\Entity\People
@@ -97,10 +106,9 @@ class File
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
      * })
-     * @Groups({"file_read"})
+     * @Groups({"file_item_read","file_write","file_read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
-
     private $people;
 
     public function __construct()
