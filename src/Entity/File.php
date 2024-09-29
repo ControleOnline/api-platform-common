@@ -65,13 +65,13 @@ class File
      * @ORM\Column(type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"file_read","file_item_read","contract_read","contract_model_read","people_read"})
+     * @Groups({"file_read","file_item_read","contract_read","model_read","people_read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"file_read","file_item_read","file_write","contract_read","contract_model_read","people_read"})
+     * @Groups({"file_read","file_item_read","file_write","contract_read","model_read","people_read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['file_type' => 'exact'])]
@@ -79,7 +79,7 @@ class File
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"file_read","file_item_read","file_write","contract_read","contract_model_read","people_read"})
+     * @Groups({"file_read","file_item_read","file_write","contract_read","model_read","people_read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['file_name' => 'exact'])]
@@ -87,7 +87,7 @@ class File
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"file_read","file_item_read","file_write","contract_read","contract_model_read","people_read"})
+     * @Groups({"file_read","file_item_read","file_write","contract_read","model_read","people_read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['extension' => 'exact'])]

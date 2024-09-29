@@ -51,7 +51,7 @@ class Category
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"logistic_read","category_read","task_read", "company_expense_read",
-     * "contract_model_read","contract_model_detail_read",
+     * "model_read","model_detail_read",
      * "menu_read","invoice_read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
@@ -62,7 +62,7 @@ class Category
      *
      * @ORM\Column(name="name", type="string", length=100, nullable=false)
      * @Groups({"menu_read","logistic_read","category_read","task_read", "category_write", 
-     * "contract_model_read","contract_model_detail_read",
+     * "model_read","model_detail_read",
      * "company_expense_read", "queue_read","invoice_read"})
      * @Assert\NotBlank
      * @Assert\Type(type={"string"})
@@ -75,7 +75,7 @@ class Category
      *
      * @ORM\Column(name="context", type="string", length=100, nullable=false)
      * @Groups({"logistic_read","category_read","task_read", "category_write","menu_read",
-     * "contract_model_read","contract_model_detail_read",
+     * "model_read","model_detail_read",
      * "queue_read","invoice_read"})
      * @Assert\NotBlank
      * @Assert\Type(type={"string"})
@@ -91,7 +91,7 @@ class Category
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=true)
      * })
      * @Groups({"logistic_read","category_read","task_read", "category_write", 
-     * "contract_model_read","contract_model_detail_read",
+     * "model_read","model_detail_read",
      * "category_write","menu_read","queue_read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['parent' => 'exact'])]
@@ -105,7 +105,7 @@ class Category
      *   @ORM\JoinColumn(name="company_id", referencedColumnName="id")
      * })
      * @Groups({"logistic_read","category_read", "category_write","menu_read",
-     * "contract_model_read","contract_model_detail_read",
+     * "model_read","model_detail_read",
      * "queue_read","invoice_read"})
      * @Assert\NotBlank
      */
@@ -117,7 +117,7 @@ class Category
      *
      * @ORM\Column(name="icon", type="string", length=50, nullable=false)
      * @Groups({"logistic_read","category_read","task_read", "category_write", "company_expense_read", 
-     * "contract_model_read","contract_model_detail_read",
+     * "model_read","model_detail_read",
      * "category_write","menu_read","queue_read","invoice_read"})   
      * @Assert\Type(type={"string"})
      */
@@ -129,7 +129,7 @@ class Category
      *
      * @ORM\Column(name="color", type="string", length=50, nullable=false)
      * @Groups({"logistic_read","category_read","task_read", "category_write", "company_expense_read",
-     * "contract_model_read","contract_model_detail_read",
+     * "model_read","model_detail_read",
      * "category_write","menu_read","queue_read","invoice_read"})   
      * @Assert\Type(type={"string"})
      */
