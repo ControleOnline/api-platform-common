@@ -19,6 +19,7 @@ use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ControleOnline\Controller\FileConvertController;
 use Symfony\Component\Validator\Constraints as Assert;
 
 
@@ -53,6 +54,12 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))',
             validationContext: ['groups' => ['file_write']],
             denormalizationContext: ['groups' => ['file_write']]
+        ),
+        new Put(
+            security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))',
+            uriTemplate: '/files/convert/{id}',
+            controller: FileConvertController::class,
+            deserialize: false
         ),
     ],
     normalizationContext: ['groups' => ['file_read']],
