@@ -27,12 +27,15 @@ class DomainService
             ['https://', 'http://'],
             '',
             $this->request->get(
-                'app-domain',
-                $this->request->headers->get(
+                'App-domain',
+                $this->request->get(
                     'app-domain',
                     $this->request->headers->get(
-                        'referer',
-                        $this->getMainDomain()
+                        'app-domain',
+                        $this->request->headers->get(
+                            'referer',
+                            $this->getMainDomain()
+                        )
                     )
                 )
             )
