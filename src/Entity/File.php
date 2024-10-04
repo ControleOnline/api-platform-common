@@ -53,7 +53,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))',
             validationContext: ['groups' => ['file_write']],
             denormalizationContext: ['groups' => ['file_write']]
-        )
+        ),
     ],
     normalizationContext: ['groups' => ['file_read']],
     denormalizationContext: ['groups' => ['file_write']]
@@ -74,16 +74,16 @@ class File
      * @Groups({"file_read","file_item_read","file_write","contract_read","model_read","people_read"})
      * @Assert\NotBlank
      */
-    #[ApiFilter(filterClass: SearchFilter::class, properties: ['file_type' => 'exact'])]
-    private $file_type;
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['fileType' => 'exact'])]
+    private $fileType;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
      * @Groups({"file_read","file_item_read","file_write","contract_read","model_read","people_read"})
      * @Assert\NotBlank
      */
-    #[ApiFilter(filterClass: SearchFilter::class, properties: ['file_name' => 'exact'])]
-    private $file_name;
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['fileName' => 'exact'])]
+    private $fileName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
@@ -124,19 +124,19 @@ class File
 
 
     /**
-     * Get the value of file_type
+     * Get the value of fileType
      */
     public function getFileType()
     {
-        return $this->file_type;
+        return $this->fileType;
     }
 
     /**
-     * Set the value of file_type
+     * Set the value of fileType
      */
-    public function setFileType($file_type): self
+    public function setFileType($fileType): self
     {
-        $this->file_type = $file_type;
+        $this->fileType = $fileType;
 
         return $this;
     }
@@ -196,19 +196,19 @@ class File
     }
 
     /**
-     * Get the value of file_name
+     * Get the value of fileName
      */
     public function getFileName()
     {
-        return $this->file_name;
+        return $this->fileName;
     }
 
     /**
-     * Set the value of file_name
+     * Set the value of fileName
      */
-    public function setFileName($file_name): self
+    public function setFileName($fileName): self
     {
-        $this->file_name = $file_name;
+        $this->fileName = $fileName;
 
         return $this;
     }
