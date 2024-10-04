@@ -55,9 +55,9 @@ use Symfony\Component\Validator\Constraints as Assert;
             validationContext: ['groups' => ['file_write']],
             denormalizationContext: ['groups' => ['file_write']]
         ),
-        new Put(
+        new Post(
             security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))',
-            uriTemplate: '/files/convert/{id}',
+            uriTemplate: '/files/{id}/convert',
             controller: FileConvertController::class,
             deserialize: false
         ),
