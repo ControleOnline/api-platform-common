@@ -38,7 +38,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Get(
             security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')',
-            uriTemplate: '/files/download/{id}',
+            uriTemplate: '/files/{id}/download',
             controller: GetFileDataAction::class
         ),
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
