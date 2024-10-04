@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace ControleOnline\Controller;
 
 use ControleOnline\Entity\File;
 use Symfony\Component\HttpFoundation\HeaderUtils;

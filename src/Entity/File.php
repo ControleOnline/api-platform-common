@@ -10,7 +10,7 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiFilter;
-use App\Controller\GetFileDataAction;
+use ControleOnline\Controller\GetFileDataAction;
 use ControleOnline\Controller\FileUploadController;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
