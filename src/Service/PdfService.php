@@ -1,6 +1,6 @@
 <?php
 
-namespace ControleOnline\Controller;
+namespace ControleOnline\Service;
 
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\StreamedResponse;
