@@ -27,7 +27,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))'),
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
-            denormalizationContext: ['groups' => ['menu_write']]
+            denormalizationContext: ['groups' => ['menu:write']]
         ),
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
@@ -42,8 +42,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         )
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
-    normalizationContext: ['groups' => ['menu_read']],
-    denormalizationContext: ['groups' => ['menu_write']]
+    normalizationContext: ['groups' => ['menu:read']],
+    denormalizationContext: ['groups' => ['menu:write']]
 )]
 class Menu
 {
@@ -53,14 +53,14 @@ class Menu
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"menu_read"})  
+     * @Groups({"menu:read"})  
      */
     private $id;
     /**
      * @var string
      *
      * @ORM\Column(name="menu", type="string", length=50, nullable=false)
-     * @Groups({"menu_read","menu_write"}) 
+     * @Groups({"menu:read","menu:write"}) 
      */
     private $menu;
     /**
@@ -70,7 +70,7 @@ class Menu
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="route_id", referencedColumnName="id")
      * })
-     * @Groups({"menu_read","menu_write"})  
+     * @Groups({"menu:read","menu:write"})  
      */
     private $route;
 
@@ -82,7 +82,7 @@ class Menu
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="category_id", referencedColumnName="id")
      * })
-     * @Groups({"menu_read","menu_write"}) 
+     * @Groups({"menu:read","menu:write"}) 
      */
     private $category;
     /**

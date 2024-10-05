@@ -25,15 +25,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))'),
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
-            denormalizationContext: ['groups' => ['module_write']]
+            denormalizationContext: ['groups' => ['module:write']]
         ),
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(security: 'is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
-    normalizationContext: ['groups' => ['module_read']],
-    denormalizationContext: ['groups' => ['module_write']]
+    normalizationContext: ['groups' => ['module:read']],
+    denormalizationContext: ['groups' => ['module:write']]
 )]
 class Module
 {
@@ -43,35 +43,35 @@ class Module
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"menu_read","module_read"}) 
+     * @Groups({"menu:read","module:read"}) 
      */
     private $id;
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=100, nullable=false)
-     * @Groups({"menu_read","module_read","module_write"})  
+     * @Groups({"menu:read","module:read","module:write"})  
      */
     private $name;
     /**
      * @var string
      *
      * @ORM\Column(name="color", type="string", length=50, nullable=false, options={"default"="'$primary'"})
-     * @Groups({"menu_read","module_read","module_write"})   
+     * @Groups({"menu:read","module:read","module:write"})   
      */
     private $color = '$primary';
     /**
      * @var string
      *
      * @ORM\Column(name="icon", type="string", length=50, nullable=false)
-     * @Groups({"menu_read","module_read","module_write"})   
+     * @Groups({"menu:read","module:read","module:write"})   
      */
     private $icon;
     /**
      * @var string|null
      *
      * @ORM\Column(name="description", type="string", length=255, nullable=true, options={"default"="NULL"})
-     * @Groups({"menu_read","module_read","module_write"})   
+     * @Groups({"menu:read","module:read","module:write"})   
      */
     private $description = NULL;
     /**

@@ -32,7 +32,7 @@ class FileConvertController
                 $this->em->persist($data);
                 $this->em->flush();
             }
-            return new JsonResponse($this->hydratorService->data($data, 'file_read'), Response::HTTP_OK);
+            return new JsonResponse($this->hydratorService->data($data, 'file:read'), Response::HTTP_OK);
         } catch (Exception $e) {
             return new JsonResponse($this->hydratorService->error($e));
         }

@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
-            denormalizationContext: ['groups' => ['translate_write']]
+            denormalizationContext: ['groups' => ['translate:write']]
         ),
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
@@ -37,8 +37,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         )
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
-    normalizationContext: ['groups' => ['translate_read']],
-    denormalizationContext: ['groups' => ['translate_write']]
+    normalizationContext: ['groups' => ['translate:read']],
+    denormalizationContext: ['groups' => ['translate:write']]
 )]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['key' => 'ASC'])]
 
@@ -50,7 +50,7 @@ class Translate
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"translate_read","translate_write"})
+     * @Groups({"translate:read","translate:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
 
@@ -64,7 +64,7 @@ class Translate
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
      * })
-     * @Groups({"translate_read","translate_write"})
+     * @Groups({"translate:read","translate:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
 
@@ -73,7 +73,7 @@ class Translate
      * @var string
      *
      * @ORM\Column(name="store", type="string", length=100, nullable=false)
-     * @Groups({"translate_read","translate_write"})
+     * @Groups({"translate:read","translate:write"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['store' => 'partial'])]
@@ -85,7 +85,7 @@ class Translate
      * @var string
      *
      * @ORM\Column(name="type", type="string", length=100, nullable=false)
-     * @Groups({"translate_read","translate_write"})
+     * @Groups({"translate:read","translate:write"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['type' => 'partial'])]
@@ -96,7 +96,7 @@ class Translate
      * @var string
      *
      * @ORM\Column(name="translate_key", type="string", length=100, nullable=false)
-     * @Groups({"translate_read","translate_write"})
+     * @Groups({"translate:read","translate:write"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['translate_key' => 'partial'])]
@@ -106,7 +106,7 @@ class Translate
      * @var string
      *
      * @ORM\Column(name="translate", type="string", length=100, nullable=false)
-     * @Groups({"translate_read","translate_write"})
+     * @Groups({"translate:read","translate:write"})
      * @Assert\NotBlank
      */
 
@@ -120,7 +120,7 @@ class Translate
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="lang_id", referencedColumnName="id")
      * })
-     * @Groups({"translate_read","translate_write"})
+     * @Groups({"translate:read","translate:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['language.language' => 'exact'])]
 

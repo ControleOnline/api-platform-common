@@ -37,8 +37,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
-    normalizationContext: ['groups' => ['model_read']],
-    denormalizationContext: ['groups' => ['model_write']]
+    normalizationContext: ['groups' => ['model:read']],
+    denormalizationContext: ['groups' => ['model:write']]
 )]
 class Model
 {
@@ -46,7 +46,7 @@ class Model
      * @ORM\Column(type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({ "contract_read","model_read"})
+     * @Groups({ "contract:read","model:read"})
      */
     private $id;
 
@@ -57,7 +57,7 @@ class Model
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="category_id", referencedColumnName="id")
      * })
-     * @Groups({"contract_read","model_read","model_write"})
+     * @Groups({"contract:read","model:read","model:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['category' => 'exact'])]
 
@@ -69,7 +69,7 @@ class Model
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
      * })
-     * @Groups({"contract_read","model_read","model_write"})
+     * @Groups({"contract:read","model:read","model:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
 
@@ -83,7 +83,7 @@ class Model
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="signer_id", referencedColumnName="id")
      * })
-     * @Groups({"contract_read","model_read","model_write"})
+     * @Groups({"contract:read","model:read","model:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['signer' => 'exact'])]
 
@@ -96,20 +96,20 @@ class Model
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="file_id", referencedColumnName="id")
      * })
-     * @Groups({"model_detail_read","model_read","model_write"})
+     * @Groups({"model_detail:read","model:read","model:write"})
      */
     private $file;
 
     /**
      * @ORM\Column(name="context", type="string")
-     * @Groups({"contract_read","model_read","model_write"})
+     * @Groups({"contract:read","model:read","model:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact'])]
     private $context;
 
     /**
      * @ORM\Column(name="model", type="string")
-     * @Groups({"contract_read","model_read","model_write"})
+     * @Groups({"contract:read","model:read","model:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['model' => 'partial'])]
     private $model;

@@ -25,8 +25,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
-    normalizationContext: ['groups' => ['city_read']],
-    denormalizationContext: ['groups' => ['city_write']]
+    normalizationContext: ['groups' => ['city:read']],
+    denormalizationContext: ['groups' => ['city:write']]
 )]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['city' => 'ASC'])]
 #[ApiFilter(
@@ -44,21 +44,21 @@ class City
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"city_read","logistic_read","order_read", "people_read", "address_read", "delivery_region_read"})
+     * @Groups({"city:read","logistic:read","order:read", "people:read", "address:read", "delivery_region:read"})
      */
     private $id;
     /**
      * @var string
      *
      * @ORM\Column(name="city", type="string", length=80, nullable=false)
-     * @Groups({"city_read","logistic_read","order_read", "people_read", "address_read", "delivery_region_read"})
+     * @Groups({"city:read","logistic:read","order:read", "people:read", "address:read", "delivery_region:read"})
      */
     private $city;
     /**
      * @var string
      *
      * @ORM\Column(name="cod_ibge", type="integer", nullable=true)
-     * @Groups({"city_read","logistic_read","order_read", "people_read", "address_read", "delivery_region_read"})
+     * @Groups({"city:read","logistic:read","order:read", "people:read", "address:read", "delivery_region:read"})
 
      */
     private $cod_ibge;
@@ -75,7 +75,7 @@ class City
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="state_id", referencedColumnName="id", nullable=false)
      * })
-     * @Groups({"city_read","logistic_read","order_read", "people_read", "address_read", "delivery_region_read"})
+     * @Groups({"city:read","logistic:read","order:read", "people:read", "address:read", "delivery_region:read"})
      */
     private $state;
     /**

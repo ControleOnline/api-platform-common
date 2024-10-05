@@ -34,15 +34,15 @@ use stdClass;
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))'),
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
-            denormalizationContext: ['groups' => ['route_write']]
+            denormalizationContext: ['groups' => ['route:write']]
         ),
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(security: 'is_granted(\'ROLE_CLIENT\')'),
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
-    normalizationContext: ['groups' => ['route_read']],
-    denormalizationContext: ['groups' => ['route_write']]
+    normalizationContext: ['groups' => ['route:read']],
+    denormalizationContext: ['groups' => ['route:write']]
 )]
 
 class Routes
@@ -53,7 +53,7 @@ class Routes
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"menu_read","route_read"})   
+     * @Groups({"menu:read","route:read"})   
      */
     private $id;
 
@@ -61,7 +61,7 @@ class Routes
      * @var string
      *
      * @ORM\Column(name="route", type="string", length=50, nullable=false)
-     * @Groups({"menu_read","route_read","route_write"})   
+     * @Groups({"menu:read","route:read","route:write"})   
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['route' => 'exact'])]
 
@@ -74,21 +74,21 @@ class Routes
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="module_id", referencedColumnName="id")
      * })
-     * @Groups({"menu_read","route_read","route_write"})  
+     * @Groups({"menu:read","route:read","route:write"})  
      */
     private $module;
     /**
      * @var string
      *
      * @ORM\Column(name="color", type="string", length=50, nullable=false, options={"default"="'$primary'"})
-     * @Groups({"menu_read","route_read","route_write"})  
+     * @Groups({"menu:read","route:read","route:write"})  
      */
     private $color = '$primary';
     /**
      * @var string
      *
      * @ORM\Column(name="icon", type="string", length=50, nullable=false)
-     * @Groups({"menu_read","route_read","route_write"})  
+     * @Groups({"menu:read","route:read","route:write"})  
      */
     private $icon;
 

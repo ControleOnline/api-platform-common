@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Table (name="cep", uniqueConstraints={@ORM\UniqueConstraint (name="CEP", columns={"cep"})})
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\CepRepository")
  */
-#[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['cep_read']], denormalizationContext: ['groups' => ['cep_write']])]
+#[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['cep:read']], denormalizationContext: ['groups' => ['cep:write']])]
 class Cep
 {
     /**
@@ -31,7 +31,7 @@ class Cep
      * @var integer
      *
      * @ORM\Column(name="cep", type="integer", nullable=false)
-     * @Groups({"people_read", "address_read"})
+     * @Groups({"people:read", "address:read"})
      */
     private $cep;
     /**

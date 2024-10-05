@@ -27,7 +27,7 @@ use ApiPlatform\Metadata\Post;
         new Post(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
-            denormalizationContext: ['groups' => ['config_write']]
+            denormalizationContext: ['groups' => ['config:write']]
         ),
         new GetCollection(
             security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')',
@@ -36,8 +36,8 @@ use ApiPlatform\Metadata\Post;
         )
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
-    normalizationContext: ['groups' => ['config_read']],
-    denormalizationContext: ['groups' => ['config_write']]
+    normalizationContext: ['groups' => ['config:read']],
+    denormalizationContext: ['groups' => ['config:write']]
 )]
 class Config
 {
@@ -47,7 +47,7 @@ class Config
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"config_read"}) 
+     * @Groups({"config:read"}) 
      */
     private $id;
     /**
@@ -57,7 +57,7 @@ class Config
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
      * })
-     * @Groups({"config_read","config_write"}) 
+     * @Groups({"config:read","config:write"}) 
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
 
@@ -66,7 +66,7 @@ class Config
      * @var string
      *
      * @ORM\Column(name="config_key", type="string", length=255, nullable=false)
-     * @Groups({"config_read","config_write"}) 
+     * @Groups({"config:read","config:write"}) 
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['config_key' => 'exact'])]
 
@@ -75,7 +75,7 @@ class Config
      * @var string
      *
      * @ORM\Column(name="visibility", type="string", length=255, nullable=false)
-     * @Groups({"config_read","config_write"}) 
+     * @Groups({"config:read","config:write"}) 
 
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['visibility' => 'exact'])]
@@ -85,7 +85,7 @@ class Config
      * @var string
      *
      * @ORM\Column(name="config_value", type="string", length=255, nullable=false)
-     * @Groups({"config_read","config_write"}) 
+     * @Groups({"config:read","config:write"}) 
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['config_value' => 'exact'])]
 
@@ -97,7 +97,7 @@ class Config
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="module_id", referencedColumnName="id")
      * })
-     * @Groups({"config_read","config_write"}) 
+     * @Groups({"config:read","config:write"}) 
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['module' => 'exact'])]
     private $module;

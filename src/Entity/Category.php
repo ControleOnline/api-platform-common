@@ -28,15 +28,15 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
-            denormalizationContext: ['groups' => ['category_write']]
+            denormalizationContext: ['groups' => ['category:write']]
         ),
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')')
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
-    normalizationContext: ['groups' => ['category_read']],
-    denormalizationContext: ['groups' => ['category_write']]
+    normalizationContext: ['groups' => ['category:read']],
+    denormalizationContext: ['groups' => ['category:write']]
 )]
 #[ApiFilter(filterClass: ExistsFilter::class, properties: ['parent'])]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['name' => 'ASC'])]
@@ -50,9 +50,9 @@ class Category
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"logistic_read","category_read","task_read", "company_expense_read",
-     * "model_read","model_detail_read",
-     * "menu_read","invoice_read"})
+     * @Groups({"logistic:read","category:read","task:read", "company_expense:read",
+     * "model:read","model_detail:read",
+     * "menu:read","invoice:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
 
@@ -61,9 +61,9 @@ class Category
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=100, nullable=false)
-     * @Groups({"menu_read","logistic_read","category_read","task_read", "category_write", 
-     * "model_read","model_detail_read",
-     * "company_expense_read", "queue_read","invoice_read"})
+     * @Groups({"menu:read","logistic:read","category:read","task:read", "category:write", 
+     * "model:read","model_detail:read",
+     * "company_expense:read", "queue:read","invoice:read"})
      * @Assert\NotBlank
      * @Assert\Type(type={"string"})
      */
@@ -74,9 +74,9 @@ class Category
      * @var string
      *
      * @ORM\Column(name="context", type="string", length=100, nullable=false)
-     * @Groups({"logistic_read","category_read","task_read", "category_write","menu_read",
-     * "model_read","model_detail_read",
-     * "queue_read","invoice_read"})
+     * @Groups({"logistic:read","category:read","task:read", "category:write","menu:read",
+     * "model:read","model_detail:read",
+     * "queue:read","invoice:read"})
      * @Assert\NotBlank
      * @Assert\Type(type={"string"})
      */
@@ -90,9 +90,9 @@ class Category
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=true)
      * })
-     * @Groups({"logistic_read","category_read","task_read", "category_write", 
-     * "model_read","model_detail_read",
-     * "category_write","menu_read","queue_read"})
+     * @Groups({"logistic:read","category:read","task:read", "category:write", 
+     * "model:read","model_detail:read",
+     * "category:write","menu:read","queue:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['parent' => 'exact'])]
 
@@ -104,9 +104,9 @@ class Category
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="company_id", referencedColumnName="id")
      * })
-     * @Groups({"logistic_read","category_read", "category_write","menu_read",
-     * "model_read","model_detail_read",
-     * "queue_read","invoice_read"})
+     * @Groups({"logistic:read","category:read", "category:write","menu:read",
+     * "model:read","model_detail:read",
+     * "queue:read","invoice:read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['company' => 'exact'])]
@@ -116,9 +116,9 @@ class Category
      * @var string
      *
      * @ORM\Column(name="icon", type="string", length=50, nullable=false)
-     * @Groups({"logistic_read","category_read","task_read", "category_write", "company_expense_read", 
-     * "model_read","model_detail_read",
-     * "category_write","menu_read","queue_read","invoice_read"})   
+     * @Groups({"logistic:read","category:read","task:read", "category:write", "company_expense:read", 
+     * "model:read","model_detail:read",
+     * "category:write","menu:read","queue:read","invoice:read"})   
      * @Assert\Type(type={"string"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['icon' => 'exact'])]
@@ -128,9 +128,9 @@ class Category
      * @var string
      *
      * @ORM\Column(name="color", type="string", length=50, nullable=false)
-     * @Groups({"logistic_read","category_read","task_read", "category_write", "company_expense_read",
-     * "model_read","model_detail_read",
-     * "category_write","menu_read","queue_read","invoice_read"})   
+     * @Groups({"logistic:read","category:read","task:read", "category:write", "company_expense:read",
+     * "model:read","model_detail:read",
+     * "category:write","menu:read","queue:read","invoice:read"})   
      * @Assert\Type(type={"string"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['color' => 'exact'])]

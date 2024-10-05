@@ -28,8 +28,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
            
         ],
         formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
-        normalizationContext: ['groups' => ['address_read']],
-        denormalizationContext: ['groups' => ['address_write']]
+        normalizationContext: ['groups' => ['address:read']],
+        denormalizationContext: ['groups' => ['address:write']]
     )
 ]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
@@ -47,21 +47,21 @@ class Address
      * @var integer
      *
      * @ORM\Column(name="number", type="integer", nullable=true)
-     * @Groups({"people_read", "address_read"})
+     * @Groups({"people:read", "address:read"})
      */
     private $number;
     /**
      * @var string
      *
      * @ORM\Column(name="nickname", type="string", length=50, nullable=false)
-     * @Groups({"people_read", "address_read"})
+     * @Groups({"people:read", "address:read"})
      */
     private $nickname;
     /**
      * @var string
      *
      * @ORM\Column(name="complement", type="string", length=50, nullable=false)
-     * @Groups({"people_read", "address_read"})
+     * @Groups({"people:read", "address:read"})
      */
     private $complement;
     /**
@@ -80,49 +80,49 @@ class Address
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="street_id", referencedColumnName="id", nullable=false)
      * })
-     * @Groups({"people_read", "address_read"})
+     * @Groups({"people:read", "address:read"})
      */
     private $street;
     /**
      * @var float
      *
      * @ORM\Column(name="latitude", type="float", nullable=false)
-     * @Groups({"people_read"})
+     * @Groups({"people:read"})
      */
     private $latitude;
     /**
      * @var float
      *
      * @ORM\Column(name="longitude", type="float", nullable=false)
-     * @Groups({"people_read"})
+     * @Groups({"people:read"})
      */
     private $longitude;
     /**
      * @var string
      *
      * @ORM\Column(name="locator", type="string", nullable=false)
-     * @Groups({"people_read"})
+     * @Groups({"people:read"})
      */
     private $locator;
     /**
      * @var Datetime
      *
      * @ORM\Column(name="opening_time", type="time", nullable=false)
-     * @Groups({"people_read"})
+     * @Groups({"people:read"})
      */
     private $opening_time;
     /**
      * @var Datetime
      *
      * @ORM\Column(name="closing_time", type="time", nullable=false)
-     * @Groups({"people_read"})
+     * @Groups({"people:read"})
      */
     private $closing_time;
     /**
      * @var string
      *
      * @ORM\Column(name="search_for", type="string", nullable=false)
-     * @Groups({"people_read"})
+     * @Groups({"people:read"})
      */
     private $search_for;
     /**

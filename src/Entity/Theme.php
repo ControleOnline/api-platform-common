@@ -32,8 +32,8 @@ use ControleOnline\Controller\GetThemeColorsAction;
         ),
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv'], 'css' => ['text/css']],
-    normalizationContext: ['groups' => ['theme_read']],
-    denormalizationContext: ['groups' => ['theme_write']]
+    normalizationContext: ['groups' => ['theme:read']],
+    denormalizationContext: ['groups' => ['theme:write']]
 )]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['theme' => 'ASC'])]
 #[ApiFilter(
@@ -51,21 +51,21 @@ class Theme
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"theme_read"})
+     * @Groups({"theme:read"})
      */
     private $id;
     /**
      * @var string
      *
      * @ORM\Column(name="theme", type="string", length=80, nullable=false)
-     * @Groups({"theme_read"})
+     * @Groups({"theme:read"})
      */
     private $theme;
     /**
      * @var string
      *
      * @ORM\Column(name="background", type="integer", nullable=true)
-     * @Groups({"theme_read"})
+     * @Groups({"theme:read"})
 
      */
     private $background;
@@ -73,7 +73,7 @@ class Theme
      * @var string
      *
      * @ORM\Column(name="colors", type="json", nullable=false)
-     * @Groups({"theme_read"})
+     * @Groups({"theme:read"})
      */
     private $colors;
 

@@ -29,7 +29,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
-            denormalizationContext: ['groups' => ['language_read']]
+            denormalizationContext: ['groups' => ['language:read']]
         ),
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
@@ -38,8 +38,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         )
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
-    normalizationContext: ['groups' => ['language_read']],
-    denormalizationContext: ['groups' => ['language_write']]
+    normalizationContext: ['groups' => ['language:read']],
+    denormalizationContext: ['groups' => ['language:write']]
 )]
 
 class Language
@@ -49,19 +49,19 @@ class Language
      * @ORM\Column(type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"translate_read", "language_read"})
+     * @Groups({"translate:read", "language:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=10, nullable=false)
-     * @Groups({"translate_read", "language_read"})
+     * @Groups({"translate:read", "language:read"})
      */
     private $language;
 
     /**
      * @ORM\Column(type="boolean", nullable=false)
-     * @Groups({"translate_read", "language_read"})
+     * @Groups({"translate:read", "language:read"})
      */
     private $locked;
 

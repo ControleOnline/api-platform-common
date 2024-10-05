@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(
             security: 'is_granted(\'ROLE_CLIENT\')',
-            normalizationContext: ['groups' => ['file_item_read']],
+            normalizationContext: ['groups' => ['file_item:read']],
         ),
         new Get(
             security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')',
@@ -52,8 +52,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Put(
             security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))',
-            validationContext: ['groups' => ['file_write']],
-            denormalizationContext: ['groups' => ['file_write']]
+            validationContext: ['groups' => ['file:write']],
+            denormalizationContext: ['groups' => ['file:write']]
         ),
         new Post(
             security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))',
@@ -62,8 +62,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             deserialize: false
         ),
     ],
-    normalizationContext: ['groups' => ['file_read']],
-    denormalizationContext: ['groups' => ['file_write']]
+    normalizationContext: ['groups' => ['file:read']],
+    denormalizationContext: ['groups' => ['file:write']]
 )]
 class File
 {
@@ -72,13 +72,13 @@ class File
      * @ORM\Column(type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"file_read","file_item_read","contract_read","model_read","people_read"})
+     * @Groups({"file:read","file_item:read","contract:read","model:read","people:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"file_read","file_item_read","file_write","contract_read","model_read","people_read"})
+     * @Groups({"file:read","file_item:read","file:write","contract:read","model:read","people:read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['fileType' => 'exact'])]
@@ -86,7 +86,7 @@ class File
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"file_read","file_item_read","file_write","contract_read","model_read","people_read"})
+     * @Groups({"file:read","file_item:read","file:write","contract:read","model:read","people:read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['fileName' => 'exact'])]
@@ -94,7 +94,7 @@ class File
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"file_read","file_item_read","file_write","contract_read","model_read","people_read"})
+     * @Groups({"file:read","file_item:read","file:write","contract:read","model:read","people:read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['extension' => 'exact'])]
@@ -102,7 +102,7 @@ class File
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"file_item_read","file_write"})
+     * @Groups({"file_item:read","file:write"})
      */
     private $content;
 
@@ -113,7 +113,7 @@ class File
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
      * })
-     * @Groups({"file_item_read","file_write","file_read"})
+     * @Groups({"file_item:read","file:write","file:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
     private $people;

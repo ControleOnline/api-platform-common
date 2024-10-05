@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ORM\Table (name="district", indexes={@ORM\Index (name="city_id", columns={"city_id"})})
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\DistrictRepository")
  */
-#[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['district_read']], denormalizationContext: ['groups' => ['district_write']])]
+#[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['district:read']], denormalizationContext: ['groups' => ['district:write']])]
 class District
 {
     /**
@@ -31,7 +31,7 @@ class District
      * @var string
      *
      * @ORM\Column(name="district", type="string", length=255, nullable=false)
-     * @Groups({"people_read", "address_read"})
+     * @Groups({"people:read", "address:read"})
      */
     private $district;
     /**
@@ -41,7 +41,7 @@ class District
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="city_id", referencedColumnName="id", nullable=false)
      * })
-     * @Groups({"people_read", "address_read"})
+     * @Groups({"people:read", "address:read"})
      */
     private $city;
     /**

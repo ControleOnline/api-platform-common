@@ -32,15 +32,15 @@ use stdClass;
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Put(
             security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))',
-            validationContext: ['groups' => ['notifications_write']],
-            denormalizationContext: ['groups' => ['notifications_write']]
+            validationContext: ['groups' => ['notifications:write']],
+            denormalizationContext: ['groups' => ['notifications:write']]
         ),
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
-    normalizationContext: ['groups' => ['notifications_read']],
-    denormalizationContext: ['groups' => ['notifications_write']]
+    normalizationContext: ['groups' => ['notifications:read']],
+    denormalizationContext: ['groups' => ['notifications:write']]
 )]
 class Notification
 {
@@ -50,35 +50,35 @@ class Notification
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"notifications_read"}) 
+     * @Groups({"notifications:read"}) 
      */
     private $id;
     /**
      * @var string
      *
      * @ORM\Column(name="notification", type="text", length=65535, nullable=false)
-     * @Groups({"notifications_read","notifications_write"})  
+     * @Groups({"notifications:read","notifications:write"})  
      */
     private $notification;
     /**
      * @var string
      *
      * @ORM\Column(name="route", type="string", length=50, nullable=false)
-     * @Groups({"notifications_read","notifications_write"})  
+     * @Groups({"notifications:read","notifications:write"})  
      */
     private $route;
     /**
      * @var int
      *
      * @ORM\Column(name="route_id", type="integer", nullable=false)
-     * @Groups({"notifications_read","notifications_write"})  
+     * @Groups({"notifications:read","notifications:write"})  
      */
     private $routeId;
     /**
      * @var bool
      *
-     * @ORM\Column(name="notification_read", type="boolean", nullable=false)
-     * @Groups({"notifications_read","notifications_write"})  
+     * @ORM\Column(name="notification:read", type="boolean", nullable=false)
+     * @Groups({"notifications:read","notifications:write"})  
      */
     private $read;
     /**
@@ -88,7 +88,7 @@ class Notification
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
      * })
-     * @Groups({"notifications_read","notifications_write"})  
+     * @Groups({"notifications:read","notifications:write"})  
      */
     private $people;
     /**

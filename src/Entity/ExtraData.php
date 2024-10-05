@@ -26,16 +26,16 @@ use ApiPlatform\Metadata\Put;
         new Put(
             uriTemplate: '/extra_data/{id}',
             security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))',
-            validationContext: ['groups' => ['extra_data_write']],
-            denormalizationContext: ['groups' => ['extra_data_write']]
+            validationContext: ['groups' => ['extra_data:write']],
+            denormalizationContext: ['groups' => ['extra_data:write']]
         ),
         new Delete(uriTemplate: '/extra_data/{id}', security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(uriTemplate: '/extra_data', securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' =>
     ['text/csv']],
-    normalizationContext: ['groups' => ['extra_data_read']],
-    denormalizationContext: ['groups' => ['extra_data_write']]
+    normalizationContext: ['groups' => ['extra_data:read']],
+    denormalizationContext: ['groups' => ['extra_data:write']]
 )]
 #[ApiFilter(filterClass: SearchFilter::class, properties: [
     'id' => 'exact',
@@ -50,7 +50,7 @@ class ExtraData
      *
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
-     * @Groups({"extrafields_read", "extra_data_read"})
+     * @Groups({"extrafields:read", "extra_data:read"})
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
@@ -61,25 +61,25 @@ class ExtraData
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="extra_fields_id", referencedColumnName="id")
      * })
-     * @Groups({"extra_data_read"})
+     * @Groups({"extra_data:read"})
      */
     private $extra_fields;
 
     /**
      * @ORM\Column(name="entity_id", type="string", nullable=false)
-     * @Groups({"extra_data_read"})
+     * @Groups({"extra_data:read"})
      */
     private $entity_id;
 
     /**
      * @ORM\Column(name="entity_name", type="string", nullable=false)
-     * @Groups({"extra_data_read"})
+     * @Groups({"extra_data:read"})
      */
     private $entity_name;
 
     /**
      * @ORM\Column(name="data_value", type="string", nullable=false)
-     * @Groups({"extra_data_read"})
+     * @Groups({"extra_data:read"})
      */
     private $value;
     /**

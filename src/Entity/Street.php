@@ -25,8 +25,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
-    normalizationContext: ['groups' => ['street_read']],
-    denormalizationContext: ['groups' => ['street_write']]
+    normalizationContext: ['groups' => ['street:read']],
+    denormalizationContext: ['groups' => ['street:write']]
 )]
 class Street
 {
@@ -42,7 +42,7 @@ class Street
      * @var string
      *
      * @ORM\Column(name="street", type="string", length=255, nullable=false)
-     * @Groups({"people_read", "address_read"})
+     * @Groups({"people:read", "address:read"})
      */
     private $street;
     /**
@@ -52,7 +52,7 @@ class Street
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="district_id", referencedColumnName="id", nullable=false)
      * })
-     * @Groups({"people_read", "address_read"})
+     * @Groups({"people:read", "address:read"})
      */
     private $district;
     /**
@@ -62,7 +62,7 @@ class Street
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="cep_id", referencedColumnName="id", nullable=false)
      * })
-     * @Groups({"people_read", "address_read"})
+     * @Groups({"people:read", "address:read"})
      */
     private $cep;
     /**

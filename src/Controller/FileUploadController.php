@@ -52,7 +52,7 @@ class FileUploadController
             );
             $this->em->persist($fileEntity);
             $this->em->flush();
-            return new JsonResponse($this->hydratorService->data($fileEntity, 'file_read'), Response::HTTP_CREATED);
+            return new JsonResponse($this->hydratorService->data($fileEntity, 'file:read'), Response::HTTP_CREATED);
         } catch (Exception $e) {
             return new JsonResponse($this->hydratorService->error($e));
         }
