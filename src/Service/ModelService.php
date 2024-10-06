@@ -560,7 +560,7 @@ class ModelService
             'student_small_address' => '[student_small_address]',
         ];
 
-        $peopleContract = $myContract->getContractPeople()
+        $peopleContract = $myContract->getPeoples()
             ->filter(function ($contractPeople) {
                 return $contractPeople->getPeopleType() == 'Payer';
             });
@@ -908,7 +908,7 @@ class ModelService
 
     protected function getContractPeoplePayers(MyContract $contract): array
     {
-        $contractPeople = $contract->getContractPeople()
+        $contractPeople = $contract->getPeoples()
             ->filter(function ($contractPeople) {
                 return $contractPeople->getPeopleType() == 'Payer' && $contractPeople->getContractPercentage() > 0;
             });
