@@ -238,9 +238,6 @@ class ModelService
      */
     public function genetateFromModel(MyContract $contract): string
     {
-
-        return $contract->getContractModel()->getFile()->getContent();
-
         $values = $this->getTemplateVarsWithValues($contract);
         $content = preg_replace(
             $this->getRegex($values),
