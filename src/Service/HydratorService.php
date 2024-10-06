@@ -26,7 +26,7 @@ class HydratorService
         $this->request = $requestStack->getCurrentRequest();
         $this->uri = $this->request ? $this->request->getPathInfo() : '';
     }
-    public function error(Exception $e)
+    public function error($e)
     {
         return $e;
     }
