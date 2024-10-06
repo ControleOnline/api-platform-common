@@ -304,7 +304,7 @@ class ModelService
             'contract_hours'            => $contract['contract_hours'],
             'contract_schedule'         => $contract['contract_schedule'],
             'contract_startdate'        => $contract['contract_startdate'],
-            'contract_amount'           => Formatter::money($contract['contract_amount']),
+            'contract_amount'           => Formatter::money(floatval($contract['contract_amount'])),
             'contract_enddate'          => $contract['contract_enddate'],
             'contract_modality'         => $contract['contract_modality'],
             'contract_detail_services'  => $contract['contract_detail_services'],
