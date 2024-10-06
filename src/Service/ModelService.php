@@ -606,6 +606,8 @@ class ModelService
 
     protected function getContractData(MyContract $myContract): array
     {
+
+        return[];
         $data = [
             'contract_hours'           => '[contract_hours]',
             'contract_schedule'        => '[contract_schedule]',
