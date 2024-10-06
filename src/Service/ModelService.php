@@ -7,7 +7,6 @@ use ControleOnline\Entity\City;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\Address;
 use ControleOnline\Entity\Contract as MyContract;
-use ControleOnline\Entity\SalesOrder;
 use App\Library\Utils\Formatter;
 use ControleOnline\Entity\MyContractProduct;
 
@@ -440,6 +439,8 @@ class ModelService
 
     protected function getOrderData(MyContract $myContract): array
     {
+
+        return [];
         $data = [
             'order_id'                  => '[order_id]',
             'order_price'               => '[order_price]',
