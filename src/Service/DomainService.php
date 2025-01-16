@@ -11,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class DomainService
 {
-    private static PeopleDomain $peopleDomain;
+    private static $peopleDomain;
     private $request;
     public function __construct(
         private  EntityManagerInterface $manager,
@@ -56,7 +56,7 @@ class DomainService
     public function getPeopleDomain(): PeopleDomain
     {
         if (self::$peopleDomain) return self::$peopleDomain;
-        
+
         $domain  = $this->getMainDomain();
         self::$peopleDomain = $this->manager->getRepository(PeopleDomain::class)->findOneBy(['domain' => $domain]);
 
