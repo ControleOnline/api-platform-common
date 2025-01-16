@@ -2,6 +2,7 @@
 
 namespace ControleOnline\Service;
 
+use ControleOnline\Entity\PeopleDomain;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Request;
 use InvalidArgumentException;
@@ -10,6 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class DomainService
 {
+    private static PeopleDomain $peopleDomain;
     private $request;
     public function __construct(
         private  EntityManagerInterface $manager,
@@ -49,5 +51,20 @@ class DomainService
     public function getMainDomain()
     {
         return $this->request->server->get('HTTP_HOST');
+    }
+
+    public function getPeopleDomain(): PeopleDomain
+    {
+        if (self::$peopleDomain) return self::$peopleDomain;
+        
+        $domain  = $this->getMainDomain();
+        self::$peopleDomain = $this->manager->getRepository(PeopleDomain::class)->findOneBy(['domain' => $domain]);
+
+        if (self::$peopleDomain === null)
+            throw new \Exception(
+                sprintf('Main company "%s" not found', $domain)
+            );
+
+        return self::$peopleDomain;
     }
 }
