@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\ApiFilter;
 use Doctrine\ORM\Mapping as ORM;
 use DoctrineExtensions\Query\Mysql\Lpad;
 use Symfony\Component\Serializer\Annotation\Groups;
+
 /**
  * Cep
  *
@@ -25,13 +26,14 @@ class Cep
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Groups({"people:read","order_details:read", "address:read"})
      */
     private $id;
     /**
      * @var integer
      *
      * @ORM\Column(name="cep", type="integer", nullable=false)
-     * @Groups({"people:read", "address:read"})
+     * @Groups({"people:read","order_details:read", "address:read"})
      */
     private $cep;
     /**

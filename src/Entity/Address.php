@@ -25,7 +25,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
             new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
             new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
             new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
-           
+
         ],
         formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
         normalizationContext: ['groups' => ['address:read']],
@@ -41,27 +41,28 @@ class Address
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Groups({"people:read","order_details:read", "address:read"})
      */
     private $id;
     /**
      * @var integer
      *
      * @ORM\Column(name="number", type="integer", nullable=true)
-     * @Groups({"people:read", "address:read"})
+     * @Groups({"people:read","order_details:read", "address:read"})
      */
     private $number;
     /**
      * @var string
      *
      * @ORM\Column(name="nickname", type="string", length=50, nullable=false)
-     * @Groups({"people:read", "address:read"})
+     * @Groups({"people:read","order_details:read", "address:read"})
      */
     private $nickname;
     /**
      * @var string
      *
      * @ORM\Column(name="complement", type="string", length=50, nullable=false)
-     * @Groups({"people:read", "address:read"})
+     * @Groups({"people:read","order_details:read", "address:read"})
      */
     private $complement;
     /**
@@ -80,7 +81,7 @@ class Address
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="street_id", referencedColumnName="id", nullable=false)
      * })
-     * @Groups({"people:read", "address:read"})
+     * @Groups({"people:read","order_details:read", "address:read"})
      */
     private $street;
     /**

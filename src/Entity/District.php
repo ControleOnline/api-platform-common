@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiFilter;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+
 /**
  * District
  *
@@ -25,13 +26,14 @@ class District
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Groups({"people:read","order_details:read", "address:read"})
      */
     private $id;
     /**
      * @var string
      *
      * @ORM\Column(name="district", type="string", length=255, nullable=false)
-     * @Groups({"people:read", "address:read"})
+     * @Groups({"people:read","order_details:read", "address:read"})
      */
     private $district;
     /**
@@ -41,7 +43,7 @@ class District
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="city_id", referencedColumnName="id", nullable=false)
      * })
-     * @Groups({"people:read", "address:read"})
+     * @Groups({"people:read","order_details:read", "address:read"})
      */
     private $city;
     /**
