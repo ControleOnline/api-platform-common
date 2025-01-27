@@ -44,21 +44,21 @@ class City
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"city:read","logistic:read","order_details:read", "people:read", "address:read", "delivery_region:read"})
+     * @Groups({"city:read","logistic:read","order_details:read","order:write", "people:read", "address:read", "delivery_region:read"})
      */
     private $id;
     /**
      * @var string
      *
      * @ORM\Column(name="city", type="string", length=80, nullable=false)
-     * @Groups({"city:read","logistic:read","order_details:read", "people:read", "address:read", "delivery_region:read"})
+     * @Groups({"city:read","logistic:read","order_details:read","order:write", "people:read", "address:read", "delivery_region:read"})
      */
     private $city;
     /**
      * @var string
      *
      * @ORM\Column(name="cod_ibge", type="integer", nullable=true)
-     * @Groups({"city:read","logistic:read","order_details:read", "people:read", "address:read", "delivery_region:read"})
+     * @Groups({"city:read","logistic:read","order_details:read","order:write", "people:read", "address:read", "delivery_region:read"})
 
      */
     private $cod_ibge;
@@ -75,7 +75,7 @@ class City
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="state_id", referencedColumnName="id", nullable=false)
      * })
-     * @Groups({"city:read","logistic:read","order_details:read", "people:read", "address:read", "delivery_region:read"})
+     * @Groups({"city:read","logistic:read","order_details:read","order:write", "people:read", "address:read", "delivery_region:read"})
      */
     private $state;
     /**

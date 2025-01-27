@@ -26,14 +26,14 @@ class Cep
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"people:read","order_details:read", "address:read"})
+     * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
     private $id;
     /**
      * @var integer
      *
      * @ORM\Column(name="cep", type="integer", nullable=false)
-     * @Groups({"people:read","order_details:read", "address:read"})
+     * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
     private $cep;
     /**

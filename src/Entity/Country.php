@@ -25,14 +25,14 @@ class Country
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
      */
     private $id;
     /**
      * @var string
      *
      * @ORM\Column(name="countryCode", type="string", length=3, nullable=false)
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
 
      */
     private $countrycode;
@@ -40,14 +40,14 @@ class Country
      * @var string
      *
      * @ORM\Column(name="countryName", type="string", length=45, nullable=false)
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
      */
     private $countryname;
     /**
      * @var string
      *
      * @ORM\Column(name="currencyCode", type="string", length=3, nullable=true)
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
 
      */
     private $currencycode;
@@ -55,7 +55,7 @@ class Country
      * @var integer
      *
      * @ORM\Column(name="population", type="integer", nullable=true)
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
 
      */
     private $population;
@@ -63,7 +63,7 @@ class Country
      * @var string
      *
      * @ORM\Column(name="fipsCode", type="string", length=2, nullable=true)
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
 
      */
     private $fipscode;
@@ -72,14 +72,14 @@ class Country
      *
      * @ORM\Column(name="isoNumeric", type="string", length=4, nullable=true)
      * 
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
      */
     private $isonumeric;
     /**
      * @var string
      *
      * @ORM\Column(name="north", type="string", length=30, nullable=true)
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
 
      */
     private $north;
@@ -87,7 +87,7 @@ class Country
      * @var string
      *
      * @ORM\Column(name="south", type="string", length=30, nullable=true)
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
 
      */
     private $south;
@@ -96,7 +96,7 @@ class Country
      *
      * @ORM\Column(name="east", type="string", length=30, nullable=true)
      * 
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
 
      */
     private $east;
@@ -104,7 +104,7 @@ class Country
      * @var string
      *
      * @ORM\Column(name="west", type="string", length=30, nullable=true)
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
 
      */
     private $west;
@@ -112,7 +112,7 @@ class Country
      * @var string
      *
      * @ORM\Column(name="capital", type="string", length=30, nullable=true)
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
 
      */
     private $capital;
@@ -120,7 +120,7 @@ class Country
      * @var string
      *
      * @ORM\Column(name="continentName", type="string", length=15, nullable=true)
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
 
      */
     private $continentname;
@@ -128,7 +128,7 @@ class Country
      * @var string
      *
      * @ORM\Column(name="continent", type="string", length=2, nullable=true)
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
 
      */
     private $continent;
@@ -136,7 +136,7 @@ class Country
      * @var string
      *
      * @ORM\Column(name="areaInSqKm", type="string", length=20, nullable=true)
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
 
      */
     private $areainsqkm;
@@ -144,7 +144,7 @@ class Country
      * @var string
      *
      * @ORM\Column(name="isoAlpha3", type="string", length=3, nullable=true)
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
 
      */
     private $isoalpha3;
@@ -152,7 +152,7 @@ class Country
      * @var integer
      *
      * @ORM\Column(name="geonameId", type="integer", nullable=true)
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
 
      */
     private $geonameid;
@@ -160,7 +160,7 @@ class Country
      * @var \Doctrine\Common\Collections\Collection
      *
      * @ORM\OneToMany(targetEntity="ControleOnline\Entity\LanguageCountry", mappedBy="country")
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read", "address:read"})
+     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
 
      */
     private $languageCountry;

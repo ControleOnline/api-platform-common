@@ -41,28 +41,28 @@ class Address
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"people:read","order_details:read", "address:read"})
+     * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
     private $id;
     /**
      * @var integer
      *
      * @ORM\Column(name="number", type="integer", nullable=true)
-     * @Groups({"people:read","order_details:read", "address:read"})
+     * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
     private $number;
     /**
      * @var string
      *
      * @ORM\Column(name="nickname", type="string", length=50, nullable=false)
-     * @Groups({"people:read","order_details:read", "address:read"})
+     * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
     private $nickname;
     /**
      * @var string
      *
      * @ORM\Column(name="complement", type="string", length=50, nullable=false)
-     * @Groups({"people:read","order_details:read", "address:read"})
+     * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
     private $complement;
     /**
@@ -81,7 +81,7 @@ class Address
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="street_id", referencedColumnName="id", nullable=false)
      * })
-     * @Groups({"people:read","order_details:read", "address:read"})
+     * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
     private $street;
     /**

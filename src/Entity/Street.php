@@ -36,14 +36,14 @@ class Street
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"people:read","order_details:read", "address:read"})
+     * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
     private $id;
     /**
      * @var string
      *
      * @ORM\Column(name="street", type="string", length=255, nullable=false)
-     * @Groups({"people:read","order_details:read", "address:read"})
+     * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
     private $street;
     /**
@@ -53,7 +53,7 @@ class Street
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="district_id", referencedColumnName="id", nullable=false)
      * })
-     * @Groups({"people:read","order_details:read", "address:read"})
+     * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
     private $district;
     /**
@@ -63,7 +63,7 @@ class Street
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="cep_id", referencedColumnName="id", nullable=false)
      * })
-     * @Groups({"people:read","order_details:read", "address:read"})
+     * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
     private $cep;
     /**
