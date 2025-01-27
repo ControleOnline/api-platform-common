@@ -31,6 +31,16 @@ class HydratorService
         return $e;
     }
 
+    public function collectionData($data, $class, $groups,  mixed $arguments = [])
+    {
+        $response = $this->getBasicResponse($class);
+
+        $response['hydra:member']      =   $this->data($data, $groups);
+        $response['hydra:search']       =   $this->getSearch($class);
+        $response['hydra:totalItems']   =   $this->getCount($class, $arguments);
+
+        return $response;
+    }
     public function collection($class, $groups,  mixed $arguments = [], int $limit = 0, int $page = 1, array $orderby = [])
     {
         $response = $this->getBasicResponse($class);

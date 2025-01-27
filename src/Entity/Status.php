@@ -45,7 +45,7 @@ class Status
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({ "contract:read", "task:read","display:read","order:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
+     * @Groups({ "contract:read", "task:read","display:read","order:read","order_details:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
 
@@ -54,7 +54,7 @@ class Status
      * @var string
      *
      * @ORM\Column(name="status", type="string",  nullable=false)
-     * @Groups({"contract:read", "task:read","display:read","order:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
+     * @Groups({"contract:read", "task:read","display:read","order:read","order_details:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      * @Assert\NotBlank
      * @Assert\Type(type={"string"})
      */
@@ -65,7 +65,7 @@ class Status
      * @var string
      *
      * @ORM\Column(name="real_status", type="string",  nullable=false)
-     * @Groups({"contract:read", "task:read","display:read","order:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
+     * @Groups({"contract:read", "task:read","display:read","order:read","order_details:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['realStatus' => 'exact'])]
 
@@ -74,7 +74,7 @@ class Status
      * @var string
      *
      * @ORM\Column(name="visibility", type="string",  nullable=false)
-     * @Groups({"contract:read", "task:read","display:read","order:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
+     * @Groups({"contract:read", "task:read","display:read","order:read","order_details:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['visibility' => 'exact'])]
 
@@ -83,7 +83,7 @@ class Status
      * @var boolean
      *
      * @ORM\Column(name="notify", type="boolean",  nullable=false)
-     * @Groups({"contract:read", "task:read","display:read","order:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
+     * @Groups({"contract:read", "task:read","display:read","order:read","order_details:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['notify' => 'exact'])]
 
@@ -92,7 +92,7 @@ class Status
      * @var boolean
      *
      * @ORM\Column(name="system", type="boolean",  nullable=false)
-     * @Groups({"contract:read", "task:read","display:read","order:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
+     * @Groups({"contract:read", "task:read","display:read","order:read","order_details:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['system' => 'exact'])]
 
@@ -101,7 +101,7 @@ class Status
      * @var string
      *
      * @ORM\Column(name="color", type="string",  nullable=false)
-     * @Groups({"contract:read", "task:read","display:read","order:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
+     * @Groups({"contract:read", "task:read","display:read","order:read","order_details:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['color' => 'exact'])]
 
@@ -110,7 +110,7 @@ class Status
      * @var string
      *
      * @ORM\Column(name="context", type="string",  nullable=false)
-     * @Groups({"contract:read", "task:read","display:read","order:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
+     * @Groups({"contract:read", "task:read","display:read","order:read","order_details:read", "invoice:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact'])]
 
