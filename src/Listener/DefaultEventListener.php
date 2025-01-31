@@ -36,7 +36,10 @@ class DefaultEventListener
     {
         $this->execute($args->getEntity(), 'afterPersist');
     }
-
+    public function preRemove(LifecycleEventArgs $args)
+    {
+        $this->execute($args->getEntity(), 'beforeDelete');
+    }
     private function execute($entity, $method)
     {
         $class = get_class($entity);
