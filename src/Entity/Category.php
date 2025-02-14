@@ -50,7 +50,7 @@ class Category
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"logistic:read","category:read","task:read", "company_expense:read",
+     * @Groups({"logistic:read","invoice_details:read","category:read","task:read", "company_expense:read",
      * "model:read","model_detail:read",
      * "menu:read","invoice:read"})
      */
@@ -61,7 +61,7 @@ class Category
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=100, nullable=false)
-     * @Groups({"menu:read","logistic:read","category:read","task:read", "category:write", 
+     * @Groups({"menu:read","logistic:read","invoice_details:read","category:read","task:read", "category:write", 
      * "model:read","model_detail:read",
      * "company_expense:read", "queue:read","invoice:read"})
      * @Assert\NotBlank
@@ -74,7 +74,7 @@ class Category
      * @var string
      *
      * @ORM\Column(name="context", type="string", length=100, nullable=false)
-     * @Groups({"logistic:read","category:read","task:read", "category:write","menu:read",
+     * @Groups({"logistic:read","invoice_details:read","category:read","task:read", "category:write","menu:read",
      * "model:read","model_detail:read",
      * "queue:read","invoice:read"})
      * @Assert\NotBlank
@@ -90,7 +90,7 @@ class Category
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="parent_id", referencedColumnName="id", nullable=true)
      * })
-     * @Groups({"logistic:read","category:read","task:read", "category:write", 
+     * @Groups({"logistic:read","invoice_details:read","category:read","task:read", "category:write", 
      * "model:read","model_detail:read",
      * "category:write","menu:read","queue:read"})
      */
@@ -104,7 +104,7 @@ class Category
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="company_id", referencedColumnName="id")
      * })
-     * @Groups({"logistic:read","category:read", "category:write","menu:read",
+     * @Groups({"logistic:read","invoice_details:read","category:read", "category:write","menu:read",
      * "model:read","model_detail:read",
      * "queue:read","invoice:read"})
      * @Assert\NotBlank
@@ -116,7 +116,7 @@ class Category
      * @var string
      *
      * @ORM\Column(name="icon", type="string", length=50, nullable=false)
-     * @Groups({"logistic:read","category:read","task:read", "category:write", "company_expense:read", 
+     * @Groups({"logistic:read","invoice_details:read","category:read","task:read", "category:write", "company_expense:read", 
      * "model:read","model_detail:read",
      * "category:write","menu:read","queue:read","invoice:read"})   
      * @Assert\Type(type={"string"})
@@ -128,7 +128,7 @@ class Category
      * @var string
      *
      * @ORM\Column(name="color", type="string", length=50, nullable=false)
-     * @Groups({"logistic:read","category:read","task:read", "category:write", "company_expense:read",
+     * @Groups({"logistic:read","invoice_details:read","category:read","task:read", "category:write", "company_expense:read",
      * "model:read","model_detail:read",
      * "category:write","menu:read","queue:read","invoice:read"})   
      * @Assert\Type(type={"string"})
