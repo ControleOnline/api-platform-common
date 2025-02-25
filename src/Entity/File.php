@@ -72,13 +72,13 @@ class File
      * @ORM\Column(type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"file:read","product_file:read","product_details:read","file_item:read","product_details:read","contract:read","model:read","people:read"})
+     * @Groups({"file:read","product_category:read","product_file:read","product_details:read","file_item:read","product_details:read","contract:read","model:read","people:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"file:read","product_file:read","product_details:read","file_item:read","product_details:read","file:write","contract:read","model:read","people:read"})
+     * @Groups({"file:read","product_category:read","product_file:read","product_details:read","file_item:read","product_details:read","file:write","contract:read","model:read","people:read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['fileType' => 'exact'])]
@@ -86,7 +86,7 @@ class File
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"file:read","product_file:read","product_details:read","file_item:read","product_details:read","file:write","contract:read","model:read","people:read"})
+     * @Groups({"file:read","product_category:read","product_file:read","product_details:read","file_item:read","product_details:read","file:write","contract:read","model:read","people:read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['fileName' => 'exact'])]
@@ -94,7 +94,7 @@ class File
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Groups({"file:read","product_file:read","product_details:read","file_item:read","product_details:read","file:write","contract:read","model:read","people:read"})
+     * @Groups({"file:read","product_category:read","product_file:read","product_details:read","file_item:read","product_details:read","file:write","contract:read","model:read","people:read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['extension' => 'exact'])]
