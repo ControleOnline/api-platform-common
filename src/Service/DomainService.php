@@ -57,8 +57,13 @@ class DomainService
     {
         if (self::$peopleDomain) return self::$peopleDomain;
 
-        $domain  = $this->getMainDomain();
+        $domain  = $this->getDomain();
         self::$peopleDomain = $this->manager->getRepository(PeopleDomain::class)->findOneBy(['domain' => $domain]);
+
+        if (!self::$peopleDomain) {
+            $domain  = $this->getMainDomain();
+            self::$peopleDomain = $this->manager->getRepository(PeopleDomain::class)->findOneBy(['domain' => $domain]);
+        }
 
         if (self::$peopleDomain === null)
             throw new \Exception(
