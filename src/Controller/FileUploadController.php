@@ -27,6 +27,7 @@ class FileUploadController
         try {
             $file = $request->files->get('file');
             $people_id = $request->request->get('people');
+            $context = $request->request->get('context');
             $file_id = $request->request->get('id');
 
 
@@ -43,6 +44,7 @@ class FileUploadController
             if (!$fileEntity)
                 $fileEntity = new File();
 
+            $fileEntity->setContext($context);
             $fileEntity->setContent($content);
             $fileEntity->setFileName($originalFilename);
             $fileEntity->setFileType($fileType[0]);
