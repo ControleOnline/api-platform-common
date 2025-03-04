@@ -17,6 +17,7 @@ use ControleOnline\Filter\CustomOrFilter;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
@@ -70,6 +71,17 @@ class Category
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['name' => 'partial'])]
 
     private $name;
+
+
+    /**
+     * @ORM\OneToMany(targetEntity="CategoryFile", mappedBy="category")
+     * @Groups({"category:read"})
+     */
+    #[ApiFilter(filterClass: ExistsFilter::class, properties: ['categoryFiles'])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['categoryFiles.file.fileType' => 'exact'])]
+
+    private $categoryFiles;
+
     /**
      * @var string
      *
@@ -136,6 +148,12 @@ class Category
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['color' => 'exact'])]
 
     private $color;
+
+
+    public function __construct()
+    {
+        $this->categoryFiles = new \Doctrine\Common\Collections\ArrayCollection();
+    }
     /**
      * Get id
      *
@@ -210,5 +228,13 @@ class Category
     {
         $this->color = $color;
         return $this;
+    }
+
+    /**
+     * @return Collection|CategoryFile[]
+     */
+    public function getCategoryFiles(): Collection
+    {
+        return $this->categoryFiles;
     }
 }
