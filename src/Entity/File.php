@@ -97,6 +97,14 @@ class File
      * @Groups({"file:read","category:read","product_category:read","product_file:read","product:read","file_item:read","product:read","file:write","contract:read","model:read","people:read"})
      * @Assert\NotBlank
      */
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact'])]
+    private $context;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=false)
+     * @Groups({"file:read","category:read","product_category:read","product_file:read","product:read","file_item:read","product:read","file:write","contract:read","model:read","people:read"})
+     * @Assert\NotBlank
+     */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['extension' => 'exact'])]
     private $extension;
 
@@ -216,6 +224,24 @@ class File
     public function setFileName($fileName): self
     {
         $this->fileName = $fileName;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of context
+     */
+    public function getContext()
+    {
+        return $this->context;
+    }
+
+    /**
+     * Set the value of context
+     */
+    public function setContext($context): self
+    {
+        $this->context = $context;
 
         return $this;
     }
