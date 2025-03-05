@@ -2,14 +2,12 @@
 
 namespace ControleOnline\Filter;
 
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\AbstractContextAwareFilter;
-//use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
-//use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-//use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use ApiPlatform\Metadata\Operation;
 use Doctrine\ORM\QueryBuilder;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 
-class CustomOrFilter extends AbstractContextAwareFilter
+class CustomOrFilter extends AbstractFilter
 {
     public function getDescription(string $resourceClass): array
     {
@@ -25,7 +23,7 @@ class CustomOrFilter extends AbstractContextAwareFilter
         ];
     }
 
-    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, string $operationName = null)
+    protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
         if ($property !== 'search') {
             return;
