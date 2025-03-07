@@ -26,7 +26,7 @@ use Doctrine\Common\Collections\Collection;
  */
 #[ApiResource(
     operations: [
-        new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
+        new Get(security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')'),
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             denormalizationContext: ['groups' => ['category:write']]
