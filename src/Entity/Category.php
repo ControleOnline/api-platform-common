@@ -44,6 +44,7 @@ use Doctrine\Common\Collections\Collection;
 #[ApiFilter(filterClass: ExistsFilter::class, properties: ['parent'])]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['name' => 'ASC'])]
 #[ApiFilter(CustomOrFilter::class, properties: ['name', 'id', 'icon', 'color'])]
+#[ApiFilter(OrderFilter::class, properties: ['id' => 'ASC', 'name' => 'ASC'])]
 
 class Category
 {
