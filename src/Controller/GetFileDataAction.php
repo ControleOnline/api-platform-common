@@ -50,15 +50,15 @@ class GetFileDataAction
                 fputs(fopen('php://output', 'wb'), $content);
             });
 
-
-            $ext = $file->getFileType();
+            $fileType = $file->getFileType();
+            $ext = $file->getExtension();
             if ($ext == 'svg') {
                 $response->headers->set('Content-Type', 'image/svg+xml');
             } else {
-                $response->headers->set('Content-Type', $ext);
+                $response->headers->set('Content-Type', "$fileType/$ext");
             }
 
-            if ($file->getFileType() == 'image')
+            if ($fileType == 'image')
                 $disposition = HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_INLINE, basename($request->getPathInfo()));
             else
                 $disposition = HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, basename($request->getPathInfo()));
