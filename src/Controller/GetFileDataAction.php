@@ -58,7 +58,11 @@ class GetFileDataAction
                 $response->headers->set('Content-Type', $ext);
             }
 
-            $disposition = HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, basename($request->getPathInfo()));
+            if ($file->getFileType() == 'image')
+                $disposition = HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_INLINE, basename($request->getPathInfo()));
+            else
+                $disposition = HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, basename($request->getPathInfo()));
+
             $response->headers->set('Content-Disposition', $disposition);
 
             return $response;
