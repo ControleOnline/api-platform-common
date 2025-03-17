@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="status", uniqueConstraints={@ORM\UniqueConstraint (name="status", columns={"status"})}, indexes={@ORM\Index (name="IDX_real_status", columns={"real_status"})})
+ * @ORM\Table (name="status", uniqueConstraints={@ORM\UniqueConstraint (name="status", columns={"status", "context"})}, indexes={@ORM\Index (name="IDX_real_status", columns={"real_status"})})
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\StatusRepository")
  */
 #[ApiResource(
