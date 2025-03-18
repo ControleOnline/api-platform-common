@@ -29,12 +29,12 @@ class ExtraDataService
         return $this->request->getClientIp();
     }
 
-    public function discoveryIdentifier(&$entity)
+    public function discoveryDevice(&$entity)
     {
-        $identifier = $this->request->headers->get('identifier') ?: $this->getUserIp();
+        $device = $this->request->headers->get('DEVICE') ?: $this->getUserIp();
 
-        if (method_exists($entity, 'setIdentifier')) {
-            $entity->setIdentifier($identifier);
+        if (method_exists($entity, 'setDevice')) {
+            $entity->setDevice($device);
         }
     }
 

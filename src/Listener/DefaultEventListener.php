@@ -24,7 +24,7 @@ class DefaultEventListener
     public function prePersist(LifecycleEventArgs $args)
     {
         $entity = $args->getEntity();
-        $this->ExtraDataService->discoveryIdentifier($entity);
+        $this->ExtraDataService->discoveryDevice($entity);
         $this->ExtraDataService->discoveryUser($entity);
         $this->execute($entity, 'prePersist');
     }
