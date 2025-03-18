@@ -19,27 +19,29 @@ class DefaultEventListener
 
     public function preUpdate(LifecycleEventArgs $args)
     {
-        $this->execute($args->getEntity(), 'beforePersist');
-    }
-
-    public function postUpdate(LifecycleEventArgs $args)
-    {
-        $this->execute($args->getEntity(), 'afterPersist');
+        $this->execute($args->getEntity(), 'prePersist');
     }
 
     public function prePersist(LifecycleEventArgs $args)
     {
-        $this->execute($args->getEntity(), 'beforePersist');
+        $this->execute($args->getEntity(), 'prePersist');
+    }
+
+    public function postUpdate(LifecycleEventArgs $args)
+    {
+        $this->execute($args->getEntity(), 'postPersist');
     }
 
     public function postPersist(LifecycleEventArgs $args)
     {
-        $this->execute($args->getEntity(), 'afterPersist');
+        $this->execute($args->getEntity(), 'postPersist');
     }
+    
     public function preRemove(LifecycleEventArgs $args)
     {
-        $this->execute($args->getEntity(), 'beforeDelete');
+        $this->execute($args->getEntity(), 'preRemove');
     }
+
     private function execute($entity, $method)
     {
         $class = get_class($entity);
@@ -49,7 +51,7 @@ class DefaultEventListener
             $service = $this->container->get($serviceName);
             if (method_exists($service, $method)) {
                 $entity = $service->$method($entity);
-                if ('afterPersist' === $method && $entity)
+                if ('postPersist' === $method && $entity)
                     $this->manager->refresh($entity);
             }
         }

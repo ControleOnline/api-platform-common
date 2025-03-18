@@ -18,7 +18,7 @@ class NotificationService
   ) {
   }
 
-  public function afterPersist(Notification $notification)
+  public function postPersist(Notification $notification)
   {
     $this->pusher->push(['company' => 1, 'people' => 1], 'my_topic');
   }

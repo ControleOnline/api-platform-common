@@ -17,40 +17,68 @@ class ExtraDataService
     private static $persisted = false;
     private $request;
     public function __construct(
-        private  EntityManagerInterface $manager,
-        RequestStack $requestStack
+        private EntityManagerInterface $manager,
+        private RequestStack $requestStack,
+        private Security $security,
     ) {
         $this->request = $requestStack->getCurrentRequest();
     }
+
+    private function getUserIp()
+    {
+        return $this->request->getClientIp();
+    }
+
+    private function discoveryIdentifier($entity)
+    {
+        $identifier = $this->request->headers->get('identifier') ?: $this->getUserIp();
+
+        if (method_exists($entity, 'setIdentifier')) {
+            $entity->setIdentifier($identifier);
+            $this->manager->persist($entity);
+        }
+    }
+
+    private function discoveryUser($entity)
+    {
+        if (method_exists($entity, 'setUser')) {
+            $entity->setUser($this->security->getUser());
+            $this->manager->persist($entity);
+        }
+    }
+
     public function persist($entity)
     {
         if (self::$persisted == true)
             return;
         self::$persisted = true;
 
-        $json =       json_decode($this->request->getContent(), true);
-        $extra_data = isset($json['extra-data']) ? $json['extra-data'] : null;
-
-        if (!$extra_data)
-            return;
-
         //$this->manager->persist($entity);
         //$this->manager->flush();
-        $this->persistData(
-            $entity->getId(),
-            (new \ReflectionClass($entity::class))->getShortName()
-        );
+        $this->persistData($entity);
     }
-    private function persistData($entity_id, $entity_name)
+    private function persistData($entity = null)
     {
-        if (!$entity_id || !$entity_name)
-            return;
+
         $json =       json_decode($this->request->getContent(), true);
         $extra_data = isset($json['extra-data']) ? $json['extra-data'] : null;
 
         if (!$extra_data)
             return;
 
+        if ($entity) {
+            $entity_id = $entity->getId();
+            $entity_name = (new \ReflectionClass($entity::class))->getShortName();
+            $this->discoveryIdentifier($entity);
+            $this->discoveryUser($entity);
+        } else {
+            $entity_id = $extra_data['entity_id'];
+            $entity_name = $extra_data['entity_name'];
+        }
+
+
+        if (!$entity_id || !$entity_name)
+            return;
 
         foreach ($extra_data['data'] as $key => $data) {
             $extra_fields = $this->manager->getRepository(ExtraFields::class)->find($key);
@@ -79,12 +107,6 @@ class ExtraDataService
     {
         if (self::$persisted == true)
             return;
-        self::$persisted = true;
-        $json =       json_decode($this->request->getContent(), true);
-        $extra_data = isset($json['extra-data']) ? $json['extra-data'] : null;
-        if (!$extra_data)
-            return;
-
-        $this->persistData($extra_data['entity_id'], $extra_data['entity_name']);
+        $this->persistData();
     }
 }

@@ -3,12 +3,12 @@
 namespace ControleOnline\Listener;
 
 use Doctrine\ORM\Event\PreFlushEventArgs;
-use Doctrine\ORM\Event\PreUpdateEventArgs;
+use Doctrine\ORM\Event\prePersistEventArgs;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping\PrePersist;
 use Doctrine\ORM\Mapping\PostPersist;
-use Doctrine\ORM\Mapping\PreUpdate;
-use Doctrine\ORM\Mapping\PostUpdate;
+use Doctrine\ORM\Mapping\prePersist;
+use Doctrine\ORM\Mapping\postPersist;
 use Doctrine\ORM\Mapping\PostRemove;
 use Doctrine\ORM\Mapping\PreRemove;
 use Doctrine\ORM\Mapping\PreFlush;
@@ -60,23 +60,23 @@ class LogListener
         $this->log();
         */
     }
-    /** @PreUpdate */
-    public function preUpdateHandler($entity, LifecycleEventArgs $event): void
+    /** @prePersist */
+    public function prePersistHandler($entity, LifecycleEventArgs $event): void
     {
         /*
         $this->em = $event->getObjectManager();
         $this->entity = $entity;
-        $this->action = 'preUpdate';
+        $this->action = 'prePersist';
         $this->log();
         */
     }
-    /** @PostUpdate */
-    public function postUpdateHandler($entity, LifecycleEventArgs $event): void
+    /** @postPersist */
+    public function postPersistHandler($entity, LifecycleEventArgs $event): void
     {
         /*
         $this->em = $event->getObjectManager();
         $this->entity = $entity;
-        $this->action = 'postUpdate';
+        $this->action = 'postPersist';
         $this->log();
         */
     }
