@@ -60,18 +60,16 @@ class ExtraDataService
     private function persistData($entity = null)
     {
 
-        $json =       json_decode($this->request->getContent(), true);
-        $extra_data = isset($json['extra-data']) ? $json['extra-data'] : null;
-
-        if (!$extra_data)
-            return;
-
         if ($entity) {
             $entity_id = $entity->getId();
             $entity_name = (new \ReflectionClass($entity::class))->getShortName();
             $this->discoveryIdentifier($entity);
             $this->discoveryUser($entity);
         } else {
+            $json =       json_decode($this->request->getContent(), true);
+            $extra_data = isset($json['extra-data']) ? $json['extra-data'] : null;
+            if (!$extra_data)
+                return;
             $entity_id = $extra_data['entity_id'];
             $entity_name = $extra_data['entity_name'];
         }
@@ -105,8 +103,7 @@ class ExtraDataService
 
     public function  noChange()
     {
-        if (self::$persisted == true)
-            return;
+
         $this->persistData();
     }
 }
