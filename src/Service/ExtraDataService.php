@@ -29,7 +29,7 @@ class ExtraDataService
         return $this->request->getClientIp();
     }
 
-    private function discoveryIdentifier(&$entity)
+    public function discoveryIdentifier(&$entity)
     {
         $identifier = $this->request->headers->get('identifier') ?: $this->getUserIp();
 
@@ -38,7 +38,7 @@ class ExtraDataService
         }
     }
 
-    private function discoveryUser(&$entity)
+    public function discoveryUser(&$entity)
     {
         if (method_exists($entity, 'setUser')) {
             $entity->setUser($this->security->getUser());
@@ -61,9 +61,8 @@ class ExtraDataService
         if ($entity) {
             $entity_id = $entity->getId();
             $entity_name = (new \ReflectionClass($entity::class))->getShortName();
-            $this->discoveryIdentifier($entity);
-            $this->discoveryUser($entity);
-            $this->manager->persist($entity);
+
+            //$this->manager->persist($entity);
         } else {
             $json =       json_decode($this->request->getContent(), true);
             $extra_data = isset($json['extra-data']) ? $json['extra-data'] : null;

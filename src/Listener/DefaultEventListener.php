@@ -14,8 +14,7 @@ class DefaultEventListener
         private EntityManagerInterface $manager,
         private ContainerInterface $container,
         private ExtraDataService $ExtraDataService
-    ) {
-    }
+    ) {}
 
     public function preUpdate(LifecycleEventArgs $args)
     {
@@ -24,7 +23,10 @@ class DefaultEventListener
 
     public function prePersist(LifecycleEventArgs $args)
     {
-        $this->execute($args->getEntity(), 'prePersist');
+        $entity = $args->getEntity();
+        $this->ExtraDataService->discoveryIdentifier($entity);
+        $this->ExtraDataService->discoveryUser($entity);
+        $this->execute($entity, 'prePersist');
     }
 
     public function postUpdate(LifecycleEventArgs $args)
@@ -36,7 +38,7 @@ class DefaultEventListener
     {
         $this->execute($args->getEntity(), 'postPersist');
     }
-    
+
     public function preRemove(LifecycleEventArgs $args)
     {
         $this->execute($args->getEntity(), 'preRemove');
