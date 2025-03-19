@@ -16,7 +16,7 @@ use ApiPlatform\Metadata\Post;
 
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="config", uniqueConstraints={@ORM\UniqueConstraint (name="people_id", columns={"people_id","config_key"})})
+ * @ORM\Table (name="config", uniqueConstraints={@ORM\UniqueConstraint (name="people_id", columns={"people_id","configKey"})})
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\ConfigRepository")
  */
 #[ApiResource(
@@ -68,9 +68,9 @@ class Config
      * @ORM\Column(name="config_key", type="string", length=255, nullable=false)
      * @Groups({"config:read","config:write"}) 
      */
-    #[ApiFilter(filterClass: SearchFilter::class, properties: ['config_key' => 'exact'])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['configKey' => 'exact'])]
 
-    private $config_key;
+    private $configKey;
     /**
      * @var string
      *
@@ -87,9 +87,9 @@ class Config
      * @ORM\Column(name="config_value", type="string", length=255, nullable=false)
      * @Groups({"config:read","config:write"}) 
      */
-    #[ApiFilter(filterClass: SearchFilter::class, properties: ['config_value' => 'exact'])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['configValue' => 'exact'])]
 
-    private $config_value;
+    private $configValue;
     /**
      * @var \ControleOnline\Entity\Module
      *
@@ -132,24 +132,24 @@ class Config
         return $this->people;
     }
     /**
-     * Set config_key
+     * Set configKey
      *
-     * @param string config_key
+     * @param string configKey
      * @return PeopleConfigKey
      */
-    public function setConfigKey($config_key)
+    public function setConfigKey($configKey)
     {
-        $this->config_key = $config_key;
+        $this->configKey = $configKey;
         return $this;
     }
     /**
-     * Get config_key
+     * Get configKey
      *
      * @return string
      */
     public function getConfigKey()
     {
-        return $this->config_key;
+        return $this->configKey;
     }
     /**
      * Set visibility
@@ -172,24 +172,24 @@ class Config
         return $this->visibility;
     }
     /**
-     * Set config_value
+     * Set configValue
      *
-     * @param string config_value
+     * @param string configValue
      * @return PeopleConfigKey
      */
-    public function setConfigValue($config_value)
+    public function setConfigValue($configValue)
     {
-        $this->config_value = $config_value;
+        $this->configValue = $configValue;
         return $this;
     }
     /**
-     * Get config_value
+     * Get configValue
      *
      * @return string
      */
     public function getConfigValue()
     {
-        return $this->config_value;
+        return $this->configValue;
     }
 
     /**

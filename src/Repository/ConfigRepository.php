@@ -30,8 +30,8 @@ class ConfigRepository extends ServiceEntityRepository
 
       $rawSQL = <<<SQL
           UPDATE config
-            SET config_value = :value
-          WHERE people_id = :id AND config_key = :key
+            SET configValue = :value
+          WHERE people_id = :id AND configKey = :key
         SQL;
 
       $params = [
@@ -57,7 +57,7 @@ class ConfigRepository extends ServiceEntityRepository
   {
     $result = $this->createQueryBuilder('a')
       ->andWhere('a.people = :people')
-      ->andWhere('a.config_key LIKE :prefix')
+      ->andWhere('a.configKey LIKE :prefix')
       ->setParameter('people', $people)
       ->setParameter('prefix', $key . '-%')
 
@@ -84,7 +84,7 @@ class ConfigRepository extends ServiceEntityRepository
 
     $config = $this->getEntityManager()->getRepository(Config::class)->findOneBy([
       'people' => $people,
-      'config_key' => 'payment_type'
+      'configKey' => 'payment_type'
     ]);
 
 
@@ -93,7 +93,7 @@ class ConfigRepository extends ServiceEntityRepository
 
     $result = $this->createQueryBuilder('a')
       ->andWhere('a.people = :people')
-      ->andWhere('a.config_key LIKE :prefix')
+      ->andWhere('a.configKey LIKE :prefix')
       ->setParameter('people', $people)
       ->setParameter('prefix', 'itau-shopline-%')
       ->getQuery()
@@ -118,7 +118,7 @@ class ConfigRepository extends ServiceEntityRepository
   {
     $result = $this->createQueryBuilder('a')
       ->andWhere('a.people = :people')
-      ->andWhere('a.config_key LIKE :prefix')
+      ->andWhere('a.configKey LIKE :prefix')
       ->setParameter('people', $people)
       ->setParameter('prefix', 'mautic-%')
 
