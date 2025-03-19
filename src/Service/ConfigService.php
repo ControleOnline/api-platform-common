@@ -21,12 +21,14 @@ class ConfigService
         $this->request = $requestStack->getCurrentRequest();
     }
 
-    public function getConfig(People $people, $key)
+    public function getConfig(People $people, $key, $json = false)
     {
         $config = $this->manager->getRepository(Config::class)->findOneBy([
             'people' => $people,
             'configKey' => $key
         ]);
-        return $config ? $config->getConfigValue() : null;
+        $value =  $config ? $config->getConfigValue() : null;
+
+        return $json ? json_decode($value) : $value;
     }
 }
