@@ -25,7 +25,7 @@ class ConfigService
     {
         $config = $this->manager->getRepository(Config::class)->findOneBy([
             'people' => $people,
-            'config_key' => $key
+            'configKey' => $key
         ]);
         return $config ? $config->getConfigValue() : null;
     }
