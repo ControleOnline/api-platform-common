@@ -27,7 +27,7 @@ class ConfigService
     {
         $config = $this->discoveryConfig($people, $key, false);
         $value =  $config ? $config->getConfigValue() : null;
-        return $json ? json_decode($value) : $value;
+        return $json ? json_decode($value, true) : $value;
     }
 
     private function discoveryConfig(People $people, $key, $create = true): ?Config
@@ -54,7 +54,7 @@ class ConfigService
         $visibility = 'private'
     ) {
         $config = $this->discoveryConfig($people, $key);
-        $newValue = json_decode($config->getConfigValue()) || [];
+        $newValue = json_decode($config->getConfigValue(), true) || [];
         if (!is_array($newValue))
             $newValue = [$newValue];
 
