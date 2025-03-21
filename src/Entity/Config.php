@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Post;
+use ControleOnline\Controller\AddAppConfigAction;
 
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
@@ -25,15 +26,15 @@ use ApiPlatform\Metadata\Post;
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new Post(
+            security: 'is_granted(\'ROLE_CLIENT\')',
+            uriTemplate: '/configs/add-configs',
+            controller: AddAppConfigAction::class
+        ),
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             denormalizationContext: ['groups' => ['config:write']]
         ),
-        new GetCollection(
-            security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')',
-            uriTemplate: '/configs/app-config',
-            controller: \App\Controller\GetAppConfigAction::class
-        )
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['config:read']],
