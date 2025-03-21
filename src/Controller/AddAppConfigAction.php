@@ -29,8 +29,8 @@ class AddAppConfigAction
   {
     try {
       $json = json_decode($request->getContent(), true);
-      $people = $this->manager->getRepository(People::class)->find($json['people']);
-      $module = $this->manager->getRepository(Module::class)->find($json['module']);
+      $people = $this->manager->getRepository(People::class)->find(preg_replace("/[^0-9]/", "", $json['people']));
+      $module = $this->manager->getRepository(Module::class)->find(preg_replace("/[^0-9]/", "", $json['module']));
 
       $config = $this->configService->addConfig(
         $people,
