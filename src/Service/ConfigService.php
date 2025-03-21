@@ -54,7 +54,7 @@ class ConfigService
         $visibility = 'private'
     ) {
         $config = $this->discoveryConfig($people, $key);
-        $newValue = json_decode($config->getConfigValue()) || [];
+        $newValue = json_decode($config->getConfigValue(), true) || [];
         if (!is_array($newValue))
             $newValue = [$newValue];
 
