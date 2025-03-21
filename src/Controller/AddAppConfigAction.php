@@ -3,6 +3,7 @@
 namespace ControleOnline\Controller;
 
 use ControleOnline\Entity\Config;
+use ControleOnline\Entity\Module;
 use ControleOnline\Entity\People;
 use ControleOnline\Service\ConfigService;
 use ControleOnline\Service\HydratorService;
@@ -29,7 +30,16 @@ class AddAppConfigAction
     try {
       $json = json_decode($request->getContent(), true);
       $people = $this->manager->getRepository(People::class)->find($json['people']);
-      $config = $this->configService->addConfig($people, $json['configKey'], $json['configValue']);
+      $module = $this->manager->getRepository(Module::class)->find($json['module']);
+
+      $config = $this->configService->addConfig(
+        $people,
+        $json['configKey'],
+        $json['configValue'],
+        $module,
+        $json['visibility']
+      );
+
       return new JsonResponse($this->hydratorService->item(Config::class, $config->getId(), "config:read"), Response::HTTP_OK);
     } catch (Exception $e) {
       return new JsonResponse($this->hydratorService->error($e));
