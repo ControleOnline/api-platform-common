@@ -3,6 +3,7 @@
 namespace ControleOnline\Service;
 
 use ControleOnline\Entity\Config;
+use ControleOnline\Entity\Module;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\PeopleDomain;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -45,8 +46,13 @@ class ConfigService
         return null;
     }
 
-    public function addConfig(People $people, string $key, array $values)
-    {
+    public function addConfig(
+        People $people,
+        string $key,
+        array $values,
+        Module $module,
+        $visibility = 'private'
+    ) {
         $config = $this->discoveryConfig($people, $key);
         $newValue = json_decode($config->getConfigValue()) || [];
         if (!is_array($newValue))
@@ -59,6 +65,8 @@ class ConfigService
             $newValue[] = $values;
 
         $config->setConfigValue(json_encode($newValue));
+        $config->setVisibility($visibility);
+        $config->setModule($module);
         $this->manager->persist($config);
         $this->manager->flush();
         return $config;
