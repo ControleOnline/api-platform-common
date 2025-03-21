@@ -27,7 +27,7 @@ class ConfigService
     {
         $config = $this->discoveryConfig($people, $key, false);
         $value =  $config ? $config->getConfigValue() : null;
-        return $json ? json_decode($value) : $value;
+        return $json ? json_decode($value, true) : $value;
     }
 
     private function discoveryConfig(People $people, $key, $create = true): ?Config
