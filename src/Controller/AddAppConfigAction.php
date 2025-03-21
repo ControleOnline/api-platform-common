@@ -31,11 +31,11 @@ class AddAppConfigAction
       $json = json_decode($request->getContent(), true);
       $people = $this->manager->getRepository(People::class)->find(preg_replace("/[^0-9]/", "", $json['people']));
       $module = $this->manager->getRepository(Module::class)->find(preg_replace("/[^0-9]/", "", $json['module']));
-
+      $configValue = json_decode($json['configValue']);
       $config = $this->configService->addConfig(
         $people,
         $json['configKey'],
-        $json['configValue'],
+        is_array($configValue) ? $configValue : [$configValue],
         $module,
         $json['visibility']
       );
