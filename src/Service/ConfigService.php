@@ -42,6 +42,8 @@ class ConfigService
             $config = new Config();
             $config->setConfigKey($key);
             $config->setPeople($people);
+
+            return $config;
         }
         return null;
     }
