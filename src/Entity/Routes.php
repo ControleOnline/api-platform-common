@@ -103,7 +103,7 @@ class Routes
     /**
      * Set the value of id
      */
-    public function setId(int $id): self
+    public function setId($id): self
     {
         $this->id = $id;
 
