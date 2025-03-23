@@ -51,23 +51,23 @@ class ConfigService
     public function addConfig(
         People $people,
         string $key,
-        $values, 
+        $values,
         Module $module,
         $visibility = 'private'
     ) {
         $config = $this->discoveryConfig($people, $key);
-        $currentValue = json_decode($config->getConfigValue(), true);
 
         if (is_array($values)) {
+            $currentValue = json_decode($config->getConfigValue(), true);
             $newValue = is_array($currentValue) ? $currentValue : [];
             foreach ($values as $k => $v) {
                 $newValue[$k] = $v;
             }
+            $config->setConfigValue(json_encode($newValue));
         } else {
-            $newValue = $values;
+            $config->setConfigValue($values);
         }
 
-        $config->setConfigValue(json_encode($newValue));
         $config->setVisibility($visibility);
         $config->setModule($module);
         $this->manager->persist($config);
