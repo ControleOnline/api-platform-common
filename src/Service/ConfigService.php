@@ -51,20 +51,21 @@ class ConfigService
     public function addConfig(
         People $people,
         string $key,
-        array $values,
+        $values, // Removido "array" para aceitar qualquer tipo
         Module $module,
         $visibility = 'private'
     ) {
         $config = $this->discoveryConfig($people, $key);
-        $newValue = json_decode($config->getConfigValue(), true) || [];
-        if (!is_array($newValue))
-            $newValue = [$newValue];
+        $currentValue = json_decode($config->getConfigValue(), true);
 
-        if (is_array($values))
-            foreach ($values as $key => $value)
-                $newValue[$key] = $value;
-        else
-            $newValue[] = $values;
+        if (is_array($values)) {
+            $newValue = is_array($currentValue) ? $currentValue : [];
+            foreach ($values as $k => $v) {
+                $newValue[$k] = $v;
+            }
+        } else {
+            $newValue = $values;
+        }
 
         $config->setConfigValue(json_encode($newValue));
         $config->setVisibility($visibility);
