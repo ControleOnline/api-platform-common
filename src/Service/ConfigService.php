@@ -51,7 +51,7 @@ class ConfigService
     public function addConfig(
         People $people,
         string $key,
-        $values, // Removido "array" para aceitar qualquer tipo
+        $values, 
         Module $module,
         $visibility = 'private'
     ) {
