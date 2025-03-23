@@ -49,7 +49,7 @@ class MenuRole
     /**
      * Get the value of id
      */
-    public function getId(): int
+    public function getId()
     {
         return $this->id;
     }
