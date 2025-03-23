@@ -35,7 +35,7 @@ class AddAppConfigAction
       $config = $this->configService->addConfig(
         $people,
         $json['configKey'],
-        is_array($configValue) ? $configValue : [$configValue],
+        $configValue,
         $module,
         $json['visibility']
       );
