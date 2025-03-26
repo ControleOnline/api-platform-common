@@ -18,8 +18,6 @@ class DefaultEventListener
 
     public function preUpdate(LifecycleEventArgs $args)
     {
-        $this->ExtraDataService->discoveryDevice($entity);
-        $this->ExtraDataService->discoveryUser($entity);
         $this->execute($args->getEntity(), 'prePersist');
     }
 
