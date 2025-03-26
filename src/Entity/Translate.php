@@ -76,7 +76,7 @@ class Translate
      * @Groups({"translate:read","translate:write"})
      * @Assert\NotBlank
      */
-    #[ApiFilter(filterClass: SearchFilter::class, properties: ['store' => 'partial'])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['store' => 'exact'])]
 
     private $store;
 
@@ -88,7 +88,7 @@ class Translate
      * @Groups({"translate:read","translate:write"})
      * @Assert\NotBlank
      */
-    #[ApiFilter(filterClass: SearchFilter::class, properties: ['type' => 'partial'])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['type' => 'exact'])]
 
     private $type;
 
@@ -99,7 +99,7 @@ class Translate
      * @Groups({"translate:read","translate:write"})
      * @Assert\NotBlank
      */
-    #[ApiFilter(filterClass: SearchFilter::class, properties: ['translate_key' => 'partial'])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['key' => 'exact'])]
 
     private $key;
     /**
