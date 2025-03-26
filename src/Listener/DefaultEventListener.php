@@ -18,6 +18,8 @@ class DefaultEventListener
 
     public function preUpdate(LifecycleEventArgs $args)
     {
+        $this->ExtraDataService->discoveryDevice($entity);
+        $this->ExtraDataService->discoveryUser($entity);
         $this->execute($args->getEntity(), 'prePersist');
     }
 
@@ -54,7 +56,7 @@ class DefaultEventListener
             if (method_exists($service, $method)) {
                 $newEntity = $service->$method($entity);
 
-                if ('prePersist' === $method && $newEntity) {
+                if ('prePersist' === $method && $newEntity && $newEntity != $entity) {
                     $this->manager->detach($entity);
                 }
 
