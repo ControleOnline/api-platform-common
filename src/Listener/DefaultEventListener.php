@@ -56,6 +56,7 @@ class DefaultEventListener
 
                 if ('prePersist' === $method && $newEntity && $newEntity != $entity) {
                     $this->manager->detach($entity);
+                    return $newEntity;
                 }
 
 
@@ -63,5 +64,6 @@ class DefaultEventListener
                     $this->manager->refresh($newEntity);
             }
         }
+        return $entity;
     }
 }
