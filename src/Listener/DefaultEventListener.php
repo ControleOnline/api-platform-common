@@ -26,7 +26,9 @@ class DefaultEventListener
         $entity = $args->getEntity();
         $this->ExtraDataService->discoveryDevice($entity);
         $this->ExtraDataService->discoveryUser($entity);
-        $this->execute($entity, 'prePersist');
+        $newEntity = $this->execute($entity, 'prePersist');
+        if ($newEntity && $newEntity !== $entity)
+            $this->replaceEntity($newEntity,  $entity);
     }
 
     public function postUpdate(LifecycleEventArgs $args)
@@ -44,6 +46,18 @@ class DefaultEventListener
         $this->execute($args->getEntity(), 'preRemove');
     }
 
+    private function replaceEntity(object $source, object $target): void
+    {
+        $reflection = new \ReflectionClass($source);
+        foreach ($reflection->getProperties() as $property) {
+            $property->setAccessible(true);
+            $value = $property->getValue($source);
+            $property->setValue($target, $value);
+        }
+
+        $this->manager->detach($target);
+    }
+
     private function execute($entity, $method)
     {
         $class = get_class($entity);
@@ -53,13 +67,8 @@ class DefaultEventListener
             $service = $this->container->get($serviceName);
             if (method_exists($service, $method)) {
                 $newEntity = $service->$method($entity);
-
-                if ('prePersist' === $method && $newEntity && $newEntity != $entity) {
-                    $this->manager->detach($entity);
+                if ('prePersist' === $method && $newEntity)
                     return $newEntity;
-                }
-
-
                 if ('postPersist' === $method && $newEntity)
                     $this->manager->refresh($newEntity);
             }
