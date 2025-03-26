@@ -52,9 +52,16 @@ class DefaultEventListener
         if ($this->container->has($serviceName)) {
             $service = $this->container->get($serviceName);
             if (method_exists($service, $method)) {
-                $entity = $service->$method($entity);
-                if ('postPersist' === $method && $entity)
-                    $this->manager->refresh($entity);
+                $newEntity = $service->$method($entity);
+
+                if ('prePersist' === $method && $newEntity) {
+                    $this->manager->detach($entity);
+                    $this->manager->persist($newEntity);
+                }
+
+
+                if ('postPersist' === $method && $newEntity)
+                    $this->manager->refresh($newEntity);
             }
         }
     }
