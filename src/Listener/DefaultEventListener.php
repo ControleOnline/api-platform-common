@@ -56,7 +56,6 @@ class DefaultEventListener
 
                 if ('prePersist' === $method && $newEntity) {
                     $this->manager->detach($entity);
-                    $this->manager->persist($newEntity);
                 }
 
 
