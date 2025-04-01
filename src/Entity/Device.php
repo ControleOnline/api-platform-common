@@ -73,7 +73,7 @@ class Device
     /**
      * @var string
      *
-     * @ORM\Column(name="store", type="string", length=100, nullable=false)
+     * @ORM\Column(name="device", type="string", length=100, nullable=false)
      * @Groups({"device:read","device:write"})
      * @Assert\NotBlank
      */
@@ -145,7 +145,7 @@ class Device
 
     public function getConfigs($decode = false)
     {
-        return $decode ? (object) json_decode((is_array($this->configs) ? json_encode($this->configs) : $this->configs)) : $this->configs;
+        return  (object) json_decode((is_array($this->configs) ? json_encode($this->configs) : $this->configs));
     }
 
 
