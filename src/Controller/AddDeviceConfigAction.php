@@ -41,6 +41,8 @@ class AddDeviceConfigAction
 
       foreach ($configs as $key => $config)
         $device->addConfigs($key,  $config);
+      $device->setPeople($people);
+      $device->setDevice($json['device']);
 
       $this->manager->persist($device);
       $this->manager->flush();
