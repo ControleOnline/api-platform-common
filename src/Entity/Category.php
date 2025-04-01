@@ -43,9 +43,8 @@ use Doctrine\Common\Collections\Collection;
     denormalizationContext: ['groups' => ['category:write']]
 )]
 #[ApiFilter(filterClass: ExistsFilter::class, properties: ['parent'])]
-#[ApiFilter(filterClass: OrderFilter::class, properties: ['name' => 'ASC'])]
+#[ApiFilter(filterClass: OrderFilter::class, properties: ['name'])]
 #[ApiFilter(CustomOrFilter::class, properties: ['name', 'id', 'icon', 'color'])]
-#[ApiFilter(OrderFilter::class, properties: ['name' => 'ASC'])]
 
 class Category
 {
