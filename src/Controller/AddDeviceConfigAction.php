@@ -2,9 +2,7 @@
 
 namespace ControleOnline\Controller;
 
-use ControleOnline\Entity\Config;
 use ControleOnline\Entity\Device;
-use ControleOnline\Entity\Module;
 use ControleOnline\Entity\People;
 use ControleOnline\Service\ConfigService;
 use ControleOnline\Service\HydratorService;
@@ -48,7 +46,7 @@ class AddDeviceConfigAction
       $this->manager->flush();
 
 
-      return new JsonResponse($this->hydratorService->item(Config::class, $device->getId(), "device:read"), Response::HTTP_OK);
+      return new JsonResponse($this->hydratorService->item(Device::class, $device->getId(), "device:read"), Response::HTTP_OK);
     } catch (Exception $e) {
       return new JsonResponse($this->hydratorService->error($e));
     }
