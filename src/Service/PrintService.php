@@ -59,18 +59,17 @@ class PrintService
         );
     }
 
-    private function printChildren($parent, $products)
+    private function printChildren($parent, $orderProducts)
     {
         $groupedChildren = [];
-        foreach ($products as $child) {
-            //if ($child->getParentProduct() && $child->getParentProduct()->getId() === $parent->getId()) {
+        foreach ($orderProducts as $child) {
+
             $productGroup = $child->getProductGroup();
-            $groupName = $productGroup ? $productGroup->getProductGroup() : 'OUTROS';
+            $groupName = $productGroup->getProductGroup();
             if (!isset($groupedChildren[$groupName])) {
                 $groupedChildren[$groupName] = [];
             }
             $groupedChildren[$groupName][] = $child;
-            //}
         }
 
         foreach ($groupedChildren as $groupName => $children) {
@@ -84,17 +83,28 @@ class PrintService
 
     private function printQueueProducts($products)
     {
-        $parents = array_filter($products, fn($p) => $p->getParentProduct() === null);
+        $parents = array_filter($products, fn($p) => $p->getOrderProduct() === null);
+
+
         foreach ($parents as $orderProduct) {
             $this->printProduct($orderProduct);
-            $this->printChildren($orderProduct, $products);
+            $this->printChildren(
+                $orderProduct,
+                array_filter(
+                    $products,
+                    fn($p) => $p->getOrderProduct()->getId() == $orderProduct->getId()
+
+                )
+
+
+            );
         }
     }
 
     private function printQueues($queues)
     {
         foreach ($queues as $queueName => $products) {
-            $parents = array_filter($products, fn($p) => $p->getParentProduct() === null);
+            $parents = array_filter($products, fn($p) => $p->getOrderProduct() === null);
             if (!empty($parents)) {
                 $this->addLine(strtoupper($queueName) . ":");
                 $this->printQueueProducts($products);
