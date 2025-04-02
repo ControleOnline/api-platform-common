@@ -63,9 +63,9 @@ class PrintService
     {
         $groupedChildren = [];
         foreach ($products as $child) {
-            if ($child->getParentProduct() === $parent) {
+            if ($child->getParentProduct() && $child->getParentProduct()->getId() === $parent->getId()) {
                 $productGroup = $child->getProductGroup();
-                $groupName = $productGroup ? $productGroup->getProductGroup() : 'OUTROS';
+                $groupName = $productGroup->getProductGroup();
                 if (!isset($groupedChildren[$groupName])) {
                     $groupedChildren[$groupName] = [];
                 }
@@ -94,9 +94,12 @@ class PrintService
     private function printQueues($queues)
     {
         foreach ($queues as $queueName => $products) {
-            $this->addLine(strtoupper($queueName) . ":");
-            $this->printQueueProducts($products);
-            $this->addLine('', '', ' ');
+            $parents = array_filter($products, fn($p) => $p->getParentProduct() === null);
+            if (!empty($parents)) {
+                $this->addLine(strtoupper($queueName) . ":");
+                $this->printQueueProducts($products);
+                $this->addLine('', '', ' ');
+            }
         }
     }
 
