@@ -11,7 +11,7 @@ class PrintService
 {
     private $noQueue = 'Sem fila definida';
     private $initialSpace = 8;
-    private $totalChars = 48;
+    private $totalChars = 50;
     private $text = '';
 
     public function __construct(
@@ -54,16 +54,30 @@ class PrintService
         $quantity = $orderProduct->getQuantity();
         $this->addLine(
             $indent . $product->getProduct() . " (" . $quantity . " " . $unit . ")",
-            " R$ " . number_format($product->getPrice() * $quantity, 2, ',', '.'),
+            " R$ " . number_format($orderProduct->getTotal(), 2, ',', '.'),
             '.'
         );
     }
 
     private function printChildren($parent, $products)
     {
+        $groupedChildren = [];
         foreach ($products as $child) {
             if ($child->getParentProduct() === $parent) {
-                $this->printProduct($child, "  - ");
+                $productGroup = $child->getProductGroup();
+                $groupName = $productGroup ? $productGroup->getProductGroup() : 'OUTROS';
+                if (!isset($groupedChildren[$groupName])) {
+                    $groupedChildren[$groupName] = [];
+                }
+                $groupedChildren[$groupName][] = $child;
+            }
+        }
+
+        foreach ($groupedChildren as $groupName => $children) {
+            $this->addLine(strtoupper($groupName) . ":");
+            foreach ($children as $child) {
+                $product = $child->getProduct();
+                $this->addLine("  - " . $product->getProduct());
             }
         }
     }
@@ -93,13 +107,13 @@ class PrintService
             $this->addLine($order->getOrderDate()->format('d/m/Y H:i'));
             $client = $order->getClient();
             $this->addLine(($client !== null ? $client->getName() : 'Não informado'));
-            $this->addLine(number_format($order->getPrice(), 2, ',', '.'));
+            $this->addLine("R$ " . number_format($order->getPrice(), 2, ',', '.'));
             $this->addLine("", "", "-");
 
             $queues = $this->getQueues($order);
             $this->printQueues($queues);
 
-            $this->addLine('', '', '-');
+            $this->addLine("", "", "-");
 
             if ($deviceType === 'cielo')
                 return [
