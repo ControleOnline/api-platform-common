@@ -54,11 +54,10 @@ class PrintService
     private function printProduct($orderProduct, $indent = "- ")
     {
         $product = $orderProduct->getProduct();
-        $productUnit = $product->getProductUnit();
-        $unitName = $productUnit->getProductUnit();
+
         $quantity = $orderProduct->getQuantity();
         $this->addLine(
-            $indent . $product->getProduct() . " (" . $quantity . " " . $unitName . ")",
+            $indent . $quantity . ' X ' . $product->getProduct(),
             " R$ " . number_format($orderProduct->getTotal(), 2, ',', '.'),
             '.'
         );
