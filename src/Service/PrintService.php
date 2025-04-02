@@ -64,12 +64,12 @@ class PrintService
         $groupedChildren = [];
         foreach ($products as $child) {
             //if ($child->getParentProduct() && $child->getParentProduct()->getId() === $parent->getId()) {
-                $productGroup = $child->getProductGroup();
-                $groupName = $productGroup->getProductGroup();
-                if (!isset($groupedChildren[$groupName])) {
-                    $groupedChildren[$groupName] = [];
-                }
-                $groupedChildren[$groupName][] = $child;
+            $productGroup = $child->getProductGroup();
+            $groupName = $productGroup ? $productGroup->getProductGroup() : 'OUTROS';
+            if (!isset($groupedChildren[$groupName])) {
+                $groupedChildren[$groupName] = [];
+            }
+            $groupedChildren[$groupName][] = $child;
             //}
         }
 
