@@ -96,6 +96,8 @@ class PrintService
         foreach ($parentOrderProducts as $parentOrderProduct) {
             $this->printProduct($parentOrderProduct);
             $this->printChildren($parentOrderProduct->getOrderProductComponents());
+            $this->addLine('', '', '-');
+            $this->addLine('', '', '-');
         }
     }
 
