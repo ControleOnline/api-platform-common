@@ -21,11 +21,10 @@ class PrintService
     private function addLine($prefix = '', $suffix = '', $delimiter = ' ')
     {
         $initialSpace = str_repeat(" ", $this->initialSpace);
-        $count = $this->totalChars - $this->initialSpace - strlen($prefix) - strlen($suffix);
-        if ($count > 0)
-            $delimiter = str_repeat($delimiter, $count);
+        $delimiter = str_repeat($delimiter, $this->totalChars - $this->initialSpace - strlen($prefix) - strlen($suffix));
         $this->text .= $initialSpace . $prefix . $delimiter . $suffix . "\n";
     }
+
     private function getQueues(Order $order)
     {
         $queues = [];
@@ -53,16 +52,11 @@ class PrintService
     private function printProduct($orderProduct, $indent = "- ")
     {
         $product = $orderProduct->getProduct();
-        $description = $product->getDescription();
+        $productUnit = $product->getProductUnit();
+        $unitName = $productUnit->getProductUnit();
         $quantity = $orderProduct->getQuantity();
         $this->addLine(
-            $indent . $quantity . ' X ' . $product->getProduct(),
-            '',
-            '.'
-        );
-
-        $this->addLine(
-            '  ' . $description,
+            $indent . $product->getProduct() . " (" . $quantity . " " . $unitName . ")",
             " R$ " . number_format($orderProduct->getTotal(), 2, ',', '.'),
             '.'
         );
@@ -72,19 +66,13 @@ class PrintService
     {
         $groupedChildren = [];
 
-        if (empty($orderProducts)) {
-            $this->addLine("Nenhum filho encontrado");
-            error_log("printChildren: Nenhum filho encontrado para os orderProducts passados.");
+        if (empty($orderProducts))
             return;
-        }
 
-        error_log("printChildren: Encontrados " . count($orderProducts) . " orderProducts filhos.");
+
         foreach ($orderProducts as $orderProductChild) {
             $productGroup = $orderProductChild->getProductGroup();
             $groupName = $productGroup ? $productGroup->getProductGroup() : 'Sem Grupo';
-            $product = $orderProductChild->getProduct();
-            error_log("printChildren: Filho ID " . $orderProductChild->getId() . " - Produto: " . $product->getProduct() . " - Grupo: " . $groupName);
-
             if (!isset($groupedChildren[$groupName])) {
                 $groupedChildren[$groupName] = [];
             }
@@ -104,51 +92,10 @@ class PrintService
     {
         $parentOrderProducts = array_filter($orderProducts, fn($orderProduct) => $orderProduct->getOrderProduct() === null);
 
-        error_log("printQueueProducts: Total de orderProducts: " . count($orderProducts));
-        error_log("printQueueProducts: Total de pais encontrados: " . count($parentOrderProducts));
-
-        // Log para verificar todos os orderProducts e seus order_product_id
-        foreach ($orderProducts as $orderProduct) {
-            $parent = $orderProduct->getOrderProduct();
-            $parentId = $parent ? $parent->getId() : 'NULL';
-            $product = $orderProduct->getProduct();
-            error_log("printQueueProducts: OrderProduct ID " . $orderProduct->getId() . " - Produto: " . $product->getProduct() . " - Pai (order_product_id): " . $parentId);
-        }
 
         foreach ($parentOrderProducts as $parentOrderProduct) {
-            $product = $parentOrderProduct->getProduct();
-            error_log("printQueueProducts: Pai ID " . $parentOrderProduct->getId() . " - Produto: " . $product->getProduct());
-
             $this->printProduct($parentOrderProduct);
-
-            // Tentativa 1: Usando getOrderProduct()
-            $childOrderProducts = array_filter(
-                $orderProducts,
-                fn($orderProduct) => $orderProduct->getOrderProduct() !== null &&
-                    $orderProduct->getOrderProduct()->getId() === $parentOrderProduct->getId()
-            );
-
-            error_log("printQueueProducts: Pai ID " . $parentOrderProduct->getId() . " - Total de filhos encontrados (via getOrderProduct): " . count($childOrderProducts));
-
-            // Se não encontrou filhos, tenta uma abordagem alternativa
-            if (empty($childOrderProducts)) {
-                error_log("printQueueProducts: Tentando abordagem alternativa para encontrar filhos do Pai ID " . $parentOrderProduct->getId());
-                $childOrderProducts = array_filter(
-                    $orderProducts,
-                    function ($orderProduct) use ($parentOrderProduct) {
-                        $parent = $orderProduct->getOrderProduct();
-                        $isChild = $parent && $parent->getId() === $parentOrderProduct->getId();
-                        if ($isChild) {
-                            $product = $orderProduct->getProduct();
-                            error_log("printQueueProducts: Filho encontrado (alternativa) - ID " . $orderProduct->getId() . " - Produto: " . $product->getProduct());
-                        }
-                        return $isChild;
-                    }
-                );
-                error_log("printQueueProducts: Pai ID " . $parentOrderProduct->getId() . " - Total de filhos encontrados (via alternativa): " . count($childOrderProducts));
-            }
-
-            $this->printChildren($childOrderProducts);
+            $this->printChildren($parentOrderProduct->getOrderProductComponents());
         }
     }
 
