@@ -88,6 +88,7 @@ class PrintService
                 $this->addLine("  - " . $product->getProduct());
             }
         }
+        $this->addLine('', '', '-');
     }
 
     private function printQueueProducts($orderProducts)
@@ -98,7 +99,6 @@ class PrintService
         foreach ($parentOrderProducts as $parentOrderProduct) {
             $this->printProduct($parentOrderProduct);
             $this->printChildren($parentOrderProduct->getOrderProductComponents());
-            $this->addLine('', '', '-');
             $this->addLine('', '', '-');
         }
     }
