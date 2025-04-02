@@ -25,7 +25,6 @@ class PrintService
         $this->text .= $initialSpace . $pre . $delimiter . $pos . "\n";
     }
 
-
     private function getQueues(Order $order)
     {
         $queues = [];
@@ -35,24 +34,60 @@ class PrintService
                 if (!isset($queues[$this->noQueue]))
                     $queues[$this->noQueue] = [];
                 $queues[$this->noQueue][] = $orderProduct;
-            } else
+            } else {
                 foreach ($queueEntries as $queueEntry) {
                     $queue = $queueEntry->getQueue();
                     $queueName = $queue ? $queue->getQueue() : $this->noQueue;
-
-
                     if (!isset($queues[$queueName]))
                         $queues[$queueName] = [];
-
                     $queues[$queueName][] = $orderProduct;
                 }
+            }
         }
         return $queues;
     }
 
-    public  function generatePrintData(Order $order, string $printType, string $deviceType)
+    private function printProduct($orderProduct, $indent = "- ")
     {
+        $product = $orderProduct->getProduct();
+        $unit = $product->getProductUnit()->getProductUnit();
+        $quantity = $orderProduct->getQuantity();
+        $this->addLine(
+            $indent . $product->getProduct() . " (" . $quantity . " " . $unit . ")",
+            " R$ " . number_format($product->getPrice() * $quantity, 2, ',', '.'),
+            '.'
+        );
+    }
 
+    private function printChildren($parent, $products)
+    {
+        foreach ($products as $child) {
+            if ($child->getParentProduct() === $parent) {
+                $this->printProduct($child, "  - ");
+            }
+        }
+    }
+
+    private function printQueueProducts($products)
+    {
+        $parents = array_filter($products, fn($p) => $p->getParentProduct() === null);
+        foreach ($parents as $orderProduct) {
+            $this->printProduct($orderProduct);
+            $this->printChildren($orderProduct, $products);
+        }
+    }
+
+    private function printQueues($queues)
+    {
+        foreach ($queues as $queueName => $products) {
+            $this->addLine(strtoupper($queueName) . ":");
+            $this->printQueueProducts($products);
+            $this->addLine('', '', ' ');
+        }
+    }
+
+    public function generatePrintData(Order $order, string $printType, string $deviceType)
+    {
         if ($printType === 'pos') {
             $this->addLine("PEDIDO #" . $order->getId());
             $this->addLine($order->getOrderDate()->format('d/m/Y H:i'));
@@ -62,48 +97,18 @@ class PrintService
             $this->addLine("", "", "-");
 
             $queues = $this->getQueues($order);
-
-
-            foreach ($queues as $queueName => $products) {
-                $this->addLine(strtoupper($queueName) . ":");
-                foreach ($products as $orderProduct) {
-                    $product = $orderProduct->getProduct();
-                    $unit = $product->getProductUnit()->getProductUnit();
-                    $quantity = $orderProduct->getQuantity();
-
-                    $this->addLine(
-                        "- " . $product->getProduct() . " (" . $quantity . " " . $unit . ")",
-                        " R$ " . number_format($product->getPrice() * $quantity, 2, ',', '.'),
-                        '.'
-                    );
-
-
-                    if ($product->getType() === 'custom') {
-                        $this->addLine("    Personalizações:");
-                        $productGroupProducts = $this->entityManager->getRepository(ProductGroupProduct::class)
-                            ->findBy(['product' => $product->getId()]);
-
-                        foreach ($productGroupProducts as $pgp) {
-                            $childProduct = $pgp->getProductChild();
-                            if ($childProduct)
-                                $this->addLine("    - " . $childProduct->getProduct() . " (" . $pgp->getQuantity() . " " . $childProduct->getProductUnit()->getProductUnit() . ")");
-                        }
-                    }
-                }
-                $this->addLine('', '', ' ');
-            }
+            $this->printQueues($queues);
 
             $this->addLine('', '', '-');
 
-
             if ($deviceType === 'cielo')
-                return   [
+                return [
                     "operation" => "PRINT_TEXT",
                     "styles" => [[]],
                     "value" => [$this->text]
                 ];
         }
 
-        throw new Exception("Unsupported print type", 1);
+        throw new Exception("Tipo de impressão não suportado", 1);
     }
 }
