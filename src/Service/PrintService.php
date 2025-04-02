@@ -57,7 +57,13 @@ class PrintService
         $description = $product->getDescription();
         $quantity = $orderProduct->getQuantity();
         $this->addLine(
-            $indent . $quantity . ' X ' . $product->getProduct() . ' ' . $description,
+            $indent . $quantity . ' X ' . $product->getProduct(),
+            '',
+            '.'
+        );
+
+        $this->addLine(
+            '  ' . $description,
             " R$ " . number_format($orderProduct->getTotal(), 2, ',', '.'),
             '.'
         );
