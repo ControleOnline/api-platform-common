@@ -88,7 +88,9 @@ class PrintService
                 $this->addLine("  - " . $product->getProduct());
             }
         }
-        $this->addLine('', '', '-');
+
+        if (!empty($orderProducts))
+            $this->addLine('', '', '-');
     }
 
     private function printQueueProducts($orderProducts)
