@@ -52,11 +52,10 @@ class PrintService
     private function printProduct($orderProduct, $indent = "- ")
     {
         $product = $orderProduct->getProduct();
-        $productUnit = $product->getProductUnit();
-        $unitName = $productUnit->getProductUnit();
+        $description = $product->getDescription();
         $quantity = $orderProduct->getQuantity();
         $this->addLine(
-            $indent . $product->getProduct() . " (" . $quantity . " " . $unitName . ")",
+            $indent . $quantity . ' X ' . $product->getProduct() . ' ' . $description,
             " R$ " . number_format($orderProduct->getTotal(), 2, ',', '.'),
             '.'
         );
@@ -65,20 +64,14 @@ class PrintService
     private function printChildren($orderProducts)
     {
         $groupedChildren = [];
-        
-        if (empty($orderProducts)) {
-            $this->addLine("Nenhum filho encontrado");
-            error_log("printChildren: Nenhum filho encontrado para os orderProducts passados.");
-            return;
-        }
 
-        error_log("printChildren: Encontrados " . count($orderProducts) . " orderProducts filhos.");
+        if (empty($orderProducts))
+            return;
+
+
         foreach ($orderProducts as $orderProductChild) {
             $productGroup = $orderProductChild->getProductGroup();
             $groupName = $productGroup ? $productGroup->getProductGroup() : 'Sem Grupo';
-            $product = $orderProductChild->getProduct();
-            error_log("printChildren: Filho ID " . $orderProductChild->getId() . " - Produto: " . $product->getProduct() . " - Grupo: " . $groupName);
-            
             if (!isset($groupedChildren[$groupName])) {
                 $groupedChildren[$groupName] = [];
             }
@@ -86,10 +79,10 @@ class PrintService
         }
 
         foreach ($groupedChildren as $groupName => $orderProductChildren) {
-            $this->addLine(strtoupper($groupName) . ":");
+            $this->addLine('    ' . strtoupper($groupName) . ":");
             foreach ($orderProductChildren as $orderProductChild) {
                 $product = $orderProductChild->getProduct();
-                $this->addLine("  - " . $product->getProduct());
+                $this->addLine("      - " . $product->getProduct());
             }
         }
     }
@@ -97,21 +90,18 @@ class PrintService
     private function printQueueProducts($orderProducts)
     {
         $parentOrderProducts = array_filter($orderProducts, fn($orderProduct) => $orderProduct->getOrderProduct() === null);
-        
-        error_log("printQueueProducts: Total de orderProducts: " . count($orderProducts));
-        error_log("printQueueProducts: Total de pais encontrados: " . count($parentOrderProducts));
-        
+
         foreach ($parentOrderProducts as $parentOrderProduct) {
-            $product = $parentOrderProduct->getProduct();
-            error_log("printQueueProducts: Pai ID " . $parentOrderProduct->getId() . " - Produto: " . $product->getProduct());
-            
             $this->printProduct($parentOrderProduct);
-            
-            // Usa a relação orderProductComponents para obter os filhos diretamente
-            $childOrderProducts = $parentOrderProduct->getOrderProductComponents();
-            
-            error_log("printQueueProducts: Pai ID " . $parentOrderProduct->getId() . " - Total de filhos encontrados (via orderProductComponents): " . count($childOrderProducts));
-            
+
+            $childOrderProducts = array_filter(
+                $orderProducts,
+                function ($orderProduct) use ($parentOrderProduct) {
+                    $parent = $orderProduct->getOrderProduct();
+                    return $parent && $parent->getId() === $parentOrderProduct->getId();
+                }
+            );
+
             $this->printChildren($childOrderProducts);
         }
     }
