@@ -59,13 +59,18 @@ class PrintService
         );
     }
 
-    private function printChildren($parent, $orderProducts)
+    private function printChildren($orderProducts)
     {
         $groupedChildren = [];
-        foreach ($orderProducts as $child) {
+        
+        if (empty($orderProducts)) {
+            $this->addLine("Nenhum filho encontrado");
+            return;
+        }
 
+        foreach ($orderProducts as $child) {
             $productGroup = $child->getProductGroup();
-            $groupName = $productGroup->getProductGroup();
+            $groupName = $productGroup ? $productGroup->getProductGroup() : 'Sem Grupo';
             if (!isset($groupedChildren[$groupName])) {
                 $groupedChildren[$groupName] = [];
             }
@@ -84,20 +89,15 @@ class PrintService
     private function printQueueProducts($products)
     {
         $parents = array_filter($products, fn($p) => $p->getOrderProduct() === null);
-
-
+        
         foreach ($parents as $orderProduct) {
             $this->printProduct($orderProduct);
-            $this->printChildren(
-                $orderProduct,
-                array_filter(
-                    $products,
-                    fn($p) => $p->getOrderProduct() && $p->getOrderProduct()->getId() == $orderProduct->getId()
-
-                )
-
-
+            $children = array_filter(
+                $products,
+                fn($p) => $p->getOrderProduct() !== null && 
+                         $p->getOrderProduct()->getId() === $orderProduct->getId()
             );
+            $this->printChildren($children);
         }
     }
 
