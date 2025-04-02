@@ -97,8 +97,8 @@ class PrintService
             $this->printProduct($parentOrderProduct);
             $childOrderProducts = array_filter(
                 $orderProducts,
-                fn($orderProduct) => $parentOrderProduct->getOrderProduct() !== null &&
-                    $orderProduct->getId() === $parentOrderProduct->getOrderProduct()->getId()
+                fn($orderProduct) => $orderProduct->getOrderProduct() !== null &&
+                    $orderProduct->getOrderProduct()->getId() === $parentOrderProduct->getId()
             );
             $this->printChildren($childOrderProducts);
         }
