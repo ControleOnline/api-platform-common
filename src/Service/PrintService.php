@@ -18,11 +18,11 @@ class PrintService
         private EntityManagerInterface $entityManager
     ) {}
 
-    private function addLine($pre = '', $pos = '', $delimiter = ' ')
+    private function addLine($prefix = '', $suffix = '', $delimiter = ' ')
     {
         $initialSpace = str_repeat(" ", $this->initialSpace);
-        $delimiter = str_repeat($delimiter, $this->totalChars - $this->initialSpace - strlen($pre) - strlen($pos));
-        $this->text .= $initialSpace . $pre . $delimiter . $pos . "\n";
+        $delimiter = str_repeat($delimiter, $this->totalChars - $this->initialSpace - strlen($prefix) - strlen($suffix));
+        $this->text .= $initialSpace . $prefix . $delimiter . $suffix . "\n";
     }
 
     private function getQueues(Order $order)
@@ -31,15 +31,17 @@ class PrintService
         foreach ($order->getOrderProducts() as $orderProduct) {
             $queueEntries = $orderProduct->getOrderProductQueues();
             if ($queueEntries->isEmpty()) {
-                if (!isset($queues[$this->noQueue]))
+                if (!isset($queues[$this->noQueue])) {
                     $queues[$this->noQueue] = [];
+                }
                 $queues[$this->noQueue][] = $orderProduct;
             } else {
                 foreach ($queueEntries as $queueEntry) {
                     $queue = $queueEntry->getQueue();
                     $queueName = $queue ? $queue->getQueue() : $this->noQueue;
-                    if (!isset($queues[$queueName]))
+                    if (!isset($queues[$queueName])) {
                         $queues[$queueName] = [];
+                    }
                     $queues[$queueName][] = $orderProduct;
                 }
             }
@@ -50,10 +52,11 @@ class PrintService
     private function printProduct($orderProduct, $indent = "- ")
     {
         $product = $orderProduct->getProduct();
-        $unit = $product->getProductUnit()->getProductUnit();
+        $productUnit = $product->getProductUnit();
+        $unitName = $productUnit->getProductUnit();
         $quantity = $orderProduct->getQuantity();
         $this->addLine(
-            $indent . $product->getProduct() . " (" . $quantity . " " . $unit . ")",
+            $indent . $product->getProduct() . " (" . $quantity . " " . $unitName . ")",
             " R$ " . number_format($orderProduct->getTotal(), 2, ',', '.'),
             '.'
         );
@@ -62,52 +65,52 @@ class PrintService
     private function printChildren($orderProducts)
     {
         $groupedChildren = [];
-        
+
         if (empty($orderProducts)) {
             $this->addLine("Nenhum filho encontrado");
             return;
         }
 
-        foreach ($orderProducts as $child) {
-            $productGroup = $child->getProductGroup();
+        foreach ($orderProducts as $orderProductChild) {
+            $productGroup = $orderProductChild->getProductGroup();
             $groupName = $productGroup ? $productGroup->getProductGroup() : 'Sem Grupo';
             if (!isset($groupedChildren[$groupName])) {
                 $groupedChildren[$groupName] = [];
             }
-            $groupedChildren[$groupName][] = $child;
+            $groupedChildren[$groupName][] = $orderProductChild;
         }
 
-        foreach ($groupedChildren as $groupName => $children) {
+        foreach ($groupedChildren as $groupName => $orderProductChildren) {
             $this->addLine(strtoupper($groupName) . ":");
-            foreach ($children as $child) {
-                $product = $child->getProduct();
+            foreach ($orderProductChildren as $orderProductChild) {
+                $product = $orderProductChild->getProduct();
                 $this->addLine("  - " . $product->getProduct());
             }
         }
     }
 
-    private function printQueueProducts($products)
+    private function printQueueProducts($orderProducts)
     {
-        $parents = array_filter($products, fn($p) => $p->getOrderProduct() === null);
-        
-        foreach ($parents as $orderProduct) {
-            $this->printProduct($orderProduct);
-            $children = array_filter(
-                $products,
-                fn($p) => $p->getOrderProduct() !== null && 
-                         $p->getOrderProduct()->getId() === $orderProduct->getId()
+        $parentOrderProducts = array_filter($orderProducts, fn($orderProduct) => $orderProduct->getOrderProduct() === null);
+
+        foreach ($parentOrderProducts as $parentOrderProduct) {
+            $this->printProduct($parentOrderProduct);
+            $childOrderProducts = array_filter(
+                $orderProducts,
+                fn($orderProduct) => $parentOrderProduct->getOrderProduct() !== null &&
+                    $orderProduct->getId() === $parentOrderProduct->getOrderProduct()->getId()
             );
-            $this->printChildren($children);
+            $this->printChildren($childOrderProducts);
         }
     }
 
     private function printQueues($queues)
     {
-        foreach ($queues as $queueName => $products) {
-            $parents = array_filter($products, fn($p) => $p->getOrderProduct() === null);
-            if (!empty($parents)) {
+        foreach ($queues as $queueName => $orderProducts) {
+            $parentOrderProducts = array_filter($orderProducts, fn($orderProduct) => $orderProduct->getOrderProduct() === null);
+            if (!empty($parentOrderProducts)) {
                 $this->addLine(strtoupper($queueName) . ":");
-                $this->printQueueProducts($products);
+                $this->printQueueProducts($orderProducts);
                 $this->addLine('', '', ' ');
             }
         }
@@ -128,12 +131,13 @@ class PrintService
 
             $this->addLine("", "", "-");
 
-            if ($deviceType === 'cielo')
+            if ($deviceType === 'cielo') {
                 return [
                     "operation" => "PRINT_TEXT",
                     "styles" => [[]],
                     "value" => [$this->text]
                 ];
+            }
         }
 
         throw new Exception("Tipo de impressão não suportado", 1);
