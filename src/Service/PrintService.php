@@ -21,7 +21,9 @@ class PrintService
     private function addLine($prefix = '', $suffix = '', $delimiter = ' ')
     {
         $initialSpace = str_repeat(" ", $this->initialSpace);
-        $delimiter = str_repeat($delimiter, $this->totalChars - $this->initialSpace - strlen($prefix) - strlen($suffix));
+        $count = $this->totalChars - $this->initialSpace - strlen($prefix) - strlen($suffix);
+        if ($count > 0)
+            $delimiter = str_repeat($delimiter, $count);
         $this->text .= $initialSpace . $prefix . $delimiter . $suffix . "\n";
     }
 
