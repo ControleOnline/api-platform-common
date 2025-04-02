@@ -66,11 +66,6 @@ class PrintService
     private function printChildren($orderProducts)
     {
         $groupedChildren = [];
-
-        if (empty($orderProducts))
-            return;
-
-
         foreach ($orderProducts as $orderProductChild) {
             $productGroup = $orderProductChild->getProductGroup();
             $groupName = $productGroup ? $productGroup->getProductGroup() : 'Sem Grupo';
@@ -87,9 +82,7 @@ class PrintService
                 $this->addLine("  - " . $product->getProduct());
             }
         }
-
-        if (!empty($orderProducts))
-            $this->addLine('', '', '-');
+        $this->addLine('', '', '-');
     }
 
     private function printQueueProducts($orderProducts)
@@ -99,7 +92,11 @@ class PrintService
 
         foreach ($parentOrderProducts as $parentOrderProduct) {
             $this->printProduct($parentOrderProduct);
-            $this->printChildren($parentOrderProduct->getOrderProductComponents());
+
+            $childs = $parentOrderProduct->getOrderProductComponents();
+            if (!empty($childs))
+                $this->printChildren($childs);
+
             $this->addLine('', '', '-');
         }
     }
