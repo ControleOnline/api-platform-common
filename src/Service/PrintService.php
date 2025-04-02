@@ -101,19 +101,46 @@ class PrintService
         error_log("printQueueProducts: Total de orderProducts: " . count($orderProducts));
         error_log("printQueueProducts: Total de pais encontrados: " . count($parentOrderProducts));
         
+        // Log para verificar todos os orderProducts e seus order_product_id
+        foreach ($orderProducts as $orderProduct) {
+            $parent = $orderProduct->getOrderProduct();
+            $parentId = $parent ? $parent->getId() : 'NULL';
+            $product = $orderProduct->getProduct();
+            error_log("printQueueProducts: OrderProduct ID " . $orderProduct->getId() . " - Produto: " . $product->getProduct() . " - Pai (order_product_id): " . $parentId);
+        }
+
         foreach ($parentOrderProducts as $parentOrderProduct) {
             $product = $parentOrderProduct->getProduct();
             error_log("printQueueProducts: Pai ID " . $parentOrderProduct->getId() . " - Produto: " . $product->getProduct());
             
             $this->printProduct($parentOrderProduct);
             
+            // Tentativa 1: Usando getOrderProduct()
             $childOrderProducts = array_filter(
                 $orderProducts,
                 fn($orderProduct) => $orderProduct->getOrderProduct() !== null && 
                                     $orderProduct->getOrderProduct()->getId() === $parentOrderProduct->getId()
             );
             
-            error_log("printQueueProducts: Pai ID " . $parentOrderProduct->getId() . " - Total de filhos encontrados: " . count($childOrderProducts));
+            error_log("printQueueProducts: Pai ID " . $parentOrderProduct->getId() . " - Total de filhos encontrados (via getOrderProduct): " . count($childOrderProducts));
+            
+            // Se não encontrou filhos, tenta uma abordagem alternativa
+            if (empty($childOrderProducts)) {
+                error_log("printQueueProducts: Tentando abordagem alternativa para encontrar filhos do Pai ID " . $parentOrderProduct->getId());
+                $childOrderProducts = array_filter(
+                    $orderProducts,
+                    function ($orderProduct) use ($parentOrderProduct) {
+                        $parent = $orderProduct->getOrderProduct();
+                        $isChild = $parent && $parent->getId() === $parentOrderProduct->getId();
+                        if ($isChild) {
+                            $product = $orderProduct->getProduct();
+                            error_log("printQueueProducts: Filho encontrado (alternativa) - ID " . $orderProduct->getId() . " - Produto: " . $product->getProduct());
+                        }
+                        return $isChild;
+                    }
+                );
+                error_log("printQueueProducts: Pai ID " . $parentOrderProduct->getId() . " - Total de filhos encontrados (via alternativa): " . count($childOrderProducts));
+            }
             
             $this->printChildren($childOrderProducts);
         }
