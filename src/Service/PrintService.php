@@ -92,7 +92,7 @@ class PrintService
                 $orderProduct,
                 array_filter(
                     $products,
-                    fn($p) => $p->getOrderProduct()->getId() == $orderProduct->getId()
+                    fn($p) => $p->getOrderProduct() && $p->getOrderProduct()->getId() == $orderProduct->getId()
 
                 )
 
