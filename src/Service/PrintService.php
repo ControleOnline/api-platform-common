@@ -11,7 +11,7 @@ class PrintService
 {
     private $noQueue = 'Sem fila definida';
     private $initialSpace = 8;
-    private $totalChars = 30;
+    private $totalChars = 100;
     private $text = '';
 
     public function __construct(
