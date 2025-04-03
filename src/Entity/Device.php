@@ -158,7 +158,7 @@ class Device
     public function addConfigs($key, $value)
     {
         $configs = $this->getConfigs(true);
-        $configs->$key = $value;
+        $configs[$key] = $value;
         $this->configs = json_encode($configs);
         return $this;
     }
