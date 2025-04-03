@@ -151,7 +151,7 @@ class Device
 
     public function getConfigs($decode = false)
     {
-        return $decode ? (object) json_decode((is_array($this->configs) ? json_encode($this->configs) : $this->configs)) : $this->configs;
+        return $decode ?  json_decode((is_array($this->configs) ? json_encode($this->configs) : $this->configs)) : $this->configs;
     }
 
 
