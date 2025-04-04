@@ -36,6 +36,7 @@ class DeviceService
             $device_config = new DeviceConfig();
             $device_config->setDevice($device);
             $device_config->setPeople($people);
+            $this->manager->persist($device_config);
         }
 
         return $device_config;
