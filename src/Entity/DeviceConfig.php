@@ -67,7 +67,7 @@ class DeviceConfig
     /**
      * @var \ControleOnline\Entity\People
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\People")
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\People", nullable=false)
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
      * })
@@ -79,14 +79,14 @@ class DeviceConfig
     /**
      * @var \ControleOnline\Entity\Device
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Device")
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Device", nullable=false)
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="device_id", referencedColumnName="id")
      * })
      * @Groups({"device_config:read","device:read","device_config:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['device' => 'exact'])]
-
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['device.device' => 'exact'])]
     private $device;
 
 
