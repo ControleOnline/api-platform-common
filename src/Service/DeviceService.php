@@ -28,16 +28,16 @@ class DeviceService
     }
     private function discoveryDeviceConfig(Device $device, People $people)
     {
-        $device_config = $this->manager->getRepository(DeviceConfig::class)->findOneBy([
-            'device' => $device,
-            'people' => $people
-        ]);
-        if (!$device_config) {
+        //$device_config = $this->manager->getRepository(DeviceConfig::class)->findOneBy([
+        //    'device' => $device,
+        //    'people' => $people
+        //]);
+        //if (!$device_config) {
             $device_config = new DeviceConfig();
             $device_config->setDevice($device);
             $device_config->setPeople($people);
             $this->manager->persist($device_config);
-        }
+        //}
 
         return $device_config;
     }
