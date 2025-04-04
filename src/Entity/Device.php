@@ -34,6 +34,11 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
+        new Post(
+            security: 'is_granted(\'ROLE_CLIENT\')',
+            uriTemplate: '/devices/add-configs',
+            controller: AddDeviceConfigAction::class
+        ),
         new GetCollection(
             security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')',
         )

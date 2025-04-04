@@ -32,11 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted(\'ROLE_CLIENT\')',
             denormalizationContext: ['groups' => ['device_config:write']]
         ),
-        new Post(
-            security: 'is_granted(\'ROLE_CLIENT\')',
-            uriTemplate: '/devices/add-configs',
-            controller: AddDeviceConfigAction::class
-        ),
+     
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(
