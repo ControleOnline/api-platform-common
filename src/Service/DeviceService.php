@@ -24,6 +24,8 @@ class DeviceService
             $device->setDevice($deviceId);
         }
 
+        $this->manager->persist($device);
+        $this->manager->flush();
         return $device;
     }
     public function discoveryDeviceConfig(Device $device, People $people)
@@ -37,6 +39,9 @@ class DeviceService
             $device_config->setDevice($device);
             $device_config->setPeople($people);
         }
+
+        $this->manager->persist($device_config);
+        $this->manager->flush();
 
         return $device_config;
     }
