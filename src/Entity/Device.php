@@ -63,8 +63,6 @@ class Device
 
     private $id;
 
-
-
     /**
      * @var string
      *
@@ -76,8 +74,6 @@ class Device
 
     private $device;
 
-
-
     /**
      * Get the value of id
      */
@@ -85,7 +81,6 @@ class Device
     {
         return $this->id;
     }
-
 
     /**
      * Get the value of device
