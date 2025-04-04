@@ -33,7 +33,7 @@ use ControleOnline\Controller\DiscoveryMainConfigsAction;
         ),
         new Post(
             security: 'is_granted(\'ROLE_CLIENT\')',
-            uriTemplate: '/device_configs/discovery-configs',
+            uriTemplate: '/configs/discovery-configs',
             controller: DiscoveryMainConfigsAction::class
         ),
         new Put(
