@@ -45,10 +45,8 @@ class DeviceService
     public function addDeviceConfigs(People $people, array $configs, $deviceId)
     {
         $device = $this->discoveryDevice($deviceId);
+
         $device_config = $this->discoveryDeviceConfig($device,  $people);
-
-
-        return $device_config;
         foreach ($configs as $key => $config)
             $device_config->addConfig($key,  $config);
 

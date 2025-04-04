@@ -145,8 +145,7 @@ class DeviceConfig
     {
         $configs = $this->getConfigs(true);
         $configs[$key] = $value;
-        $this->configs = json_encode($configs);
-        return $this;
+        return $this->setConfigs($configs);
     }
 
 
