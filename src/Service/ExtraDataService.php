@@ -3,6 +3,7 @@
 namespace ControleOnline\Service;
 
 use ControleOnline\Entity\Device;
+use ControleOnline\Entity\DeviceConfig;
 use ControleOnline\Entity\ExtraData;
 use ControleOnline\Entity\ExtraFields;
 use Symfony\Component\Security\Core\Security;
@@ -34,6 +35,9 @@ class ExtraDataService
 
     public function discoveryDevice(&$entity)
     {
+        if ($entity instanceof Device || $entity instanceof DeviceConfig)
+            return;
+
         $deviceId = $this->request->headers->get('DEVICE') ?: $this->getUserIp();
         if (method_exists($entity, 'setDevice')) {
             $device = $this->deviceService->discoveryDevice($deviceId);

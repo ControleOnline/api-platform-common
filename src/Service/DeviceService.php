@@ -23,6 +23,7 @@ class DeviceService
             $device = new Device();
             $device->setDevice($deviceId);
             $this->manager->persist($device);
+            $this->manager->flush();
         }
         return $device;
     }
@@ -46,13 +47,12 @@ class DeviceService
     {
         $device = $this->discoveryDevice($deviceId);
 
-        //$device_config = $this->discoveryDeviceConfig($device,  $people);
-        //foreach ($configs as $key => $config)
-        //$device_config->addConfig($key,  $config);
+        $device_config = $this->discoveryDeviceConfig($device,  $people);
+        foreach ($configs as $key => $config)
+            $device_config->addConfig($key,  $config);
 
-        //$device_config->setConfigs($configs);
-//        $this->manager->persist($device_config);
-      //
+        $device_config->setConfigs($configs);
+        $this->manager->persist($device_config);
         $this->manager->flush();
         return;
         return $device_config;
