@@ -30,7 +30,7 @@ class DeviceService
 
         return $device;
     }
-    public function discoveryDeviceConfig(Device $device, People $people)
+    private function discoveryDeviceConfig(Device $device, People $people)
     {
         $device_config = $this->manager->getRepository(DeviceConfig::class)->findOneBy([
             'device' => $device,
