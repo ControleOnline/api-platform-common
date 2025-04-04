@@ -23,7 +23,6 @@ class DeviceService
             $device = new Device();
             $device->setDevice($deviceId);
             $this->manager->persist($device);
-            $this->manager->flush();
         }
         return $device;
     }
