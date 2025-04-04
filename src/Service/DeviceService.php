@@ -51,7 +51,6 @@ class DeviceService
         foreach ($configs as $key => $config)
             $device_config->addConfig($key,  $config);
 
-        $device_config->setConfigs($configs);
         $this->manager->persist($device_config);
         $this->manager->flush();
 
