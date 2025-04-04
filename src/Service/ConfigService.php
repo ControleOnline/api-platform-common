@@ -74,11 +74,11 @@ class ConfigService
         $this->manager->flush();
         return $config;
     }
-//pos-cash-wallet
-//pos-withdrawl-wallet
-//    discoverWallet('pos-cash-wallet', 'Caixa');
-//discoverWallet('pos-withdrawl-wallet', 'Reserva');
-/*
+    //pos-cash-wallet
+    //pos-withdrawl-wallet
+    //    discoverWallet('pos-cash-wallet', 'Caixa');
+    //discoverWallet('pos-withdrawl-wallet', 'Reserva');
+    /*
        {
           paymentType: 'Dinheiro',
           frequency: 'single',
@@ -86,34 +86,39 @@ class ConfigService
           people: '/people/' + currentCompany.id,
         },
 */
-private function infinitePay(){
-//pos-infinite-pay-wallet
 
+    private function infinitePay($company)
     {
-        paymentType: 'Débito',
-        frequency: 'single',
-        installments: 'single',
-        people: '/people/' + currentCompany.id,
-        paymentCode: 'debit',
-      },
-      {
-        paymentType: 'Crédito à Vista',
-        frequency: 'single',
-        installments: 'single',
-        people: '/people/' + currentCompany.id,
-        paymentCode: 'credit',
-      },
-      {
-        paymentType: 'Crédito Parcelado',
-        frequency: 'single',
-        installments: 'split',
-        people: '/people/' + currentCompany.id,
-        paymentCode: 'credit',
-      },
-}
+        //pos-infinite-pay-wallet
+
+        return [
+            [
+                'paymentType' => 'Débito',
+                'frequency' => 'single',
+                'installments' => 'single',
+                'people' => $company,
+                'paymentCode' => 'debit',
+            ],
+            [
+                'paymentType' => 'Crédito à Vista',
+                'frequency' => 'single',
+                'installments' => 'single',
+                'people' => $company,
+                'paymentCode' => 'credit',
+            ],
+            [
+                'paymentType' => 'Crédito Parcelado',
+                'frequency' => 'single',
+                'installments' => 'split',
+                'people' => $company,
+                'paymentCode' => 'credit',
+            ],
+        ];
+    }
+
     private function cielo($company)
     {
-//'pos-cielo-wallet'
+        //'pos-cielo-wallet'
         return [
             [
                 'paymentType' => 'Débito',
