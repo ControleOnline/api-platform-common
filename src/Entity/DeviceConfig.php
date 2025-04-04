@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="device_config")
+ * @ORM\Table (name="device_configs")
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\DeviceConfigRepository")
  */
 #[ApiResource(
