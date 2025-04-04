@@ -50,6 +50,6 @@ class DeviceService
 
         $this->manager->persist($device_config);
         $this->manager->flush();
-        return $device;
+        return $device_config;
     }
 }
