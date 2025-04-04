@@ -2,27 +2,18 @@
 
 namespace ControleOnline\Controller;
 
-use ControleOnline\Entity\Device;
-use ControleOnline\Entity\DeviceConfig;
 use ControleOnline\Entity\People;
-use ControleOnline\Service\ConfigService;
 use ControleOnline\Service\DeviceService;
 use ControleOnline\Service\HydratorService;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Security\Core\Security;
-
-
 
 class AddDeviceConfigAction
 {
   public function __construct(
-    private Security $security,
     private EntityManagerInterface $manager,
-    private ConfigService $configService,
     private HydratorService $hydratorService,
     private DeviceService $deviceService
   ) {}
