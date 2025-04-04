@@ -11,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class DiscoveryDeviceConfigAction
+class DiscoveryMainConfigsAction
 {
   public function __construct(
     private EntityManagerInterface $manager,
