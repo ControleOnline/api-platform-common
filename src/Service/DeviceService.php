@@ -54,7 +54,7 @@ class DeviceService
         $device_config->setConfigs($configs);
         $this->manager->persist($device_config);
         $this->manager->flush();
-        return;
+
         return $device_config;
     }
 }
