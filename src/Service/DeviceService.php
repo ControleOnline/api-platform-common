@@ -44,7 +44,7 @@ class DeviceService
 
     public function addDeviceConfigs(People $people, array $configs, $deviceId)
     {
-        $device = $this->discoveryDevice($deviceId);
+        //$device = $this->discoveryDevice($deviceId);
 
         //$device_config = $this->discoveryDeviceConfig($device,  $people);
         //foreach ($configs as $key => $config)
@@ -53,7 +53,7 @@ class DeviceService
         //$device_config->setConfigs($configs);
 //        $this->manager->persist($device_config);
       //
-        $this->manager->flush();
+        //$this->manager->flush();
         return;
         return $device_config;
     }

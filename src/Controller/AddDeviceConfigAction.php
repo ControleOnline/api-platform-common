@@ -34,7 +34,9 @@ class AddDeviceConfigAction
       $people = $this->manager->getRepository(People::class)->find(preg_replace("/[^0-9]/", "", $json['company']));
       $configs = json_decode($json['new_configs'], true);
       $device_config = $this->deviceService->addDeviceConfigs($people, $configs, $json['device_name']);
-      return new JsonResponse(['teste']);
+      return new JsonResponse([
+        'device' => $json['device_name']
+      ]);
       //return new JsonResponse($this->hydratorService->item(DeviceConfig::class, $device_config->getId(), 'device_config:read'), Response::HTTP_OK);
     } catch (Exception $e) {
       return new JsonResponse($this->hydratorService->error($e));
