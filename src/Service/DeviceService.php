@@ -19,15 +19,12 @@ class DeviceService
         $device = $this->manager->getRepository(Device::class)->findOneBy([
             'device' => $deviceId
         ]);
-        if (! $device) {
+        if (!$device) {
             $device = new Device();
             $device->setDevice($deviceId);
             $this->manager->persist($device);
             $this->manager->flush();
-            //$this->manager->refresh($device);
         }
-
-
         return $device;
     }
     private function discoveryDeviceConfig(Device $device, People $people)
