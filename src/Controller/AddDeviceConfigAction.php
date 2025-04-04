@@ -36,9 +36,7 @@ class AddDeviceConfigAction
       $device_config = $this->deviceService->addDeviceConfigs($people, $configs, $json['device']);
 
 
-      error_log("DeviceConfig antes da serialização: " . print_r($device_config, true));
       $data = $this->hydratorService->item(DeviceConfig::class, $device_config->getId(), 'device_config:read');
-      error_log("Dados serializados: " . print_r($data, true));
 
       return new JsonResponse($data, Response::HTTP_OK);
 
