@@ -40,9 +40,6 @@ class DeviceService
             $device_config = new DeviceConfig();
             $device_config->setDevice($device);
             $device_config->setPeople($people);
-            $this->manager->persist($device_config);
-            $this->manager->flush();
-            //$this->manager->refresh($device_config);
         }
 
         return $device_config;
