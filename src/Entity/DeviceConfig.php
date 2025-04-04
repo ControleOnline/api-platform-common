@@ -67,9 +67,9 @@ class DeviceConfig
     /**
      * @var \ControleOnline\Entity\People
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\People", nullable=false)
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\People")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="people_id", referencedColumnName="id", nullable=false)
      * })
      * @Groups({"device_config:read","device:read","device_config:write"})
      */
@@ -79,9 +79,9 @@ class DeviceConfig
     /**
      * @var \ControleOnline\Entity\Device
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Device", nullable=false)
+     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Device")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="device_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="device_id", referencedColumnName="id", nullable=false)
      * })
      * @Groups({"device_config:read","device:read","device_config:write"})
      */
