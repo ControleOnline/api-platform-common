@@ -22,10 +22,12 @@ class DeviceService
         if (! $device) {
             $device = new Device();
             $device->setDevice($deviceId);
+            $this->manager->persist($device);
+            $this->manager->flush();
+            $this->manager->refresh($device);
         }
 
-        $this->manager->persist($device);
-        $this->manager->flush();
+
         return $device;
     }
     public function discoveryDeviceConfig(Device $device, People $people)
