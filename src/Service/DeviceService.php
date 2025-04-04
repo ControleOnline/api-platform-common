@@ -34,14 +34,14 @@ class DeviceService
             'device' => $device,
             'people' => $people
         ]);
-        if (! $device_config) {
+        if (!$device_config) {
             $device_config = new DeviceConfig();
             $device_config->setDevice($device);
             $device_config->setPeople($people);
+            $this->manager->persist($device_config);
+            $this->manager->flush();
+            $this->manager->refresh($device_config);
         }
-
-        $this->manager->persist($device_config);
-        $this->manager->flush();
 
         return $device_config;
     }
