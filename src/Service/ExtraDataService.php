@@ -2,6 +2,7 @@
 
 namespace ControleOnline\Service;
 
+use ControleOnline\Entity\Device;
 use ControleOnline\Entity\ExtraData;
 use ControleOnline\Entity\ExtraFields;
 use Symfony\Component\Security\Core\Security;
@@ -20,6 +21,8 @@ class ExtraDataService
         private EntityManagerInterface $manager,
         private RequestStack $requestStack,
         private Security $security,
+        private DeviceService $deviceService
+
     ) {
         $this->request = $requestStack->getCurrentRequest();
     }
@@ -31,18 +34,17 @@ class ExtraDataService
 
     public function discoveryDevice(&$entity)
     {
-        $device = $this->request->headers->get('DEVICE') ?: $this->getUserIp();
-
+        $deviceId = $this->request->headers->get('DEVICE') ?: $this->getUserIp();
         if (method_exists($entity, 'setDevice')) {
+            $device = $this->deviceService->discoveryDevice($deviceId);
             $entity->setDevice($device);
         }
     }
 
     public function discoveryUser(&$entity)
     {
-        if (method_exists($entity, 'setUser')) {
+        if (method_exists($entity, 'setUser'))
             $entity->setUser($this->security->getUser());
-        }
     }
 
     public function persist(&$entity)

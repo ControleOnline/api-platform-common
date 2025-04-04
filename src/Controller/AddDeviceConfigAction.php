@@ -5,6 +5,7 @@ namespace ControleOnline\Controller;
 use ControleOnline\Entity\Device;
 use ControleOnline\Entity\People;
 use ControleOnline\Service\ConfigService;
+use ControleOnline\Service\DeviceService;
 use ControleOnline\Service\HydratorService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +22,8 @@ class AddDeviceConfigAction
     private Security $security,
     private EntityManagerInterface $manager,
     private ConfigService $configService,
-    private HydratorService $hydratorService
+    private HydratorService $hydratorService,
+    private DeviceService $deviceService
   ) {}
 
   public function __invoke(Request $request): JsonResponse
@@ -30,22 +32,7 @@ class AddDeviceConfigAction
       $json = json_decode($request->getContent(), true);
       $people = $this->manager->getRepository(People::class)->find(preg_replace("/[^0-9]/", "", $json['people']));
       $configs = json_decode($json['configs'], true);
-      $device = $this->manager->getRepository(Device::class)->findOneBy([
-        'people' =>  $people,
-        'device' => $json['device']
-      ]);
-      if (!$device)
-        $device  = new Device();
-
-      foreach ($configs as $key => $config)
-        $device->addConfigs($key,  $config);
-      $device->setPeople($people);
-      $device->setDevice($json['device']);
-
-      $this->manager->persist($device);
-      $this->manager->flush();
-
-
+      $device = $this->deviceService->addDeviceConfigs($people, $configs, $json['device']);
       return new JsonResponse($this->hydratorService->item(Device::class, $device->getId(), "device:read"), Response::HTTP_OK);
     } catch (Exception $e) {
       return new JsonResponse($this->hydratorService->error($e));
