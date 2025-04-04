@@ -36,10 +36,6 @@ class AddDeviceConfigAction
       $device_config = $this->deviceService->addDeviceConfigs($people, $configs, $json['device']);
 
 
-      $data = $this->hydratorService->item(DeviceConfig::class, $device_config->getId(), 'device_config:read');
-
-      return new JsonResponse($data, Response::HTTP_OK);
-
       return new JsonResponse($this->hydratorService->item(DeviceConfig::class, $device_config->getId(), 'device_config:read'), Response::HTTP_OK);
     } catch (Exception $e) {
       return new JsonResponse($this->hydratorService->error($e));

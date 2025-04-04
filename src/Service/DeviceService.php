@@ -24,7 +24,7 @@ class DeviceService
             $device->setDevice($deviceId);
             $this->manager->persist($device);
             $this->manager->flush();
-            //$this->manager->refresh($device);
+            $this->manager->refresh($device);
         }
 
 
@@ -42,7 +42,7 @@ class DeviceService
             $device_config->setPeople($people);
             $this->manager->persist($device_config);
             $this->manager->flush();
-            //$this->manager->refresh($device_config);
+            $this->manager->refresh($device_config);
         }
 
         return $device_config;
