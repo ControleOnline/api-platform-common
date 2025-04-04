@@ -141,7 +141,7 @@ class DeviceConfig
     }
 
 
-    public function addConfigs($key, $value)
+    public function addConfig($key, $value)
     {
         $configs = $this->getConfigs(true);
         $configs[$key] = $value;
