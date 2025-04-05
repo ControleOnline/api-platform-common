@@ -4,6 +4,7 @@ namespace ControleOnline\Service;
 
 use ControleOnline\Entity\Device;
 use ControleOnline\Entity\DeviceConfig;
+use ControleOnline\Entity\Module;
 use ControleOnline\Entity\People;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -11,6 +12,7 @@ class DeviceService
 {
     public function __construct(
         private EntityManagerInterface $manager,
+        private ConfigService $configService,
     ) {}
 
 
@@ -19,23 +21,27 @@ class DeviceService
         $device = $this->manager->getRepository(Device::class)->findOneBy([
             'device' => $deviceId
         ]);
-        if (! $device) {
+        if (!$device) {
             $device = new Device();
             $device->setDevice($deviceId);
+            $this->manager->persist($device);
+            $this->manager->flush();
         }
-
         return $device;
     }
+
+
     public function discoveryDeviceConfig(Device $device, People $people)
     {
         $device_config = $this->manager->getRepository(DeviceConfig::class)->findOneBy([
             'device' => $device,
             'people' => $people
         ]);
-        if (! $device_config) {
+        if (!$device_config) {
             $device_config = new DeviceConfig();
             $device_config->setDevice($device);
             $device_config->setPeople($people);
+            $this->manager->persist($device_config);
         }
 
         return $device_config;
@@ -44,12 +50,14 @@ class DeviceService
     public function addDeviceConfigs(People $people, array $configs, $deviceId)
     {
         $device = $this->discoveryDevice($deviceId);
+
         $device_config = $this->discoveryDeviceConfig($device,  $people);
         foreach ($configs as $key => $config)
-            $device_config->addConfigs($key,  $config);
+            $device_config->addConfig($key,  $config);
 
         $this->manager->persist($device_config);
         $this->manager->flush();
-        return $device;
+
+        return $device_config;
     }
 }

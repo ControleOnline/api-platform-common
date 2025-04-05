@@ -8,13 +8,10 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ControleOnline\Controller\AddDeviceConfigAction;
-use ControleOnline\Filter\CustomOrFilter;
 use Doctrine\ORM\Mapping as ORM;
 use stdClass;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -22,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="device")
+ * @ORM\Table (name="device_configs")
  * @ORM\Entity (repositoryClass="ControleOnline\Repository\DeviceConfigRepository")
  */
 #[ApiResource(
@@ -34,9 +31,9 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             security: 'is_granted(\'ROLE_CLIENT\')',
-            uriTemplate: '/devices/add-configs',
+            uriTemplate: '/device_configs/add-configs',
             controller: AddDeviceConfigAction::class
-        ),
+        ),        
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(
@@ -69,7 +66,7 @@ class DeviceConfig
      *
      * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\People")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="people_id", referencedColumnName="id", nullable=false)
      * })
      * @Groups({"device_config:read","device:read","device_config:write"})
      */
@@ -81,12 +78,12 @@ class DeviceConfig
      *
      * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Device")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="device_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="device_id", referencedColumnName="id", nullable=false)
      * })
      * @Groups({"device_config:read","device:read","device_config:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['device' => 'exact'])]
-
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['device.device' => 'exact'])]
     private $device;
 
 
@@ -132,7 +129,7 @@ class DeviceConfig
     }
 
 
-   
+
 
 
     public function getConfigs($decode = false)
@@ -141,12 +138,11 @@ class DeviceConfig
     }
 
 
-    public function addConfigs($key, $value)
+    public function addConfig($key, $value)
     {
         $configs = $this->getConfigs(true);
         $configs[$key] = $value;
-        $this->configs = json_encode($configs);
-        return $this;
+        return $this->setConfigs($configs);
     }
 
 

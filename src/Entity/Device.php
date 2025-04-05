@@ -8,15 +8,10 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
-use ControleOnline\Controller\AddDeviceConfigAction;
-use ControleOnline\Filter\CustomOrFilter;
 use Doctrine\ORM\Mapping as ORM;
-use stdClass;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -31,11 +26,6 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             denormalizationContext: ['groups' => ['device:write']]
-        ),
-        new Post(
-            security: 'is_granted(\'ROLE_CLIENT\')',
-            uriTemplate: '/devices/add-configs',
-            controller: AddDeviceConfigAction::class
         ),
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
