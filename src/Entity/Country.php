@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
@@ -11,164 +12,148 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Country
- *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="country", uniqueConstraints={@ORM\UniqueConstraint (name="countryCode", columns={"countryCode"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\CountryRepository")
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['country:read']], denormalizationContext: ['groups' => ['country:write']])]
+#[ORM\Table(name: 'country')]
+#[ORM\UniqueConstraint(name: 'countryCode', columns: ['countryCode'])]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\CountryRepository::class)]
 class Country
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
     /**
      * @var string
      *
-     * @ORM\Column(name="countryCode", type="string", length=3, nullable=false)
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-
      */
+    #[ORM\Column(name: 'countryCode', type: 'string', length: 3, nullable: false)]
     private $countrycode;
     /**
      * @var string
      *
-     * @ORM\Column(name="countryName", type="string", length=45, nullable=false)
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\Column(name: 'countryName', type: 'string', length: 45, nullable: false)]
     private $countryname;
     /**
      * @var string
      *
-     * @ORM\Column(name="currencyCode", type="string", length=3, nullable=true)
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-
      */
+    #[ORM\Column(name: 'currencyCode', type: 'string', length: 3, nullable: true)]
     private $currencycode;
     /**
      * @var integer
      *
-     * @ORM\Column(name="population", type="integer", nullable=true)
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-
      */
+    #[ORM\Column(name: 'population', type: 'integer', nullable: true)]
     private $population;
     /**
      * @var string
      *
-     * @ORM\Column(name="fipsCode", type="string", length=2, nullable=true)
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-
      */
+    #[ORM\Column(name: 'fipsCode', type: 'string', length: 2, nullable: true)]
     private $fipscode;
     /**
      * @var string
      *
-     * @ORM\Column(name="isoNumeric", type="string", length=4, nullable=true)
-     * 
+     *
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\Column(name: 'isoNumeric', type: 'string', length: 4, nullable: true)]
     private $isonumeric;
     /**
      * @var string
      *
-     * @ORM\Column(name="north", type="string", length=30, nullable=true)
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-
      */
+    #[ORM\Column(name: 'north', type: 'string', length: 30, nullable: true)]
     private $north;
     /**
      * @var string
      *
-     * @ORM\Column(name="south", type="string", length=30, nullable=true)
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-
      */
+    #[ORM\Column(name: 'south', type: 'string', length: 30, nullable: true)]
     private $south;
     /**
      * @var string
      *
-     * @ORM\Column(name="east", type="string", length=30, nullable=true)
-     * 
+     *
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-
      */
+    #[ORM\Column(name: 'east', type: 'string', length: 30, nullable: true)]
     private $east;
     /**
      * @var string
      *
-     * @ORM\Column(name="west", type="string", length=30, nullable=true)
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-
      */
+    #[ORM\Column(name: 'west', type: 'string', length: 30, nullable: true)]
     private $west;
     /**
      * @var string
      *
-     * @ORM\Column(name="capital", type="string", length=30, nullable=true)
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-
      */
+    #[ORM\Column(name: 'capital', type: 'string', length: 30, nullable: true)]
     private $capital;
     /**
      * @var string
      *
-     * @ORM\Column(name="continentName", type="string", length=15, nullable=true)
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-
      */
+    #[ORM\Column(name: 'continentName', type: 'string', length: 15, nullable: true)]
     private $continentname;
     /**
      * @var string
      *
-     * @ORM\Column(name="continent", type="string", length=2, nullable=true)
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-
      */
+    #[ORM\Column(name: 'continent', type: 'string', length: 2, nullable: true)]
     private $continent;
     /**
      * @var string
      *
-     * @ORM\Column(name="areaInSqKm", type="string", length=20, nullable=true)
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-
      */
+    #[ORM\Column(name: 'areaInSqKm', type: 'string', length: 20, nullable: true)]
     private $areainsqkm;
     /**
      * @var string
      *
-     * @ORM\Column(name="isoAlpha3", type="string", length=3, nullable=true)
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-
      */
+    #[ORM\Column(name: 'isoAlpha3', type: 'string', length: 3, nullable: true)]
     private $isoalpha3;
     /**
      * @var integer
      *
-     * @ORM\Column(name="geonameId", type="integer", nullable=true)
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-
      */
+    #[ORM\Column(name: 'geonameId', type: 'integer', nullable: true)]
     private $geonameid;
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
-     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\LanguageCountry", mappedBy="country")
      * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-
      */
+    #[ORM\OneToMany(targetEntity: \ControleOnline\Entity\LanguageCountry::class, mappedBy: 'country')]
     private $languageCountry;
     /**
      * @var \Doctrine\Common\Collections\Collection
-     *
-     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\State", mappedBy="country")
      */
+    #[ORM\OneToMany(targetEntity: \ControleOnline\Entity\State::class, mappedBy: 'country')]
     private $state;
     /**
      * Constructor

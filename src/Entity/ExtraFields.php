@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -14,11 +15,6 @@ use ApiPlatform\Metadata\Put;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="extra_fields")
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\ExtraFieldsRepository")
- */
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
@@ -36,42 +32,45 @@ use Symfony\Component\Serializer\Annotation\Groups;
     denormalizationContext: ['groups' => ['extra_fields:write']]
 )]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact', 'field_type' => 'exact'])]
+#[ORM\Table(name: 'extra_fields')]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\ExtraFieldsRepository::class)]
 class ExtraFields
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
      * @Groups({"extra_fields:read", "extra_data:read"})
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
 
     /**
-     * @ORM\Column(name="field_name", type="string", length=255, nullable=false)
      * @Groups({"extra_fields:read", "extra_fields:write", "extra_data:read"})
      */
+    #[ORM\Column(name: 'field_name', type: 'string', length: 255, nullable: false)]
     private $name;
     /**
-     * @ORM\Column(name="field_type", type="string", length=255, nullable=false)
      * @Groups({"extra_fields:read", "extra_fields:write", "extra_data:read"})
      */
+    #[ORM\Column(name: 'field_type', type: 'string', length: 255, nullable: false)]
     private $type;
     /**
-     * @ORM\Column(name="context", type="string", length=255, nullable=false)
      * @Groups({"extra_fields:read", "extra_fields:write", "extra_data:read"})
      */
+    #[ORM\Column(name: 'context', type: 'string', length: 255, nullable: false)]
     private $context;
     /**
-     * @ORM\Column(name="required", type="boolean", nullable=true)
      * @Groups({"extra_fields:read", "extra_fields:write", "extra_data:read"})
      */
+    #[ORM\Column(name: 'required', type: 'boolean', nullable: true)]
     private $required;
     /**
-     * @ORM\Column(name="field_configs", type="string", nullable=true)
      * @Groups({"extra_fields:read", "extra_fields:write", "extra_data:read"})
      */
+    #[ORM\Column(name: 'field_configs', type: 'string', nullable: true)]
     private $configs;
  
 

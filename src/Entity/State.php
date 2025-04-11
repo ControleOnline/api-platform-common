@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -13,10 +14,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * State
- *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="state", uniqueConstraints={@ORM\UniqueConstraint (name="UF", columns={"UF"}), @ORM\UniqueConstraint(name="cod_ibge", columns={"cod_ibge"})}, indexes={@ORM\Index (name="country_id", columns={"country_id"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\StateRepository")
  */
 #[ApiResource(
     operations: [
@@ -28,54 +25,56 @@ use Symfony\Component\Serializer\Annotation\Groups;
     denormalizationContext: ['groups' => ['state:write']]
 )]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['state' => 'ASC'])]
+#[ORM\Table(name: 'state')]
+#[ORM\Index(name: 'country_id', columns: ['country_id'])]
+#[ORM\UniqueConstraint(name: 'UF', columns: ['UF'])]
+#[ORM\UniqueConstraint(name: 'cod_ibge', columns: ['cod_ibge'])]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\StateRepository::class)]
 class State
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"city:read","logistic:read","state:read", "order_details:read", "people:read", "address:read", "delivery_region:read"})
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
     /**
      * @var string
      *
-     * @ORM\Column(name="state", type="string", length=50, nullable=false)
      * @Groups({"city:read","logistic:read","state:read", "order_details:read", "people:read", "address:read", "delivery_region:read"})
      */
+    #[ORM\Column(name: 'state', type: 'string', length: 50, nullable: false)]
     private $state;
     /**
      * @var string
      *
-     * @ORM\Column(name="cod_ibge", type="integer", nullable=true)
      * @Groups({"city:read","logistic:read","state:read", "order_details:read", "people:read", "address:read", "delivery_region:read"})
-
      */
+    #[ORM\Column(name: 'cod_ibge', type: 'integer', nullable: true)]
     private $cod_ibge;
     /**
      * @var string
      *
-     * @ORM\Column(name="UF", type="string", length=2, nullable=false)
      * @Groups({"city:read","logistic:read","state:read", "order_details:read", "people:read", "address:read", "delivery_region:read"})
      */
+    #[ORM\Column(name: 'UF', type: 'string', length: 2, nullable: false)]
     private $uf;
     /**
      * @var Country
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Country", inversedBy="state")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="country_id", referencedColumnName="id", nullable=false)
-     * })
      * @Groups({"city:read","logistic:read","state:read", "order_details:read", "people:read", "address:read", "delivery_region:read"})
      */
+    #[ORM\JoinColumn(name: 'country_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Country::class, inversedBy: 'state')]
     private $country;
     /**
      * @var \Doctrine\Common\Collections\Collection
-     *
-     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\City", mappedBy="state")
      */
+    #[ORM\OneToMany(targetEntity: \ControleOnline\Entity\City::class, mappedBy: 'state')]
     private $city;
     /**
      * Constructor

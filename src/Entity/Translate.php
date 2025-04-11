@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
@@ -18,11 +19,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="translate")
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\TranslateRepository")
- */
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
@@ -41,18 +37,21 @@ use Symfony\Component\Validator\Constraints as Assert;
     denormalizationContext: ['groups' => ['translate:write']]
 )]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['key' => 'ASC'])]
+#[ORM\Table(name: 'translate')]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\TranslateRepository::class)]
 
 class Translate
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"translate:read","translate:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
 
     private $id;
 
@@ -60,23 +59,21 @@ class Translate
     /**
      * @var \ControleOnline\Entity\People
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\People")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
-     * })
      * @Groups({"translate:read","translate:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
+    #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\People::class)]
 
     private $people;
     /**
      * @var string
      *
-     * @ORM\Column(name="store", type="string", length=100, nullable=false)
      * @Groups({"translate:read","translate:write"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['store' => 'exact'])]
+    #[ORM\Column(name: 'store', type: 'string', length: 100, nullable: false)]
 
     private $store;
 
@@ -84,45 +81,42 @@ class Translate
     /**
      * @var string
      *
-     * @ORM\Column(name="type", type="string", length=100, nullable=false)
      * @Groups({"translate:read","translate:write"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['type' => 'exact'])]
+    #[ORM\Column(name: 'type', type: 'string', length: 100, nullable: false)]
 
     private $type;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="translate_key", type="string", length=100, nullable=false)
      * @Groups({"translate:read","translate:write"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['key' => 'exact'])]
+    #[ORM\Column(name: 'translate_key', type: 'string', length: 100, nullable: false)]
 
     private $key;
     /**
      * @var string
      *
-     * @ORM\Column(name="translate", type="string", length=100, nullable=false)
      * @Groups({"translate:read","translate:write"})
      * @Assert\NotBlank
      */
-
+    #[ORM\Column(name: 'translate', type: 'string', length: 100, nullable: false)]
     private $translate;
 
 
     /**
      * @var \ControleOnline\Entity\Language
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Language")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="lang_id", referencedColumnName="id")
-     * })
      * @Groups({"translate:read","translate:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['language.language' => 'exact'])]
+    #[ORM\JoinColumn(name: 'lang_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Language::class)]
 
     private $language;
 

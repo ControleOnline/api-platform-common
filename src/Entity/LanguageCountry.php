@@ -1,45 +1,41 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * LanguageCountry
- *
- * @ORM\Table(name="language_country", uniqueConstraints={@ORM\UniqueConstraint(name="language_id", columns={"language_id", "country_id"})}, indexes={@ORM\Index(name="country_id", columns={"country_id"}), @ORM\Index(name="IDX_F7BE1E3282F1BAF4", columns={"language_id"})})
- * @ORM\Entity
- * @ORM\EntityListeners({ControleOnline\Listener\LogListener::class}) 
  */
+#[ORM\Table(name: 'language_country')]
+#[ORM\Index(name: 'country_id', columns: ['country_id'])]
+#[ORM\Index(name: 'IDX_F7BE1E3282F1BAF4', columns: ['language_id'])]
+#[ORM\UniqueConstraint(name: 'language_id', columns: ['language_id', 'country_id'])]
+#[ORM\Entity]
+#[ORM\EntityListeners([LogListener::class])]
 class LanguageCountry
 {
     /**
      * @var integer
-     *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
 
     /**
      * @var \ControleOnline\Entity\Language
-     *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Language")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="language_id", referencedColumnName="id")
-     * })
      */
+    #[ORM\JoinColumn(name: 'language_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Language::class)]
     private $language;
 
     /**
      * @var \ControleOnline\Entity\Country
-     *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Country", inversedBy="languageCountry")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="country_id", referencedColumnName="id")
-     * })
      */
+    #[ORM\JoinColumn(name: 'country_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Country::class, inversedBy: 'languageCountry')]
     private $country;
 
     /**

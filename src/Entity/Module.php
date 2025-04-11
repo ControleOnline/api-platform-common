@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -14,11 +15,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Module
- *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="module", uniqueConstraints={@ORM\UniqueConstraint (name="UX_MODULE_NAME", columns={"name"})})
- * @ORM\Entity
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\ModuleRepository")
  */
 #[ApiResource(
     operations: [
@@ -35,44 +31,49 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ['groups' => ['module:read']],
     denormalizationContext: ['groups' => ['module:write']]
 )]
+#[ORM\Table(name: 'module')]
+#[ORM\UniqueConstraint(name: 'UX_MODULE_NAME', columns: ['name'])]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\ModuleRepository::class)]
 class Module
 {
     /**
      * @var int
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"menu:read","module:read"}) 
+     * @Groups({"menu:read","module:read"})
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=100, nullable=false)
-     * @Groups({"menu:read","module:read","module:write"})  
+     * @Groups({"menu:read","module:read","module:write"}) 
      */
+    #[ORM\Column(name: 'name', type: 'string', length: 100, nullable: false)]
     private $name;
     /**
      * @var string
      *
-     * @ORM\Column(name="color", type="string", length=50, nullable=false, options={"default"="'$primary'"})
-     * @Groups({"menu:read","module:read","module:write"})   
+     * @Groups({"menu:read","module:read","module:write"})  
      */
+    #[ORM\Column(name: 'color', type: 'string', length: 50, nullable: false, options: ['default' => "'\$primary'"])]
     private $color = '$primary';
     /**
      * @var string
      *
-     * @ORM\Column(name="icon", type="string", length=50, nullable=false)
-     * @Groups({"menu:read","module:read","module:write"})   
+     * @Groups({"menu:read","module:read","module:write"})  
      */
+    #[ORM\Column(name: 'icon', type: 'string', length: 50, nullable: false)]
     private $icon;
     /**
      * @var string|null
      *
-     * @ORM\Column(name="description", type="string", length=255, nullable=true, options={"default"="NULL"})
-     * @Groups({"menu:read","module:read","module:write"})   
+     * @Groups({"menu:read","module:read","module:write"})  
      */
+    #[ORM\Column(name: 'description', type: 'string', length: 255, nullable: true, options: ['default' => 'NULL'])]
     private $description = NULL;
     /**
      * Get the value of id

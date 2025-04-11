@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -14,10 +15,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * City
- *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="city", uniqueConstraints={@ORM\UniqueConstraint (name="city", columns={"city", "state_id"}), @ORM\UniqueConstraint(name="cod_ibge", columns={"cod_ibge"})}, indexes={@ORM\Index (name="state_id", columns={"state_id"}), @ORM\Index(name="seo", columns={"seo"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\CityRepository")
  */
 #[ApiResource(
     operations: [
@@ -36,53 +33,55 @@ use Symfony\Component\Serializer\Annotation\Groups;
         'state.uf' => 'exact'
     ]
 )]
+#[ORM\Table(name: 'city')]
+#[ORM\Index(name: 'state_id', columns: ['state_id'])]
+#[ORM\Index(name: 'seo', columns: ['seo'])]
+#[ORM\UniqueConstraint(name: 'city', columns: ['city', 'state_id'])]
+#[ORM\UniqueConstraint(name: 'cod_ibge', columns: ['cod_ibge'])]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\CityRepository::class)]
 class City
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"city:read","logistic:read","order_details:read","order:write", "people:read", "address:read", "delivery_region:read"})
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
     /**
      * @var string
      *
-     * @ORM\Column(name="city", type="string", length=80, nullable=false)
      * @Groups({"city:read","logistic:read","order_details:read","order:write", "people:read", "address:read", "delivery_region:read"})
      */
+    #[ORM\Column(name: 'city', type: 'string', length: 80, nullable: false)]
     private $city;
     /**
      * @var string
      *
-     * @ORM\Column(name="cod_ibge", type="integer", nullable=true)
      * @Groups({"city:read","logistic:read","order_details:read","order:write", "people:read", "address:read", "delivery_region:read"})
-
      */
+    #[ORM\Column(name: 'cod_ibge', type: 'integer', nullable: true)]
     private $cod_ibge;
     /**
      * @var boolean
-     *
-     * @ORM\Column(name="seo", type="boolean", nullable=false)
      */
+    #[ORM\Column(name: 'seo', type: 'boolean', nullable: false)]
     private $seo;
     /**
      * @var \ControleOnline\Entity\State
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\State", inversedBy="city")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="state_id", referencedColumnName="id", nullable=false)
-     * })
      * @Groups({"city:read","logistic:read","order_details:read","order:write", "people:read", "address:read", "delivery_region:read"})
      */
+    #[ORM\JoinColumn(name: 'state_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\State::class, inversedBy: 'city')]
     private $state;
     /**
      * @var \Doctrine\Common\Collections\Collection
-     *
-     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\District", mappedBy="city")
      */
+    #[ORM\OneToMany(targetEntity: \ControleOnline\Entity\District::class, mappedBy: 'city')]
     private $district;
     /**
      * Constructor

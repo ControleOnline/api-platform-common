@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 
 use ApiPlatform\Metadata\Post;
@@ -22,13 +23,7 @@ use stdClass;
 
 /**
  * Routes
- *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table(name="routes", uniqueConstraints={@ORM\UniqueConstraint(name="route", columns={"route"})}, indexes={@ORM\Index(name="module_id", columns={"module_id"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\RouteRepository")
- * @ORM\Entity
  */
-
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))'),
@@ -44,52 +39,56 @@ use stdClass;
     normalizationContext: ['groups' => ['route:read']],
     denormalizationContext: ['groups' => ['route:write']]
 )]
+#[ORM\Table(name: 'routes')]
+#[ORM\Index(name: 'module_id', columns: ['module_id'])]
+#[ORM\UniqueConstraint(name: 'route', columns: ['route'])]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\RouteRepository::class)]
+#[ORM\Entity]
 
 class Routes
 {
     /**
      * @var int
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"menu:read","route:read"})   
+     * @Groups({"menu:read","route:read"})  
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="route", type="string", length=50, nullable=false)
-     * @Groups({"menu:read","route:read","route:write"})   
+     * @Groups({"menu:read","route:read","route:write"})  
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['route' => 'exact'])]
+    #[ORM\Column(name: 'route', type: 'string', length: 50, nullable: false)]
 
     private $route;
 
     /**
      * @var \Module
      *
-     * @ORM\ManyToOne(targetEntity="Module")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="module_id", referencedColumnName="id")
-     * })
-     * @Groups({"menu:read","route:read","route:write"})  
+     * @Groups({"menu:read","route:read","route:write"}) 
      */
+    #[ORM\JoinColumn(name: 'module_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \Module::class)]
     private $module;
     /**
      * @var string
      *
-     * @ORM\Column(name="color", type="string", length=50, nullable=false, options={"default"="'$primary'"})
-     * @Groups({"menu:read","route:read","route:write"})  
+     * @Groups({"menu:read","route:read","route:write"}) 
      */
+    #[ORM\Column(name: 'color', type: 'string', length: 50, nullable: false, options: ['default' => "'\$primary'"])]
     private $color = '$primary';
     /**
      * @var string
      *
-     * @ORM\Column(name="icon", type="string", length=50, nullable=false)
-     * @Groups({"menu:read","route:read","route:write"})  
+     * @Groups({"menu:read","route:read","route:write"}) 
      */
+    #[ORM\Column(name: 'icon', type: 'string', length: 50, nullable: false)]
     private $icon;
 
     /**

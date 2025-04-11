@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
@@ -17,12 +18,6 @@ use ControleOnline\Filter\CustomOrFilter;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-
-/**
- * @ORM\Entity(repositoryClass="ControleOnline\Repository\LanguageRepository")
- * @ORM\Table(name="language", uniqueConstraints={@ORM\UniqueConstraint(name="language", columns={"language"})})
- * @ORM\EntityListeners({ControleOnline\Listener\LogListener::class}) 
- */
 
 #[ApiResource(
     operations: [
@@ -41,34 +36,35 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext: ['groups' => ['language:read']],
     denormalizationContext: ['groups' => ['language:write']]
 )]
+#[ORM\Table(name: 'language')]
+#[ORM\UniqueConstraint(name: 'language', columns: ['language'])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\LanguageRepository::class)]
+#[ORM\EntityListeners([LogListener::class])]
 
 class Language
 {
     /**
      *
-     * @ORM\Column(type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"translate:read", "language:read"})
      */
+    #[ORM\Column(type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=10, nullable=false)
      * @Groups({"translate:read", "language:read"})
      */
+    #[ORM\Column(type: 'string', length: 10, nullable: false)]
     private $language;
 
     /**
-     * @ORM\Column(type="boolean", nullable=false)
      * @Groups({"translate:read", "language:read"})
      */
+    #[ORM\Column(type: 'boolean', nullable: false)]
     private $locked;
 
-    /**
-     *
-     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\People", mappedBy="language")
-     */
+    #[ORM\OneToMany(targetEntity: \ControleOnline\Entity\People::class, mappedBy: 'language')]
     private $people;
 
     public function __construct()

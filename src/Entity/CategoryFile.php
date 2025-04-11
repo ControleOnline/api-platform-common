@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -16,11 +17,7 @@ use ApiPlatform\Metadata\ApiFilter;
 
 /**
  * CategoryFile
- *
- * @ORM\Table(name="category_file", uniqueConstraints={@ORM\UniqueConstraint(name="category_id", columns={"category_id", "file_id"})}, indexes={@ORM\Index(name="file_id", columns={"file_id"}), @ORM\Index(name="IDX_CDFC73564584665B", columns={"category_id"})})
- * @ORM\Entity(repositoryClass="ControleOnline\Repository\CategoryFileRepository")
  */
-
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
@@ -36,42 +33,43 @@ use ApiPlatform\Metadata\ApiFilter;
     normalizationContext: ['groups' => ['category_file:read']],
     denormalizationContext: ['groups' => ['category_file:write']]
 )]
+#[ORM\Table(name: 'category_file')]
+#[ORM\Index(name: 'file_id', columns: ['file_id'])]
+#[ORM\Index(name: 'IDX_CDFC73564584665B', columns: ['category_id'])]
+#[ORM\UniqueConstraint(name: 'category_id', columns: ['category_id', 'file_id'])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\CategoryFileRepository::class)]
 class CategoryFile
 {
     /**
      * @var int
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"category:read","category_file:read"})
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
 
     /**
      * @var ControleOnline\Entity\File
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\File")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="file_id", referencedColumnName="id")
-     * })
      * @Groups({"category:read","category_file:read","category_file:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['file' => 'exact'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['file.fileType' => 'exact'])]
+    #[ORM\JoinColumn(name: 'file_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\File::class)]
 
     private $file;
 
     /**
      * @var Category
      *
-     * @ORM\ManyToOne(targetEntity="Category")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="category_id", referencedColumnName="id")
-     * })
      * @Groups({"category_file:read","category_file:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['category' => 'exact'])]
+    #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \Category::class)]
 
     private $category;
 

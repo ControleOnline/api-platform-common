@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
@@ -16,10 +17,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\ModelRepository")
- */
 #[ApiResource(
     operations: [
         new Get(
@@ -40,38 +37,36 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ['groups' => ['model:read']],
     denormalizationContext: ['groups' => ['model:write']]
 )]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\ModelRepository::class)]
 class Model
 {
     /**
-     * @ORM\Column(type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({ "contract:read","model:read"})
      */
+    #[ORM\Column(type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
 
     /**
      * @var \ControleOnline\Entity\Category
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Category")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="category_id", referencedColumnName="id")
-     * })
      * @Groups({"contract:read","model:read","model:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['category' => 'exact'])]
+    #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Category::class)]
 
     private $category;
     /**
      * @var \ControleOnline\Entity\People
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\People")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
-     * })
      * @Groups({"contract:read","model:read","model:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
+    #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\People::class)]
 
     private $people;
 
@@ -79,39 +74,35 @@ class Model
     /**
      * @var \ControleOnline\Entity\People
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\People")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="signer_id", referencedColumnName="id")
-     * })
      * @Groups({"contract:read","model:read","model:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['signer' => 'exact'])]
+    #[ORM\JoinColumn(name: 'signer_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\People::class)]
 
     private $signer;
 
     /**
      * @var \ControleOnline\Entity\File
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\File")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="file_id", referencedColumnName="id")
-     * })
      * @Groups({"model_detail:read","model:read","model:write"})
      */
+    #[ORM\JoinColumn(name: 'file_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\File::class)]
     private $file;
 
     /**
-     * @ORM\Column(name="context", type="string")
      * @Groups({"contract:read","model:read","model:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact'])]
+    #[ORM\Column(name: 'context', type: 'string')]
     private $context;
 
     /**
-     * @ORM\Column(name="model", type="string")
      * @Groups({"contract:read","model:read","model:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['model' => 'partial'])]
+    #[ORM\Column(name: 'model', type: 'string')]
     private $model;
 
 

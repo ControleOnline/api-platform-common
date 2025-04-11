@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -15,11 +16,6 @@ use ApiPlatform\Metadata\Post;
 use ControleOnline\Controller\AddAppConfigAction;
 use ControleOnline\Controller\DiscoveryMainConfigsAction;
 
-/**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="config", uniqueConstraints={@ORM\UniqueConstraint (name="people_id", columns={"people_id","configKey"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\ConfigRepository")
- */
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
@@ -45,67 +41,66 @@ use ControleOnline\Controller\DiscoveryMainConfigsAction;
     normalizationContext: ['groups' => ['config:read']],
     denormalizationContext: ['groups' => ['config:write']]
 )]
+#[ORM\Table(name: 'config')]
+#[ORM\UniqueConstraint(name: 'people_id', columns: ['people_id', 'configKey'])]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\ConfigRepository::class)]
 class Config
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"config:read"}) 
+     * @Groups({"config:read"})
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
     /**
      * @var \ControleOnline\Entity\People
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\People")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
-     * })
-     * @Groups({"config:read","config:write"}) 
+     * @Groups({"config:read","config:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
+    #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\People::class)]
 
     private $people;
     /**
      * @var string
      *
-     * @ORM\Column(name="config_key", type="string", length=255, nullable=false)
-     * @Groups({"config:read","config:write"}) 
+     * @Groups({"config:read","config:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['configKey' => 'exact'])]
+    #[ORM\Column(name: 'config_key', type: 'string', length: 255, nullable: false)]
 
     private $configKey;
     /**
      * @var string
      *
-     * @ORM\Column(name="visibility", type="string", length=255, nullable=false)
-     * @Groups({"config:read","config:write"}) 
-
+     * @Groups({"config:read","config:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['visibility' => 'exact'])]
+    #[ORM\Column(name: 'visibility', type: 'string', length: 255, nullable: false)]
 
     private $visibility;
     /**
      * @var string
      *
-     * @ORM\Column(name="config_value", type="string", length=255, nullable=false)
-     * @Groups({"config:read","config:write"}) 
+     * @Groups({"config:read","config:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['configValue' => 'exact'])]
+    #[ORM\Column(name: 'config_value', type: 'string', length: 255, nullable: false)]
 
     private $configValue;
     /**
      * @var \ControleOnline\Entity\Module
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Module")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="module_id", referencedColumnName="id")
-     * })
-     * @Groups({"config:read","config:write"}) 
+     * @Groups({"config:read","config:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['module' => 'exact'])]
+    #[ORM\JoinColumn(name: 'module_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Module::class)]
     private $module;
 
     /**

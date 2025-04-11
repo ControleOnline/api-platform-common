@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
@@ -12,35 +13,34 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Cep
- *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="cep", uniqueConstraints={@ORM\UniqueConstraint (name="CEP", columns={"cep"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\CepRepository")
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['cep:read']], denormalizationContext: ['groups' => ['cep:write']])]
+#[ORM\Table(name: 'cep')]
+#[ORM\UniqueConstraint(name: 'CEP', columns: ['cep'])]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\CepRepository::class)]
 class Cep
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
     /**
      * @var integer
      *
-     * @ORM\Column(name="cep", type="integer", nullable=false)
      * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\Column(name: 'cep', type: 'integer', nullable: false)]
     private $cep;
     /**
      * @var \Doctrine\Common\Collections\Collection
-     *
-     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\Street", mappedBy="cep")
      */
+    #[ORM\OneToMany(targetEntity: \ControleOnline\Entity\Street::class, mappedBy: 'cep')]
     private $street;
     /**
      * Constructor

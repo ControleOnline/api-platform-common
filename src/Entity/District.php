@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -12,45 +13,42 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * District
- *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="district", indexes={@ORM\Index (name="city_id", columns={"city_id"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\DistrictRepository")
  */
 #[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')'), new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['district:read']], denormalizationContext: ['groups' => ['district:write']])]
+#[ORM\Table(name: 'district')]
+#[ORM\Index(name: 'city_id', columns: ['city_id'])]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\DistrictRepository::class)]
 class District
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
     /**
      * @var string
      *
-     * @ORM\Column(name="district", type="string", length=255, nullable=false)
      * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\Column(name: 'district', type: 'string', length: 255, nullable: false)]
     private $district;
     /**
      * @var City
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\City", inversedBy="district")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="city_id", referencedColumnName="id", nullable=false)
-     * })
      * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\JoinColumn(name: 'city_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\City::class, inversedBy: 'district')]
     private $city;
     /**
      * @var \Doctrine\Common\Collections\Collection
-     *
-     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\Street", mappedBy="district")
      */
+    #[ORM\OneToMany(targetEntity: \ControleOnline\Entity\Street::class, mappedBy: 'district')]
     private $street;
     /**
      * Constructor

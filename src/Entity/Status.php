@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -15,11 +16,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="status", uniqueConstraints={@ORM\UniqueConstraint (name="status", columns={"status", "context"})}, indexes={@ORM\Index (name="IDX_real_status", columns={"real_status"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\StatusRepository")
- */
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
@@ -37,82 +33,87 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext: ['groups' => ['status:read']],
     denormalizationContext: ['groups' => ['status:write']]
 )]
+#[ORM\Table(name: 'status')]
+#[ORM\Index(name: 'IDX_real_status', columns: ['real_status'])]
+#[ORM\UniqueConstraint(name: 'status', columns: ['status', 'context'])]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\StatusRepository::class)]
 class Status
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({ "contract:read", "task:read","display_queue:read","display:read","order_product_queue:read","order:read","order_details:read","order:write", "invoice:read","invoice_details:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
 
     private $id;
     /**
      * @var string
      *
-     * @ORM\Column(name="status", type="string",  nullable=false)
      * @Groups({"contract:read", "task:read","display_queue:read","display:read","order_product_queue:read","order:read","order_details:read","order:write", "invoice:read","invoice_details:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      * @Assert\NotBlank
      * @Assert\Type(type={"string"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['status' => 'exact'])]
+    #[ORM\Column(name: 'status', type: 'string', nullable: false)]
 
     private $status;
     /**
      * @var string
      *
-     * @ORM\Column(name="real_status", type="string",  nullable=false)
      * @Groups({"contract:read", "task:read","display_queue:read","display:read","order_product_queue:read","order:read","order_details:read","order:write", "invoice:read","invoice_details:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['realStatus' => 'exact'])]
+    #[ORM\Column(name: 'real_status', type: 'string', nullable: false)]
 
     private $realStatus;
     /**
      * @var string
      *
-     * @ORM\Column(name="visibility", type="string",  nullable=false)
      * @Groups({"contract:read", "task:read","display_queue:read","display:read","order_product_queue:read","order:read","order_details:read","order:write", "invoice:read","invoice_details:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['visibility' => 'exact'])]
+    #[ORM\Column(name: 'visibility', type: 'string', nullable: false)]
 
     private $visibility = 1;
     /**
      * @var boolean
      *
-     * @ORM\Column(name="notify", type="boolean",  nullable=false)
      * @Groups({"contract:read", "task:read","display_queue:read","display:read","order_product_queue:read","order:read","order_details:read","order:write", "invoice:read","invoice_details:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['notify' => 'exact'])]
+    #[ORM\Column(name: 'notify', type: 'boolean', nullable: false)]
 
     private $notify = 1;
-    /** 
+    /**
      * @var boolean
      *
-     * @ORM\Column(name="system", type="boolean",  nullable=false)
      * @Groups({"contract:read", "task:read","display_queue:read","display:read","order_product_queue:read","order:read","order_details:read","order:write", "invoice:read","invoice_details:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['system' => 'exact'])]
+    #[ORM\Column(name: 'system', type: 'boolean', nullable: false)]
 
     private $system = 0;
     /**
      * @var string
      *
-     * @ORM\Column(name="color", type="string",  nullable=false)
      * @Groups({"contract:read", "task:read","display_queue:read","display:read","order_product_queue:read","order:read","order_details:read","order:write", "invoice:read","invoice_details:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['color' => 'exact'])]
+    #[ORM\Column(name: 'color', type: 'string', nullable: false)]
 
     private $color;
     /**
      * @var string
      *
-     * @ORM\Column(name="context", type="string",  nullable=false)
      * @Groups({"contract:read", "task:read","display_queue:read","display:read","order_product_queue:read","order:read","order_details:read","order:write", "invoice:read","invoice_details:read", "status:read","status:write", "order_detail_status:read", "logistic:read","queue:read", "queue_people_queue:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact'])]
+    #[ORM\Column(name: 'context', type: 'string', nullable: false)]
 
     private $context;
     /**

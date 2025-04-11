@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -14,10 +15,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Street
- *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="street", uniqueConstraints={@ORM\UniqueConstraint (name="street_2", columns={"street", "district_id"})}, indexes={@ORM\Index (name="district_id", columns={"district_id"}),@ORM\Index(name="cep", columns={"cep_id"}), @ORM\Index(name="street", columns={"street"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\StreetRepository")
  */
 #[ApiResource(
     operations: [
@@ -28,55 +25,56 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ['groups' => ['street:read']],
     denormalizationContext: ['groups' => ['street:write']]
 )]
+#[ORM\Table(name: 'street')]
+#[ORM\Index(name: 'district_id', columns: ['district_id'])]
+#[ORM\Index(name: 'cep', columns: ['cep_id'])]
+#[ORM\Index(name: 'street', columns: ['street'])]
+#[ORM\UniqueConstraint(name: 'street_2', columns: ['street', 'district_id'])]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\StreetRepository::class)]
 class Street
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
     /**
      * @var string
      *
-     * @ORM\Column(name="street", type="string", length=255, nullable=false)
      * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\Column(name: 'street', type: 'string', length: 255, nullable: false)]
     private $street;
     /**
      * @var District
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\District", inversedBy="street")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="district_id", referencedColumnName="id", nullable=false)
-     * })
      * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\JoinColumn(name: 'district_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\District::class, inversedBy: 'street')]
     private $district;
     /**
      * @var Cep
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Cep", inversedBy="street")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="cep_id", referencedColumnName="id", nullable=false)
-     * })
      * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\JoinColumn(name: 'cep_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Cep::class, inversedBy: 'street')]
     private $cep;
     /**
      * @var \Doctrine\Common\Collections\Collection
-     *
-     * @ORM\OneToMany(targetEntity="ControleOnline\Entity\Address", mappedBy="street")
      */
+    #[ORM\OneToMany(targetEntity: \ControleOnline\Entity\Address::class, mappedBy: 'street')]
     private $address;
     /**
      * @var boolean
-     *
-     * @ORM\Column(name="confirmed", type="boolean", nullable=true)
      */
+    #[ORM\Column(name: 'confirmed', type: 'boolean', nullable: true)]
     private $confirmed;
     /**
      * Constructor

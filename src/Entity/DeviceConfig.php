@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
@@ -17,11 +18,6 @@ use stdClass;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="device_configs")
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\DeviceConfigRepository")
- */
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
@@ -45,18 +41,21 @@ use Symfony\Component\Validator\Constraints as Assert;
     denormalizationContext: ['groups' => ['device_config:write']]
 )]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['id' => 'ASC'])]
+#[ORM\Table(name: 'device_configs')]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\DeviceConfigRepository::class)]
 
 class DeviceConfig
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"device_config:read","device:read","device_config:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
 
     private $id;
 
@@ -64,37 +63,33 @@ class DeviceConfig
     /**
      * @var \ControleOnline\Entity\People
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\People")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="people_id", referencedColumnName="id", nullable=false)
-     * })
      * @Groups({"device_config:read","device:read","device_config:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
+    #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\People::class)]
 
     private $people;
     /**
      * @var \ControleOnline\Entity\Device
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Device")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="device_id", referencedColumnName="id", nullable=false)
-     * })
      * @Groups({"device_config:read","device:read","device_config:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['device' => 'exact'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['device.device' => 'exact'])]
+    #[ORM\JoinColumn(name: 'device_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Device::class)]
     private $device;
 
 
     /**
      * @var string
      *
-     * @ORM\Column(name="configs", type="string", length=100, nullable=false)
      * @Groups({"device_config:read","device:read","device_config:write"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['configs' => 'exact'])]
+    #[ORM\Column(name: 'configs', type: 'string', length: 100, nullable: false)]
 
     private $configs;
     public function __construct()

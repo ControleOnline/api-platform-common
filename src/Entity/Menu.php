@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\GetCollection;
@@ -16,11 +17,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Menu
- *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="menu", uniqueConstraints={@ORM\UniqueConstraint (name="route", columns={"route"})}, indexes={ @ORM\Index(name="category_id", columns={"category_id"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\MenuRepository")
- * @ORM\Entity
  */
 #[ApiResource(
     operations: [
@@ -45,45 +41,47 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ['groups' => ['menu:read']],
     denormalizationContext: ['groups' => ['menu:write']]
 )]
+#[ORM\Table(name: 'menu')]
+#[ORM\Index(name: 'category_id', columns: ['category_id'])]
+#[ORM\UniqueConstraint(name: 'route', columns: ['route'])]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\MenuRepository::class)]
+#[ORM\Entity]
 class Menu
 {
     /**
      * @var int
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"menu:read"})  
+     * @Groups({"menu:read"}) 
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
     /**
      * @var string
      *
-     * @ORM\Column(name="menu", type="string", length=50, nullable=false)
-     * @Groups({"menu:read","menu:write"}) 
+     * @Groups({"menu:read","menu:write"})
      */
+    #[ORM\Column(name: 'menu', type: 'string', length: 50, nullable: false)]
     private $menu;
     /**
      * @var \Route
      *
-     * @ORM\ManyToOne(targetEntity="Routes")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="route_id", referencedColumnName="id")
-     * })
-     * @Groups({"menu:read","menu:write"})  
+     * @Groups({"menu:read","menu:write"}) 
      */
+    #[ORM\JoinColumn(name: 'route_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \Routes::class)]
     private $route;
 
 
     /**
      * @var \ControleOnline\Entity\Category
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Category")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="category_id", referencedColumnName="id")
-     * })
-     * @Groups({"menu:read","menu:write"}) 
+     * @Groups({"menu:read","menu:write"})
      */
+    #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Category::class)]
     private $category;
     /**
      * Get the value of id

@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\GetCollection;
@@ -14,10 +15,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Address
- *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="address", uniqueConstraints={@ORM\UniqueConstraint (name="user_id_3", columns={"people_id", "number", "street_id", "complement"})}, indexes={@ORM\Index (name="user_id_2", columns={"people_id","nickname"}), @ORM\Index(name="user_id", columns={"people_id"}), @ORM\Index(name="cep_id", columns={"street_id"})})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\AddressRepository")
  */
 #[
     ApiResource(
@@ -33,98 +30,100 @@ use Symfony\Component\Serializer\Annotation\Groups;
     )
 ]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
+#[ORM\Table(name: 'address')]
+#[ORM\Index(name: 'user_id_2', columns: ['people_id', 'nickname'])]
+#[ORM\Index(name: 'user_id', columns: ['people_id'])]
+#[ORM\Index(name: 'cep_id', columns: ['street_id'])]
+#[ORM\UniqueConstraint(name: 'user_id_3', columns: ['people_id', 'number', 'street_id', 'complement'])]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\AddressRepository::class)]
 class Address
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
     /**
      * @var integer
      *
-     * @ORM\Column(name="number", type="integer", nullable=true)
      * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\Column(name: 'number', type: 'integer', nullable: true)]
     private $number;
     /**
      * @var string
      *
-     * @ORM\Column(name="nickname", type="string", length=50, nullable=false)
      * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\Column(name: 'nickname', type: 'string', length: 50, nullable: false)]
     private $nickname;
     /**
      * @var string
      *
-     * @ORM\Column(name="complement", type="string", length=50, nullable=false)
      * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\Column(name: 'complement', type: 'string', length: 50, nullable: false)]
     private $complement;
     /**
      * @var \ControleOnline\Entity\People
-     *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\People", inversedBy="address")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="people_id", referencedColumnName="id", nullable=true)
-     * })
      */
+    #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\People::class, inversedBy: 'address')]
     private $people;
     /**
      * @var \ControleOnline\Entity\Street
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\Street", inversedBy="address")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="street_id", referencedColumnName="id", nullable=false)
-     * })
      * @Groups({"people:read","order_details:read","order:write", "address:read"})
      */
+    #[ORM\JoinColumn(name: 'street_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Street::class, inversedBy: 'address')]
     private $street;
     /**
      * @var float
      *
-     * @ORM\Column(name="latitude", type="float", nullable=false)
      * @Groups({"people:read"})
      */
+    #[ORM\Column(name: 'latitude', type: 'float', nullable: false)]
     private $latitude;
     /**
      * @var float
      *
-     * @ORM\Column(name="longitude", type="float", nullable=false)
      * @Groups({"people:read"})
      */
+    #[ORM\Column(name: 'longitude', type: 'float', nullable: false)]
     private $longitude;
     /**
      * @var string
      *
-     * @ORM\Column(name="locator", type="string", nullable=false)
      * @Groups({"people:read"})
      */
+    #[ORM\Column(name: 'locator', type: 'string', nullable: false)]
     private $locator;
     /**
      * @var Datetime
      *
-     * @ORM\Column(name="opening_time", type="time", nullable=false)
      * @Groups({"people:read"})
      */
+    #[ORM\Column(name: 'opening_time', type: 'time', nullable: false)]
     private $opening_time;
     /**
      * @var Datetime
      *
-     * @ORM\Column(name="closing_time", type="time", nullable=false)
      * @Groups({"people:read"})
      */
+    #[ORM\Column(name: 'closing_time', type: 'time', nullable: false)]
     private $closing_time;
     /**
      * @var string
      *
-     * @ORM\Column(name="search_for", type="string", nullable=false)
      * @Groups({"people:read"})
      */
+    #[ORM\Column(name: 'search_for', type: 'string', nullable: false)]
     private $search_for;
     /**
      * Constructor

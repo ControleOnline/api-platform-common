@@ -1,7 +1,8 @@
 <?php
 
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -20,11 +21,6 @@ use stdClass;
 
 /**
  * Module
- *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="notification", indexes={@ORM\Index (name="people_id", columns={"people_id"})})
- * @ORM\Entity
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\NotificationRepository")
  */
 #[ApiResource(
     operations: [
@@ -42,54 +38,57 @@ use stdClass;
     normalizationContext: ['groups' => ['notifications:read']],
     denormalizationContext: ['groups' => ['notifications:write']]
 )]
+#[ORM\Table(name: 'notification')]
+#[ORM\Index(name: 'people_id', columns: ['people_id'])]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\NotificationRepository::class)]
 class Notification
 {
     /**
      * @var int
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"notifications:read"}) 
+     * @Groups({"notifications:read"})
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
     /**
      * @var string
      *
-     * @ORM\Column(name="notification", type="text", length=65535, nullable=false)
-     * @Groups({"notifications:read","notifications:write"})  
+     * @Groups({"notifications:read","notifications:write"}) 
      */
+    #[ORM\Column(name: 'notification', type: 'text', length: 65535, nullable: false)]
     private $notification;
     /**
      * @var string
      *
-     * @ORM\Column(name="route", type="string", length=50, nullable=false)
-     * @Groups({"notifications:read","notifications:write"})  
+     * @Groups({"notifications:read","notifications:write"}) 
      */
+    #[ORM\Column(name: 'route', type: 'string', length: 50, nullable: false)]
     private $route;
     /**
      * @var int
      *
-     * @ORM\Column(name="route_id", type="integer", nullable=false)
-     * @Groups({"notifications:read","notifications:write"})  
+     * @Groups({"notifications:read","notifications:write"}) 
      */
+    #[ORM\Column(name: 'route_id', type: 'integer', nullable: false)]
     private $routeId;
     /**
      * @var bool
      *
-     * @ORM\Column(name="notification:read", type="boolean", nullable=false)
-     * @Groups({"notifications:read","notifications:write"})  
+     * @Groups({"notifications:read","notifications:write"}) 
      */
+    #[ORM\Column(name: 'notification:read', type: 'boolean', nullable: false)]
     private $read;
     /**
      * @var \People
      *
-     * @ORM\ManyToOne(targetEntity="People")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
-     * })
-     * @Groups({"notifications:read","notifications:write"})  
+     * @Groups({"notifications:read","notifications:write"}) 
      */
+    #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \People::class)]
     private $people;
     /**
      * Get the value of color

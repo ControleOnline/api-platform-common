@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -14,11 +15,6 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 
-/**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="extra_data")
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\ExtraDataRepository")
- */
 #[ApiResource(
     operations: [
         new Get(uriTemplate: '/extra_data/{id}', security: 'is_granted(\'ROLE_CLIENT\')'),
@@ -42,45 +38,46 @@ use ApiPlatform\Metadata\Put;
     'extra_fields' => 'exact',
     'entity_id' => 'exact', 'entity_name' => 'exact', 'people' => 'exact'
 ])]
+#[ORM\Table(name: 'extra_data')]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\ExtraDataRepository::class)]
 
 class ExtraData
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
      * @Groups({"extrafields:read", "extra_data:read"})
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
     /**
      * @var \ControleOnline\Entity\ExtraFields
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\ExtraFields")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="extra_fields_id", referencedColumnName="id")
-     * })
      * @Groups({"extra_data:read"})
      */
+    #[ORM\JoinColumn(name: 'extra_fields_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\ExtraFields::class)]
     private $extra_fields;
 
     /**
-     * @ORM\Column(name="entity_id", type="string", nullable=false)
      * @Groups({"extra_data:read"})
      */
+    #[ORM\Column(name: 'entity_id', type: 'string', nullable: false)]
     private $entity_id;
 
     /**
-     * @ORM\Column(name="entity_name", type="string", nullable=false)
      * @Groups({"extra_data:read"})
      */
+    #[ORM\Column(name: 'entity_name', type: 'string', nullable: false)]
     private $entity_name;
 
     /**
-     * @ORM\Column(name="data_value", type="string", nullable=false)
      * @Groups({"extra_data:read"})
      */
+    #[ORM\Column(name: 'data_value', type: 'string', nullable: false)]
     private $value;
     /**
      * Constructor

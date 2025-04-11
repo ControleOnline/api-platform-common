@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -16,10 +17,6 @@ use ControleOnline\Controller\GetThemeColorsAction;
 
 /**
  * theme
- *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="theme")
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\ThemeRepository")
  */
 #[ApiResource(
     operations: [
@@ -43,38 +40,40 @@ use ControleOnline\Controller\GetThemeColorsAction;
         'state.uf' => 'exact'
     ]
 )]
+#[ORM\Table(name: 'theme')]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\ThemeRepository::class)]
 class Theme
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"theme:read"})
      */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
     /**
      * @var string
      *
-     * @ORM\Column(name="theme", type="string", length=80, nullable=false)
      * @Groups({"theme:read"})
      */
+    #[ORM\Column(name: 'theme', type: 'string', length: 80, nullable: false)]
     private $theme;
     /**
      * @var string
      *
-     * @ORM\Column(name="background", type="integer", nullable=true)
      * @Groups({"theme:read"})
-
      */
+    #[ORM\Column(name: 'background', type: 'integer', nullable: true)]
     private $background;
     /**
      * @var string
      *
-     * @ORM\Column(name="colors", type="json", nullable=false)
      * @Groups({"theme:read"})
      */
+    #[ORM\Column(name: 'colors', type: 'json', nullable: false)]
     private $colors;
 
     public function __construct()

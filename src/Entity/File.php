@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Get;
@@ -25,10 +26,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * File
- *
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\FileRepository")
- * @ORM\Table (name="files", uniqueConstraints={@ORM\UniqueConstraint (name="url", columns={"url"}), @ORM\UniqueConstraint(name="path", columns={"path"})})
  */
 #[ApiResource(
     operations: [
@@ -65,65 +62,68 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext: ['groups' => ['file:read']],
     denormalizationContext: ['groups' => ['file:write']]
 )]
+#[ORM\Table(name: 'files')]
+#[ORM\UniqueConstraint(name: 'url', columns: ['url'])]
+#[ORM\UniqueConstraint(name: 'path', columns: ['path'])]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\FileRepository::class)]
 class File
 {
     /**
      *
-     * @ORM\Column(type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"file:read","category:read","product_category:read","order_product:read","product_file:read","product:read","file_item:read","product:read","contract:read","model:read","people:read"})
      */
+    #[ORM\Column(type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=false)
      * @Groups({"file:read","category:read","product_category:read","order_product:read","product_file:read","product:read","file_item:read","product:read","file:write","contract:read","model:read","people:read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['fileType' => 'exact'])]
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private $fileType;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=false)
      * @Groups({"file:read","category:read","product_category:read","order_product:read","product_file:read","product:read","file_item:read","product:read","file:write","contract:read","model:read","people:read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['fileName' => 'exact'])]
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private $fileName;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=false)
      * @Groups({"file:read","category:read","product_category:read","order_product:read","product_file:read","product:read","file_item:read","product:read","file:write","contract:read","model:read","people:read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact'])]
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private $context;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=false)
      * @Groups({"file:read","category:read","product_category:read","order_product:read","product_file:read","product:read","file_item:read","product:read","file:write","contract:read","model:read","people:read"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['extension' => 'exact'])]
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private $extension;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=false)
      * @Groups({"file_item:read","file:write"})
      */
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     private $content;
 
     /**
      * @var \ControleOnline\Entity\People
      *
-     * @ORM\ManyToOne(targetEntity="ControleOnline\Entity\People")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="people_id", referencedColumnName="id")
-     * })
      * @Groups({"file_item:read","file:write","file:read"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
+    #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\People::class)]
     private $people;
 
     public function __construct()

@@ -1,6 +1,7 @@
 <?php
 
-namespace ControleOnline\Entity;
+namespace ControleOnline\Entity; 
+use ControleOnline\Listener\LogListener;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
@@ -15,11 +16,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\EntityListeners ({ControleOnline\Listener\LogListener::class})
- * @ORM\Table (name="device")
- * @ORM\Entity (repositoryClass="ControleOnline\Repository\DeviceRepository")
- */
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
@@ -38,29 +34,32 @@ use Symfony\Component\Validator\Constraints as Assert;
     denormalizationContext: ['groups' => ['device:write']]
 )]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['id' => 'ASC'])]
+#[ORM\Table(name: 'device')]
+#[ORM\EntityListeners([LogListener::class])]
+#[ORM\Entity(repositoryClass: \ControleOnline\Repository\DeviceRepository::class)]
 
 class Device
 {
     /**
      * @var integer
      *
-     * @ORM\Column(name="id", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @Groups({"device:read","device:write"})
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
 
     private $id;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="device", type="string", length=100, nullable=false)
      * @Groups({"device:read","device:write"})
      * @Assert\NotBlank
      */
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['device' => 'exact'])]
+    #[ORM\Column(name: 'device', type: 'string', length: 100, nullable: false)]
 
     private $device;
 
