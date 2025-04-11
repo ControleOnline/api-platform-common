@@ -5,7 +5,8 @@ namespace ControleOnline\Service;
 use ControleOnline\Entity\Notification;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
+ AS Security;
 
 class NotificationService
 {

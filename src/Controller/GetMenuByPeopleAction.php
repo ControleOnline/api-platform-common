@@ -8,7 +8,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
+ AS Security;
 use ControleOnline\Repository\MenuRepository;
 
 
@@ -68,7 +69,7 @@ class GetMenuByPeopleAction
 
 
 
-      $currentUser = $this->security->getUser();
+      $currentUser = $this->security->getToken()->getUser();
       /**
        * @var People
        */

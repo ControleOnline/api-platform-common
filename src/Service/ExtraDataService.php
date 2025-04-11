@@ -6,7 +6,8 @@ use ControleOnline\Entity\Device;
 use ControleOnline\Entity\DeviceConfig;
 use ControleOnline\Entity\ExtraData;
 use ControleOnline\Entity\ExtraFields;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
+ AS Security;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -48,7 +49,7 @@ class ExtraDataService
     public function discoveryUser(&$entity)
     {
         if (method_exists($entity, 'setUser'))
-            $entity->setUser($this->security->getUser());
+            $entity->setUser($this->security->getToken()->getUser());
     }
 
     public function persist(&$entity)
