@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: ['groups' => ['file_item:read']],
         ),
         new Get(
-            security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')',
+            security: 'is_granted(\'PUBLIC_ACCESS\')',
             uriTemplate: '/files/{id}/download',
             controller: GetFileDataAction::class
         ),

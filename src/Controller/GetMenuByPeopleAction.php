@@ -46,7 +46,7 @@ class GetMenuByPeopleAction
   {
     $this->manager    = $entityManager;
     $this->security   = $security;
-    $this->repository = $this->manager->getRepository(\ControleOnline\Entity\Menu::class);
+    $this->repository = $this->manager->getRepository(Menu::class);
   }
 
   public function __invoke(Request $request): JsonResponse
@@ -130,10 +130,7 @@ class GetMenuByPeopleAction
     $params['userPeople']   = $userPeople->getId();
     // execute query
 
-    $statement = $connection->prepare($sql);
-    $statement->execute($params);
-
-    $result = $statement->fetchAll();
+    $result = $connection->executeQuery($sql, $params)->fetchAllAssociative();
 
     foreach ($result as $menu) {
 

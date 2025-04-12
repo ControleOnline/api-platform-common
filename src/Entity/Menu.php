@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
 use ControleOnline\Controller\GetActionByPeopleAction;
 use ControleOnline\Controller\GetMenuByPeopleAction;
+use ControleOnline\Repository\MenuRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -45,8 +46,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Index(name: 'category_id', columns: ['category_id'])]
 #[ORM\UniqueConstraint(name: 'route', columns: ['route'])]
 #[ORM\EntityListeners([LogListener::class])]
-#[ORM\Entity(repositoryClass: \ControleOnline\Repository\MenuRepository::class)]
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: MenuRepository::class)]
 class Menu
 {
     /**
@@ -71,7 +71,7 @@ class Menu
      * @Groups({"menu:read","menu:write"}) 
      */
     #[ORM\JoinColumn(name: 'route_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \Routes::class)]
+    #[ORM\ManyToOne(targetEntity: Routes::class)]
     private $route;
 
 
@@ -81,7 +81,7 @@ class Menu
      * @Groups({"menu:read","menu:write"})
      */
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Category::class)]
+    #[ORM\ManyToOne(targetEntity: Category::class)]
     private $category;
     /**
      * Get the value of id

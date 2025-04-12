@@ -34,7 +34,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Table(name: 'module')]
 #[ORM\UniqueConstraint(name: 'UX_MODULE_NAME', columns: ['name'])]
 #[ORM\EntityListeners([LogListener::class])]
-#[ORM\Entity]
 #[ORM\Entity(repositoryClass: \ControleOnline\Repository\ModuleRepository::class)]
 class Module
 {

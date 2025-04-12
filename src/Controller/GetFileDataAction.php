@@ -39,6 +39,17 @@ class GetFileDataAction
     {
 
         try {
+
+
+
+            return new JsonResponse([
+                'response' => [
+                    'data'    => [],
+                    'count'   => 0,
+                    'error'   => '',
+                    'success' => false,
+                ],
+            ]);
             $file = $data;
             //$file = $this->manager->getRepository(File::class)->findOneBy(['url' => $request->getPathInfo()]);
             if (!$file)

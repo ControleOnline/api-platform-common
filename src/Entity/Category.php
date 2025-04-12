@@ -22,7 +22,7 @@ use Doctrine\Common\Collections\Collection;
 
 #[ApiResource(
     operations: [
-        new Get(security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')'),
+        new Get(security: 'is_granted(\'PUBLIC_ACCESS\')'),
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
             denormalizationContext: ['groups' => ['category:write']]
@@ -30,7 +30,7 @@ use Doctrine\Common\Collections\Collection;
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(
-            security: 'is_granted(\'IS_AUTHENTICATED_ANONYMOUSLY\')',
+            security: 'is_granted(\'PUBLIC_ACCESS\')',
         )
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],

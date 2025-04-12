@@ -18,6 +18,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Filter\OrderEntityFilter;
 use ControleOnline\Entity\Order;
+use ControleOnline\Repository\RouteRepository;
 use stdClass;
 
 
@@ -43,8 +44,7 @@ use stdClass;
 #[ORM\Index(name: 'module_id', columns: ['module_id'])]
 #[ORM\UniqueConstraint(name: 'route', columns: ['route'])]
 #[ORM\EntityListeners([LogListener::class])]
-#[ORM\Entity(repositoryClass: \ControleOnline\Repository\RouteRepository::class)]
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: RouteRepository::class)]
 
 class Routes
 {

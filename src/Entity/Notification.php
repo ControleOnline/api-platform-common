@@ -17,6 +17,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Filter\OrderEntityFilter;
 use ControleOnline\Entity\Order;
+use ControleOnline\Repository\NotificationRepository;
 use stdClass;
 
 /**
@@ -41,8 +42,7 @@ use stdClass;
 #[ORM\Table(name: 'notification')]
 #[ORM\Index(name: 'people_id', columns: ['people_id'])]
 #[ORM\EntityListeners([LogListener::class])]
-#[ORM\Entity]
-#[ORM\Entity(repositoryClass: \ControleOnline\Repository\NotificationRepository::class)]
+#[ORM\Entity(repositoryClass: NotificationRepository::class)]
 class Notification
 {
     /**
