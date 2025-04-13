@@ -2,6 +2,8 @@
 
 namespace ControleOnline\Entity;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 use ControleOnline\Repository\LanguageRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -20,7 +22,6 @@ use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\UniqueConstraint;
-use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     operations: [

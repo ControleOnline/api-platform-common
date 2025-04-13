@@ -2,6 +2,8 @@
 
 namespace ControleOnline\Entity;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 use ControleOnline\Repository\ExtraDataRepository;
 use ControleOnline\Listener\LogListener;
 use ApiPlatform\Metadata\ApiResource;
@@ -20,7 +22,6 @@ use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
-use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     operations: [

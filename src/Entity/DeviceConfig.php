@@ -2,6 +2,8 @@
 
 namespace ControleOnline\Entity;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 use ControleOnline\Repository\DeviceConfigRepository;
 use ControleOnline\Listener\LogListener;
 use ApiPlatform\Metadata\ApiResource;
@@ -23,7 +25,6 @@ use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 use stdClass;
-use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 #[ApiResource(

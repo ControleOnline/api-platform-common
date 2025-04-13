@@ -2,6 +2,8 @@
 
 namespace ControleOnline\Entity;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -23,7 +25,6 @@ use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\UniqueConstraint;
-use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     operations: [

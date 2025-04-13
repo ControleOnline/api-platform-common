@@ -2,6 +2,8 @@
 
 namespace ControleOnline\Entity;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -39,19 +41,19 @@ class CategoryFile
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[ApiResource(normalizationContext: ['groups' => ['category:read', 'category_file:read']])]
+    #[Groups(['category:read', 'category_file:read'])]
     private $id;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['file' => 'exact', 'file.fileType' => 'exact'])]
     #[ORM\JoinColumn(name: 'file_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: File::class)]
-    #[ApiResource(normalizationContext: ['groups' => ['category:read', 'category_file:read', 'category_file:write']])]
+    #[Groups(['category:read', 'category_file:read', 'category_file:write'])]
     private $file;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['category' => 'exact'])]
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: Category::class)]
-    #[ApiResource(normalizationContext: ['groups' => ['category_file:read', 'category_file:write']])]
+    #[Groups(['category_file:read', 'category_file:write'])]
     private $category;
 
     public function getId()

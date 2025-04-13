@@ -2,6 +2,8 @@
 
 namespace ControleOnline\Entity;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -39,25 +41,25 @@ class Routes
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'route:read']])]
+    #[Groups(['menu:read', 'route:read'])]
     private $id;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['route' => 'exact'])]
     #[ORM\Column(name: 'route', type: 'string', length: 50, nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'route:read', 'route:write']])]
+    #[Groups(['menu:read', 'route:read', 'route:write'])]
     private $route;
 
     #[ORM\JoinColumn(name: 'module_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: Module::class)]
-    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'route:read', 'route:write']])]
+    #[Groups(['menu:read', 'route:read', 'route:write'])]
     private $module;
 
     #[ORM\Column(name: 'color', type: 'string', length: 50, nullable: false, options: ['default' => "'\$primary'"])]
-    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'route:read', 'route:write']])]
+    #[Groups(['menu:read', 'route:read', 'route:write'])]
     private $color = '$primary';
 
     #[ORM\Column(name: 'icon', type: 'string', length: 50, nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'route:read', 'route:write']])]
+    #[Groups(['menu:read', 'route:read', 'route:write'])]
     private $icon;
 
     public function getId()

@@ -2,6 +2,8 @@
 
 namespace ControleOnline\Entity;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
@@ -43,15 +45,15 @@ class City
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[ApiResource(normalizationContext: ['groups' => ['city:read', 'logistic:read', 'order_details:read', 'order:write', 'people:read', 'address:read', 'delivery_region:read']])]
+    #[Groups(['city:read', 'logistic:read', 'order_details:read', 'order:write', 'people:read', 'address:read', 'delivery_region:read'])]
     private $id;
 
     #[ORM\Column(name: 'city', type: 'string', length: 80, nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['city:read', 'logistic:read', 'order_details:read', 'order:write', 'people:read', 'address:read', 'delivery_region:read']])]
+    #[Groups(['city:read', 'logistic:read', 'order_details:read', 'order:write', 'people:read', 'address:read', 'delivery_region:read'])]
     private $city;
 
     #[ORM\Column(name: 'cod_ibge', type: 'integer', nullable: true)]
-    #[ApiResource(normalizationContext: ['groups' => ['city:read', 'logistic:read', 'order_details:read', 'order:write', 'people:read', 'address:read', 'delivery_region:read']])]
+    #[Groups(['city:read', 'logistic:read', 'order_details:read', 'order:write', 'people:read', 'address:read', 'delivery_region:read'])]
     private $cod_ibge;
 
     #[ORM\Column(name: 'seo', type: 'boolean', nullable: false)]
@@ -59,7 +61,7 @@ class City
 
     #[ORM\JoinColumn(name: 'state_id', referencedColumnName: 'id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: State::class, inversedBy: 'city')]
-    #[ApiResource(normalizationContext: ['groups' => ['city:read', 'logistic:read', 'order_details:read', 'order:write', 'people:read', 'address:read', 'delivery_region:read']])]
+    #[Groups(['city:read', 'logistic:read', 'order_details:read', 'order:write', 'people:read', 'address:read', 'delivery_region:read'])]
     private $state;
 
     #[ORM\OneToMany(targetEntity: District::class, mappedBy: 'city')]

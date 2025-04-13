@@ -2,6 +2,8 @@
 
 namespace ControleOnline\Entity;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -37,28 +39,28 @@ class Notification
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[ApiResource(normalizationContext: ['groups' => ['notifications:read']])]
+    #[Groups(['notifications:read'])]
     private $id;
 
     #[ORM\Column(name: 'notification', type: 'text', length: 65535, nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['notifications:read', 'notifications:write']])]
+    #[Groups(['notifications:read', 'notifications:write'])]
     private $notification;
 
     #[ORM\Column(name: 'route', type: 'string', length: 50, nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['notifications:read', 'notifications:write']])]
+    #[Groups(['notifications:read', 'notifications:write'])]
     private $route;
 
     #[ORM\Column(name: 'route_id', type: 'integer', nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['notifications:read', 'notifications:write']])]
+    #[Groups(['notifications:read', 'notifications:write'])]
     private $routeId;
 
     #[ORM\Column(name: 'read', type: 'boolean', nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['notifications:read', 'notifications:write']])]
+    #[Groups(['notifications:read', 'notifications:write'])]
     private $read;
 
     #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: People::class)]
-    #[ApiResource(normalizationContext: ['groups' => ['notifications:read', 'notifications:write']])]
+    #[Groups(['notifications:read', 'notifications:write'])]
     private $people;
 
     public function getId()

@@ -2,6 +2,8 @@
 
 namespace ControleOnline\Entity;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -47,21 +49,21 @@ class Menu
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[ApiResource(normalizationContext: ['groups' => ['menu:read']])]
+    #[Groups(['menu:read'])]
     private $id;
 
     #[ORM\Column(name: 'menu', type: 'string', length: 50, nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'menu:write']])]
+    #[Groups(['menu:read', 'menu:write'])]
     private $menu;
 
     #[ORM\JoinColumn(name: 'route_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: Routes::class)]
-    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'menu:write']])]
+    #[Groups(['menu:read', 'menu:write'])]
     private $route;
 
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: Category::class)]
-    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'menu:write']])]
+    #[Groups(['menu:read', 'menu:write'])]
     private $category;
 
     public function getId()

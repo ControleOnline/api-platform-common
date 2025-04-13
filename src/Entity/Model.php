@@ -2,6 +2,8 @@
 
 namespace ControleOnline\Entity;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -41,40 +43,40 @@ class Model
     #[ORM\Column(type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[ApiResource(normalizationContext: ['groups' => ['contract:read', 'model:read']])]
+    #[Groups(['contract:read', 'model:read'])]
     private $id;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['category' => 'exact'])]
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: Category::class)]
-    #[ApiResource(normalizationContext: ['groups' => ['contract:read', 'model:read', 'model:write']])]
+    #[Groups(['contract:read', 'model:read', 'model:write'])]
     private $category;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
     #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: People::class)]
-    #[ApiResource(normalizationContext: ['groups' => ['contract:read', 'model:read', 'model:write']])]
+    #[Groups(['contract:read', 'model:read', 'model:write'])]
     private $people;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['signer' => 'exact'])]
     #[ORM\JoinColumn(name: 'signer_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: People::class)]
-    #[ApiResource(normalizationContext: ['groups' => ['contract:read', 'model:read', 'model:write']])]
+    #[Groups(['contract:read', 'model:read', 'model:write'])]
     private $signer;
 
     #[ORM\JoinColumn(name: 'file_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: File::class)]
-    #[ApiResource(normalizationContext: ['groups' => ['model_detail:read', 'model:read', 'model:write']])]
+    #[Groups(['model_detail:read', 'model:read', 'model:write'])]
     private $file;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact'])]
     #[ORM\Column(name: 'context', type: 'string')]
-    #[ApiResource(normalizationContext: ['groups' => ['contract:read', 'model:read', 'model:write']])]
+    #[Groups(['contract:read', 'model:read', 'model:write'])]
     private $context;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['model' => 'partial'])]
     #[ORM\Column(name: 'model', type: 'string')]
-    #[ApiResource(normalizationContext: ['groups' => ['contract:read', 'model:read', 'model:write']])]
+    #[Groups(['contract:read', 'model:read', 'model:write'])]
     private $model;
 
     public function getId()

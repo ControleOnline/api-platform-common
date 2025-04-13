@@ -2,6 +2,8 @@
 
 namespace ControleOnline\Entity;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -35,19 +37,19 @@ class Address
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[ApiResource(normalizationContext: ['groups' => ['people:read', 'order_details:read', 'order:write', 'address:read']])]
+    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
     private $id;
 
     #[ORM\Column(name: 'number', type: 'integer', nullable: true)]
-    #[ApiResource(normalizationContext: ['groups' => ['people:read', 'order_details:read', 'order:write', 'address:read']])]
+    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
     private $number;
 
     #[ORM\Column(name: 'nickname', type: 'string', length: 50, nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['people:read', 'order_details:read', 'order:write', 'address:read']])]
+    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
     private $nickname;
 
     #[ORM\Column(name: 'complement', type: 'string', length: 50, nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['people:read', 'order_details:read', 'order:write', 'address:read']])]
+    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
     private $complement;
 
     #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id', nullable: true)]
@@ -56,31 +58,31 @@ class Address
 
     #[ORM\JoinColumn(name: 'street_id', referencedColumnName: 'id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: Street::class, inversedBy: 'address')]
-    #[ApiResource(normalizationContext: ['groups' => ['people:read', 'order_details:read', 'order:write', 'address:read']])]
+    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
     private $street;
 
     #[ORM\Column(name: 'latitude', type: 'float', nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['people:read']])]
+    #[Groups(['people:read'])]
     private $latitude;
 
     #[ORM\Column(name: 'longitude', type: 'float', nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['people:read']])]
+    #[Groups(['people:read'])]
     private $longitude;
 
     #[ORM\Column(name: 'locator', type: 'string', nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['people:read']])]
+    #[Groups(['people:read'])]
     private $locator;
 
     #[ORM\Column(name: 'opening_time', type: 'time', nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['people:read']])]
+    #[Groups(['people:read'])]
     private $opening_time;
 
     #[ORM\Column(name: 'closing_time', type: 'time', nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['people:read']])]
+    #[Groups(['people:read'])]
     private $closing_time;
 
     #[ORM\Column(name: 'search_for', type: 'string', nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['people:read']])]
+    #[Groups(['people:read'])]
     private $search_for;
 
     public function __construct()

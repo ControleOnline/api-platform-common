@@ -2,6 +2,8 @@
 
 namespace ControleOnline\Entity;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 use ControleOnline\Repository\ExtraFieldsRepository;
 use ControleOnline\Listener\LogListener;
 use ApiPlatform\Metadata\ApiResource;
@@ -18,7 +20,6 @@ use Doctrine\ORM\Mapping\EntityListeners;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\Table;
-use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     operations: [

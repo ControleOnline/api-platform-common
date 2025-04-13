@@ -2,6 +2,8 @@
 
 namespace ControleOnline\Entity;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -36,23 +38,23 @@ class Module
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'module:read']])]
+    #[Groups(['menu:read', 'module:read'])]
     private $id;
 
     #[ORM\Column(name: 'name', type: 'string', length: 100, nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'module:read', 'module:write']])]
+    #[Groups(['menu:read', 'module:read', 'module:write'])]
     private $name;
 
     #[ORM\Column(name: 'color', type: 'string', length: 50, nullable: false, options: ['default' => "'\$primary'"])]
-    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'module:read', 'module:write']])]
+    #[Groups(['menu:read', 'module:read', 'module:write'])]
     private $color = '$primary';
 
     #[ORM\Column(name: 'icon', type: 'string', length: 50, nullable: false)]
-    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'module:read', 'module:write']])]
+    #[Groups(['menu:read', 'module:read', 'module:write'])]
     private $icon;
 
     #[ORM\Column(name: 'description', type: 'string', length: 255, nullable: true, options: ['default' => 'NULL'])]
-    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'module:read', 'module:write']])]
+    #[Groups(['menu:read', 'module:read', 'module:write'])]
     private $description = null;
 
     public function getId()

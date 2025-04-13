@@ -2,6 +2,8 @@
 
 namespace ControleOnline\Entity;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
@@ -12,7 +14,6 @@ use ControleOnline\Controller\GetThemeColorsAction;
 use ControleOnline\Listener\LogListener;
 use ControleOnline\Repository\ThemeRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     operations: [
