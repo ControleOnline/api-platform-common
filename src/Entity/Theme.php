@@ -1,23 +1,19 @@
 <?php
 
-namespace ControleOnline\Entity; 
-use ControleOnline\Listener\LogListener;
+namespace ControleOnline\Entity;
 
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiProperty;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
-use Doctrine\ORM\Mapping as ORM;
-use stdClass;
-use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ControleOnline\Controller\GetThemeColorsAction;
+use ControleOnline\Listener\LogListener;
+use ControleOnline\Repository\ThemeRepository;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
-/**
- * theme
- */
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
@@ -42,124 +38,70 @@ use ControleOnline\Controller\GetThemeColorsAction;
 )]
 #[ORM\Table(name: 'theme')]
 #[ORM\EntityListeners([LogListener::class])]
-#[ORM\Entity(repositoryClass: \ControleOnline\Repository\ThemeRepository::class)]
+#[ORM\Entity(repositoryClass: ThemeRepository::class)]
 class Theme
 {
-    /**
-     * @var integer
-     *
-     * @Groups({"theme:read"})
-     */
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private $id;
-    /**
-     * @var string
-     *
-     * @Groups({"theme:read"})
-     */
-    #[ORM\Column(name: 'theme', type: 'string', length: 80, nullable: false)]
-    private $theme;
-    /**
-     * @var string
-     *
-     * @Groups({"theme:read"})
-     */
-    #[ORM\Column(name: 'background', type: 'integer', nullable: true)]
-    private $background;
-    /**
-     * @var string
-     *
-     * @Groups({"theme:read"})
-     */
-    #[ORM\Column(name: 'colors', type: 'json', nullable: false)]
-    private $colors;
+    #[Groups(['theme:read'])]
+    private int $id;
 
-    public function __construct()
-    {
-    }
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
+    #[ORM\Column(name: 'theme', type: 'string', length: 80, nullable: false)]
+    #[Groups(['theme:read'])]
+    private string $theme;
+
+    #[ORM\Column(name: 'background', type: 'integer', nullable: true)]
+    #[Groups(['theme:read'])]
+    private ?int $background = null;
+
+    #[ORM\Column(name: 'colors', type: 'json', nullable: false)]
+    #[Groups(['theme:read'])]
+    private array $colors;
+
+    public function getId(): int
     {
         return $this->id;
     }
-    /**
-     * Set theme
-     *
-     * @param string $theme
-     * @return Theme
-     */
-    public function settheme($theme)
+
+    public function setTheme(string $theme): self
     {
         $this->theme = $theme;
         return $this;
     }
-    /**
-     * Get theme
-     *
-     * @return string
-     */
-    public function gettheme()
+
+    public function getTheme(): string
     {
         return strtoupper($this->theme);
     }
 
-    /**
-     * Get the value of background
-     */
-    public function getBackground()
+    public function getBackground(): ?int
     {
         return $this->background;
     }
 
-    /**
-     * Set the value of background
-     */
-    public function setBackground($background): self
+    public function setBackground(?int $background): self
     {
         $this->background = $background;
-
-        return $this;
-    }
-    /**
-     * Get otherInformations
-     *
-     * @return stdClass
-     */
-    public function getColors($decode = false)
-    {
-        return $decode ? (object) json_decode((is_array($this->colors) ? json_encode($this->colors) : $this->colors)) : $this->colors;
-    }
-
-
-    /**
-     * Set the value of colors
-     */
-    public function setColors(string $colors): self
-    {
-        $this->colors = json_encode($colors);
-
         return $this;
     }
 
+    public function getColors(bool $decode = false): mixed
+    {
+        return $decode ? (object) json_decode(json_encode($this->colors)) : $this->colors;
+    }
 
+    public function setColors(array $colors): self
+    {
+        $this->colors = $colors;
+        return $this;
+    }
 
-    /**
-     * Set comments
-     *
-     * @param string $colors
-     * @return Theme
-     */
-    public function addColors($key, $value)
+    public function addColors(string $key, mixed $value): self
     {
         $colors = $this->getColors(true);
         $colors->$key = $value;
-        $this->colors = json_encode($colors);
+        $this->colors = (array) $colors;
         return $this;
     }
 }

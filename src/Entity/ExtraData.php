@@ -1,19 +1,26 @@
 <?php
 
-namespace ControleOnline\Entity; 
-use ControleOnline\Listener\LogListener;
+namespace ControleOnline\Entity;
 
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Get;
+use ControleOnline\Repository\ExtraDataRepository;
+use ControleOnline\Listener\LogListener;
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiFilter;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\EntityListeners;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\Table;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     operations: [
@@ -28,135 +35,98 @@ use ApiPlatform\Metadata\Put;
         new Delete(uriTemplate: '/extra_data/{id}', security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(uriTemplate: '/extra_data', securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
     ],
-    formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' =>
-    ['text/csv']],
+    formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['extra_data:read']],
     denormalizationContext: ['groups' => ['extra_data:write']]
 )]
 #[ApiFilter(filterClass: SearchFilter::class, properties: [
     'id' => 'exact',
     'extra_fields' => 'exact',
-    'entity_id' => 'exact', 'entity_name' => 'exact', 'people' => 'exact'
+    'entity_id' => 'exact',
+    'entity_name' => 'exact',
+    // 'people' filter seems out of place as there's no 'people' property,
+    // unless it relates to ExtraFields or another implicit context.
+    // Keeping it based on the original code, but review if it's functional.
+    'people' => 'exact'
 ])]
-#[ORM\Table(name: 'extra_data')]
-#[ORM\EntityListeners([LogListener::class])]
-#[ORM\Entity(repositoryClass: \ControleOnline\Repository\ExtraDataRepository::class)]
-
+#[Table(name: 'extra_data')]
+#[EntityListeners([LogListener::class])]
+#[Entity(repositoryClass: ExtraDataRepository::class)]
 class ExtraData
 {
-    /**
-     * @var integer
-     *
-     * @Groups({"extrafields:read", "extra_data:read"})
-     */
-    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private $id;
-    /**
-     * @var \ControleOnline\Entity\ExtraFields
-     *
-     * @Groups({"extra_data:read"})
-     */
-    #[ORM\JoinColumn(name: 'extra_fields_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\ExtraFields::class)]
-    private $extra_fields;
+    #[Groups(['extrafields:read', 'extra_data:read'])]
+    #[Column(name: 'id', type: 'integer', nullable: false)]
+    #[Id]
+    #[GeneratedValue(strategy: 'IDENTITY')]
+    private int $id;
 
-    /**
-     * @Groups({"extra_data:read"})
-     */
-    #[ORM\Column(name: 'entity_id', type: 'string', nullable: false)]
-    private $entity_id;
+    #[Groups(['extra_data:read'])]
+    #[JoinColumn(name: 'extra_fields_id', referencedColumnName: 'id', nullable: true)] // Assuming nullable based on lack of 'nullable: false'
+    #[ManyToOne(targetEntity: ExtraFields::class)]
+    private ?ExtraFields $extra_fields = null;
 
-    /**
-     * @Groups({"extra_data:read"})
-     */
-    #[ORM\Column(name: 'entity_name', type: 'string', nullable: false)]
-    private $entity_name;
+    #[Groups(['extra_data:read'])]
+    #[Column(name: 'entity_id', type: 'string', nullable: false)]
+    private string $entity_id;
 
-    /**
-     * @Groups({"extra_data:read"})
-     */
-    #[ORM\Column(name: 'data_value', type: 'string', nullable: false)]
-    private $value;
-    /**
-     * Constructor
-     */
+    #[Groups(['extra_data:read'])]
+    #[Column(name: 'entity_name', type: 'string', nullable: false)]
+    private string $entity_name;
+
+    #[Groups(['extra_data:read'])]
+    #[Column(name: 'data_value', type: 'string', nullable: false)]
+    private string $value;
+
     public function __construct()
     {
     }
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
+
+    public function getId(): int
     {
         return $this->id;
     }
 
-
-    public function setValue($value): self
+    public function setValue(string $value): self
     {
         $this->value = $value;
         return $this;
     }
-    public function getValue()
+
+    public function getValue(): string
     {
         return $this->value;
     }
 
-    /**
-     * Get the value of entity_id
-     */
-    public function getEntityId()
+    public function getEntityId(): string
     {
         return $this->entity_id;
     }
 
-    /**
-     * Set the value of entity_id
-     */
-    public function setEntityId($entity_id): self
+    public function setEntityId(string $entity_id): self
     {
         $this->entity_id = $entity_id;
-
         return $this;
     }
 
-    /**
-     * Get the value of entity_name
-     */
-    public function getEntityName()
+    public function getEntityName(): string
     {
         return $this->entity_name;
     }
 
-    /**
-     * Set the value of entity_name
-     */
-    public function setEntityName($entity_name): self
+    public function setEntityName(string $entity_name): self
     {
         $this->entity_name = $entity_name;
-
         return $this;
     }
 
-    /**
-     * Get the value of extra_fields
-     */
-    public function getExtraFields()
+    public function getExtraFields(): ?ExtraFields
     {
         return $this->extra_fields;
     }
 
-    /**
-     * Set the value of extra_fields
-     */
-    public function setExtraFields($extra_fields): self
+    public function setExtraFields(?ExtraFields $extra_fields): self
     {
         $this->extra_fields = $extra_fields;
-
         return $this;
     }
 }

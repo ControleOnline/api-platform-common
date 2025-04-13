@@ -1,552 +1,333 @@
 <?php
 
-namespace ControleOnline\Entity; 
+namespace ControleOnline\Entity;
+
+use ControleOnline\Repository\CountryRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use ControleOnline\Listener\LogListener;
-
-use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiProperty;
-use ApiPlatform\Metadata\ApiFilter;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\Get;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\EntityListeners;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Mapping\UniqueConstraint;
+use Symfony\Component\Serializer\Attribute\Groups;
 
-/**
- * Country
- */
-#[ApiResource(operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')')], formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']], normalizationContext: ['groups' => ['country:read']], denormalizationContext: ['groups' => ['country:write']])]
-#[ORM\Table(name: 'country')]
-#[ORM\UniqueConstraint(name: 'countryCode', columns: ['countryCode'])]
-#[ORM\EntityListeners([LogListener::class])]
-#[ORM\Entity(repositoryClass: \ControleOnline\Repository\CountryRepository::class)]
+#[ApiResource(
+    operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')')],
+    formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
+    normalizationContext: ['groups' => ['country:read']],
+    denormalizationContext: ['groups' => ['country:write']]
+)]
+#[Table(name: 'country')]
+#[UniqueConstraint(name: 'countryCode', columns: ['countryCode'])]
+#[EntityListeners([LogListener::class])]
+#[Entity(repositoryClass: CountryRepository::class)]
 class Country
 {
-    /**
-     * @var integer
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private $id;
-    /**
-     * @var string
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'countryCode', type: 'string', length: 3, nullable: false)]
-    private $countrycode;
-    /**
-     * @var string
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'countryName', type: 'string', length: 45, nullable: false)]
-    private $countryname;
-    /**
-     * @var string
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'currencyCode', type: 'string', length: 3, nullable: true)]
-    private $currencycode;
-    /**
-     * @var integer
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'population', type: 'integer', nullable: true)]
-    private $population;
-    /**
-     * @var string
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'fipsCode', type: 'string', length: 2, nullable: true)]
-    private $fipscode;
-    /**
-     * @var string
-     *
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'isoNumeric', type: 'string', length: 4, nullable: true)]
-    private $isonumeric;
-    /**
-     * @var string
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'north', type: 'string', length: 30, nullable: true)]
-    private $north;
-    /**
-     * @var string
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'south', type: 'string', length: 30, nullable: true)]
-    private $south;
-    /**
-     * @var string
-     *
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'east', type: 'string', length: 30, nullable: true)]
-    private $east;
-    /**
-     * @var string
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'west', type: 'string', length: 30, nullable: true)]
-    private $west;
-    /**
-     * @var string
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'capital', type: 'string', length: 30, nullable: true)]
-    private $capital;
-    /**
-     * @var string
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'continentName', type: 'string', length: 15, nullable: true)]
-    private $continentname;
-    /**
-     * @var string
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'continent', type: 'string', length: 2, nullable: true)]
-    private $continent;
-    /**
-     * @var string
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'areaInSqKm', type: 'string', length: 20, nullable: true)]
-    private $areainsqkm;
-    /**
-     * @var string
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'isoAlpha3', type: 'string', length: 3, nullable: true)]
-    private $isoalpha3;
-    /**
-     * @var integer
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\Column(name: 'geonameId', type: 'integer', nullable: true)]
-    private $geonameid;
-    /**
-     * @var \Doctrine\Common\Collections\Collection
-     *
-     * @Groups({"city:read","logistic:read","state:read", "people:read","order_details:read","order:write", "address:read"})
-     */
-    #[ORM\OneToMany(targetEntity: \ControleOnline\Entity\LanguageCountry::class, mappedBy: 'country')]
-    private $languageCountry;
-    /**
-     * @var \Doctrine\Common\Collections\Collection
-     */
-    #[ORM\OneToMany(targetEntity: \ControleOnline\Entity\State::class, mappedBy: 'country')]
-    private $state;
-    /**
-     * Constructor
-     */
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'id', type: 'integer', nullable: false)]
+    #[Id]
+    #[GeneratedValue(strategy: 'IDENTITY')]
+    private int $id;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'countryCode', type: 'string', length: 3, nullable: false)]
+    private string $countrycode;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'countryName', type: 'string', length: 45, nullable: false)]
+    private string $countryname;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'currencyCode', type: 'string', length: 3, nullable: true)]
+    private ?string $currencycode = null;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'population', type: 'integer', nullable: true)]
+    private ?int $population = null;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'fipsCode', type: 'string', length: 2, nullable: true)]
+    private ?string $fipscode = null;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'isoNumeric', type: 'string', length: 4, nullable: true)]
+    private ?string $isonumeric = null;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'north', type: 'string', length: 30, nullable: true)]
+    private ?string $north = null;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'south', type: 'string', length: 30, nullable: true)]
+    private ?string $south = null;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'east', type: 'string', length: 30, nullable: true)]
+    private ?string $east = null;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'west', type: 'string', length: 30, nullable: true)]
+    private ?string $west = null;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'capital', type: 'string', length: 30, nullable: true)]
+    private ?string $capital = null;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'continentName', type: 'string', length: 15, nullable: true)]
+    private ?string $continentname = null;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'continent', type: 'string', length: 2, nullable: true)]
+    private ?string $continent = null;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'areaInSqKm', type: 'string', length: 20, nullable: true)]
+    private ?string $areainsqkm = null;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'isoAlpha3', type: 'string', length: 3, nullable: true)]
+    private ?string $isoalpha3 = null;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Column(name: 'geonameId', type: 'integer', nullable: true)]
+    private ?int $geonameid = null;
+
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[OneToMany(targetEntity: LanguageCountry::class, mappedBy: 'country')]
+    private Collection $languageCountry;
+
+    #[OneToMany(targetEntity: State::class, mappedBy: 'country')]
+    private Collection $state;
+
     public function __construct()
     {
-        $this->languageCountry = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->state = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->languageCountry = new ArrayCollection();
+        $this->state = new ArrayCollection();
     }
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
+
+    public function getId(): int
     {
         return $this->id;
     }
-    /**
-     * Set countrycode
-     *
-     * @param string $countrycode
-     * @return Country
-     */
-    public function setCountrycode($countrycode)
+
+    public function setCountrycode(string $countrycode): self
     {
         $this->countrycode = $countrycode;
         return $this;
     }
-    /**
-     * Get countrycode
-     *
-     * @return string
-     */
-    public function getCountrycode()
+
+    public function getCountrycode(): string
     {
         return $this->countrycode;
     }
-    /**
-     * Set countryname
-     *
-     * @param string $countryname
-     * @return Country
-     */
-    public function setCountryname($countryname)
+
+    public function setCountryname(string $countryname): self
     {
         $this->countryname = $countryname;
         return $this;
     }
-    /**
-     * Get countryname
-     *
-     * @return string
-     */
-    public function getCountryname()
+
+    public function getCountryname(): string
     {
         return $this->countryname;
     }
-    /**
-     * Set currencycode
-     *
-     * @param string $currencycode
-     * @return Country
-     */
-    public function setCurrencycode($currencycode)
+
+    public function setCurrencycode(?string $currencycode): self
     {
         $this->currencycode = $currencycode;
         return $this;
     }
-    /**
-     * Get currencycode
-     *
-     * @return string
-     */
-    public function getCurrencycode()
+
+    public function getCurrencycode(): ?string
     {
         return $this->currencycode;
     }
-    /**
-     * Set population
-     *
-     * @param integer $population
-     * @return Country
-     */
-    public function setPopulation($population)
+
+    public function setPopulation(?int $population): self
     {
         $this->population = $population;
         return $this;
     }
-    /**
-     * Get population
-     *
-     * @return integer
-     */
-    public function getPopulation()
+
+    public function getPopulation(): ?int
     {
         return $this->population;
     }
-    /**
-     * Set fipscode
-     *
-     * @param string $fipscode
-     * @return Country
-     */
-    public function setFipscode($fipscode)
+
+    public function setFipscode(?string $fipscode): self
     {
         $this->fipscode = $fipscode;
         return $this;
     }
-    /**
-     * Get fipscode
-     *
-     * @return string
-     */
-    public function getFipscode()
+
+    public function getFipscode(): ?string
     {
         return $this->fipscode;
     }
-    /**
-     * Set isonumeric
-     *
-     * @param string $isonumeric
-     * @return Country
-     */
-    public function setIsonumeric($isonumeric)
+
+    public function setIsonumeric(?string $isonumeric): self
     {
         $this->isonumeric = $isonumeric;
         return $this;
     }
-    /**
-     * Get isonumeric
-     *
-     * @return string
-     */
-    public function getIsonumeric()
+
+    public function getIsonumeric(): ?string
     {
         return $this->isonumeric;
     }
-    /**
-     * Set north
-     *
-     * @param string $north
-     * @return Country
-     */
-    public function setNorth($north)
+
+    public function setNorth(?string $north): self
     {
         $this->north = $north;
         return $this;
     }
-    /**
-     * Get north
-     *
-     * @return string
-     */
-    public function getNorth()
+
+    public function getNorth(): ?string
     {
         return $this->north;
     }
-    /**
-     * Set south
-     *
-     * @param string $south
-     * @return Country
-     */
-    public function setSouth($south)
+
+    public function setSouth(?string $south): self
     {
         $this->south = $south;
         return $this;
     }
-    /**
-     * Get south
-     *
-     * @return string
-     */
-    public function getSouth()
+
+    public function getSouth(): ?string
     {
         return $this->south;
     }
-    /**
-     * Set east
-     *
-     * @param string $east
-     * @return Country
-     */
-    public function setEast($east)
+
+    public function setEast(?string $east): self
     {
         $this->east = $east;
         return $this;
     }
-    /**
-     * Get east
-     *
-     * @return string
-     */
-    public function getEast()
+
+    public function getEast(): ?string
     {
         return $this->east;
     }
-    /**
-     * Set west
-     *
-     * @param string $west
-     * @return Country
-     */
-    public function setWest($west)
+
+    public function setWest(?string $west): self
     {
         $this->west = $west;
         return $this;
     }
-    /**
-     * Get west
-     *
-     * @return string
-     */
-    public function getWest()
+
+    public function getWest(): ?string
     {
         return $this->west;
     }
-    /**
-     * Set capital
-     *
-     * @param string $capital
-     * @return Country
-     */
-    public function setCapital($capital)
+
+    public function setCapital(?string $capital): self
     {
         $this->capital = $capital;
         return $this;
     }
-    /**
-     * Get capital
-     *
-     * @return string
-     */
-    public function getCapital()
+
+    public function getCapital(): ?string
     {
         return $this->capital;
     }
-    /**
-     * Set continentname
-     *
-     * @param string $continentname
-     * @return Country
-     */
-    public function setContinentname($continentname)
+
+    public function setContinentname(?string $continentname): self
     {
         $this->continentname = $continentname;
         return $this;
     }
-    /**
-     * Get continentname
-     *
-     * @return string
-     */
-    public function getContinentname()
+
+    public function getContinentname(): ?string
     {
         return $this->continentname;
     }
-    /**
-     * Set continent
-     *
-     * @param string $continent
-     * @return Country
-     */
-    public function setContinent($continent)
+
+    public function setContinent(?string $continent): self
     {
         $this->continent = $continent;
         return $this;
     }
-    /**
-     * Get continent
-     *
-     * @return string
-     */
-    public function getContinent()
+
+    public function getContinent(): ?string
     {
         return $this->continent;
     }
-    /**
-     * Set areainsqkm
-     *
-     * @param string $areainsqkm
-     * @return Country
-     */
-    public function setAreainsqkm($areainsqkm)
+
+    public function setAreainsqkm(?string $areainsqkm): self
     {
         $this->areainsqkm = $areainsqkm;
         return $this;
     }
-    /**
-     * Get areainsqkm
-     *
-     * @return string
-     */
-    public function getAreainsqkm()
+
+    public function getAreainsqkm(): ?string
     {
         return $this->areainsqkm;
     }
-    /**
-     * Set isoalpha3
-     *
-     * @param string $isoalpha3
-     * @return Country
-     */
-    public function setIsoalpha3($isoalpha3)
+
+    public function setIsoalpha3(?string $isoalpha3): self
     {
         $this->isoalpha3 = $isoalpha3;
         return $this;
     }
-    /**
-     * Get isoalpha3
-     *
-     * @return string
-     */
-    public function getIsoalpha3()
+
+    public function getIsoalpha3(): ?string
     {
         return $this->isoalpha3;
     }
-    /**
-     * Set geonameid
-     *
-     * @param integer $geonameid
-     * @return Country
-     */
-    public function setGeonameid($geonameid)
+
+    public function setGeonameid(?int $geonameid): self
     {
         $this->geonameid = $geonameid;
         return $this;
     }
-    /**
-     * Get geonameid
-     *
-     * @return integer
-     */
-    public function getGeonameid()
+
+    public function getGeonameid(): ?int
     {
         return $this->geonameid;
     }
-    /**
-     * Add languageCountry
-     *
-     * @param \ControleOnline\Entity\LanguageCountry $languageCountry
-     * @return Country
-     */
-    public function addLanguageCountry(\ControleOnline\Entity\LanguageCountry $languageCountry)
+
+    public function addLanguageCountry(LanguageCountry $languageCountry): self
     {
-        $this->languageCountry[] = $languageCountry;
+        if (!$this->languageCountry->contains($languageCountry)) {
+            $this->languageCountry[] = $languageCountry;
+        }
         return $this;
     }
-    /**
-     * Remove languageCountry
-     *
-     * @param \ControleOnline\Entity\LanguageCountry $languageCountry
-     */
-    public function removeLanguageCountry(\ControleOnline\Entity\LanguageCountry $languageCountry)
+
+    public function removeLanguageCountry(LanguageCountry $languageCountry): self
     {
         $this->languageCountry->removeElement($languageCountry);
+        return $this;
     }
-    /**
-     * Get languageCountry
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getLanguageCountry()
+
+    public function getLanguageCountry(): Collection
     {
         return $this->languageCountry;
     }
-    /**
-     * Add state
-     *
-     * @param \ControleOnline\Entity\State $state
-     * @return Country
-     */
-    public function addState(\ControleOnline\Entity\State $state)
+
+    public function addState(State $state): self
     {
-        $this->state[] = $state;
+        if (!$this->state->contains($state)) {
+            $this->state[] = $state;
+        }
         return $this;
     }
-    /**
-     * Remove state
-     *
-     * @param \ControleOnline\Entity\State $state
-     */
-    public function removeState(\ControleOnline\Entity\State $state)
+
+    public function removeState(State $state): self
     {
         $this->state->removeElement($state);
+        return $this;
     }
-    /**
-     * Get state
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getState()
+
+    public function getState(): Collection
     {
         return $this->state;
     }

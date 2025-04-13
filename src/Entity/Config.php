@@ -1,20 +1,29 @@
 <?php
 
-namespace ControleOnline\Entity; 
-use ControleOnline\Listener\LogListener;
+namespace ControleOnline\Entity;
 
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiFilter;
-use Doctrine\ORM\Mapping as ORM;
-use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use ControleOnline\Controller\AddAppConfigAction;
 use ControleOnline\Controller\DiscoveryMainConfigsAction;
+use ControleOnline\Listener\LogListener;
+use ControleOnline\Repository\ConfigRepository;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\EntityListeners;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Mapping\UniqueConstraint;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     operations: [
@@ -41,173 +50,102 @@ use ControleOnline\Controller\DiscoveryMainConfigsAction;
     normalizationContext: ['groups' => ['config:read']],
     denormalizationContext: ['groups' => ['config:write']]
 )]
-#[ORM\Table(name: 'config')]
-#[ORM\UniqueConstraint(name: 'people_id', columns: ['people_id', 'configKey'])]
-#[ORM\EntityListeners([LogListener::class])]
-#[ORM\Entity(repositoryClass: \ControleOnline\Repository\ConfigRepository::class)]
+#[Table(name: 'config')]
+#[UniqueConstraint(name: 'people_id', columns: ['people_id', 'configKey'])]
+#[EntityListeners([LogListener::class])]
+#[Entity(repositoryClass: ConfigRepository::class)]
 class Config
 {
-    /**
-     * @var integer
-     *
-     * @Groups({"config:read"})
-     */
-    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private $id;
-    /**
-     * @var \ControleOnline\Entity\People
-     *
-     * @Groups({"config:read","config:write"})
-     */
+    #[Groups(['config:read'])]
+    #[Column(name: 'id', type: 'integer', nullable: false)]
+    #[Id]
+    #[GeneratedValue(strategy: 'IDENTITY')]
+    private int $id;
+
+    #[Groups(['config:read', 'config:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
-    #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\People::class)]
+    #[JoinColumn(name: 'people_id', referencedColumnName: 'id')]
+    #[ManyToOne(targetEntity: People::class)]
+    private ?People $people = null;
 
-    private $people;
-    /**
-     * @var string
-     *
-     * @Groups({"config:read","config:write"})
-     */
+    #[Groups(['config:read', 'config:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['configKey' => 'exact'])]
-    #[ORM\Column(name: 'config_key', type: 'string', length: 255, nullable: false)]
+    #[Column(name: 'config_key', type: 'string', length: 255, nullable: false)]
+    private string $configKey;
 
-    private $configKey;
-    /**
-     * @var string
-     *
-     * @Groups({"config:read","config:write"})
-     */
+    #[Groups(['config:read', 'config:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['visibility' => 'exact'])]
-    #[ORM\Column(name: 'visibility', type: 'string', length: 255, nullable: false)]
+    #[Column(name: 'visibility', type: 'string', length: 255, nullable: false)]
+    private string $visibility;
 
-    private $visibility;
-    /**
-     * @var string
-     *
-     * @Groups({"config:read","config:write"})
-     */
+    #[Groups(['config:read', 'config:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['configValue' => 'exact'])]
-    #[ORM\Column(name: 'config_value', type: 'string', length: 255, nullable: false)]
+    #[Column(name: 'config_value', type: 'string', length: 255, nullable: false)]
+    private string $configValue;
 
-    private $configValue;
-    /**
-     * @var \ControleOnline\Entity\Module
-     *
-     * @Groups({"config:read","config:write"})
-     */
+    #[Groups(['config:read', 'config:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['module' => 'exact'])]
-    #[ORM\JoinColumn(name: 'module_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Module::class)]
-    private $module;
+    #[JoinColumn(name: 'module_id', referencedColumnName: 'id')]
+    #[ManyToOne(targetEntity: Module::class)]
+    private ?Module $module = null;
 
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
-    /**
-     * Set people
-     *
-     * @param \ControleOnline\Entity\People $people
-     * @return PeopleConfigKey
-     */
-    public function setPeople(People $people = null)
+
+    public function setPeople(?People $people): self
     {
         $this->people = $people;
         return $this;
     }
-    /**
-     * Get people
-     *
-     * @return \ControleOnline\Entity\People
-     */
-    public function getPeople()
+
+    public function getPeople(): ?People
     {
         return $this->people;
     }
-    /**
-     * Set configKey
-     *
-     * @param string configKey
-     * @return PeopleConfigKey
-     */
-    public function setConfigKey($configKey)
+
+    public function setConfigKey(string $configKey): self
     {
         $this->configKey = $configKey;
         return $this;
     }
-    /**
-     * Get configKey
-     *
-     * @return string
-     */
-    public function getConfigKey()
+
+    public function getConfigKey(): string
     {
         return $this->configKey;
     }
-    /**
-     * Set visibility
-     *
-     * @param string visibility
-     * @return Config
-     */
-    public function setVisibility($visibility)
+
+    public function setVisibility(string $visibility): self
     {
         $this->visibility = $visibility;
         return $this;
     }
-    /**
-     * Get visibility
-     *
-     * @return string
-     */
-    public function getVisibility()
+
+    public function getVisibility(): string
     {
         return $this->visibility;
     }
-    /**
-     * Set configValue
-     *
-     * @param string configValue
-     * @return PeopleConfigKey
-     */
-    public function setConfigValue($configValue)
+
+    public function setConfigValue(string $configValue): self
     {
         $this->configValue = $configValue;
         return $this;
     }
-    /**
-     * Get configValue
-     *
-     * @return string
-     */
-    public function getConfigValue()
+
+    public function getConfigValue(): string
     {
         return $this->configValue;
     }
 
-    /**
-     * Get the value of module
-     */
-    public function getModule()
+    public function getModule(): ?Module
     {
         return $this->module;
     }
 
-    /**
-     * Set the value of module
-     */
-    public function setModule($module): self
+    public function setModule(?Module $module): self
     {
         $this->module = $module;
-
         return $this;
     }
 }

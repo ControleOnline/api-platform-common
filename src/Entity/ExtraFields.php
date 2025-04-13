@@ -1,19 +1,24 @@
 <?php
 
-namespace ControleOnline\Entity; 
-use ControleOnline\Listener\LogListener;
+namespace ControleOnline\Entity;
 
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Get;
+use ControleOnline\Repository\ExtraFieldsRepository;
+use ControleOnline\Listener\LogListener;
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiProperty;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\EntityListeners;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\Table;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     operations: [
@@ -31,144 +36,95 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ['groups' => ['extra_fields:read']],
     denormalizationContext: ['groups' => ['extra_fields:write']]
 )]
-#[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact', 'field_type' => 'exact'])]
-#[ORM\Table(name: 'extra_fields')]
-#[ORM\EntityListeners([LogListener::class])]
-#[ORM\Entity(repositoryClass: \ControleOnline\Repository\ExtraFieldsRepository::class)]
+#[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact', 'type' => 'exact'])] // Changed 'field_type' to 'type' based on property name
+#[Table(name: 'extra_fields')]
+#[EntityListeners([LogListener::class])]
+#[Entity(repositoryClass: ExtraFieldsRepository::class)]
 class ExtraFields
 {
-    /**
-     * @var integer
-     *
-     * @Groups({"extra_fields:read", "extra_data:read"})
-     */
-    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private $id;
+    #[Groups(['extra_fields:read', 'extra_data:read'])]
+    #[Column(name: 'id', type: 'integer', nullable: false)]
+    #[Id]
+    #[GeneratedValue(strategy: 'IDENTITY')]
+    private int $id;
 
-    /**
-     * @Groups({"extra_fields:read", "extra_fields:write", "extra_data:read"})
-     */
-    #[ORM\Column(name: 'field_name', type: 'string', length: 255, nullable: false)]
-    private $name;
-    /**
-     * @Groups({"extra_fields:read", "extra_fields:write", "extra_data:read"})
-     */
-    #[ORM\Column(name: 'field_type', type: 'string', length: 255, nullable: false)]
-    private $type;
-    /**
-     * @Groups({"extra_fields:read", "extra_fields:write", "extra_data:read"})
-     */
-    #[ORM\Column(name: 'context', type: 'string', length: 255, nullable: false)]
-    private $context;
-    /**
-     * @Groups({"extra_fields:read", "extra_fields:write", "extra_data:read"})
-     */
-    #[ORM\Column(name: 'required', type: 'boolean', nullable: true)]
-    private $required;
-    /**
-     * @Groups({"extra_fields:read", "extra_fields:write", "extra_data:read"})
-     */
-    #[ORM\Column(name: 'field_configs', type: 'string', nullable: true)]
-    private $configs;
- 
+    #[Groups(['extra_fields:read', 'extra_fields:write', 'extra_data:read'])]
+    #[Column(name: 'field_name', type: 'string', length: 255, nullable: false)]
+    private string $name;
 
-    /**
-     * Get the value of id
-     */
-    public function getId()
+    #[Groups(['extra_fields:read', 'extra_fields:write', 'extra_data:read'])]
+    #[Column(name: 'field_type', type: 'string', length: 255, nullable: false)]
+    private string $type;
+
+    #[Groups(['extra_fields:read', 'extra_fields:write', 'extra_data:read'])]
+    #[Column(name: 'context', type: 'string', length: 255, nullable: false)]
+    private string $context;
+
+    #[Groups(['extra_fields:read', 'extra_fields:write', 'extra_data:read'])]
+    #[Column(name: 'required', type: 'boolean', nullable: true)]
+    private ?bool $required = null;
+
+    #[Groups(['extra_fields:read', 'extra_fields:write', 'extra_data:read'])]
+    #[Column(name: 'field_configs', type: 'string', nullable: true)] // Consider 'json' type if applicable
+    private ?string $configs = null;
+
+    public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * Get the value of name
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * Set the value of name
-     */
-    public function setName($name): self
+    public function setName(string $name): self
     {
         $this->name = $name;
-
         return $this;
     }
 
-    /**
-     * Get the value of type
-     */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
 
-    /**
-     * Set the value of type
-     */
-    public function setType($type): self
+    public function setType(string $type): self
     {
         $this->type = $type;
-
         return $this;
     }
 
-    /**
-     * Get the value of context
-     */
-    public function getContext()
+    public function getContext(): string
     {
         return $this->context;
     }
 
-    /**
-     * Set the value of context
-     */
-    public function setContext($context): self
+    public function setContext(string $context): self
     {
         $this->context = $context;
-
         return $this;
     }
 
-    /**
-     * Get the value of required
-     */
-    public function getRequired()
+    public function getRequired(): ?bool
     {
         return $this->required;
     }
 
-    /**
-     * Set the value of required
-     */
-    public function setRequired($required): self
+    public function setRequired(?bool $required): self
     {
         $this->required = $required;
-
         return $this;
     }
 
-    /**
-     * Get the value of configs
-     */
-    public function getConfigs()
+    public function getConfigs(): ?string
     {
         return $this->configs;
     }
 
-    /**
-     * Set the value of configs
-     */
-    public function setConfigs($configs): self
+    public function setConfigs(?string $configs): self
     {
         $this->configs = $configs;
-
         return $this;
     }
 }

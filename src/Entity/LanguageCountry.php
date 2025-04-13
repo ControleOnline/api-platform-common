@@ -25,17 +25,17 @@ class LanguageCountry
     private $id;
 
     /**
-     * @var \ControleOnline\Entity\Language
+     * @var Language
      */
     #[ORM\JoinColumn(name: 'language_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Language::class)]
+    #[ORM\ManyToOne(targetEntity: Language::class)]
     private $language;
 
     /**
-     * @var \ControleOnline\Entity\Country
+     * @var Country
      */
     #[ORM\JoinColumn(name: 'country_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \ControleOnline\Entity\Country::class, inversedBy: 'languageCountry')]
+    #[ORM\ManyToOne(targetEntity: Country::class, inversedBy: 'languageCountry')]
     private $country;
 
     /**
@@ -51,10 +51,10 @@ class LanguageCountry
     /**
      * Set language
      *
-     * @param \ControleOnline\Entity\Language $language
+     * @param Language $language
      * @return LanguageCountry
      */
-    public function setLanguage(\ControleOnline\Entity\Language $language = null)
+    public function setLanguage(Language $language = null)
     {
         $this->language = $language;
 
@@ -64,7 +64,7 @@ class LanguageCountry
     /**
      * Get language
      *
-     * @return \ControleOnline\Entity\Language
+     * @return Language
      */
     public function getLanguage()
     {
@@ -74,10 +74,10 @@ class LanguageCountry
     /**
      * Set country
      *
-     * @param \ControleOnline\Entity\Country $country
+     * @param Country $country
      * @return LanguageCountry
      */
-    public function setCountry(\ControleOnline\Entity\Country $country = null)
+    public function setCountry(Country $country = null)
     {
         $this->country = $country;
 
@@ -87,7 +87,7 @@ class LanguageCountry
     /**
      * Get country
      *
-     * @return \ControleOnline\Entity\Country
+     * @return Country
      */
     public function getCountry()
     {

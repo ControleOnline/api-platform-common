@@ -1,33 +1,36 @@
 <?php
 
-namespace ControleOnline\Entity; 
-use ControleOnline\Listener\LogListener;
+namespace ControleOnline\Entity;
 
+use ControleOnline\Repository\LanguageRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use ControleOnline\Listener\LogListener;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiProperty;
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
-use ControleOnline\Filter\CustomOrFilter;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\EntityListeners;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Mapping\UniqueConstraint;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
         new Put(
             security: 'is_granted(\'ROLE_CLIENT\')',
-            denormalizationContext: ['groups' => ['language:read']]
+            denormalizationContext: ['groups' => ['language:read']] // Note: Usually Put uses a :write group, check if :read is intended
         ),
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
+        new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'), // Consider adding validationContext/denormalizationContext if needed
         new GetCollection(
             security: 'is_granted(\'PUBLIC_ACCESS\')',
         )
@@ -36,84 +39,83 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext: ['groups' => ['language:read']],
     denormalizationContext: ['groups' => ['language:write']]
 )]
-#[ORM\Table(name: 'language')]
-#[ORM\UniqueConstraint(name: 'language', columns: ['language'])]
-#[ORM\Entity(repositoryClass: \ControleOnline\Repository\LanguageRepository::class)]
-#[ORM\EntityListeners([LogListener::class])]
-
+#[Table(name: 'language')]
+#[UniqueConstraint(name: 'language', columns: ['language'])]
+#[Entity(repositoryClass: LanguageRepository::class)]
+#[EntityListeners([LogListener::class])]
 class Language
 {
-    /**
-     *
-     * @Groups({"translate:read", "language:read"})
-     */
-    #[ORM\Column(type: 'integer', nullable: false)]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private $id;
+    #[Groups(['translate:read', 'language:read'])]
+    #[Column(type: 'integer', nullable: false)]
+    #[Id]
+    #[GeneratedValue(strategy: 'IDENTITY')]
+    private int $id;
 
-    /**
-     * @Groups({"translate:read", "language:read"})
-     */
-    #[ORM\Column(type: 'string', length: 10, nullable: false)]
-    private $language;
+    #[Groups(['translate:read', 'language:read'])]
+    #[Column(type: 'string', length: 10, nullable: false)]
+    private string $language;
 
-    /**
-     * @Groups({"translate:read", "language:read"})
-     */
-    #[ORM\Column(type: 'boolean', nullable: false)]
-    private $locked;
+    #[Groups(['translate:read', 'language:read'])]
+    #[Column(type: 'boolean', nullable: false)]
+    private bool $locked;
 
-    #[ORM\OneToMany(targetEntity: \ControleOnline\Entity\People::class, mappedBy: 'language')]
-    private $people;
+    #[OneToMany(targetEntity: People::class, mappedBy: 'language')]
+    private Collection $people;
 
     public function __construct()
     {
-        $this->people = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->people = new ArrayCollection();
     }
 
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function addPeople(People $people)
+    public function addPeople(People $people): self
     {
-        $this->people[] = $people;
-
+        if (!$this->people->contains($people)) {
+            $this->people[] = $people;
+            // If People entity has a setLanguage method to maintain the bidirectional relationship:
+            // $people->setLanguage($this);
+        }
         return $this;
     }
 
-    public function removePeople(People $people)
+    public function removePeople(People $people): self
     {
-        $this->people->removeElement($people);
+        if ($this->people->removeElement($people)) {
+            // If People entity has a setLanguage method and it's the owning side or needs nulling:
+            // if ($people->getLanguage() === $this) {
+            //     $people->setLanguage(null);
+            // }
+        }
+        return $this;
     }
 
-    public function getPeople()
+    public function getPeople(): Collection
     {
         return $this->people;
     }
 
-    public function setLanguage($language)
+    public function setLanguage(string $language): self
     {
         $this->language = $language;
-
         return $this;
     }
 
-    public function getLanguage()
+    public function getLanguage(): string
     {
         return $this->language;
     }
 
-    public function setLocked($locked)
+    public function setLocked(bool $locked): self
     {
         $this->locked = $locked;
-
         return $this;
     }
 
-    public function getLocked()
+    public function getLocked(): bool
     {
         return $this->locked;
     }

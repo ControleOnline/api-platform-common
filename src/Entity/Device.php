@@ -1,20 +1,26 @@
 <?php
 
-namespace ControleOnline\Entity; 
-use ControleOnline\Listener\LogListener;
+namespace ControleOnline\Entity;
 
+use ControleOnline\Repository\DeviceRepository;
+use ControleOnline\Listener\LogListener;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\EntityListeners;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\Table;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 #[ApiResource(
     operations: [
@@ -34,58 +40,37 @@ use Symfony\Component\Validator\Constraints as Assert;
     denormalizationContext: ['groups' => ['device:write']]
 )]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['id' => 'ASC'])]
-#[ORM\Table(name: 'device')]
-#[ORM\EntityListeners([LogListener::class])]
-#[ORM\Entity(repositoryClass: \ControleOnline\Repository\DeviceRepository::class)]
-
+#[Table(name: 'device')]
+#[EntityListeners([LogListener::class])]
+#[Entity(repositoryClass: DeviceRepository::class)]
 class Device
 {
-    /**
-     * @var integer
-     *
-     * @Groups({"device:read","device:write"})
-     */
+    #[Groups(['device:read', 'device:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
-    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[Column(name: 'id', type: 'integer', nullable: false)]
+    #[Id]
+    #[GeneratedValue(strategy: 'IDENTITY')]
+    private int $id;
 
-    private $id;
-
-    /**
-     * @var string
-     *
-     * @Groups({"device:read","device:write"})
-     * @Assert\NotBlank
-     */
+    #[Groups(['device:read', 'device:write'])]
+    #[NotBlank]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['device' => 'exact'])]
-    #[ORM\Column(name: 'device', type: 'string', length: 100, nullable: false)]
+    #[Column(name: 'device', type: 'string', length: 100, nullable: false)]
+    private string $device;
 
-    private $device;
-
-    /**
-     * Get the value of id
-     */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * Get the value of device
-     */
-    public function getDevice()
+    public function getDevice(): string
     {
         return $this->device;
     }
 
-    /**
-     * Set the value of device
-     */
-    public function setDevice($device): self
+    public function setDevice(string $device): self
     {
         $this->device = $device;
-
         return $this;
     }
 }

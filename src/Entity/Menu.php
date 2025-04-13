@@ -1,24 +1,19 @@
 <?php
 
-namespace ControleOnline\Entity; 
-use ControleOnline\Listener\LogListener;
+namespace ControleOnline\Entity;
 
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Put;
-use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use ControleOnline\Controller\GetActionByPeopleAction;
 use ControleOnline\Controller\GetMenuByPeopleAction;
+use ControleOnline\Listener\LogListener;
 use ControleOnline\Repository\MenuRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 
-
-/**
- * Menu
- */
 #[ApiResource(
     operations: [
         new Get(security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))'),
@@ -49,88 +44,58 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: MenuRepository::class)]
 class Menu
 {
-    /**
-     * @var int
-     *
-     * @Groups({"menu:read"}) 
-     */
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ApiResource(normalizationContext: ['groups' => ['menu:read']])]
     private $id;
-    /**
-     * @var string
-     *
-     * @Groups({"menu:read","menu:write"})
-     */
+
     #[ORM\Column(name: 'menu', type: 'string', length: 50, nullable: false)]
+    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'menu:write']])]
     private $menu;
-    /**
-     * @var \Route
-     *
-     * @Groups({"menu:read","menu:write"}) 
-     */
+
     #[ORM\JoinColumn(name: 'route_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: Routes::class)]
+    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'menu:write']])]
     private $route;
 
-
-    /**
-     * @var \ControleOnline\Entity\Category
-     *
-     * @Groups({"menu:read","menu:write"})
-     */
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: Category::class)]
+    #[ApiResource(normalizationContext: ['groups' => ['menu:read', 'menu:write']])]
     private $category;
-    /**
-     * Get the value of id
-     */
+
     public function getId()
     {
         return $this->id;
     }
-    /**
-     * Get the value of menu
-     */
+
     public function getMenu(): string
     {
         return $this->menu;
     }
-    /**
-     * Set the value of menu
-     */
+
     public function setMenu($menu): self
     {
         $this->menu = $menu;
         return $this;
     }
-    /**
-     * Get the value of route
-     */
+
     public function getRoute()
     {
         return $this->route;
     }
-    /**
-     * Set the value of route
-     */
+
     public function setRoute($route): self
     {
         $this->route = $route;
         return $this;
     }
 
-    /**
-     * Get the value of category
-     */
     public function getCategory()
     {
         return $this->category;
     }
-    /**
-     * Set the value of category
-     */
+
     public function setCategory($category): self
     {
         $this->category = $category;
