@@ -57,7 +57,7 @@ class Device
     #[NotBlank]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['device' => 'exact'])]
     #[Column(name: 'device', type: 'string', length: 100, nullable: false)]
-    private string $device;
+    private string $device = '';
 
     public function getId(): int
     {
