@@ -36,9 +36,9 @@ class HydratorService
     {
         $response = $this->getBasicResponse($class);
 
-        $response['hydra:member']      =   $this->data($data, $groups);
-        $response['hydra:search']       =   $this->getSearch($class);
-        $response['hydra:totalItems']   =   $this->getCount($class, $arguments);
+        $response['member']      =   $this->data($data, $groups);
+        $response['search']       =   $this->getSearch($class);
+        $response['totalItems']   =   $this->getCount($class, $arguments);
 
         return $response;
     }
@@ -46,9 +46,9 @@ class HydratorService
     {
         $response = $this->getBasicResponse($class);
 
-        $response['hydra:member']      =   $this->getMembers($class, $groups, $arguments, $limit, $page, $orderby);
-        $response['hydra:search']       =   $this->getSearch($class);
-        $response['hydra:totalItems']   =   $this->getCount($class, $arguments);
+        $response['member']      =   $this->getMembers($class, $groups, $arguments, $limit, $page, $orderby);
+        $response['search']       =   $this->getSearch($class);
+        $response['totalItems']   =   $this->getCount($class, $arguments);
 
         return $response;
     }
@@ -56,10 +56,10 @@ class HydratorService
     public function result($result)
     {
         //$response = $this->getBasicResponse($class);
-        //$response['hydra:search']       =   $this->getSearch($class);
+        //$response['search']       =   $this->getSearch($class);
 
-        $response['hydra:member']      =  $result;
-        $response['hydra:totalItems']   =   count($response['hydra:member']);
+        $response['member']      =  $result;
+        $response['totalItems']   =   count($response['member']);
 
         return $response;
     }
@@ -83,11 +83,11 @@ class HydratorService
 
         $response['@id']        = '/' . strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $className)) . 's';
         $response['@context']   =   "/contexts/" . $className;
-        $response['@type']      =   "hydra:Collection";
+        $response['@type']      =   "Collection";
 
-        $response['hydra:view'] = [
+        $response['view'] = [
             '@id' =>   $this->uri,
-            '@type' => 'hydra:PartialCollectionView'
+            '@type' => 'PartialCollectionView'
         ];
         return $response;
     }
@@ -124,21 +124,21 @@ class HydratorService
         $metadata = $this->manager->getClassMetadata($class);
         $arguments = $metadata->getFieldNames();
         $search = [
-            '@type' => 'hydra:IriTemplate',
-            'hydra:template' =>   $this->uri . '{?' . implode(',', array_values($arguments)) . '}',
-            'hydra:variableRepresentation' => 'BasicRepresentation',
-            'hydra:mapping' => []
+            '@type' => 'IriTemplate',
+            'template' =>   $this->uri . '{?' . implode(',', array_values($arguments)) . '}',
+            'variableRepresentation' => 'BasicRepresentation',
+            'mapping' => []
         ];
 
         foreach ($metadata->getFieldNames() as $field) {
 
-            $search['hydra:mapping'][] = [
+            $search['mapping'][] = [
                 '@type' => 'IriTemplateMapping',
                 'variable' => $field,
                 'property' => $field,
                 'required' => false
             ];
-            $search['hydra:mapping'][] = [
+            $search['mapping'][] = [
                 '@type' => 'IriTemplateMapping',
                 'variable' => $field . '[]',
                 'property' => $field,
