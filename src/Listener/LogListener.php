@@ -2,168 +2,150 @@
 
 namespace ControleOnline\Listener;
 
-use Doctrine\ORM\Event\PreFlushEventArgs;
+use ControleOnline\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Event\PrePersistEventArgs;
+use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
-use Doctrine\ORM\Event\LifecycleEventArgs;
-use Doctrine\ORM\Mapping\PrePersist;
-use Doctrine\ORM\Mapping\PostPersist;
-use Doctrine\ORM\Mapping\PreUpdate;
-use Doctrine\ORM\Mapping\PostUpdate;
-use Doctrine\ORM\Mapping\PostRemove;
-use Doctrine\ORM\Mapping\PreRemove;
-use Doctrine\ORM\Mapping\PreFlush;
-use Doctrine\ORM\Mapping\PostLoad;
-
+use Doctrine\ORM\Event\PostUpdateEventArgs;
+use Doctrine\ORM\Event\PreRemoveEventArgs;
+use Doctrine\ORM\Event\PostRemoveEventArgs;
+use Doctrine\ORM\Event\PreFlushEventArgs;
+use Doctrine\ORM\Event\PostLoadEventArgs;
 
 class LogListener
 {
-
-    protected $em;
-    protected $entity;
-    protected $action;
-    protected $log;
-    protected $user;
-
-    public function __destruct()
-    {
-
-        // foreach ($this->log as $log) {
-        /*
-            $l = new Log();
-            $l->setObject(json_encode($log['object']));
-            $l->setUser($this->user);
-            $l->setAction($log['action']);
-            $l->setClass($log['class']);
-            $this->em->persist($l);
-            $this->em->flush($l);
-            */
-        // }
-    }
-    /** @PrePersist */
-    public function prePersistHandler($entity, LifecycleEventArgs $event): void
-    {
-        /*
-        $this->em = $event->getObjectManager();
-        $this->entity = $entity;
-        $this->action = 'prePersist';
-        $this->log();
-        */
-    }
-
-    /** @PostPersist */
-    public function postPersistHandler($entity, LifecycleEventArgs $event): void
-    {
-        /*
-        $this->em = $event->getObjectManager();
-        $this->entity = $entity;
-        $this->action = 'postPersist';
-        $this->log();
-        */
-    }
-    /** @PreUpdate */
-    public function preUpdateHandler($entity, LifecycleEventArgs $event): void
-    {
-        /*
-        $this->em = $event->getObjectManager();
-        $this->entity = $entity;
-        $this->action = 'preUpdate';
-        $this->log();
-        */
-    }
-    /** @PostUpdate */
-    public function postUpdateHandler($entity, LifecycleEventArgs $event): void
-    {
-        /*
-        $this->em = $event->getObjectManager();
-        $this->entity = $entity;
-        $this->action = 'postUpdate';
-        $this->log();
-        */
-    }
-
-    /** @PostRemove */
-    public function postRemoveHandler($entity, LifecycleEventArgs $event): void
-    {
-        /*
-        $this->em = $event->getObjectManager();
-        $this->entity = $entity;
-        $this->action = 'postRemove';
-        $this->log();
-        */
-    }
-    /** @PreRemove */
-    public function preRemoveHandler($entity, LifecycleEventArgs $event): void
-    {
-        /*
-        $this->em = $event->getObjectManager();
-        $this->entity = $entity;
-        $this->action = 'preRemove';
-        $this->log();
-        */
-    }
-
-    /** @PreFlush */
-    public function preFlushHandler($entity, PreFlushEventArgs $event): void
-    {
-        /*
-        $this->em = $event->getObjectManager();
-        $this->entity = $entity;
-        $this->action = 'preFlush';
-        $this->log();
-        */
-    }
-    /** @PostLoad */
-    public function postLoadHandler($entity, LifecycleEventArgs $event): void
-    {
-        /*
-     $this->em = $event->getObjectManager();
-     $this->entity = $entity;
-     $this->action = 'postLoad';
-     $this->log();
+    /**
+     * @var array<string, mixed>[]
      */
-    }
+    private array $log = [];
 
-    private function log()
+    /**
+     * @var object|null
+     */
+    private $user = null;
+
+    public function prePersistHandler(PrePersistEventArgs $event): void
     {
-        if (get_class($this->entity) == 'ControleOnline\Entity\Webapi\Usuario')
-            $this->user = $this->entity;
-        else
-            $this->log[] =
-                [
-                    'action' => $this->action,
-                    'class' => str_replace('Proxies\\__CG__\\', '', get_class($this->entity)),
-                    'object' =>    $this->getObject($this->entity)
-                ];
+        $this->logEntity($event->getObject(), 'prePersist', $event->getObjectManager());
     }
 
-    private function getObject($entity)
+    public function postPersistHandler(PostPersistEventArgs $event): void
+    {
+        $this->logEntity($event->getObject(), 'postPersist', $event->getObjectManager());
+    }
+
+    public function preUpdateHandler(PreUpdateEventArgs $event): void
+    {
+        $this->logEntity($event->getObject(), 'preUpdate', $event->getObjectManager());
+    }
+
+    public function postUpdateHandler(PostUpdateEventArgs $event): void
+    {
+        $this->logEntity($event->getObject(), 'postUpdate', $event->getObjectManager());
+    }
+
+    public function preRemoveHandler(PreRemoveEventArgs $event): void
+    {
+        $this->logEntity($event->getObject(), 'preRemove', $event->getObjectManager());
+    }
+
+    public function postRemoveHandler(PostRemoveEventArgs $event): void
+    {
+        $this->logEntity($event->getObject(), 'postRemove', $event->getObjectManager());
+    }
+
+    public function preFlushHandler(PreFlushEventArgs $event): void
+    {
+        $this->logEntity(null, 'preFlush', $event->getObjectManager());
+    }
+
+    public function postLoadHandler(PostLoadEventArgs $event): void
+    {
+        $this->logEntity($event->getObject(), 'postLoad', $event->getObjectManager());
+    }
+
+    private function logEntity(?object $entity, string $action, EntityManagerInterface $em): void
+    {
+
+        return;
+        if ($entity === null && $action !== 'preFlush') {
+            return;
+        }
+
+        if ($entity && $entity instanceof User) {
+            $this->user = $entity;
+            return;
+        }
+
+        if ($entity) {
+            $className = $em->getClassMetadata(get_class($entity))->getName();
+            $this->log[] = [
+                'action' => $action,
+                'class' => $className,
+                'object' => $this->getObject($entity, $em),
+            ];
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getObject(object $entity, EntityManagerInterface $em): array
     {
         $methods = preg_grep('/^get/', get_class_methods($entity));
         $array = [];
+
         foreach ($methods as $method) {
             $content = $entity->$method();
-            $m = substr($method, 3);
+            $property = lcfirst(substr($method, 3));
+
             if (!is_object($content)) {
-                $array[$m] = $content;
-            } elseif (get_class($content) != 'Doctrine\ORM\PersistentCollection') {
-                $array[$m] = $this->findIdentifier($content);
+                $array[$property] = $content;
+            } elseif (!$content instanceof \Doctrine\ORM\PersistentCollection) {
+                $array[$property] = $this->findIdentifier($content, $em);
             } else {
-                foreach ($content as $c) {
-                    $array[$m][] = $this->findIdentifier($c);
+                $array[$property] = [];
+                foreach ($content as $item) {
+                    $array[$property][] = $this->findIdentifier($item, $em);
                 }
             }
         }
+
         return $array;
     }
 
-    private function findIdentifier($entity)
+    private function findIdentifier(object $entity, EntityManagerInterface $em): mixed
     {
-        $meta = $this->em->getClassMetadata(get_class($entity));
+        $meta = $em->getClassMetadata(get_class($entity));
         $identifier = $meta->getSingleIdentifierFieldName();
-        $obj = $entity->{'get' . ucfirst($identifier)}();
-        if (is_object($obj)) {
-            $obj = $this->findIdentifier($obj);
+        $getter = 'get' . ucfirst($identifier);
+
+        if (!method_exists($entity, $getter)) {
+            return null;
         }
-        return $obj;
+
+        $value = $entity->$getter();
+        if (is_object($value)) {
+            return $this->findIdentifier($value, $em);
+        }
+
+        return $value;
+    }
+
+    public function flushLogs(EntityManagerInterface $em): void
+    {
+        foreach ($this->log as $logData) {
+            $log = new \ControleOnline\Entity\Log();
+            $log->setObject(json_encode($logData['object']));
+            $log->setUser($this->user);
+            $log->setAction($logData['action']);
+            $log->setClass($logData['class']);
+
+            $em->persist($log);
+        }
+
+        $this->log = [];
+        $em->flush();
     }
 }

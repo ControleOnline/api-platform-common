@@ -3,52 +3,56 @@
 namespace ControleOnline\Listener;
 
 use ControleOnline\Service\ExtraDataService;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Doctrine\ORM\Event\LifecycleEventArgs;
-
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Event\PrePersistEventArgs;
+use Doctrine\ORM\Event\PreUpdateEventArgs;
+use Doctrine\ORM\Event\PostPersistEventArgs;
+use Doctrine\ORM\Event\PostUpdateEventArgs;
+use Doctrine\ORM\Event\PreRemoveEventArgs;
+use Psr\Container\ContainerInterface;
+
 
 class DefaultEventListener
 {
     public function __construct(
         private EntityManagerInterface $manager,
-        private ContainerInterface $container,
-        private ExtraDataService $ExtraDataService
+        private ExtraDataService $extraDataService,
+        private ContainerInterface $container
     ) {}
 
-    public function preUpdate(LifecycleEventArgs $args)
+    public function preUpdate(PreUpdateEventArgs $args): void
     {
-        $this->execute($args->getEntity(), 'prePersist');
+        $this->execute($args->getObject(), 'preUpdate');
     }
 
-    public function prePersist(LifecycleEventArgs $args)
+    public function prePersist(PrePersistEventArgs $args): void
     {
-        $entity = $args->getEntity();
-        $this->ExtraDataService->discoveryDevice($entity);
-        $this->ExtraDataService->discoveryUser($entity);
+        $entity = $args->getObject();
+        $this->extraDataService->discoveryDevice($entity);
+        $this->extraDataService->discoveryUser($entity);
         $this->execute($entity, 'prePersist');
     }
 
-    public function postUpdate(LifecycleEventArgs $args)
+    public function postUpdate(PostUpdateEventArgs $args): void
     {
-        $this->execute($args->getEntity(), 'postPersist');
+        $this->execute($args->getObject(), 'postUpdate');
     }
 
-    public function postPersist(LifecycleEventArgs $args)
+    public function postPersist(PostPersistEventArgs $args): void
     {
-        $this->execute($args->getEntity(), 'postPersist');
+        $this->execute($args->getObject(), 'postPersist');
     }
 
-    public function preRemove(LifecycleEventArgs $args)
+    public function preRemove(PreRemoveEventArgs $args): void
     {
-        $this->execute($args->getEntity(), 'preRemove');
+        $this->execute($args->getObject(), 'preRemove');
     }
 
     private function execute($entity, $method)
     {
         $class = get_class($entity);
         $serviceName = str_replace('Entity', 'Service', $class) . 'Service';
-        $this->ExtraDataService->persist($entity);
+        $this->extraDataService->persist($entity);
         if ($this->container->has($serviceName)) {
             $service = $this->container->get($serviceName);
             if (method_exists($service, $method)) {
