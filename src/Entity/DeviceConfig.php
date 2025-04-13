@@ -116,8 +116,11 @@ class DeviceConfig
         return $this->setConfigs($configs);
     }
 
-    public function setConfigs(string $configs): self
+    public function setConfigs(string|array|object $configs): self
     {
+        if (is_string($configs))
+            $configs = json_decode($configs, true);
+
         $this->configs = json_encode($configs);
         return $this;
     }
