@@ -46,18 +46,24 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Entity(repositoryClass: DeviceRepository::class)]
 class Device
 {
-    #[Groups(['device:read', 'device:write'])]
+    #[Groups(['device_config:read', 'device:read', 'device:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
     #[Column(name: 'id', type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
     private int $id;
 
-    #[Groups(['device:read', 'device:write'])]
+    #[Groups(['device_config:read', 'device:read', 'device:write'])]
     #[NotBlank]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['device' => 'exact'])]
     #[Column(name: 'device', type: 'string', length: 100, nullable: false)]
     private string $device = '';
+
+    #[Groups(['device_config:read', 'device:read', 'device:write'])]
+    #[NotBlank]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['alias' => 'exact'])]
+    #[Column(name: 'alias', type: 'string', length: 100, nullable: true)]
+    private string $alias = '';
 
     public function getId(): int
     {
@@ -72,6 +78,24 @@ class Device
     public function setDevice(string $device): self
     {
         $this->device = $device;
+        return $this;
+    }
+
+    /**
+     * Get the value of alias
+     */
+    public function getAlias(): ?string
+    {
+        return $this->alias;
+    }
+
+    /**
+     * Set the value of alias
+     */
+    public function setAlias(string | null $alias): self
+    {
+        $this->alias = $alias;
+
         return $this;
     }
 }
