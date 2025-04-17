@@ -2,74 +2,55 @@
 
 namespace ControleOnline\Command;
 
-use Ratchet\MessageComponentInterface;
-use Ratchet\ConnectionInterface;
-use Ratchet\Server\IoServer;
-use Ratchet\Http\HttpServer;
-use Ratchet\WebSocket\WsServer;
+use React\EventLoop\Loop;
+use React\Socket\Server;
+use React\Socket\ConnectionInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'websocket:start',
+    description: 'Inicia o servidor WebSocket com ReactPHP'
+)]
 class WebSocketServerCommand extends Command
 {
-    protected static $defaultName = 'app:websocket-server';
-
-    protected function configure()
+    protected function configure(): void
     {
-        $this
-            ->setDescription('Starts the WebSocket server')
-            ->setHelp('This command starts a WebSocket server on port 8080');
+        $this->addArgument('port', InputArgument::OPTIONAL, 'Porta para o servidor WebSocket', 8080);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output->writeln('Starting WebSocket server on port 8080...');
+        $port = $input->getArgument('port');
+        $output->writeln("Iniciando servidor WebSocket ReactPHP na porta {$port}...");
 
-        $server = IoServer::factory(
-            new HttpServer(
-                new WsServer(
-                    new class implements MessageComponentInterface {
-                        protected \SplObjectStorage $clients;
+        $loop = Loop::get();
+        $socket = new Server("0.0.0.0:{$port}", $loop);
+        $clients = new \SplObjectStorage();
 
-                        public function __construct()
-                        {
-                            $this->clients = new \SplObjectStorage();
-                        }
+        $socket->on('connection', function (ConnectionInterface $conn) use ($clients, $output) {
+            $clients->attach($conn);
+            $output->writeln("Nova conexão! ({$conn->resourceId})");
 
-                        public function onOpen(ConnectionInterface $conn)
-                        {
-                            $this->clients->attach($conn);
-                            echo "New connection! ({$conn->resourceId})\n";
-                        }
-
-                        public function onMessage(ConnectionInterface $from, $msg)
-                        {
-                            foreach ($this->clients as $client) {
-                                if ($from !== $client) {
-                                    $client->send($msg);
-                                }
-                            }
-                        }
-
-                        public function onClose(ConnectionInterface $conn)
-                        {
-                            $this->clients->detach($conn);
-                            echo "Connection closed! ({$conn->resourceId})\n";
-                        }
-
-                        public function onError(ConnectionInterface $conn, \Exception $e)
-                        {
-                            echo "An error occurred: {$e->getMessage()}\n";
-                            $conn->close();
-                        }
+            $conn->on('data', function ($data) use ($conn, $clients) {
+                foreach ($clients as $client) {
+                    if ($client !== $conn) {
+                        $client->write($data);
                     }
-                )
-            ),
-            8080
-        );
+                }
+            });
 
-        $server->run();
+            $conn->on('close', function () use ($conn, $clients, $output) {
+                $clients->detach($conn);
+                $output->writeln("Conexão fechada! ({$conn->resourceId})");
+            });
+        });
+
+        $output->writeln('Servidor WebSocket ReactPHP iniciado!');
+        $loop->run();
 
         return Command::SUCCESS;
     }
