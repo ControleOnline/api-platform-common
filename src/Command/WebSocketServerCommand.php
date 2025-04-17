@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'websocket:start',
-    description: 'Inicia o servidor WebSocket com ReactPHP'
+    description: 'Inicia o servidor WebSocket com ReactPHP (com tentativa de handshake)'
 )]
 class WebSocketServerCommand extends Command
 {
@@ -25,20 +25,66 @@ class WebSocketServerCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $port = $input->getArgument('port');
-        $output->writeln("Iniciando servidor WebSocket ReactPHP na porta {$port}...");
+        $output->writeln("Iniciando servidor WebSocket ReactPHP na porta {$port} (com tentativa de handshake)...");
 
         $loop = Loop::get();
         $socket = new Server("0.0.0.0:{$port}", $loop);
         $clients = new \SplObjectStorage();
 
         $socket->on('connection', function (ConnectionInterface $conn) use ($clients, $output) {
-            $clients->attach($conn);
-            $output->writeln("Nova conexão! ({$conn->resourceId})");
+            $handshakeDone = false;
+            $buffer = '';
 
-            $conn->on('data', function ($data) use ($conn, $clients) {
-                foreach ($clients as $client) {
-                    if ($client !== $conn) {
-                        $client->write($data);
+            $conn->on('data', function ($data) use ($conn, $clients, $output, &$handshakeDone, &$buffer) {
+                $buffer .= $data;
+
+                if (!$handshakeDone) {
+                    // Tenta encontrar o final dos headers HTTP (\r\n\r\n)
+                    if (strpos($buffer, "\r\n\r\n") !== false) {
+                        $headers = [];
+                        $headerLines = explode("\r\n", substr($buffer, 0, strpos($buffer, "\r\n\r\n")));
+
+                        // Analisa os headers
+                        foreach ($headerLines as $line) {
+                            if (strpos($line, ':') !== false) {
+                                [$key, $value] = explode(':', $line, 2);
+                                $headers[trim(strtolower($key))] = trim($value);
+                            }
+                        }
+
+                        // Verifica se é uma requisição de upgrade WebSocket
+                        if (isset($headers['upgrade']) && strtolower($headers['upgrade']) === 'websocket' &&
+                            isset($headers['connection']) && strtolower($headers['connection']) === 'upgrade' &&
+                            isset($headers['sec-websocket-key']) && isset($headers['sec-websocket-version']) && $headers['sec-websocket-version'] === '13') {
+
+                            $secWebSocketKey = $headers['sec-websocket-key'];
+                            $magicString = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
+                            $hash = base64_encode(sha1($secWebSocketKey . $magicString, true));
+                            $response = "HTTP/1.1 101 Switching Protocols\r\n";
+                            $response .= "Upgrade: websocket\r\n";
+                            $response .= "Connection: Upgrade\r\n";
+                            $response .= "Sec-WebSocket-Accept: " . $hash . "\r\n\r\n";
+
+                            $conn->write($response);
+                            $handshakeDone = true;
+                            $clients->attach($conn);
+                            $output->writeln("Nova conexão WebSocket estabelecida! ({$conn->resourceId})");
+
+                            // Remove os headers do buffer para processar dados WebSocket futuros
+                            $buffer = substr($buffer, strpos($buffer, "\r\n\r\n") + 4);
+
+                        } else {
+                            $output->writeln("Requisição de handshake inválida. Fechando conexão.");
+                            $conn->close();
+                        }
+                    }
+                } else {
+                    // Lógica para lidar com dados WebSocket (decodificação de frames, etc.) virá aqui
+                    // Por enquanto, apenas reenvia os dados para outros clientes
+                    foreach ($clients as $client) {
+                        if ($client !== $conn) {
+                            $client->write($data);
+                        }
                     }
                 }
             });
@@ -49,7 +95,7 @@ class WebSocketServerCommand extends Command
             });
         });
 
-        $output->writeln('Servidor WebSocket ReactPHP iniciado!');
+        $output->writeln('Servidor WebSocket ReactPHP iniciado (com tentativa de handshake)!');
         $loop->run();
 
         return Command::SUCCESS;
