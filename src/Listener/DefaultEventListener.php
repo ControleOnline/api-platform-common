@@ -3,6 +3,7 @@
 namespace ControleOnline\Listener;
 
 use ControleOnline\Service\ExtraDataService;
+use ControleOnline\Service\WebsocketClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
@@ -17,7 +18,8 @@ class DefaultEventListener
     public function __construct(
         private EntityManagerInterface $manager,
         private ExtraDataService $extraDataService,
-        private ContainerInterface $container
+        private ContainerInterface $container,
+        private WebsocketClient $ws
     ) {}
 
     public function preUpdate(PreUpdateEventArgs $args): void
@@ -51,6 +53,8 @@ class DefaultEventListener
     private function execute($entity, $method)
     {
         $class = get_class($entity);
+
+        $this->ws->sendMessage('teste', $class);
         $serviceName = str_replace('Entity', 'Service', $class) . 'Service';
         $this->extraDataService->persist($entity);
         if ($this->container->has($serviceName)) {
