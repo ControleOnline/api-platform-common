@@ -101,7 +101,7 @@ class Status
         'contract:read', 'task:read', 'display_queue:read', 'display:read', 'order_product_queue:read', 'order:read', 'order_details:read', 'order:write',
         'invoice:read', 'invoice_details:read', 'status:read', 'status:write', 'order_detail_status:read', 'logistic:read', 'queue:read', 'queue_people_queue:read'
     ])]
-    private $color;
+    private $color = '';
 
     #[ORM\Column(name: 'context', type: 'string', nullable: false)]
     #[Groups([
