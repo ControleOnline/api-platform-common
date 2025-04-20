@@ -48,6 +48,8 @@ class PrintService
         if (isset($device_config['printer']))
             $printer = $this->deviceService->discoveryDevice($device_config['printer']);
 
+        error_log($printer->getDevice());
+
         $content =  [
             "operation" => "PRINT_TEXT",
             "styles" => [[]],
