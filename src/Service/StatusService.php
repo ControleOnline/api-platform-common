@@ -15,17 +15,17 @@ class StatusService
 
     ) {}
 
-    public function discoveryStatus($realStatus, $status, $context): Status
+    public function discoveryStatus($realStatus, $name, $context): Status
     {
         $status =  $this->manager->getRepository(Status::class)->findOneBy([
             'realStatus' => $realStatus,
             'context' => $context,
-            'status' => $status
+            'status' => $name
         ]);
         if (!$status) {
             $status = new Status();
             $status->setRealStatus($realStatus);
-            $status->setStatus($status);
+            $status->setStatus($name);
             $status->setContext($context);
             $this->manager->persist($status);
             $this->manager->flush();
