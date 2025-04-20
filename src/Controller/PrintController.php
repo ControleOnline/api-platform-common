@@ -19,7 +19,7 @@ class PrintController extends AbstractController
         private PrintService $printService,
         private HydratorService $hydratorService
     ) {}
-    #[Route('/print/{id}/done', name: "print_done", methods: ["GET"])]
+    #[Route('/print/{id}/done', name: "print_done", methods: ["PUT"])]
     public function makePrintDone(Spool $spool): JsonResponse
     {
         try {
