@@ -27,7 +27,6 @@ use Doctrine\ORM\Mapping as ORM;
     normalizationContext: ['groups' => ['spool:read']],
     denormalizationContext: ['groups' => ['spool:write']]
 )]
-#[ApiFilter(filterClass: SearchFilter::class, properties: ['user' => 'exact', 'people' => 'exact'])]
 #[ORM\Table(name: 'spool')]
 #[ORM\Index(name: 'device_id_idx', columns: ['device_id'])]
 #[ORM\Index(name: 'user_id_idx', columns: ['user_id'])]
@@ -41,17 +40,22 @@ class Spool
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     #[Groups(['spool_item:read', 'spool:read',])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
+
     private $id;
 
 
     #[ORM\ManyToOne(targetEntity: Device::class)]
     #[ORM\JoinColumn(name: 'device_id', referencedColumnName: 'id')]
     #[Groups(['spool_item:read', 'spool:read', 'spool:write'])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['device' => 'exact'])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['device.device' => 'exact'])]
     private $device;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
     #[Groups(['spool_item:read', 'spool:read', 'spool:write'])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['user' => 'exact'])]
     private $user;
 
 
@@ -62,6 +66,9 @@ class Spool
     #[ORM\JoinColumn(name: 'status_id', referencedColumnName: 'id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: Status::class)]
     #[Groups(['spool_item:read', 'spool:read', 'spool:write'])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['status' => 'exact'])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['status.status' => 'exact'])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['status.realStatus' => 'exact'])]
     private $status;
 
     #[ORM\JoinColumn(name: 'file_id', referencedColumnName: 'id', nullable: false)]

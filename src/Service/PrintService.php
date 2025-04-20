@@ -3,6 +3,7 @@
 namespace ControleOnline\Service;
 
 use ControleOnline\Entity\Device;
+use ControleOnline\Entity\People;
 use ControleOnline\Entity\Spool;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
@@ -18,6 +19,7 @@ class PrintService
         private EntityManagerInterface $entityManager,
         private FileService $fileService,
         private StatusService $statusService,
+        private DeviceService $deviceService,
         private Security $security
     ) {}
 
@@ -30,30 +32,41 @@ class PrintService
         $this->text .= $initialSpace . $prefix . $delimiter . $suffix . "\n";
     }
 
-    public function generatePrintData(Device $device): Spool
+    public function generatePrintData(Device $device, People $provider): Spool
     {
+        $printer = null;
+        $device_config =  $this->deviceService->discoveryDeviceConfig($device, $provider);
+        if (isset($device_config['printer']))
+            $printer = $this->deviceService->discoveryDevice($device_config['printer']);
+
         $content =  [
             "operation" => "PRINT_TEXT",
             "styles" => [[]],
             "value" => [$this->text]
         ];
 
-        return  $this->addToSpool($device, json_encode($content, true));
+        $printData = $this->addToSpool($printer ?? $device, json_encode($content));
+
+        if ($printer != $device)
+            $x = '';
+
+        return $printData;
     }
 
-    public function addToSpool(Device $device, string  $content): Spool
+    public function addToSpool(Device $printer, string  $content): Spool
     {
         $user = $this->security->getToken()->getUser();
         $status = $this->statusService->discoveryStatus('open', 'open', 'print');
         $file = $this->fileService->addFile($user->getPeople(), $content, 'print', 'print', 'text', 'txt');
+
         $spool = new Spool();
-        $spool->setDevice($device);
+        $spool->setDevice($printer);
         $spool->setStatus($status);
         $spool->setFile($file);
         $spool->setUser($user);
         $this->entityManager->persist($spool);
         $this->entityManager->flush();
-      
+
         return $spool;
     }
 }

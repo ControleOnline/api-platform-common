@@ -4,7 +4,6 @@ namespace ControleOnline\Service;
 
 use ControleOnline\Entity\Device;
 use ControleOnline\Entity\DeviceConfig;
-use ControleOnline\Entity\Module;
 use ControleOnline\Entity\People;
 use Doctrine\ORM\EntityManagerInterface;
 
