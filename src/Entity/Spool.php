@@ -54,10 +54,6 @@ class Spool
     #[Groups(['spool_item:read', 'spool:read', 'spool:write'])]
     private $user;
 
-    #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id', nullable: false)]
-    #[ORM\ManyToOne(targetEntity: People::class)]
-    #[Groups(['spool_item:read', 'spool:read', 'spool:write'])]
-    private $people;
 
     #[ORM\Column(name: 'register_date', type: 'datetime', nullable: false)]
     #[Groups(['spool_item:read', 'spool:read', 'spool:write'])]
@@ -92,17 +88,6 @@ class Spool
     public function getUser(): User
     {
         return $this->user;
-    }
-
-    public function setPeople(People $people): self
-    {
-        $this->people = $people;
-        return $this;
-    }
-
-    public function getPeople(): People
-    {
-        return $this->people;
     }
 
     public function setRegisterDate($registerDate): self

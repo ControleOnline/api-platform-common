@@ -55,6 +55,7 @@ class PrintService
         $spool->setDevice($device);
         $spool->setStatus($status);
         $spool->setFile($file);
+        $spool->setUser($user);
         error_log('w');
 
         $this->entityManager->persist($spool);
