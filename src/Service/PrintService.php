@@ -44,7 +44,11 @@ class PrintService
     public function addToSpool(Device $device, $content): Spool
     {
         $user = $this->security->getToken()->getUser();
+        error_log('w');
+
         $status = $this->statusService->discoveryStatus('open', 'open', 'print');
+        error_log('w');
+
         $file = $this->fileService->addFile($user->getPeople(), $content, 'print', 'print', 'text', 'txt');
         error_log('w');
         $spool = new Spool();
