@@ -7,7 +7,7 @@ use ControleOnline\Entity\DeviceConfig;
 use ControleOnline\Entity\ExtraData;
 use ControleOnline\Entity\ExtraFields;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
- AS Security;
+as Security;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -41,6 +41,7 @@ class ExtraDataService
 
         $deviceId = $this->request->headers->get('DEVICE') ?: $this->getUserIp();
         if (method_exists($entity, 'setDevice')) {
+            if ($entity->getDevice()) return;
             $device = $this->deviceService->discoveryDevice($deviceId);
             $entity->setDevice($device);
         }
@@ -48,7 +49,7 @@ class ExtraDataService
 
     public function discoveryUser(&$entity)
     {
-        if (method_exists($entity, 'setUser'))
+        if (method_exists($entity, 'setUser') && !$entity->getUser())
             $entity->setUser($this->security->getToken()->getUser());
     }
 
