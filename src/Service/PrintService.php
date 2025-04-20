@@ -48,8 +48,6 @@ class PrintService
         if (isset($device_config['printer']))
             $printer = $this->deviceService->discoveryDevice($device_config['printer']);
 
-        error_log($printer->getDevice());
-
         $content =  [
             "operation" => "PRINT_TEXT",
             "styles" => [[]],
@@ -70,6 +68,8 @@ class PrintService
         $status = $this->statusService->discoveryStatus('open', 'open', 'print');
         $file = $this->fileService->addFile($user->getPeople(), $content, 'print', 'print', 'text', 'txt');
         error_log($printer->getDevice());
+        error_log($printer->getId());
+
         $spool = new Spool();
         $spool->setDevice($printer);
         $spool->setStatus($status);
