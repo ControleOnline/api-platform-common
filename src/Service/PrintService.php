@@ -32,6 +32,15 @@ class PrintService
         $this->text .= $initialSpace . $prefix . $delimiter . $suffix . "\n";
     }
 
+    public function makePrintDone(Spool $spool): Spool
+    {
+        $status = $this->statusService->discoveryStatus('closed', 'done', 'print');
+        $spool->setStatus($status);
+        $this->entityManager->persist($spool);
+        $this->entityManager->flush();
+        return  $spool;
+    }
+
     public function generatePrintData(Device $device, People $provider): Spool
     {
         $printer = null;
