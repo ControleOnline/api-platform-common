@@ -44,7 +44,7 @@ class PrintService
     public function generatePrintData(Device $device, People $provider): Spool
     {
         $printer = null;
-        $device_config =  $this->deviceService->discoveryDeviceConfig($device, $provider);
+        $device_config =  $this->deviceService->discoveryDeviceConfig($device, $provider)->getConfigs(true);
         if (isset($device_config['printer']))
             $printer = $this->deviceService->discoveryDevice($device_config['printer']);
 
