@@ -56,7 +56,7 @@ class PrintService
             "value" => [$this->text]
         ];
 
-        $printData = $this->addToSpool($printer ?? $device, json_encode($content));
+        $printData = $this->addToSpool($printer ?: $device, json_encode($content));
 
         if ($printer != $device)
             $x = '';
