@@ -69,7 +69,7 @@ class PrintService
         $user = $this->security->getToken()->getUser();
         $status = $this->statusService->discoveryStatus('open', 'open', 'print');
         $file = $this->fileService->addFile($user->getPeople(), $content, 'print', 'print', 'text', 'txt');
-
+        error_log($printer->getDevice());
         $spool = new Spool();
         $spool->setDevice($printer);
         $spool->setStatus($status);
