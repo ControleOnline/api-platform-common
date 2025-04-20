@@ -47,7 +47,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
             deserialize: false
         ),
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new Post(security: 'is_granted(\'ROLE_CLIENT\')'), // Consider adding validationContext/denormalizationContext if needed
+        new Post(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Put(
             security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))',
             validationContext: ['groups' => ['file:write']],
@@ -64,49 +64,49 @@ use Symfony\Component\Validator\Constraints\NotBlank;
     denormalizationContext: ['groups' => ['file:write']]
 )]
 #[Table(name: 'files')]
-#[UniqueConstraint(name: 'url', columns: ['url'])] // Assuming 'url' column exists, though not defined as property
-#[UniqueConstraint(name: 'path', columns: ['path'])] // Assuming 'path' column exists, though not defined as property
+#[UniqueConstraint(name: 'url', columns: ['url'])]
+#[UniqueConstraint(name: 'path', columns: ['path'])]
 #[EntityListeners([LogListener::class])]
 #[Entity(repositoryClass: FileRepository::class)]
 class File
 {
-    #[Groups(['file:read', 'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'file_item:read', 'contract:read', 'model:read', 'people:read'])]
+    #[Groups(['file:read', 'spool:read',  'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'contract:read', 'model:read', 'people:read'])]
     #[Column(type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
     private int $id;
 
-    #[Groups(['file:read', 'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
+    #[Groups(['file:read', 'spool:read',  'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
     #[NotBlank]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['fileType' => 'exact'])]
     #[Column(type: 'string', length: 255, nullable: false)]
     private string $fileType;
 
-    #[Groups(['file:read', 'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
+    #[Groups(['file:read', 'spool:read',  'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
     #[NotBlank]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['fileName' => 'exact'])]
     #[Column(type: 'string', length: 255, nullable: false)]
     private string $fileName;
 
-    #[Groups(['file:read', 'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
+    #[Groups(['file:read', 'spool:read',  'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
     #[NotBlank]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact'])]
     #[Column(type: 'string', length: 255, nullable: false)]
     private string $context;
 
-    #[Groups(['file:read', 'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
+    #[Groups(['file:read', 'spool:read',  'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
     #[NotBlank]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['extension' => 'exact'])]
     #[Column(type: 'string', length: 255, nullable: false)]
     private string $extension;
 
-    #[Groups(['file_item:read', 'file:write'])]
-    #[Column(type: 'string', length: 255, nullable: false)] // Consider changing type to 'text' or similar if content can be large
+    #[Groups(['spool_item:read', 'file_item:read', 'file:write'])]
+    #[Column(type: 'string', length: 255, nullable: false)]
     private string $content;
 
-    #[Groups(['file_item:read', 'file:write', 'file:read'])]
+    #[Groups(['spool_item:read', 'file_item:read', 'file:write', 'file:read'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
-    #[JoinColumn(name: 'people_id', referencedColumnName: 'id', nullable: true)] // Default is nullable=true
+    #[JoinColumn(name: 'people_id', referencedColumnName: 'id', nullable: true)]
     #[ManyToOne(targetEntity: People::class)]
     private ?People $people = null;
 
