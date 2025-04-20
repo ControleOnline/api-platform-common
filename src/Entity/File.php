@@ -74,7 +74,7 @@ class File
     #[Column(type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
-    private int $id;
+    private int $id = 0;
 
     #[Groups(['file:read', 'spool:read',  'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
     #[NotBlank]
