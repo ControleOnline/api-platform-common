@@ -38,10 +38,10 @@ class PrintService
             "value" => [$this->text]
         ];
 
-        return  $this->addToSpool($device, $content);
+        return  $this->addToSpool($device, json_encode($content, true));
     }
 
-    public function addToSpool(Device $device, $content): Spool
+    public function addToSpool(Device $device, string  $content): Spool
     {
         $user = $this->security->getToken()->getUser();
         error_log('w');
