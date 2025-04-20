@@ -51,7 +51,7 @@ class Device
     #[Column(name: 'id', type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
-    private int $id;
+    private int $id = 0;
 
     #[Groups(['device_config:read', 'device:read', 'device:write'])]
     #[NotBlank]

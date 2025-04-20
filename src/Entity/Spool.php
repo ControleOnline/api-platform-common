@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ControleOnline\Listener\LogListener;
 use ControleOnline\Repository\SpoolRepository;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ApiResource(
@@ -72,12 +73,15 @@ class Spool
     #[Groups(['spool_item:read', 'spool:read', 'spool:write'])]
     private $file;
 
+    public function __construct()
+    {
+        $this->registerDate = new DateTime('now');
+    }
+
     public function getId()
     {
         return $this->id;
     }
-
-
 
     public function setUser(User $user): self
     {

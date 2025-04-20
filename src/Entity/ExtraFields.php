@@ -47,7 +47,7 @@ class ExtraFields
     #[Column(name: 'id', type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
-    private int $id;
+    private int $id = 0;
 
     #[Groups(['extra_fields:read', 'extra_fields:write', 'extra_data:read'])]
     #[Column(name: 'field_name', type: 'string', length: 255, nullable: false)]

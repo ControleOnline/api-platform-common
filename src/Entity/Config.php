@@ -61,7 +61,7 @@ class Config
     #[Column(name: 'id', type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
-    private int $id;
+    private int $id = 0;
 
     #[Groups(['config:read', 'config:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]

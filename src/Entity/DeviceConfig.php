@@ -60,7 +60,7 @@ class DeviceConfig
     #[Column(name: 'id', type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
-    private int $id;
+    private int $id = 0;
 
     #[Groups(['device_config:read', 'device:read', 'device_config:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]

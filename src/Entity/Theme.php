@@ -46,7 +46,7 @@ class Theme
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     #[Groups(['theme:read'])]
-    private int $id;
+    private int $id = 0;
 
     #[ORM\Column(name: 'theme', type: 'string', length: 80, nullable: false)]
     #[Groups(['theme:read'])]

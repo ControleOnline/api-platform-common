@@ -35,7 +35,7 @@ class Country
     #[Column(name: 'id', type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
-    private int $id;
+    private int $id = 0;
 
     #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
     #[Column(name: 'countryCode', type: 'string', length: 3, nullable: false)]

@@ -50,7 +50,7 @@ class Language
     #[Column(type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
-    private int $id;
+    private int $id = 0;
 
     #[Groups(['translate:read', 'language:read'])]
     #[Column(type: 'string', length: 10, nullable: false)]

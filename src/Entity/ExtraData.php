@@ -59,7 +59,7 @@ class ExtraData
     #[Column(name: 'id', type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
-    private int $id;
+    private int $id = 0;
 
     #[Groups(['extra_data:read'])]
     #[JoinColumn(name: 'extra_fields_id', referencedColumnName: 'id', nullable: true)] // Assuming nullable based on lack of 'nullable: false'

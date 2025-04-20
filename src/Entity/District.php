@@ -41,7 +41,7 @@ class District
     #[Column(name: 'id', type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
-    private int $id;
+    private int $id = 0;
 
     #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
     #[Column(name: 'district', type: 'string', length: 255, nullable: false)]
