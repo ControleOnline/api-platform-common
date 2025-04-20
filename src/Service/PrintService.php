@@ -44,24 +44,16 @@ class PrintService
     public function addToSpool(Device $device, string  $content): Spool
     {
         $user = $this->security->getToken()->getUser();
-        error_log('w');
-
         $status = $this->statusService->discoveryStatus('open', 'open', 'print');
-        error_log('w');
-
         $file = $this->fileService->addFile($user->getPeople(), $content, 'print', 'print', 'text', 'txt');
-        error_log('w');
         $spool = new Spool();
         $spool->setDevice($device);
         $spool->setStatus($status);
         $spool->setFile($file);
         $spool->setUser($user);
-        error_log('w');
-
         $this->entityManager->persist($spool);
         $this->entityManager->flush();
-        error_log('w');
-
+      
         return $spool;
     }
 }

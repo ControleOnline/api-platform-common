@@ -46,20 +46,20 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Entity(repositoryClass: DeviceRepository::class)]
 class Device
 {
-    #[Groups(['device_config:read', 'device:read', 'device:write'])]
+    #[Groups(['device_config:read', 'device:read', 'spool_item:read', 'spool:read', 'spool:write', 'device:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
     #[Column(name: 'id', type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
     private int $id = 0;
 
-    #[Groups(['device_config:read', 'device:read', 'device:write'])]
+    #[Groups(['device_config:read', 'device:read', 'spool_item:read', 'spool:read', 'spool:write', 'device:write'])]
     #[NotBlank]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['device' => 'exact'])]
     #[Column(name: 'device', type: 'string', length: 100, nullable: false)]
     private string $device = '';
 
-    #[Groups(['device_config:read', 'device:read', 'device:write'])]
+    #[Groups(['device_config:read', 'device:read', 'spool_item:read', 'spool:read', 'spool:write', 'device:write'])]
     #[NotBlank]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['alias' => 'exact'])]
     #[Column(name: 'alias', type: 'string', length: 100, nullable: true)]
