@@ -43,7 +43,7 @@ class Spool
     private $id;
 
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: Device::class)]
     #[ORM\JoinColumn(name: 'device_id', referencedColumnName: 'id')]
     #[Groups(['spool_item:read', 'spool:read', 'spool:write'])]
     private $device;
