@@ -19,14 +19,16 @@ class StatusService
     {
         $status =  $this->manager->getRepository(Status::class)->findOneBy([
             'realStatus' => $realStatus,
+            'status' => $name,
             'context' => $context,
-            'status' => $name
         ]);
+
         if (!$status) {
             $status = new Status();
             $status->setRealStatus($realStatus);
             $status->setStatus($name);
             $status->setContext($context);
+            
             $this->manager->persist($status);
             $this->manager->flush();
         }

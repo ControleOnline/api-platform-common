@@ -30,8 +30,10 @@ class FileRepository extends ServiceEntityRepository
         $file->setFileType($fileType);
         $file->setExtension($extension);
         $file->setPeople($people);
-        $this->em->persist($file);
-        $this->em->flush();
+        
+        $em = $this->getEntityManager();
+        $em->persist($file);
+        $em->flush();
 
         return $file;
     }
