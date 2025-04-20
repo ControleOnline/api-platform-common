@@ -4,12 +4,12 @@ namespace ControleOnline\Controller;
 
 use ControleOnline\Entity\Spool;
 use ControleOnline\Service\HydratorService;
+use Symfony\Component\Security\Http\Attribute\Security;
 use ControleOnline\Service\PrintService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 class PrintController extends AbstractController
@@ -20,6 +20,7 @@ class PrintController extends AbstractController
         private HydratorService $hydratorService
     ) {}
     #[Route('/print/{id}/done', name: "print_done", methods: ["PUT"])]
+    #[Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_CLIENT')")]
     public function makePrintDone(Spool $spool): JsonResponse
     {
         try {
