@@ -36,7 +36,7 @@ class ExtraDataService
 
     public function discoveryDevice(&$entity)
     {
-        if ($entity instanceof Device || $entity instanceof DeviceConfig)
+        if ($entity instanceof Device || $entity instanceof DeviceConfig || !$this->request->headers)
             return;
 
         $deviceId = $this->request->headers->get('DEVICE') ?: $this->getUserIp();
@@ -49,7 +49,7 @@ class ExtraDataService
 
     public function discoveryUser(&$entity)
     {
-        if (method_exists($entity, 'setUser') && !$entity->getUser())
+        if (method_exists($entity, 'setUser') && !$entity->getUser() && $this->security->getToken())
             $entity->setUser($this->security->getToken()->getUser());
     }
 
