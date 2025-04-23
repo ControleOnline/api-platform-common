@@ -5,6 +5,7 @@ namespace ControleOnline\Service;
 use ControleOnline\Entity\Device;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\Spool;
+use ControleOnline\Service\Client\WebsocketClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
 as Security;
@@ -20,7 +21,8 @@ class PrintService
         private FileService $fileService,
         private StatusService $statusService,
         private DeviceService $deviceService,
-        private Security $security
+        private Security $security,
+        private WebsocketClient $websocketClient,
     ) {}
 
     public function addLine($prefix = '', $suffix = '', $delimiter = ' ')
@@ -78,6 +80,11 @@ class PrintService
         $this->entityManager->persist($spool);
         $this->entityManager->flush();
 
+        $this->websocketClient->push($printer, json_encode([
+            "destination" => $printer->getDevice(),
+            "action" => "print"
+        ]));
+        
         return $spool;
     }
 }
