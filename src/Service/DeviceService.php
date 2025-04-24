@@ -14,6 +14,19 @@ class DeviceService
         private ConfigService $configService,
     ) {}
 
+    public function getPrinters(People $people)
+    {
+        $device_configs = $this->manager->getRepository(DeviceConfig::class)->findBy([
+            'people' => $people
+        ]);
+        $devices = [];
+        foreach ($device_configs as $device_config) {
+            $configs = $device_config->getConfigs(true);
+            if (isset($configs['pos-gateway']) && $configs['pos-gateway'] == 'cielo')
+                $devices[] = $device_config->getDevice();
+        }
+        return $devices;
+    }
 
     public function discoveryDevice($deviceId)
     {

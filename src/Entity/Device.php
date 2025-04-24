@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ControleOnline\DataProvider\PrinterDataProvider;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\EntityListeners;
@@ -34,7 +35,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(
             security: 'is_granted(\'PUBLIC_ACCESS\')',
-        )
+        ),
+        new GetCollection(
+            security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')',
+            uriTemplate: '/invoice/inflow',
+            provider: PrinterDataProvider::class,
+            normalizationContext: ['groups' => ['invoice:read']],
+        ),
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['device:read']],
