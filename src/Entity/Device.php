@@ -38,9 +38,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
         ),
         new GetCollection(
             security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')',
-            uriTemplate: '/invoice/inflow',
+            uriTemplate: '/printers',
             provider: PrinterDataProvider::class,
-            normalizationContext: ['groups' => ['invoice:read']],
+            normalizationContext: ['groups' => ['device:read']],
         ),
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
