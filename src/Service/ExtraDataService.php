@@ -9,10 +9,7 @@ use ControleOnline\Entity\ExtraFields;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
 as Security;
 use Symfony\Component\HttpFoundation\RequestStack;
-
-
 use Doctrine\ORM\EntityManagerInterface;
-use stdClass;
 
 class ExtraDataService
 {
