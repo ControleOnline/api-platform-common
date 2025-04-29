@@ -15,15 +15,19 @@ class PrintService
     private $initialSpace = 8;
     private $totalChars = 48;
     private $text = '';
+    protected static $logger;
 
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private LoggerService $loggerService,
         private FileService $fileService,
         private StatusService $statusService,
         private DeviceService $deviceService,
         private Security $security,
         private WebsocketClient $websocketClient,
-    ) {}
+    ) {
+        self::$logger = $loggerService->getLogger('print');
+    }
 
     public function addLine($prefix = '', $suffix = '', $delimiter = ' ')
     {
@@ -69,8 +73,8 @@ class PrintService
         $user = $this->security->getToken()->getUser();
         $status = $this->statusService->discoveryStatus('open', 'open', 'print');
         $file = $this->fileService->addFile($user->getPeople(), $content, 'print', 'print', 'text', 'txt');
-        error_log($printer->getDevice());
-        error_log($printer->getId());
+        self::$logger->error($printer->getDevice());
+        self::$logger->error($printer->getId());
 
         $spool = new Spool();
         $spool->setDevice($printer);
@@ -84,7 +88,7 @@ class PrintService
             "destination" => $printer->getDevice(),
             "action" => "print"
         ]));
-        
+
         return $spool;
     }
 }
