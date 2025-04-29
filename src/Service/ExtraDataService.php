@@ -40,6 +40,25 @@ class ExtraDataService
         return null;
     }
 
+
+    public function discoveryExtraData(int $entityId, ExtraFields $extraFields, string $code, object | string $entity)
+    {
+        $class = $this->getEntityName($entity);
+
+        $extraData = $this->getEntityByExtraData($extraFields,  $code,  $entity);
+        if (!$extraData) {
+            $extraData = new ExtraData();
+            $extraData->setEntityId($entityId);
+            $extraData->setExtraFields($extraFields);
+            $extraData->setValue($code);
+            $extraData->setEntityName($class->getShortName());
+            $this->manager->persist($extraData);
+            $this->manager->flush();
+        }
+
+        return $this->manager->getRepository($class::class)->find($extraData->getEntityId());
+    }
+
     public function discoveryExtraFields(string $fieldName, string $context, ?string $configs = '{}',  ?string $fieldType = 'text', ?bool $required = false): ExtraFields
     {
 
