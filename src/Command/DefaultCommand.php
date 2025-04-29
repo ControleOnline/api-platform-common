@@ -17,6 +17,7 @@ abstract class DefaultCommand extends Command
     protected $lock;
     protected $lockFactory;
     protected $databaseSwitchService;
+    protected $loggerService;
 
     abstract protected function runCommand(): int;
 
@@ -35,7 +36,7 @@ abstract class DefaultCommand extends Command
         $domain = $input->getOption('domain');
 
         if ($domain) {
-            $this->output->writeln(sprintf('Executando migrações para o domínio: %s', $domain));
+            $this->addLog(sprintf('Executando migrações para o domínio: %s', $domain));
             $this->databaseSwitchService->switchDatabaseByDomain($domain);
             return $this->runCommand();
         }
@@ -43,12 +44,18 @@ abstract class DefaultCommand extends Command
         $domains = $this->databaseSwitchService->getAllDomains();
 
         foreach ($domains as $domain) {
-            $this->output->writeln(sprintf('Executando migrações para o domínio: %s', $domain));
+            $this->addLog(sprintf('Executando migrações para o domínio: %s', $domain));
             $this->databaseSwitchService->switchDatabaseByDomain($domain);
             $this->runCommand();
         }
 
         return Command::SUCCESS;
+    }
+
+    public function addLog(string|iterable $messages, int $options = 0, ?string $logName = 'integration')
+    {
+        $this->output->writeln($messages, $options);
+        $this->loggerService->getLogger($logName)->info($messages);
     }
 
     public function __destruct()

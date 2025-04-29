@@ -8,12 +8,11 @@ use ControleOnline\Entity\ExtraData;
 use ControleOnline\Entity\ExtraFields;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
 as Security;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 
 use Doctrine\ORM\EntityManagerInterface;
-
+use stdClass;
 
 class ExtraDataService
 {
@@ -28,6 +27,45 @@ class ExtraDataService
     ) {
         $this->request = $requestStack->getCurrentRequest();
     }
+
+
+    public function getEntityByExtraData(ExtraFields $extraFields, string $code, object | string $entity)
+    {
+        $class = $this->getEntityName($entity);
+        $extraData = $this->manager->getRepository(ExtraData::class)->findOneBy([
+            'extra_fields' => $extraFields,
+            'entity_name' => $class->getShortName(),
+            'value' => $code
+        ]);
+        if ($extraData)
+            return $this->manager->getRepository($class::class)->find($extraData->getEntityId());
+
+        return null;
+    }
+
+    public function discoveryExtraFields(string $fieldName, string $context, ?string $configs = '{}',  ?string $fieldType = 'text', ?bool $required = false): ExtraFields
+    {
+
+        $extraFields = $this->manager->getRepository(ExtraFields::class)->findOneBy([
+            'name' => $fieldName,
+            'type' => $fieldType,
+            'context' => $context
+        ]);
+
+        if (!$extraFields)
+            $extraFields = new ExtraFields();
+
+        $extraFields->setName($fieldName);
+        $extraFields->setContext($context);
+        $extraFields->setConfigs($configs);
+        $extraFields->setType($fieldType);
+        $extraFields->setRequired($required);
+        $this->manager->persist($extraFields);
+        $this->manager->flush();
+
+        return $extraFields;
+    }
+
 
     private function getUserIp()
     {
@@ -63,12 +101,18 @@ class ExtraDataService
         //$this->manager->flush();
         $this->persistData($entity);
     }
+
+    private function getEntityName(object | string $entity)
+    {
+        return (new \ReflectionClass($entity));
+    }
+
     private function persistData(&$entity = null)
     {
 
         if ($entity) {
             $entity_id = $entity->getId();
-            $entity_name = (new \ReflectionClass($entity::class))->getShortName();
+            $entity_name = $this->getEntityName($entity)->getShortName();
 
             //$this->manager->persist($entity);
         } else {
@@ -109,7 +153,6 @@ class ExtraDataService
 
     public function  noChange()
     {
-
         $this->persistData();
     }
 }
