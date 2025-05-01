@@ -11,7 +11,7 @@ class FileService
 {
 
   public function __construct(
-    private  EntityManagerInterface $manager,
+    private EntityManagerInterface $manager,
     private DomainService $domainService
 
   ) {}
@@ -32,5 +32,11 @@ class FileService
   public function addFile(People $people, string  $content, string $context, string $fileName, string $fileType, string $extension): File
   {
     return $this->manager->getRepository(File::class)->addFile($people, $content, $context, $fileName, $fileType, $extension);
+  }
+
+  public function removeFile(File $file)
+  {
+    $this->manager->remove($file);
+    $this->manager->flush();
   }
 }
