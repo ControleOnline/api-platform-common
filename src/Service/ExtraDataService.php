@@ -35,7 +35,7 @@ class ExtraDataService
             'value' => $code
         ]);
         if ($extraData)
-            return $this->manager->getRepository($class::class)->find($extraData->getEntityId());
+            return $this->manager->getRepository($class->getName())->find($extraData->getEntityId());
 
         return null;
     }
@@ -56,7 +56,7 @@ class ExtraDataService
             $this->manager->flush();
         }
 
-        return $this->manager->getRepository($class::class)->find($extraData->getEntityId());
+        return $this->manager->getRepository($class->getName())->find($extraData->getEntityId());
     }
 
     public function discoveryExtraFields(string $fieldName, string $context, ?string $configs = '{}',  ?string $fieldType = 'text', ?bool $required = false): ExtraFields
