@@ -118,7 +118,7 @@ class ExtraDataService
         $this->persistData($entity);
     }
 
-    private function getEntityName(object | string $entity)
+    private function getEntityName(object | string $entity): \ReflectionClass
     {
         return (new \ReflectionClass($entity));
     }
