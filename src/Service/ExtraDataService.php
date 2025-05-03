@@ -46,15 +46,15 @@ class ExtraDataService
         $class = $this->getEntityName($entity);
 
         $extraData = $this->getEntityByExtraData($extraFields,  $code,  $entity);
-        if (!$extraData) {
-            $extraData = new ExtraData();
-            $extraData->setEntityId($entityId);
-            $extraData->setExtraFields($extraFields);
-            $extraData->setValue($code);
-            $extraData->setEntityName($class->getShortName());
-            $this->manager->persist($extraData);
-            $this->manager->flush();
-        }
+        if ($extraData) return $extraData;
+
+        $extraData = new ExtraData();
+        $extraData->setEntityId($entityId);
+        $extraData->setExtraFields($extraFields);
+        $extraData->setValue($code);
+        $extraData->setEntityName($class->getShortName());
+        $this->manager->persist($extraData);
+        $this->manager->flush();
 
         return $this->manager->getRepository($class->getName())->find($extraData->getEntityId());
     }
