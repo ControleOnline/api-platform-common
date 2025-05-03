@@ -35,7 +35,7 @@ class ExtraDataService
             'value' => $code
         ]);
         if ($extraData)
-            return $this->manager->getRepository($class->getName())->find($extraData->getEntityId());
+            return $this->manager->getRepository($class->getName())->find($extraData->getId());
 
         return null;
     }
