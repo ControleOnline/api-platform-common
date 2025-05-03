@@ -120,6 +120,8 @@ class ExtraDataService
 
     private function getEntityName(object | string $entity)
     {
+
+        echo $entity;
         return (new \ReflectionClass($entity));
     }
 
