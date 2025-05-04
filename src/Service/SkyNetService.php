@@ -11,7 +11,8 @@ class SkyNetService
     private static ?User $botUser = null;
 
     public function __construct(
-        private EntityManagerInterface $manager
+        private EntityManagerInterface $manager,
+        private DomainService $domainService,
     ) {}
 
     public function discoveryBotUser(): User
@@ -27,6 +28,7 @@ class SkyNetService
             self::$botUser = new User();
             self::$botUser->setUserName($bot);
             self::$botUser->setHash('872844840.0');
+            self::$botUser->setPeople($this->domainService->getMainDomain()->getPeople());
             $this->manager->persist(self::$botUser);
             $this->manager->flush();
         }

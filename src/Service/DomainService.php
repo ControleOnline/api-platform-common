@@ -50,7 +50,7 @@ class DomainService
 
     public function getMainDomain()
     {
-        return $this->request->server->get('HTTP_HOST');
+        return $this->request->server->get('HTTP_HOST') ?: 'api.controleonline.com';
     }
 
     public function getPeopleDomain(): PeopleDomain
