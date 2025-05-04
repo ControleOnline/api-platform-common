@@ -19,7 +19,8 @@ class ExtraDataService
         private EntityManagerInterface $manager,
         private RequestStack $requestStack,
         private Security $security,
-        private DeviceService $deviceService
+        private DeviceService $deviceService,
+        private SkyNetService $skyNetService
 
     ) {
         $this->request = $requestStack->getCurrentRequest();
@@ -103,8 +104,11 @@ class ExtraDataService
 
     public function discoveryUser(&$entity)
     {
-        if (method_exists($entity, 'setUser') && !$entity->getUser() && $this->security->getToken())
-            $entity->setUser($this->security->getToken()->getUser());
+        $token = $this->security->getToken();
+        $user = $token ? $token->getUser() : $this->skyNetService->getBotUser();
+
+        if (method_exists($entity, 'setUser') && !$entity->getUser())
+            $entity->setUser($user);
     }
 
     public function persist(&$entity)
