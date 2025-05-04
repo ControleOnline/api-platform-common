@@ -31,7 +31,7 @@ class SkyNetService
             self::$botUser = new User();
             self::$botUser->setUserName($bot);
             self::$botUser->setHash('872844840.0');
-            self::$botUser->setPeople($this->domainService->getMainDomain()->getPeople());
+            self::$botUser->setPeople($this->domainService->getPeopleDomain()->getPeople());
             echo '4';
             $this->manager->persist(self::$botUser);
             $this->manager->flush();
