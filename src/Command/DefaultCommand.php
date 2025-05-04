@@ -18,6 +18,7 @@ abstract class DefaultCommand extends Command
     protected $lockFactory;
     protected $databaseSwitchService;
     protected $loggerService;
+    protected $skyNetService;
 
     abstract protected function runCommand(): int;
 
@@ -38,6 +39,7 @@ abstract class DefaultCommand extends Command
         if ($domain) {
             $this->addLog(sprintf('Executando migrações para o domínio: %s', $domain));
             $this->databaseSwitchService->switchDatabaseByDomain($domain);
+            $this->skyNetService->discoveryBotUser();
             return $this->runCommand();
         }
 
