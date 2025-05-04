@@ -50,7 +50,7 @@ class AddressService
       'number' => $streetNumber,
       'complement' => $complement
     ]);
-    
+
     if (!$address) {
       $address = new Address();
       $address->setNumber($streetNumber);
@@ -180,6 +180,6 @@ class AddressService
 
   public function getCountry(string $countryCode): Country
   {
-    return $this->manager->getRepository(Country::class)->findOneBy(['countryCode' => $countryCode]);
+    return $this->manager->getRepository(Country::class)->findOneBy(['countrycode' => $countryCode]);
   }
 }
