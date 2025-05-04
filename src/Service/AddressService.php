@@ -73,7 +73,7 @@ class AddressService
 
   public function discoveryCep(string $postalCode): Cep
   {
-    $cep = $this->manager->getRepository(Street::class)->findOneBy(['cep' => $postalCode]);
+    $cep = $this->manager->getRepository(Cep::class)->findOneBy(['cep' => $postalCode]);
 
     if (!$cep) {
       $cep = new Cep();
