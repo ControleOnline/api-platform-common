@@ -85,7 +85,6 @@ class PrintService
         $this->entityManager->flush();
 
         $this->websocketClient->push($printer, json_encode([
-            "destination" => $printer->getDevice(),
             "action" => "print"
         ]));
 

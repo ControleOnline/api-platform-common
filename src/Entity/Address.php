@@ -129,7 +129,7 @@ class Address
         return strtoupper($this->complement);
     }
 
-    public function setPeople(People $people = null)
+    public function setPeople(?People $people = null)
     {
         $this->people = $people;
         return $this;
@@ -140,7 +140,7 @@ class Address
         return $this->people;
     }
 
-    public function setStreet(Street $street = null)
+    public function setStreet($street)
     {
         $this->street = $street;
         return $this;

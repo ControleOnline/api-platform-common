@@ -28,6 +28,13 @@ class DeviceService
         return $devices;
     }
 
+    public function findDevices(array|string $devices)
+    {
+        return $this->manager->getRepository(Device::class)->findBy([
+            'device' => $devices
+        ]);
+    }
+
     public function discoveryDevice($deviceId)
     {
         $device = $this->manager->getRepository(Device::class)->findOneBy([
