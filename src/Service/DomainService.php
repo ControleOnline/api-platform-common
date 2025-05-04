@@ -25,7 +25,7 @@ class DomainService
     public function getDomain()
     {
 
-        $domain = preg_replace("/[^a-zA-Z0-9.:_-]/", "", str_replace(
+        $domain = !$this->request ? $this->getMainDomain() : preg_replace("/[^a-zA-Z0-9.:_-]/", "", str_replace(
             ['https://', 'http://'],
             '',
             $this->request->get(
@@ -50,7 +50,7 @@ class DomainService
 
     public function getMainDomain()
     {
-        return $this->request->server->get('HTTP_HOST') ?: 'api.controleonline.com';
+        return $this->request ? $this->request->server->get('HTTP_HOST') : 'api.controleonline.com';
     }
 
     public function getPeopleDomain(): PeopleDomain

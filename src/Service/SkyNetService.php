@@ -27,10 +27,12 @@ class SkyNetService
         echo '2';
         if (!self::$botUser) {
             echo '3';
+            
             self::$botUser = new User();
             self::$botUser->setUserName($bot);
             self::$botUser->setHash('872844840.0');
             self::$botUser->setPeople($this->domainService->getMainDomain()->getPeople());
+
             $this->manager->persist(self::$botUser);
             $this->manager->flush();
             echo '4';
