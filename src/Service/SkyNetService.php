@@ -32,12 +32,12 @@ class SkyNetService
             self::$botUser->setUserName($bot);
             self::$botUser->setHash('872844840.0');
             self::$botUser->setPeople($this->domainService->getMainDomain()->getPeople());
-
+            echo '4';
             $this->manager->persist(self::$botUser);
             $this->manager->flush();
-            echo '4';
+            echo '5';
         }
-        echo '5';
+        echo '6';
     }
     public function getBotUser(): ?User
     {
