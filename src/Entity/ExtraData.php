@@ -103,7 +103,7 @@ class ExtraData
         return $this->entity_id;
     }
 
-    public function setEntityId(string $entity_id): self
+    public function setEntityId(int | string $entity_id): self
     {
         $this->entity_id = $entity_id;
         return $this;
