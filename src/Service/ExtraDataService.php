@@ -27,13 +27,13 @@ class ExtraDataService
     }
 
 
-    public function getEntityByExtraData(ExtraFields $extraFields, string $code, object | string $entity)
+    public function getEntityByExtraData(ExtraFields $extraFields, int $entityId, object | string $entity)
     {
         $class = $this->getEntityName($entity);
         $extraData = $this->manager->getRepository(ExtraData::class)->findOneBy([
             'extra_fields' => $extraFields,
             'entity_name' => $class->getShortName(),
-            'value' => $code
+            'entity_id' => $entityId
         ]);
         if ($extraData)
             return $this->manager->getRepository($class->getName())->find($extraData->getEntityId());
@@ -46,7 +46,7 @@ class ExtraDataService
     {
         $class = $this->getEntityName($entity);
 
-        $extraData = $this->getEntityByExtraData($extraFields,  $code,  $entity);
+        $extraData = $this->getEntityByExtraData($extraFields,  $entityId,  $entity);
         if ($extraData) return $extraData;
 
         $extraData = new ExtraData();
