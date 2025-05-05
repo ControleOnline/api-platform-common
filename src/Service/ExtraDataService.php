@@ -70,16 +70,16 @@ class ExtraDataService
             'context' => $context
         ]);
 
-        if (!$extraFields)
+        if (!$extraFields) {
             $extraFields = new ExtraFields();
-
-        $extraFields->setName($fieldName);
-        $extraFields->setContext($context);
-        $extraFields->setConfigs($configs);
-        $extraFields->setType($fieldType);
-        $extraFields->setRequired($required);
-        $this->manager->persist($extraFields);
-        $this->manager->flush();
+            $extraFields->setName($fieldName);
+            $extraFields->setContext($context);
+            $extraFields->setConfigs($configs);
+            $extraFields->setType($fieldType);
+            $extraFields->setRequired($required);
+            $this->manager->persist($extraFields);
+            $this->manager->flush();
+        }
 
         return $extraFields;
     }
