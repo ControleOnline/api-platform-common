@@ -47,7 +47,7 @@ class PrintService
         return  $spool;
     }
 
-    public function generatePrintData(Device $device, People $provider): Spool
+    public function generatePrintData(Device $device, People $provider, ?array $aditionalData = []): Spool
     {
         $printer = null;
         $device_config =  $this->deviceService->discoveryDeviceConfig($device, $provider)->getConfigs(true);
@@ -60,7 +60,7 @@ class PrintService
             "value" => [$this->text]
         ];
 
-        $printData = $this->addToSpool($printer ?: $device, json_encode($content));
+        $printData = $this->addToSpool($printer ?: $device, json_encode($content), $aditionalData);
 
         if ($printer != $device)
             $x = '';
@@ -68,7 +68,7 @@ class PrintService
         return $printData;
     }
 
-    public function addToSpool(Device $printer, string  $content): Spool
+    public function addToSpool(Device $printer, string  $content, ?array $data = []): Spool
     {
         $user = $this->security->getToken()->getUser();
         $status = $this->statusService->discoveryStatus('open', 'open', 'print');
@@ -84,9 +84,9 @@ class PrintService
         $this->entityManager->persist($spool);
         $this->entityManager->flush();
 
-        $this->websocketClient->push($printer, json_encode([
-            "action" => "print"
-        ]));
+        $data["action"] = "print";
+
+        $this->websocketClient->push($printer, json_encode($data));
 
         return $spool;
     }
