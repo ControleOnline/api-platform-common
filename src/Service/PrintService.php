@@ -85,6 +85,8 @@ class PrintService
         $this->entityManager->flush();
 
         $data["action"] = "print";
+        $data["store"] = "print";
+
 
         $this->websocketClient->push($printer, json_encode($data));
 
