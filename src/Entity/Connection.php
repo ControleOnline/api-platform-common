@@ -12,7 +12,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ControleOnline\Listener\LogListener;
-use ControleOnline\Repository\ConnectionsRepository;
+use ControleOnline\Repository\ConnectionRepository;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\EntityListeners;
