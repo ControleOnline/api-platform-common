@@ -39,8 +39,8 @@ use Doctrine\ORM\Mapping\Table;
 )]
 #[Table(name: 'connections')]
 #[EntityListeners([LogListener::class])]
-#[Entity(repositoryClass: ConnectionsRepository::class)]
-class Connections
+#[Entity(repositoryClass: ConnectionRepository::class)]
+class Connection
 {
     #[Groups(['connections:read'])]
     #[Column(name: 'id', type: 'integer', nullable: false)]
