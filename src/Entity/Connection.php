@@ -67,9 +67,9 @@ class Connection
 
 
     #[Groups(['connections:read', 'connections:write'])]
-    #[ApiFilter(filterClass: SearchFilter::class, properties: ['bot' => 'exact'])]
-    #[Column(name: 'bot', type: 'string', length: 50, nullable: true)]
-    private string $bot;
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['type' => 'exact'])]
+    #[Column(name: 'type', type: 'string', length: 50, nullable: true)]
+    private string $type;
 
 
     #[Groups(['connections:read', 'connections:write'])]
@@ -145,14 +145,14 @@ class Connection
         return $this;
     }
 
-    public function getBot(): ?string
+    public function getType(): ?string
     {
-        return $this->bot;
+        return $this->type;
     }
 
-    public function setBot(?string $bot): self
+    public function setType(?string $type): self
     {
-        $this->bot = $bot;
+        $this->type = $type;
 
         return $this;
     }
