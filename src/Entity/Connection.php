@@ -65,6 +65,13 @@ class Connection
     #[Column(name: 'name', type: 'string', length: 50, nullable: false)]
     private string $name;
 
+
+    #[Groups(['connections:read', 'connections:write'])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['bot' => 'exact'])]
+    #[Column(name: 'bot', type: 'string', length: 50, nullable: true)]
+    private string $bot;
+
+
     #[Groups(['connections:read', 'connections:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['phone' => 'exact'])]
     #[JoinColumn(name: 'phone_id', referencedColumnName: 'id', nullable: true)]
@@ -135,6 +142,18 @@ class Connection
     public function setChannel(string $channel): self
     {
         $this->channel = $channel;
+        return $this;
+    }
+
+    public function getBot(): ?string
+    {
+        return $this->bot;
+    }
+
+    public function setBot(?string $bot): self
+    {
+        $this->bot = $bot;
+
         return $this;
     }
 }
