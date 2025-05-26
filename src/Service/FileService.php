@@ -29,7 +29,7 @@ class FileService
     return null;
   }
 
-  public function addFile(People $people, string  $content, string $context, string $fileName, string $fileType, string $extension): File
+  public function addFile(People $people, string  $content, string $context, ?string $fileName = null, ?string $fileType = null, ?string $extension = null): File
   {
     return $this->manager->getRepository(File::class)->addFile($people, $content, $context, $fileName, $fileType, $extension);
   }
