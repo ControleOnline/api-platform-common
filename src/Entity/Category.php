@@ -88,13 +88,13 @@ class Category
     private $company;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['icon' => 'exact'])]
-    #[ORM\Column(name: 'icon', type: 'string', length: 50, nullable: false)]
+    #[ORM\Column(name: 'icon', type: 'string', length: 50, nullable: true)]
     #[Assert\Type(type: 'string')]
     #[Groups(['product_category:read', 'logistic:read', 'invoice_details:read', 'category:read', 'task:read', 'category:write', 'company_expense:read', 'model:read', 'model_detail:read', 'menu:read', 'queue:read', 'invoice:read'])]
     private $icon;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['color' => 'exact'])]
-    #[ORM\Column(name: 'color', type: 'string', length: 50, nullable: false)]
+    #[ORM\Column(name: 'color', type: 'string', length: 50, nullable: true)]
     #[Assert\Type(type: 'string')]
     #[Groups(['product_category:read', 'logistic:read', 'invoice_details:read', 'category:read', 'task:read', 'category:write', 'company_expense:read', 'model:read', 'model_detail:read', 'menu:read', 'queue:read', 'invoice:read'])]
     private $color;
