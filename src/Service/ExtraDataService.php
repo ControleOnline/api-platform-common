@@ -148,6 +148,9 @@ class ExtraDataService
         if (!$entity_id || !$entity_name)
             return;
 
+        if (!isset($extra_data) || !isset($extra_data['data']))
+            return;
+
         foreach ($extra_data['data'] as $key => $data) {
             $extra_fields = $this->manager->getRepository(ExtraFields::class)->find($key);
 
