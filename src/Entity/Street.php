@@ -37,21 +37,21 @@ class Street
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
     private $id;
 
     #[ORM\Column(name: 'street', type: 'string', length: 255, nullable: false)]
-    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
     private $street;
 
     #[ORM\ManyToOne(targetEntity: District::class, inversedBy: 'street')]
     #[ORM\JoinColumn(name: 'district_id', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
     private $district;
 
     #[ORM\ManyToOne(targetEntity: Cep::class, inversedBy: 'street')]
     #[ORM\JoinColumn(name: 'cep_id', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
     private $cep;
 
     #[ORM\OneToMany(targetEntity: Address::class, mappedBy: 'street')]

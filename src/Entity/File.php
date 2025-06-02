@@ -70,31 +70,31 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Entity(repositoryClass: FileRepository::class)]
 class File
 {
-    #[Groups(['file:read', 'spool:read', 'order_details:read', 'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'contract:read', 'model:read', 'people:read'])]
+    #[Groups(['file:read', 'spool:read', 'order_details:read', 'order:write', 'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'contract:read', 'model:read', 'people:read'])]
     #[Column(type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
     private int $id = 0;
 
-    #[Groups(['file:read', 'spool:read',  'order_details:read', 'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
+    #[Groups(['file:read', 'spool:read',  'order_details:read', 'order:write', 'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
     #[NotBlank]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['fileType' => 'exact'])]
     #[Column(type: 'string', length: 255, nullable: false)]
     private string $fileType;
 
-    #[Groups(['file:read', 'spool:read',  'order_details:read', 'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
+    #[Groups(['file:read', 'spool:read',  'order_details:read', 'order:write', 'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
     #[NotBlank]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['fileName' => 'exact'])]
     #[Column(type: 'string', length: 255, nullable: false)]
     private string $fileName;
 
-    #[Groups(['file:read', 'spool:read',  'order_details:read', 'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
+    #[Groups(['file:read', 'spool:read',  'order_details:read', 'order:write', 'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
     #[NotBlank]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact'])]
     #[Column(type: 'string', length: 255, nullable: false)]
     private string $context;
 
-    #[Groups(['file:read', 'spool:read', 'order_details:read', 'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
+    #[Groups(['file:read', 'spool:read', 'order_details:read', 'order:write', 'category:read', 'product_category:read', 'order_product:read', 'product_file:read', 'product:read', 'spool_item:read', 'file_item:read', 'file:write', 'contract:read', 'model:read', 'people:read'])]
     #[NotBlank]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['extension' => 'exact'])]
     #[Column(type: 'string', length: 255, nullable: false)]

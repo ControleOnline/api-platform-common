@@ -37,24 +37,24 @@ class State
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'order_details:read', 'people:read', 'address:read', 'delivery_region:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'order_details:read', 'order:write', 'people:read', 'address:read', 'delivery_region:read'])]
     private $id;
 
     #[ORM\Column(name: 'state', type: 'string', length: 50, nullable: false)]
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'order_details:read', 'people:read', 'address:read', 'delivery_region:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'order_details:read', 'order:write', 'people:read', 'address:read', 'delivery_region:read'])]
     private $state;
 
     #[ORM\Column(name: 'cod_ibge', type: 'integer', nullable: true)]
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'order_details:read', 'people:read', 'address:read', 'delivery_region:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'order_details:read', 'order:write', 'people:read', 'address:read', 'delivery_region:read'])]
     private $cod_ibge;
 
     #[ORM\Column(name: 'UF', type: 'string', length: 2, nullable: false)]
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'order_details:read', 'people:read', 'address:read', 'delivery_region:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'order_details:read', 'order:write', 'people:read', 'address:read', 'delivery_region:read'])]
     private $uf;
 
     #[ORM\ManyToOne(targetEntity: Country::class, inversedBy: 'state')]
     #[ORM\JoinColumn(name: 'country_id', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'order_details:read', 'people:read', 'address:read', 'delivery_region:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'order_details:read', 'order:write', 'people:read', 'address:read', 'delivery_region:read'])]
     private $country;
 
     #[ORM\OneToMany(targetEntity: City::class, mappedBy: 'state')]

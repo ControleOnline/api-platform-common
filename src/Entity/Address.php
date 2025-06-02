@@ -37,19 +37,19 @@ class Address
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
     private $id;
 
     #[ORM\Column(name: 'number', type: 'integer', nullable: true)]
-    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
     private $number;
 
     #[ORM\Column(name: 'nickname', type: 'string', length: 50, nullable: false)]
-    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
     private $nickname;
 
     #[ORM\Column(name: 'complement', type: 'string', length: 50, nullable: false)]
-    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
     private $complement;
 
     #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id', nullable: true)]
@@ -58,7 +58,7 @@ class Address
 
     #[ORM\JoinColumn(name: 'street_id', referencedColumnName: 'id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: Street::class, inversedBy: 'address')]
-    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
     private $street;
 
     #[ORM\Column(name: 'latitude', type: 'float', nullable: false)]

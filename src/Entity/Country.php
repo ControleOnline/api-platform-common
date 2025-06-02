@@ -31,77 +31,77 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 #[Entity(repositoryClass: CountryRepository::class)]
 class Country
 {
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'id', type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
     private int $id = 0;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'countryCode', type: 'string', length: 3, nullable: false)]
     private string $countrycode;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'countryName', type: 'string', length: 45, nullable: false)]
     private string $countryname;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'currencyCode', type: 'string', length: 3, nullable: true)]
     private ?string $currencycode = null;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'population', type: 'integer', nullable: true)]
     private ?int $population = null;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'fipsCode', type: 'string', length: 2, nullable: true)]
     private ?string $fipscode = null;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'isoNumeric', type: 'string', length: 4, nullable: true)]
     private ?string $isonumeric = null;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'north', type: 'string', length: 30, nullable: true)]
     private ?string $north = null;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'south', type: 'string', length: 30, nullable: true)]
     private ?string $south = null;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'east', type: 'string', length: 30, nullable: true)]
     private ?string $east = null;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'west', type: 'string', length: 30, nullable: true)]
     private ?string $west = null;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'capital', type: 'string', length: 30, nullable: true)]
     private ?string $capital = null;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'continentName', type: 'string', length: 15, nullable: true)]
     private ?string $continentname = null;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'continent', type: 'string', length: 2, nullable: true)]
     private ?string $continent = null;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'areaInSqKm', type: 'string', length: 20, nullable: true)]
     private ?string $areainsqkm = null;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'isoAlpha3', type: 'string', length: 3, nullable: true)]
     private ?string $isoalpha3 = null;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'geonameId', type: 'integer', nullable: true)]
     private ?int $geonameid = null;
 
-    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['city:read', 'logistic:read', 'state:read', 'people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[OneToMany(targetEntity: LanguageCountry::class, mappedBy: 'country')]
     private Collection $languageCountry;
 

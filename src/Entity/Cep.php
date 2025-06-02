@@ -31,13 +31,13 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 #[Entity(repositoryClass: CepRepository::class)]
 class Cep
 {
-    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'id', type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
     private int $id = 0;
 
-    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'cep', type: 'integer', nullable: false)]
     private int $cep;
 

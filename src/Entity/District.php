@@ -37,17 +37,17 @@ use Doctrine\ORM\Mapping\Table;
 #[Entity(repositoryClass: DistrictRepository::class)]
 class District
 {
-    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'id', type: 'integer', nullable: false)]
     #[Id]
     #[GeneratedValue(strategy: 'IDENTITY')]
     private int $id = 0;
 
-    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[Column(name: 'district', type: 'string', length: 255, nullable: false)]
     private string $district;
 
-    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
     #[JoinColumn(name: 'city_id', referencedColumnName: 'id', nullable: false)]
     #[ManyToOne(targetEntity: City::class, inversedBy: 'district')]
     private City $city;
