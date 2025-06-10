@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
- AS Security;
+as Security;
 use ControleOnline\Repository\MenuRepository;
 
 
@@ -118,16 +118,15 @@ class GetMenuByPeopleAction
              INNER JOIN category ON category.id = menu.category_id
              INNER JOIN menu_role ON menu.id = menu_role.menu_id
              INNER JOIN people_role ON people_role.role_id = menu_role.role_id    
-             INNER JOIN routes ON routes.id = menu.route_id
-             WHERE people_role.company_id=:myCompany AND people_role.people_id=:userPeople    
-             GROUP BY menu.id
-             ';
+             INNER JOIN routes ON routes.id = menu.route_id ';
+    //$sql  .= 'WHERE people_role.company_id=:myCompany AND people_role.people_id=:userPeople ';
+    $sql  .= 'GROUP BY menu.id';
 
 
     $params = [];
 
-    $params['myCompany']   = $myCompany->getId();
-    $params['userPeople']   = $userPeople->getId();
+    //$params['myCompany']   = $myCompany->getId();
+    //$params['userPeople']   = $userPeople->getId();
     // execute query
 
     $result = $connection->executeQuery($sql, $params)->fetchAllAssociative();
