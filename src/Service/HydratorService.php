@@ -3,7 +3,7 @@
 namespace ControleOnline\Service;
 
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
- AS Security;
+as Security;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -27,9 +27,21 @@ class HydratorService
         $this->request = $requestStack->getCurrentRequest();
         $this->uri = $this->request ? $this->request->getPathInfo() : '';
     }
-    public function error($e)
+    public function error(Exception $e)
     {
-        return $e;
+        $errorResponse = [
+            '@context' => '/contexts/Error',
+            '@type' => 'Error',
+            'hydra:title' => 'An error occurred',
+            'hydra:description' => $e->getMessage(),
+            'trace' => [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'code' => $e->getCode(),
+            ],
+        ];
+
+        return $errorResponse;
     }
 
     public function collectionData($data, $class, $groups,  mixed $arguments = [])
