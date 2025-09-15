@@ -38,7 +38,8 @@ abstract class DefaultCommand extends Command
 
         if ($domain) {
             $this->addLog(sprintf('Executando worker para o domínio: %s', $domain));
-            $this->databaseSwitchService->switchDatabaseByDomain($domain);
+            if ($_ENV['MULTI_TENANCY'])
+                $this->databaseSwitchService->switchDatabaseByDomain($domain);
             $this->skyNetService->discoveryBotUser();
             return $this->runCommand();
         }
@@ -47,7 +48,8 @@ abstract class DefaultCommand extends Command
 
         foreach ($domains as $domain) {
             $this->addLog(sprintf('Executando migrações para o domínio: %s', $domain));
-            $this->databaseSwitchService->switchDatabaseByDomain($domain);
+            if ($_ENV['MULTI_TENANCY'])
+                $this->databaseSwitchService->switchDatabaseByDomain($domain);
             $this->skyNetService->discoveryBotUser();
             $this->runCommand();
         }
