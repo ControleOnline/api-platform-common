@@ -4,8 +4,8 @@ namespace ControleOnline\Filter;
 
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use ApiPlatform\Metadata\FilterInterface;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\FilterInterface;
 use Doctrine\ORM\QueryBuilder;
 
 final class RandomOrderFilter extends AbstractFilter implements FilterInterface
