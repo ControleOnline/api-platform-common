@@ -57,7 +57,7 @@ class LogListener
 
     public function postLoad(PostLoadEventArgs $event): void
     {
-        $this->logEntity($event->getObject(), 'postLoad', $event->getObjectManager());
+        //$this->logEntity($event->getObject(), 'postLoad', $event->getObjectManager());
     }
 
     private function logEntity(?object $entity, string $action, EntityManagerInterface $em): void
