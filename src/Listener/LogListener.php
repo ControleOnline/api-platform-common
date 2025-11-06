@@ -55,11 +55,6 @@ class LogListener
         $this->logEntity($event->getObject(), 'postRemove', $event->getObjectManager());
     }
 
-    public function postLoad(PostLoadEventArgs $event): void
-    {
-        //$this->logEntity($event->getObject(), 'postLoad', $event->getObjectManager());
-    }
-
     private function logEntity(?object $entity, string $action, EntityManagerInterface $em): void
     {
         if (!$this->enabled || !$entity) {
