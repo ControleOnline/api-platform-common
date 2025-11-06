@@ -11,19 +11,11 @@ use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Event\PostRemoveEventArgs;
-use Doctrine\ORM\Event\PostLoadEventArgs;
-use Doctrine\ORM\UnitOfWork;
 
 class LogListener
 {
     private array $log = [];
     private ?User $user = null;
-    private bool $enabled = true;
-
-    public function enable(bool $state = true): void
-    {
-        $this->enabled = $state;
-    }
 
     public function prePersist(PrePersistEventArgs $event): void
     {
@@ -33,6 +25,7 @@ class LogListener
     public function postPersist(PostPersistEventArgs $event): void
     {
         $this->logEntity($event->getObject(), 'postPersist', $event->getObjectManager());
+        $this->persistLogs($event->getObjectManager());
     }
 
     public function preUpdate(PreUpdateEventArgs $event): void
@@ -43,6 +36,7 @@ class LogListener
     public function postUpdate(PostUpdateEventArgs $event): void
     {
         $this->logEntity($event->getObject(), 'postUpdate', $event->getObjectManager());
+        $this->persistLogs($event->getObjectManager());
     }
 
     public function preRemove(PreRemoveEventArgs $event): void
@@ -53,11 +47,12 @@ class LogListener
     public function postRemove(PostRemoveEventArgs $event): void
     {
         $this->logEntity($event->getObject(), 'postRemove', $event->getObjectManager());
+        $this->persistLogs($event->getObjectManager());
     }
 
     private function logEntity(?object $entity, string $action, EntityManagerInterface $em): void
     {
-        if (!$this->enabled || !$entity) {
+        if (!$entity) {
             return;
         }
 
@@ -69,16 +64,19 @@ class LogListener
         $className = $em->getClassMetadata(get_class($entity))->getName();
         $changes = $this->extractChanges($entity, $em);
 
-        $this->log[] = [
-            'action' => $action,
-            'class'  => $className,
-            'object' => $changes,
-        ];
+        if (!empty($changes)) {
+            $this->log[] = [
+                'action' => $action,
+                'class'  => $className,
+                'object' => $changes,
+            ];
+        }
     }
 
     private function extractChanges(object $entity, EntityManagerInterface $em): array
     {
         $uow = $em->getUnitOfWork();
+
         if ($uow->isInIdentityMap($entity)) {
             $changes = $uow->getEntityChangeSet($entity);
             if (!empty($changes)) {
@@ -101,9 +99,15 @@ class LogListener
 
     public function persistLogs(EntityManagerInterface $em): void
     {
-        if (!$this->enabled || empty($this->log)) {
+        if (empty($this->log)) {
             return;
         }
+
+        $conn = $em->getConnection();
+        $config = $em->getConfiguration();
+        $eventManager = $em->getEventManager();
+
+        $newEm = new \Doctrine\ORM\EntityManager($conn, $config, $eventManager);
 
         foreach ($this->log as $logData) {
             $log = new Log();
@@ -111,7 +115,10 @@ class LogListener
             $log->setUser($this->user);
             $log->setAction($logData['action']);
             $log->setClass($logData['class']);
-            $em->persist($log);
+
+            $newEm->persist($log);
+            $newEm->flush();
+            $newEm->clear();
         }
 
         $this->log = [];
