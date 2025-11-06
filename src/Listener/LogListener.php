@@ -27,7 +27,7 @@ class LogListener
 
     public function postPersist(PostPersistEventArgs $event): void
     {
-        $this->persistLogs($event->getObjectManager());
+        $this->persistLogs($event->getObjectManager(), $event->getObject());
     }
 
     public function preUpdate(PreUpdateEventArgs $event): void
@@ -37,7 +37,7 @@ class LogListener
 
     public function postUpdate(PostUpdateEventArgs $event): void
     {
-        $this->persistLogs($event->getObjectManager());
+        $this->persistLogs($event->getObjectManager(), $event->getObject());
     }
 
     public function preRemove(PreRemoveEventArgs $event): void
@@ -47,7 +47,7 @@ class LogListener
 
     public function postRemove(PostRemoveEventArgs $event): void
     {
-        $this->persistLogs($event->getObjectManager());
+        $this->persistLogs($event->getObjectManager(), $event->getObject());
     }
 
     private function logEntity(?object $entity, string $action, EntityManagerInterface $em): void
@@ -62,6 +62,7 @@ class LogListener
                 'action' => $action,
                 'class'  => $className,
                 'object' => $changes,
+                'row_id' => method_exists($entity, 'getId') ? $entity->getId() : null,
             ];
         }
     }
@@ -116,7 +117,7 @@ class LogListener
         return $value;
     }
 
-    public function persistLogs(EntityManagerInterface $em): void
+    public function persistLogs(EntityManagerInterface $em, ?object $entity = null): void
     {
         if (empty($this->log)) return;
 
@@ -129,6 +130,7 @@ class LogListener
                 'class'    => $logData['class'],
                 'object'   => json_encode($logData['object'], JSON_UNESCAPED_UNICODE),
                 'user_id'  => $this->currentUser?->getId(),
+                'row_id'   => $logData['row_id'],
             ]);
         }
 
