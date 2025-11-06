@@ -19,8 +19,9 @@ class Log
     #[ORM\Column(type: 'text')]
     private string $object;
 
-    #[ORM\ManyToOne(targetEntity: User::class, cascade: ['persist'])]
-    private ?User $user = null;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $userId = null;
+
 
 
 
@@ -97,19 +98,19 @@ class Log
     }
 
     /**
-     * Get the value of user
+     * Get the value of userId
      */
-    public function getUser(): ?User
+    public function getUserId(): ?int
     {
-        return $this->user;
+        return $this->userId;
     }
 
     /**
-     * Set the value of user
+     * Set the value of userId
      */
-    public function setUser(?User $user): self
+    public function setUserId(?int $userId): self
     {
-        $this->user = $user;
+        $this->userId = $userId;
 
         return $this;
     }
