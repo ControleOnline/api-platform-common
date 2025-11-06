@@ -10,7 +10,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use ControleOnline\Listener\LogListener;
+
 use ControleOnline\Repository\ModuleRepository;
 use Doctrine\ORM\Mapping as ORM;
 

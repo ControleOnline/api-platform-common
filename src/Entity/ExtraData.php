@@ -5,7 +5,7 @@ namespace ControleOnline\Entity;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 use ControleOnline\Repository\ExtraDataRepository;
-use ControleOnline\Listener\LogListener;
+
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\Delete;
@@ -51,7 +51,7 @@ use Doctrine\ORM\Mapping\Table;
     'people' => 'exact'
 ])]
 #[Table(name: 'extra_data')]
-#[EntityListeners([LogListener::class])]
+
 #[Entity(repositoryClass: ExtraDataRepository::class)]
 class ExtraData
 {

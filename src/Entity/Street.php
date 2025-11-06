@@ -14,7 +14,7 @@ use ControleOnline\Entity\District;
 use ControleOnline\Entity\Cep;
 use ControleOnline\Entity\Address;
 use ControleOnline\Repository\StreetRepository;
-use ControleOnline\Listener\LogListener;
+
 
 #[ORM\Table(name: 'street')]
 #[ORM\Index(name: 'district_id', columns: ['district_id'])]

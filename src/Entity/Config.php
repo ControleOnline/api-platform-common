@@ -14,7 +14,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ControleOnline\Controller\AddAppConfigAction;
 use ControleOnline\Controller\DiscoveryMainConfigsAction;
-use ControleOnline\Listener\LogListener;
+
 use ControleOnline\Repository\ConfigRepository;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
@@ -53,7 +53,7 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 )]
 #[Table(name: 'config')]
 #[UniqueConstraint(name: 'people_id', columns: ['people_id', 'configKey'])]
-#[EntityListeners([LogListener::class])]
+
 #[Entity(repositoryClass: ConfigRepository::class)]
 class Config
 {

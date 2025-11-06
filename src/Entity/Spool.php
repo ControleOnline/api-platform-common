@@ -9,7 +9,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
-use ControleOnline\Listener\LogListener;
+
 use ControleOnline\Repository\SpoolRepository;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;

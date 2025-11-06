@@ -12,7 +12,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ControleOnline\Controller\GetActionByPeopleAction;
 use ControleOnline\Controller\GetMenuByPeopleAction;
-use ControleOnline\Listener\LogListener;
+
 use ControleOnline\Repository\MenuRepository;
 use Doctrine\ORM\Mapping as ORM;
 

@@ -14,7 +14,7 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use ControleOnline\Repository\StatusRepository;
-use ControleOnline\Listener\LogListener;
+
 
 #[ORM\Table(name: 'status')]
 #[ORM\Index(name: 'IDX_real_status', columns: ['real_status'])]

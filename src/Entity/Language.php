@@ -7,7 +7,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use ControleOnline\Repository\LanguageRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use ControleOnline\Listener\LogListener;
+
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -43,7 +43,7 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 #[Table(name: 'language')]
 #[UniqueConstraint(name: 'language', columns: ['language'])]
 #[Entity(repositoryClass: LanguageRepository::class)]
-#[EntityListeners([LogListener::class])]
+
 class Language
 {
     #[Groups(['translate:read', 'language:read'])]

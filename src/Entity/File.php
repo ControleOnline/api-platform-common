@@ -5,7 +5,7 @@ namespace ControleOnline\Entity;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 use ControleOnline\Repository\FileRepository;
-use ControleOnline\Listener\LogListener;
+
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\Delete;
@@ -66,7 +66,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Table(name: 'files')]
 #[UniqueConstraint(name: 'url', columns: ['url'])]
 #[UniqueConstraint(name: 'path', columns: ['path'])]
-#[EntityListeners([LogListener::class])]
+
 #[Entity(repositoryClass: FileRepository::class)]
 class File
 {

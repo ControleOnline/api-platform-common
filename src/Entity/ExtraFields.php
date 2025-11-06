@@ -5,7 +5,7 @@ namespace ControleOnline\Entity;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 use ControleOnline\Repository\ExtraFieldsRepository;
-use ControleOnline\Listener\LogListener;
+
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\Delete;
@@ -39,7 +39,7 @@ use Doctrine\ORM\Mapping\Table;
 )]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact', 'type' => 'exact'])] // Changed 'field_type' to 'type' based on property name
 #[Table(name: 'extra_fields')]
-#[EntityListeners([LogListener::class])]
+
 #[Entity(repositoryClass: ExtraFieldsRepository::class)]
 class ExtraFields
 {

@@ -7,7 +7,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use ControleOnline\Repository\CountryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use ControleOnline\Listener\LogListener;
+
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use Doctrine\ORM\Mapping\Column;
@@ -27,7 +27,7 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 )]
 #[Table(name: 'country')]
 #[UniqueConstraint(name: 'countryCode', columns: ['countryCode'])]
-#[EntityListeners([LogListener::class])]
+
 #[Entity(repositoryClass: CountryRepository::class)]
 class Country
 {

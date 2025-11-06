@@ -5,7 +5,7 @@ namespace ControleOnline\Entity;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 use ControleOnline\Repository\DeviceConfigRepository;
-use ControleOnline\Listener\LogListener;
+
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\Delete;
@@ -51,7 +51,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 )]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['id' => 'ASC'])]
 #[Table(name: 'device_configs')]
-#[EntityListeners([LogListener::class])]
+
 #[Entity(repositoryClass: DeviceConfigRepository::class)]
 class DeviceConfig
 {

@@ -11,7 +11,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use ControleOnline\Listener\LogListener;
+
 use ControleOnline\Repository\ConnectionRepository;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
@@ -38,7 +38,7 @@ use Doctrine\ORM\Mapping\Table;
     denormalizationContext: ['groups' => ['connections:write']]
 )]
 #[Table(name: 'connections')]
-#[EntityListeners([LogListener::class])]
+
 #[Entity(repositoryClass: ConnectionRepository::class)]
 class Connection
 {

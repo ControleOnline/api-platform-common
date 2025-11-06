@@ -11,7 +11,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ControleOnline\Controller\GetThemeColorsAction;
-use ControleOnline\Listener\LogListener;
+
 use ControleOnline\Repository\ThemeRepository;
 use Doctrine\ORM\Mapping as ORM;
 

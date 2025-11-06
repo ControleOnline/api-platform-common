@@ -7,7 +7,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use ControleOnline\Repository\DistrictRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use ControleOnline\Listener\LogListener;
+
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -33,7 +33,7 @@ use Doctrine\ORM\Mapping\Table;
 )]
 #[Table(name: 'district')]
 #[Index(name: 'city_id', columns: ['city_id'])]
-#[EntityListeners([LogListener::class])]
+
 #[Entity(repositoryClass: DistrictRepository::class)]
 class District
 {
