@@ -111,8 +111,10 @@ class LogListener
 
         foreach ($this->log as $logData) {
             $log = new Log();
+            $user = $this->user ? $newEm->merge($this->user) : null;
+            
+            $log->setUser($user);
             $log->setObject(json_encode($logData['object']));
-            $log->setUser($this->user);
             $log->setAction($logData['action']);
             $log->setClass($logData['class']);
 
