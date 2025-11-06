@@ -130,7 +130,7 @@ class LogListener
                 'class'    => $logData['class'],
                 'object'   => json_encode($logData['object'], JSON_UNESCAPED_UNICODE),
                 'user_id'  => $this->currentUser?->getId(),
-                'row_id'   => $logData['row_id'],
+                'row'   => $logData['row_id'],
             ]);
         }
 
