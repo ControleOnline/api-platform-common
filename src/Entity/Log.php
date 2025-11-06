@@ -19,7 +19,7 @@ class Log
     #[ORM\Column(type: 'text')]
     private string $object;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, cascade: ['persist'])]
     private ?User $user = null;
 
 
