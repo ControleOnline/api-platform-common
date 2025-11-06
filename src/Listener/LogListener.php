@@ -2,8 +2,8 @@
 
 namespace ControleOnline\Listener;
 
-use ControleOnline\Entity\User;
 use ControleOnline\Entity\Log;
+use ControleOnline\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PostPersistEventArgs;
@@ -11,11 +11,18 @@ use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Event\PostRemoveEventArgs;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class LogListener
 {
     private array $log = [];
-    private ?User $user = null;
+    private ?User $currentUser = null;
+    private Security $security;
+
+    public function __construct(Security $security)
+    {
+        $this->security = $security;
+    }
 
     public function prePersist(PrePersistEventArgs $event): void
     {
@@ -53,11 +60,6 @@ class LogListener
     private function logEntity(?object $entity, string $action, EntityManagerInterface $em): void
     {
         if (!$entity) {
-            return;
-        }
-
-        if ($entity instanceof User) {
-            $this->user = $entity;
             return;
         }
 
@@ -103,6 +105,8 @@ class LogListener
             return;
         }
 
+        $this->currentUser = $this->security->getUser();
+
         $conn = $em->getConnection();
         $config = $em->getConfiguration();
         $eventManager = $em->getEventManager();
@@ -111,8 +115,7 @@ class LogListener
 
         foreach ($this->log as $logData) {
             $log = new Log();
-            
-            $log->setUserId($this->user?->getId());
+            $log->setUserId($this->currentUser?->getId());
             $log->setObject(json_encode($logData['object']));
             $log->setAction($logData['action']);
             $log->setClass($logData['class']);
