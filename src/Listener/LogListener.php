@@ -52,12 +52,10 @@ class LogListener
 
     private function logEntity(?object $entity, string $action, EntityManagerInterface $em): void
     {
-        if (!$entity || $entity instanceof Log) {
-            return;
-        }
+        if (!$entity || $entity instanceof Log) return;
 
         $className = $em->getClassMetadata(get_class($entity))->getName();
-        $changes = $this->extractChanges($entity, $em);
+        $changes = $this->normalizeChanges($this->extractChanges($entity, $em));
 
         if (!empty($changes)) {
             $this->log[] = [
@@ -86,6 +84,36 @@ class LogListener
             }
         }
         return $data;
+    }
+
+    private function normalizeChanges(array $changes): array
+    {
+        $normalized = [];
+        foreach ($changes as $field => $values) {
+            if (is_array($values) && count($values) === 2) {
+                $normalized[$field] = [
+                    $this->stringifyValue($values[0]),
+                    $this->stringifyValue($values[1])
+                ];
+            } else {
+                $normalized[$field] = $this->stringifyValue($values);
+            }
+        }
+        return $normalized;
+    }
+
+    private function stringifyValue($value): mixed
+    {
+        if (is_object($value)) {
+            if ($value instanceof \DateTimeInterface) {
+                return $value->format('Y-m-d H:i:s');
+            }
+            if (method_exists($value, 'getId')) {
+                return 'Entity:' . get_class($value) . '#' . $value->getId();
+            }
+            return (string) get_class($value);
+        }
+        return $value;
     }
 
     public function persistLogs(EntityManagerInterface $em): void
