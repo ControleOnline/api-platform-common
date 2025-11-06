@@ -30,7 +30,6 @@ services:
             - { name: 'doctrine.event_listener', event: 'postUpdate' }
             - { name: 'doctrine.event_listener', event: 'preRemove' }
             - { name: 'doctrine.event_listener', event: 'postRemove' }
-            - { name: 'doctrine.event_listener', event: 'postLoad' }   
     ControleOnline\Listener\DefaultEventListener:
         arguments:
             $container: '@Symfony\Component\DependencyInjection\ContainerInterface'
