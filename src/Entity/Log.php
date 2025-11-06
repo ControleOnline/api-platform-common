@@ -16,6 +16,9 @@ class Log
     #[ORM\Column(type: 'string')]
     private string $class;
 
+    #[ORM\Column(type: 'integer')]
+    private string $row;
+
     #[ORM\Column(type: 'text')]
     private string $object;
 
@@ -110,6 +113,24 @@ class Log
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of row
+     */
+    public function getRow(): string
+    {
+        return $this->row;
+    }
+
+    /**
+     * Set the value of row
+     */
+    public function setRow(string $row): self
+    {
+        $this->row = $row;
 
         return $this;
     }
