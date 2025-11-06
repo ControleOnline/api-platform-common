@@ -59,7 +59,7 @@ class LogListener
 
     private function logEntity(?object $entity, string $action, EntityManagerInterface $em): void
     {
-        if (!$entity) {
+        if (!$entity || $entity instanceof Log) {
             return;
         }
 
@@ -121,10 +121,10 @@ class LogListener
             $log->setClass($logData['class']);
 
             $newEm->persist($log);
-            $newEm->flush();
-            $newEm->clear();
         }
 
+        $newEm->flush();
+        $newEm->clear();
         $this->log = [];
     }
 }
