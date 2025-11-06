@@ -31,7 +31,7 @@ use Doctrine\ORM\Mapping as ORM;
 )]
 #[ORM\Table(name: 'module')]
 #[ORM\UniqueConstraint(name: 'UX_MODULE_NAME', columns: ['name'])]
-#[ORM\EntityListeners([LogListener::class])]
+
 #[ORM\Entity(repositoryClass: ModuleRepository::class)]
 class Module
 {

@@ -21,7 +21,7 @@ use ControleOnline\Repository\TranslateRepository;
 use ControleOnline\Listener\LogListener;
 
 #[ORM\Table(name: 'translate')]
-#[ORM\EntityListeners([LogListener::class])]
+
 #[ORM\Entity(repositoryClass: TranslateRepository::class)]
 #[ApiResource(
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],

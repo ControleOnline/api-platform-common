@@ -38,7 +38,7 @@ use Doctrine\ORM\Mapping as ORM;
     ]
 )]
 #[ORM\Table(name: 'theme')]
-#[ORM\EntityListeners([LogListener::class])]
+
 #[ORM\Entity(repositoryClass: ThemeRepository::class)]
 class Theme
 {

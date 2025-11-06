@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(name: 'IDX_F7BE1E3282F1BAF4', columns: ['language_id'])]
 #[ORM\UniqueConstraint(name: 'language_id', columns: ['language_id', 'country_id'])]
 #[ORM\Entity]
-#[ORM\EntityListeners([LogListener::class])]
+
 class LanguageCountry
 {
     /**

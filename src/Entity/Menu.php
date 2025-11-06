@@ -42,7 +42,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'menu')]
 #[ORM\Index(name: 'category_id', columns: ['category_id'])]
 #[ORM\UniqueConstraint(name: 'route', columns: ['route'])]
-#[ORM\EntityListeners([LogListener::class])]
+
 #[ORM\Entity(repositoryClass: MenuRepository::class)]
 class Menu
 {

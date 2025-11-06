@@ -31,7 +31,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(name: 'device_id_idx', columns: ['device_id'])]
 #[ORM\Index(name: 'user_id_idx', columns: ['user_id'])]
 #[ORM\Index(name: 'people_id_idx', columns: ['people_id'])]
-#[ORM\EntityListeners([LogListener::class])]
+
 #[ORM\Entity(repositoryClass: SpoolRepository::class)]
 
 class Spool

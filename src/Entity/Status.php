@@ -19,7 +19,7 @@ use ControleOnline\Listener\LogListener;
 #[ORM\Table(name: 'status')]
 #[ORM\Index(name: 'IDX_real_status', columns: ['real_status'])]
 #[ORM\UniqueConstraint(name: 'status', columns: ['status', 'context'])]
-#[ORM\EntityListeners([LogListener::class])]
+
 #[ORM\Entity(repositoryClass: StatusRepository::class)]
 #[ApiResource(
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],

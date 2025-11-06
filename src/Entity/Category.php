@@ -43,7 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['name'])]
 #[ApiFilter(CustomOrFilter::class, properties: ['name', 'id', 'icon', 'color'])]
 #[ORM\Table(name: 'category')]
-#[ORM\EntityListeners([LogListener::class])]
+
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 class Category
 {

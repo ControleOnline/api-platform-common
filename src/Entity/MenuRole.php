@@ -17,7 +17,7 @@ use ControleOnline\Entity\Menu;
 #[ORM\Index(name: 'IDX_9F267A24CCD7E912', columns: ['menu_id'])]
 #[ORM\UniqueConstraint(name: 'menu_id', columns: ['menu_id', 'role_id'])]
 #[ORM\Entity]
-#[ORM\EntityListeners([LogListener::class])]
+
 class MenuRole
 {
     /**

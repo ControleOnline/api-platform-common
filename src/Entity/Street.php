@@ -21,7 +21,7 @@ use ControleOnline\Listener\LogListener;
 #[ORM\Index(name: 'cep', columns: ['cep_id'])]
 #[ORM\Index(name: 'street', columns: ['street'])]
 #[ORM\UniqueConstraint(name: 'street_2', columns: ['street', 'district_id'])]
-#[ORM\EntityListeners([LogListener::class])]
+
 #[ORM\Entity(repositoryClass: StreetRepository::class)]
 #[ApiResource(
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],

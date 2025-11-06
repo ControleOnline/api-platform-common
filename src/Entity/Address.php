@@ -30,7 +30,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(name: 'user_id', columns: ['people_id'])]
 #[ORM\Index(name: 'cep_id', columns: ['street_id'])]
 #[ORM\UniqueConstraint(name: 'user_id_3', columns: ['people_id', 'number', 'street_id', 'complement'])]
-#[ORM\EntityListeners([LogListener::class])]
+
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
 class Address
 {

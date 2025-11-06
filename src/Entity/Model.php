@@ -36,7 +36,7 @@ use Doctrine\ORM\Mapping as ORM;
     normalizationContext: ['groups' => ['model:read']],
     denormalizationContext: ['groups' => ['model:write']]
 )]
-#[ORM\EntityListeners([LogListener::class])]
+
 #[ORM\Entity(repositoryClass: ModelRepository::class)]
 class Model
 {

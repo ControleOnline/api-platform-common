@@ -20,7 +20,7 @@ use ControleOnline\Listener\LogListener;
 #[ORM\Index(name: 'country_id', columns: ['country_id'])]
 #[ORM\UniqueConstraint(name: 'UF', columns: ['UF'])]
 #[ORM\UniqueConstraint(name: 'cod_ibge', columns: ['cod_ibge'])]
-#[ORM\EntityListeners([LogListener::class])]
+
 #[ORM\Entity(repositoryClass: StateRepository::class)]
 #[ApiResource(
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],

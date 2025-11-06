@@ -32,7 +32,7 @@ use Doctrine\ORM\Mapping as ORM;
 )]
 #[ORM\Table(name: 'notification')]
 #[ORM\Index(name: 'people_id', columns: ['people_id'])]
-#[ORM\EntityListeners([LogListener::class])]
+
 #[ORM\Entity(repositoryClass: NotificationRepository::class)]
 class Notification
 {

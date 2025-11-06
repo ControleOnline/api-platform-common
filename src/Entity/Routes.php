@@ -34,7 +34,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'routes')]
 #[ORM\Index(name: 'module_id', columns: ['module_id'])]
 #[ORM\UniqueConstraint(name: 'route', columns: ['route'])]
-#[ORM\EntityListeners([LogListener::class])]
+
 #[ORM\Entity(repositoryClass: RouteRepository::class)]
 class Routes
 {
