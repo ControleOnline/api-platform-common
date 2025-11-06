@@ -17,43 +17,36 @@ class LogListener
 {
     private array $log = [];
     private ?User $currentUser = null;
-    private Security $security;
 
-    public function __construct(Security $security)
-    {
-        $this->security = $security;
-    }
+    public function __construct(private Security $security) {}
 
     public function prePersist(PrePersistEventArgs $event): void
     {
-        $this->logEntity($event->getObject(), 'prePersist', $event->getObjectManager());
+        $this->logEntity($event->getObject(), 'insert', $event->getObjectManager());
     }
 
     public function postPersist(PostPersistEventArgs $event): void
     {
-        $this->logEntity($event->getObject(), 'postPersist', $event->getObjectManager());
         $this->persistLogs($event->getObjectManager());
     }
 
     public function preUpdate(PreUpdateEventArgs $event): void
     {
-        $this->logEntity($event->getObject(), 'preUpdate', $event->getObjectManager());
+        $this->logEntity($event->getObject(), 'update', $event->getObjectManager());
     }
 
     public function postUpdate(PostUpdateEventArgs $event): void
     {
-        $this->logEntity($event->getObject(), 'postUpdate', $event->getObjectManager());
         $this->persistLogs($event->getObjectManager());
     }
 
     public function preRemove(PreRemoveEventArgs $event): void
     {
-        $this->logEntity($event->getObject(), 'preRemove', $event->getObjectManager());
+        $this->logEntity($event->getObject(), 'delete', $event->getObjectManager());
     }
 
     public function postRemove(PostRemoveEventArgs $event): void
     {
-        $this->logEntity($event->getObject(), 'postRemove', $event->getObjectManager());
         $this->persistLogs($event->getObjectManager());
     }
 
@@ -78,12 +71,9 @@ class LogListener
     private function extractChanges(object $entity, EntityManagerInterface $em): array
     {
         $uow = $em->getUnitOfWork();
-
         if ($uow->isInIdentityMap($entity)) {
             $changes = $uow->getEntityChangeSet($entity);
-            if (!empty($changes)) {
-                return $changes;
-            }
+            if (!empty($changes)) return $changes;
         }
 
         $data = [];
@@ -95,36 +85,25 @@ class LogListener
                 }
             }
         }
-
         return $data;
     }
 
     public function persistLogs(EntityManagerInterface $em): void
     {
-        if (empty($this->log)) {
-            return;
-        }
+        if (empty($this->log)) return;
 
         $this->currentUser = $this->security->getUser();
-
         $conn = $em->getConnection();
-        $config = $em->getConfiguration();
-        $eventManager = $em->getEventManager();
-
-        $newEm = new \Doctrine\ORM\EntityManager($conn, $config, $eventManager);
 
         foreach ($this->log as $logData) {
-            $log = new Log();
-            $log->setUserId($this->currentUser?->getId());
-            $log->setObject(json_encode($logData['object']));
-            $log->setAction($logData['action']);
-            $log->setClass($logData['class']);
-
-            $newEm->persist($log);
+            $conn->insert('log', [
+                'action'   => $logData['action'],
+                'class'    => $logData['class'],
+                'object'   => json_encode($logData['object'], JSON_UNESCAPED_UNICODE),
+                'user_id'  => $this->currentUser?->getId(),
+            ]);
         }
 
-        $newEm->flush();
-        $newEm->clear();
         $this->log = [];
     }
 }
