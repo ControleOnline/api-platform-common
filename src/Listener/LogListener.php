@@ -25,37 +25,37 @@ class LogListener
         $this->enabled = $state;
     }
 
-    public function prePersistHandler(PrePersistEventArgs $event): void
+    public function prePersist(PrePersistEventArgs $event): void
     {
         $this->logEntity($event->getObject(), 'prePersist', $event->getObjectManager());
     }
 
-    public function postPersistHandler(PostPersistEventArgs $event): void
+    public function postPersist(PostPersistEventArgs $event): void
     {
         $this->logEntity($event->getObject(), 'postPersist', $event->getObjectManager());
     }
 
-    public function preUpdateHandler(PreUpdateEventArgs $event): void
+    public function preUpdate(PreUpdateEventArgs $event): void
     {
         $this->logEntity($event->getObject(), 'preUpdate', $event->getObjectManager());
     }
 
-    public function postUpdateHandler(PostUpdateEventArgs $event): void
+    public function postUpdate(PostUpdateEventArgs $event): void
     {
         $this->logEntity($event->getObject(), 'postUpdate', $event->getObjectManager());
     }
 
-    public function preRemoveHandler(PreRemoveEventArgs $event): void
+    public function preRemove(PreRemoveEventArgs $event): void
     {
         $this->logEntity($event->getObject(), 'preRemove', $event->getObjectManager());
     }
 
-    public function postRemoveHandler(PostRemoveEventArgs $event): void
+    public function postRemove(PostRemoveEventArgs $event): void
     {
         $this->logEntity($event->getObject(), 'postRemove', $event->getObjectManager());
     }
 
-    public function postLoadHandler(PostLoadEventArgs $event): void
+    public function postLoad(PostLoadEventArgs $event): void
     {
         $this->logEntity($event->getObject(), 'postLoad', $event->getObjectManager());
     }
