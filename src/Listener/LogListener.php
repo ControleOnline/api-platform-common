@@ -17,6 +17,7 @@ class LogListener
 {
     private array $log = [];
     private ?User $currentUser = null;
+    private array $getterCache = [];
 
     public function __construct(private Security $security) {}
 
@@ -72,18 +73,39 @@ class LogListener
         $uow = $em->getUnitOfWork();
         if ($uow->isInIdentityMap($entity)) {
             $changes = $uow->getEntityChangeSet($entity);
-            if (!empty($changes)) return $changes;
+            if (!empty($changes)) {
+                return $changes;
+            }
         }
 
-        $data = [];
-        foreach (get_class_methods($entity) as $method) {
-            if (str_starts_with($method, 'get')) {
-                $value = $entity->$method();
-                if (!is_object($value)) {
-                    $data[lcfirst(substr($method, 3))] = $value;
+        $class = get_class($entity);
+        if (!isset($this->getterCache[$class])) {
+            $this->getterCache[$class] = [];
+            $reflection = new \ReflectionClass($entity);
+            foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
+                if (
+                    str_starts_with($method->getName(), 'get') &&
+                    !$method->isStatic() &&
+                    $method->getNumberOfParameters() === 0
+                ) {
+                    $this->getterCache[$class][] = $method->getName();
                 }
             }
         }
+
+        $data = [];
+        foreach ($this->getterCache[$class] as $methodName) {
+            try {
+                $value = $entity->{$methodName}();
+                if (!is_object($value)) {
+                    $property = lcfirst(substr($methodName, 3));
+                    $data[$property] = $value;
+                }
+            } catch (\Throwable) {
+                continue;
+            }
+        }
+
         return $data;
     }
 
