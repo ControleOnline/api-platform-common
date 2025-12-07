@@ -15,13 +15,15 @@ class SkyNetService
         private DomainService $domainService,
     ) {}
 
-    public function discoveryBotUser(): void
+    public function discoveryBotUser($bot = null): void
     {
-        if (!self::$botUser)
-            $bots = ['R2D2', 'C3PO', 'T800', 'SkyNet'];
+        if (!$bot) {
+            if (!self::$botUser)
+                $bots = ['R2D2', 'C3PO', 'T800', 'SkyNet'];
 
-        $online = array_rand($bots);
-        $bot = $bots[$online];
+            $online = array_rand($bots);
+            $bot = $bots[$online];
+        }
         self::$botUser = $this->manager->getRepository(User::class)->findOneBy(['username' => $bot]);
         if (!self::$botUser) {
             self::$botUser = new User();
