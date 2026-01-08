@@ -3,6 +3,7 @@
 namespace ControleOnline\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -10,6 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DebugController extends AbstractController
 {
     #[Route('/debug', name: 'app_debug', methods: ['POST'])]
+    #[IsGranted('PUBLIC_ACCESS')]
     public function debug(Request $request): JsonResponse
     {
         $data = [
