@@ -17,7 +17,6 @@ class DebugController extends AbstractController
             'query' => $request->query->all(),
             'post' => $request->request->all(),
             'raw' => $request->getContent(),
-            'server' => $request->server->all(),
         ];
 
         $dir = $this->getParameter('kernel.project_dir') . '/debug';
