@@ -68,7 +68,7 @@ class ConfigService
         return $config;
     }
 
-    public function discoveryMainConfigs(People $people, Device $device)
+    public function discoveryMainConfigs(People $people, ?Device $device = null)
     {
         $this->discoveryCashWallet($people);
         $this->discoveryWithdrawlWallet($people);
@@ -105,7 +105,7 @@ class ConfigService
             'pos-cash-wallet',
             $wallet->getId(),
             $module,
-            'private'
+            'public'
         );
 
         foreach ($paymentTypes as $paymentType)
@@ -137,7 +137,7 @@ class ConfigService
             'pos-withdrawl-wallet',
             $wallet->getId(),
             $module,
-            'private'
+            'public'
         );
         foreach ($paymentTypes as $paymentType)
             $this->walletService->discoverWalletPaymentType(
