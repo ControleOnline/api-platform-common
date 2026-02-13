@@ -27,6 +27,17 @@ class ExtraDataService
     }
 
 
+
+    public function getByExtraFieldByEntity(ExtraFields $extraFields,  object $entity)
+    {
+        $class = $this->getEntityName($entity);
+        return $this->manager->getRepository(ExtraData::class)->findOneBy([
+            'extra_fields' => $extraFields,
+            'entity_name' => $class->getShortName(),
+            'entity_id' => $entity->getId()
+        ]);
+    }
+
     public function getEntityByExtraData(ExtraFields $extraFields,  string $code, object | string $entity)
     {
         $class = $this->getEntityName($entity);
