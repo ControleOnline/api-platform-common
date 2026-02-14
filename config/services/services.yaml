@@ -42,10 +42,9 @@ services:
     ControleOnline\Listener\DefaultEventSubscriber:
         tags:
             - { name: 'doctrine.event_subscriber' }
-    ControleOnline\Serializer\ApiSerializerDecorator:
-        decorates: serializer
+    ControleOnline\Serializer\ApiExtraDataNormalizer:
+        decorates: 'api_platform.serializer.normalizer.item'
         arguments:
-            $decorated: '@ControleOnline\Serializer\ApiSerializerDecorator.inner'
+            - '@ControleOnline\Serializer\ApiExtraDataNormalizer.inner'
         autoconfigure: false
-
 
