@@ -34,24 +34,37 @@ class ExtraDataNormalizer implements
         return $this->injectExtraDataRecursive($data);
     }
 
-    private function injectExtraDataRecursive($data)
+    private function injectExtraDataRecursive(array $data): array
     {
-        if (!is_array($data)) {
-            return $data;
-        }
-
-        if (isset($data['@id']) || isset($data['id'])) {
+        // Só adiciona em objetos JSON-LD
+        if (isset($data['@id']) && isset($data['@type'])) {
             $data['extra_data'] = ['teste' => 'ok'];
         }
 
         foreach ($data as $key => $value) {
+
             if (is_array($value)) {
-                $data[$key] = $this->injectExtraDataRecursive($value);
+
+                // Só percorre se for lista ou objeto JSON
+                if (array_is_list($value)) {
+
+                    foreach ($value as $k => $item) {
+                        if (is_array($item)) {
+                            $value[$k] = $this->injectExtraDataRecursive($item);
+                        }
+                    }
+
+                    $data[$key] = $value;
+                } elseif (isset($value['@id']) || isset($value['id'])) {
+
+                    $data[$key] = $this->injectExtraDataRecursive($value);
+                }
             }
         }
 
         return $data;
     }
+
 
     public function getSupportedTypes(?string $format): array
     {
