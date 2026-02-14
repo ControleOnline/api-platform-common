@@ -19,7 +19,7 @@ class ExtraDataNormalizer implements
     ): bool {
         return is_object($data)
             && method_exists($data, 'setExtraData')
-            && !isset($context['_extra_data_done']);
+            && empty($context['_extra_data_applied'][spl_object_id($data)]);
     }
 
     public function normalize(
@@ -28,22 +28,21 @@ class ExtraDataNormalizer implements
         array $context = []
     ): array|string|int|float|bool|\ArrayObject|null {
 
-        $context['_extra_data_done'] = true;
+        $objectId = spl_object_id($object);
 
-        // Aqui você pode buscar no banco usando:
-        // $object->getId()
-        // get_class($object)
+        $context['_extra_data_applied'][$objectId] = true;
 
-        if (method_exists($object, 'setExtraData'))
-            $object->setExtraData([
-                'teste' => 'ok'
-            ]);
+        $object->setExtraData([
+            'teste' => 'ok'
+        ]);
 
         return $this->normalizer->normalize($object, $format, $context);
     }
 
     public function getSupportedTypes(?string $format): array
     {
-        return ['object' => false];
+        return [
+            'object' => false,
+        ];
     }
 }
