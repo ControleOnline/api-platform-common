@@ -44,5 +44,4 @@ services:
             - { name: 'doctrine.event_subscriber' }
     ControleOnline\Serializer\ExtraDataNormalizer:
         tags:
-            - { name: serializer.normalizer, priority: 100 }
-
+            - { name: 'serializer.normalizer', priority: 100 }
