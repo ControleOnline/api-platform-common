@@ -6,7 +6,8 @@ use ControleOnline\Entity\Device;
 use ControleOnline\Entity\DeviceConfig;
 use ControleOnline\Entity\ExtraData;
 use ControleOnline\Entity\ExtraFields;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface as Security;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
+as Security;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -14,16 +15,17 @@ class ExtraDataService
 {
     private static $persisted = false;
     private $request;
-
     public function __construct(
         private EntityManagerInterface $manager,
         private RequestStack $requestStack,
         private Security $security,
         private DeviceService $deviceService,
         private SkyNetService $skyNetService
+
     ) {
         $this->request = $requestStack->getCurrentRequest();
     }
+
 
     public function getByExtraFieldByEntity(ExtraFields $extraFields, object $entity)
     {
@@ -131,31 +133,43 @@ class ExtraDataService
 
     public function persist(&$entity)
     {
-        if (self::$persisted) return;
+        if (self::$persisted == true)
+            return;
         self::$persisted = true;
+
+        //$this->manager->persist($entity);
+        //$this->manager->flush();
         $this->persistData($entity);
     }
 
-    private function getEntityName(object|string $entity): \ReflectionClass
+    private function getEntityName(object | string $entity): \ReflectionClass
     {
-        return new \ReflectionClass($entity);
+        return (new \ReflectionClass($entity));
     }
 
     private function persistData(&$entity = null)
     {
-        $json = json_decode($this->request->getContent(), true);
-        $extra_data = $entity ? null : ($json['extra-data'] ?? null);
 
         if ($entity) {
             $entity_id = $entity->getId();
             $entity_name = $this->getEntityName($entity)->getShortName();
+
+            //$this->manager->persist($entity);
         } else {
-            if (!$extra_data) return;
+            $json =       json_decode($this->request->getContent(), true);
+            $extra_data = isset($json['extra-data']) ? $json['extra-data'] : null;
+            if (!$extra_data)
+                return;
             $entity_id = $extra_data['entity_id'];
             $entity_name = $extra_data['entity_name'];
         }
 
-        if (!$entity_id || !$entity_name || !isset($extra_data['data'])) return;
+
+        if (!$entity_id || !$entity_name)
+            return;
+
+        if (!isset($extra_data) || !isset($extra_data['data']))
+            return;
 
         foreach ($extra_data['data'] as $key => $data) {
             $extra_fields = $this->manager->getRepository(ExtraFields::class)->find($key);
@@ -166,7 +180,8 @@ class ExtraDataService
                 'extra_fields' => $extra_fields
             ]);
 
-            if (!$extraData) $extraData = new ExtraData();
+            if (!$extraData)
+                $extraData = new ExtraData();
 
             $extraData->setExtraFields($extra_fields);
             $extraData->setEntityName($entity_name);
@@ -175,10 +190,11 @@ class ExtraDataService
             $this->manager->persist($extraData);
         }
 
+
         $this->manager->flush();
     }
 
-    public function noChange()
+    public function  noChange()
     {
         $this->persistData();
     }
