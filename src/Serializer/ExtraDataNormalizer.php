@@ -34,9 +34,10 @@ class ExtraDataNormalizer implements
         // $object->getId()
         // get_class($object)
 
-        $object->setExtraData([
-            'teste' => 'ok'
-        ]);
+        if (method_exists($object, 'setExtraData'))
+            $object->setExtraData([
+                'teste' => 'ok'
+            ]);
 
         return $this->normalizer->normalize($object, $format, $context);
     }
