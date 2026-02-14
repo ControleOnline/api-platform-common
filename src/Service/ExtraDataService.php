@@ -50,7 +50,11 @@ class ExtraDataService
     {
         $class = $this->getEntityName($entity);
         $extraFields = $this->discoveryExtraFields($fieldName, $context, '{}');
-
+        print_r([
+            'extra_fields' => $extraFields,
+            'entity_name' => $class->getShortName(),
+            'value' => $code
+        ]);
         $extraData = $this->manager->getRepository(ExtraData::class)->findOneBy([
             'extra_fields' => $extraFields,
             'entity_name' => $class->getShortName(),
