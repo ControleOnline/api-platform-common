@@ -40,7 +40,7 @@ class ExtraDataNormalizer implements NormalizerInterface, NormalizerAwareInterfa
                     'type' => $extraData->getExtraFields()->getType(),
                     'context' => $extraData->getExtraFields()->getContext(),
                     'configs' => $extraData->getExtraFields()->getConfigs(),
-                    'required' => $extraData->getExtraFields()->isRequired()
+                    'required' => $extraData->getExtraFields()->getRequired()
                 ]
             ];
         }
