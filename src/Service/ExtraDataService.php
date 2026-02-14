@@ -6,8 +6,7 @@ use ControleOnline\Entity\Device;
 use ControleOnline\Entity\DeviceConfig;
 use ControleOnline\Entity\ExtraData;
 use ControleOnline\Entity\ExtraFields;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
-as Security;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface as Security;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -15,20 +14,18 @@ class ExtraDataService
 {
     private static $persisted = false;
     private $request;
+
     public function __construct(
         private EntityManagerInterface $manager,
         private RequestStack $requestStack,
         private Security $security,
         private DeviceService $deviceService,
         private SkyNetService $skyNetService
-
     ) {
         $this->request = $requestStack->getCurrentRequest();
     }
 
-
-
-    public function getByExtraFieldByEntity(ExtraFields $extraFields,  object $entity)
+    public function getByExtraFieldByEntity(ExtraFields $extraFields, object $entity)
     {
         $class = $this->getEntityName($entity);
         return $this->manager->getRepository(ExtraData::class)->findOneBy([
@@ -38,40 +35,38 @@ class ExtraDataService
         ]);
     }
 
-
     public function getExtraDataFromEntity(object $entity)
     {
         $class = $this->getEntityName($entity);
-
         return $this->manager->getRepository(ExtraData::class)->findOneBy([
             'entity_id' => $entity->getId(),
             'entity_name' => $class->getShortName(),
         ]);
     }
 
-    public function getEntityByExtraData(String $fieldType, string $code, object | string $entity)
+    public function getEntityByExtraData(string $context, string $fieldName, string $code, object|string $entity)
     {
         $class = $this->getEntityName($entity);
-        $extraFields = $this->discoveryExtraFields($fieldType, $class, '{}');
+        $extraFields = $this->discoveryExtraFields($fieldName, $context, '{}');
 
         $extraData = $this->manager->getRepository(ExtraData::class)->findOneBy([
             'extra_fields' => $extraFields,
             'entity_name' => $class->getShortName(),
             'value' => $code
         ]);
+
         if ($extraData)
             return $this->manager->getRepository($class->getName())->find($extraData->getEntityId());
 
         return null;
     }
 
-
-    public function discoveryExtraData(int|string $entityId, String $fieldType, string $code, object | string $entity)
+    public function discoveryExtraData(object $entity, string $context, string $fieldName, string $code)
     {
         $class = $this->getEntityName($entity);
+        $extraData = $this->getEntityByExtraData($context, $fieldName, $code, $entity);
+        $extraFields = $this->discoveryExtraFields($fieldName, $context, '{}');
 
-        $extraData = $this->getEntityByExtraData($fieldType,  $code,  $entity);
-        $extraFields = $this->discoveryExtraFields($fieldType, $class, '{}');
         if ($extraData) return $extraData;
 
         $extraData = new ExtraData();
@@ -85,9 +80,8 @@ class ExtraDataService
         return $this->manager->getRepository($class->getName())->find($extraData->getEntityId());
     }
 
-    public function discoveryExtraFields(string $fieldName, string $context, ?string $configs = '{}',  ?string $fieldType = 'text', ?bool $required = false): ExtraFields
+    public function discoveryExtraFields(string $fieldName, string $context, ?string $configs = '{}', ?string $fieldType = 'text', ?bool $required = false): ExtraFields
     {
-
         $extraFields = $this->manager->getRepository(ExtraFields::class)->findOneBy([
             'name' => $fieldName,
             'type' => $fieldType,
@@ -107,7 +101,6 @@ class ExtraDataService
 
         return $extraFields;
     }
-
 
     private function getUserIp()
     {
@@ -138,43 +131,31 @@ class ExtraDataService
 
     public function persist(&$entity)
     {
-        if (self::$persisted == true)
-            return;
+        if (self::$persisted) return;
         self::$persisted = true;
-
-        //$this->manager->persist($entity);
-        //$this->manager->flush();
         $this->persistData($entity);
     }
 
-    private function getEntityName(object | string $entity): \ReflectionClass
+    private function getEntityName(object|string $entity): \ReflectionClass
     {
-        return (new \ReflectionClass($entity));
+        return new \ReflectionClass($entity);
     }
 
     private function persistData(&$entity = null)
     {
+        $json = json_decode($this->request->getContent(), true);
+        $extra_data = $entity ? null : ($json['extra-data'] ?? null);
 
         if ($entity) {
             $entity_id = $entity->getId();
             $entity_name = $this->getEntityName($entity)->getShortName();
-
-            //$this->manager->persist($entity);
         } else {
-            $json =       json_decode($this->request->getContent(), true);
-            $extra_data = isset($json['extra-data']) ? $json['extra-data'] : null;
-            if (!$extra_data)
-                return;
+            if (!$extra_data) return;
             $entity_id = $extra_data['entity_id'];
             $entity_name = $extra_data['entity_name'];
         }
 
-
-        if (!$entity_id || !$entity_name)
-            return;
-
-        if (!isset($extra_data) || !isset($extra_data['data']))
-            return;
+        if (!$entity_id || !$entity_name || !isset($extra_data['data'])) return;
 
         foreach ($extra_data['data'] as $key => $data) {
             $extra_fields = $this->manager->getRepository(ExtraFields::class)->find($key);
@@ -185,8 +166,7 @@ class ExtraDataService
                 'extra_fields' => $extra_fields
             ]);
 
-            if (!$extraData)
-                $extraData = new ExtraData();
+            if (!$extraData) $extraData = new ExtraData();
 
             $extraData->setExtraFields($extra_fields);
             $extraData->setEntityName($entity_name);
@@ -195,11 +175,10 @@ class ExtraDataService
             $this->manager->persist($extraData);
         }
 
-
         $this->manager->flush();
     }
 
-    public function  noChange()
+    public function noChange()
     {
         $this->persistData();
     }
