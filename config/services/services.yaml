@@ -42,13 +42,7 @@ services:
     ControleOnline\Listener\DefaultEventSubscriber:
         tags:
             - { name: 'doctrine.event_subscriber' }
-    ControleOnline\Serializer\ExtraDataItemNormalizer:
-        decorates: 'api_platform.serializer.normalizer.item'
+    ControleOnline\Serializer\ExtraDataNormalizer:
+        decorates: 'serializer.normalizer.object'
         arguments:
-            - '@ControleOnline\Serializer\ExtraDataItemNormalizer.inner'
-
-    ControleOnline\Serializer\ExtraDataCollectionNormalizer:
-        decorates: 'api_platform.serializer.normalizer.collection'
-        arguments:
-            - '@ControleOnline\Serializer\ExtraDataCollectionNormalizer.inner'
-
+            - '@ControleOnline\Serializer\ExtraDataNormalizer.inner'
