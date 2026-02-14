@@ -6,8 +6,11 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class ExtraDataNormalizer implements NormalizerInterface
 {
-    public function __construct(private NormalizerInterface $decorated)
+    private NormalizerInterface $decorated;
+
+    public function __construct(NormalizerInterface $decorated)
     {
+        $this->decorated = $decorated;
     }
 
     public function supportsNormalization(
@@ -33,12 +36,9 @@ class ExtraDataNormalizer implements NormalizerInterface
 
         if (
             is_array($data) &&
-            isset($context['resource_class'])
+            isset($context['extra_data'])
         ) {
-            $data['extra_data'] = [
-                'timestamp' => time(),
-                'custom' => 'valor_dinamico',
-            ];
+            $data['extra_data'] = $context['extra_data'];
         }
 
         return $data;
