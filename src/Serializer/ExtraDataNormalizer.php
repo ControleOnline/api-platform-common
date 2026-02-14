@@ -7,7 +7,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 class ExtraDataNormalizer implements NormalizerInterface
 {
     public function __construct(
-        private NormalizerInterface $decorated
+        private NormalizerInterface $normalizer
     ) {}
 
     public function supportsNormalization(
@@ -15,7 +15,8 @@ class ExtraDataNormalizer implements NormalizerInterface
         ?string $format = null,
         array $context = []
     ): bool {
-        return is_object($data);
+        return is_object($data)
+            && !isset($context['__extra_data_added']);
     }
 
     public function normalize(
@@ -24,7 +25,9 @@ class ExtraDataNormalizer implements NormalizerInterface
         array $context = []
     ): array|string|int|float|bool|\ArrayObject|null {
 
-        $normalized = $this->decorated->normalize($data, $format, $context);
+        $context['__extra_data_added'] = true;
+
+        $normalized = $this->normalizer->normalize($data, $format, $context);
 
         if (is_array($normalized)) {
             $normalized['extra_data'] = ['teste' => 'ok'];
