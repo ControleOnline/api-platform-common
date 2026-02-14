@@ -10,11 +10,12 @@ class ExtraDataNormalizer implements NormalizerInterface, NormalizerAwareInterfa
 {
     use NormalizerAwareTrait;
 
-    private const ALREADY_CALLED = 'extra_data_normalizer_already_called';
+    private const ALREADY_CALLED = 'extra_data_normalizer';
 
     public function getSupportedTypes(?string $format): array
     {
         return [
+            '*' => false,
             'object' => true,
         ];
     }
@@ -24,14 +25,26 @@ class ExtraDataNormalizer implements NormalizerInterface, NormalizerAwareInterfa
         ?string $format = null,
         array $context = []
     ): bool {
-        return is_object($data) && !isset($context[self::ALREADY_CALLED]);
+        if (isset($context[self::ALREADY_CALLED])) {
+            return false;
+        }
+
+        if (!is_object($data)) {
+            return false;
+        }
+
+        if (!isset($context['resource_class'])) {
+            return false;
+        }
+
+        return true;
     }
 
     public function normalize(
         mixed $object,
         ?string $format = null,
         array $context = []
-    ): array|string|int|float|bool|\ArrayObject|null {
+    ): mixed {
         $context[self::ALREADY_CALLED] = true;
 
         $data = $this->normalizer->normalize($object, $format, $context);
