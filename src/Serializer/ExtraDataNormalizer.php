@@ -2,19 +2,19 @@
 
 namespace ControleOnline\Serializer;
 
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 
 class ExtraDataNormalizer implements
-    ContextAwareNormalizerInterface,
+    NormalizerInterface,
     NormalizerAwareInterface
 {
     use NormalizerAwareTrait;
 
     public function supportsNormalization(
-        $data,
-        string $format = null,
+        mixed $data,
+        ?string $format = null,
         array $context = []
     ): bool {
         return is_object($data)
@@ -22,10 +22,11 @@ class ExtraDataNormalizer implements
     }
 
     public function normalize(
-        $object,
-        string $format = null,
+        mixed $object,
+        ?string $format = null,
         array $context = []
-    ) {
+    ): array|string|int|float|bool|\ArrayObject|null {
+
         $context['_extra_data_done'] = true;
 
         $data = $this->normalizer->normalize($object, $format, $context);
@@ -39,7 +40,6 @@ class ExtraDataNormalizer implements
             return $data;
         }
 
-        // Se for objeto normalizado (tem @id ou id)
         if (isset($data['@id']) || isset($data['id'])) {
             $data['extra_data'] = ['teste' => 'ok'];
         }
@@ -55,6 +55,6 @@ class ExtraDataNormalizer implements
 
     public function getSupportedTypes(?string $format): array
     {
-        return ['object' => false];
+        return ['object' => true];
     }
 }
