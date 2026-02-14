@@ -43,8 +43,7 @@ services:
         tags:
             - { name: 'doctrine.event_subscriber' }
     ControleOnline\Serializer\ExtraDataNormalizer:
-        decorates: 'serializer.normalizer.object'
+        decorates: 'api_platform.serializer.normalizer.item'
         arguments:
             $decorated: '@ControleOnline\Serializer\ExtraDataNormalizer.inner'
         autoconfigure: false
-
