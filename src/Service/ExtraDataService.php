@@ -40,11 +40,12 @@ class ExtraDataService
     public function getExtraDataFromEntity(object $entity)
     {
         $class = $this->getEntityName($entity);
-        return $this->manager->getRepository(ExtraData::class)->findOneBy([
+        return $this->manager->getRepository(ExtraData::class)->findBy([
             'entity_id' => $entity->getId(),
             'entity_name' => $class->getShortName(),
         ]);
     }
+    
 
     public function getEntityByExtraData(string $context, string $fieldName, string $code, object|string $entity)
     {
