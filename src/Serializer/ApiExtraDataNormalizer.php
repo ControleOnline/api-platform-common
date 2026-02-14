@@ -3,36 +3,36 @@
 namespace ControleOnline\Serializer;
 
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 
-class ApiExtraDataNormalizer implements NormalizerInterface, NormalizerAwareInterface
+class ApiExtraDataNormalizer implements NormalizerInterface
 {
-    use NormalizerAwareTrait;
+    public function __construct(
+        private NormalizerInterface $decorated
+    ) {}
 
     public function supportsNormalization(
         mixed $data,
-        ?string $format = null,
+        string $format = null,
         array $context = []
     ): bool {
         return isset($context['resource_class']);
     }
 
     public function normalize(
-        mixed $object,
-        ?string $format = null,
+        mixed $data,
+        string $format = null,
         array $context = []
-    ): mixed {
-        $data = $this->normalizer->normalize($object, $format, $context);
+    ) {
+        $normalized = $this->decorated->normalize($data, $format, $context);
 
-        if (is_array($data)) {
-            $data['extra_data'] = [
+        if (is_array($normalized)) {
+            $normalized['extra_data'] = [
                 'timestamp' => time(),
                 'custom' => 'valor_dinamico'
             ];
         }
 
-        return $data;
+        return $normalized;
     }
 
     public function getSupportedTypes(?string $format): array

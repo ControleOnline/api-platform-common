@@ -45,5 +45,5 @@ services:
     ControleOnline\Serializer\ApiExtraDataNormalizer:
         decorates: 'api_platform.serializer.normalizer.item'
         arguments:
-            - '@ControleOnline\Serializer\ApiExtraDataNormalizer.inner'
+            $decorated: '@ControleOnline\Serializer\ApiExtraDataNormalizer.inner'
         autoconfigure: false
