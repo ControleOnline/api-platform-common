@@ -42,13 +42,9 @@ services:
     ControleOnline\Listener\DefaultEventSubscriber:
         tags:
             - { name: 'doctrine.event_subscriber' }
-    ControleOnline\Serializer\ExtraDataContextBuilder:
-        decorates: 'api_platform.serializer.context_builder'
+    ControleOnline\Serializer\ApiSerializerDecorator:
+        decorates: 'serializer'
         arguments:
-            - '@ControleOnline\Serializer\ExtraDataContextBuilder.inner'
+            - '@App\Serializer\ApiSerializerDecorator.inner'
 
-    ControleOnline\Serializer\ExtraDataNormalizer:
-        decorates: 'serializer.normalizer.object'
-        arguments:
-            - '@ControleOnline\Serializer\ExtraDataNormalizer.inner'
 
