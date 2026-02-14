@@ -4,7 +4,7 @@ namespace ControleOnline\Serializer;
 
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class ExtraDataItemNormalizer implements NormalizerInterface
+class ExtraDataCollectionNormalizer implements NormalizerInterface
 {
     public function __construct(private NormalizerInterface $decorated)
     {
@@ -27,7 +27,7 @@ class ExtraDataItemNormalizer implements NormalizerInterface
     ): array|string|int|float|bool|\ArrayObject|null {
         $data = $this->decorated->normalize($object, $format, $context);
 
-        if (is_array($data)) {
+        if (is_array($data) && isset($data['hydra:member'])) {
             $data['extra_data'] = [
                 'timestamp' => time(),
                 'custom' => 'valor_dinamico',
