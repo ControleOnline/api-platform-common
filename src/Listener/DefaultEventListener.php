@@ -15,6 +15,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class DefaultEventListener
 {
+
+    private static array $oldEntitySnapshot = [];
+
     public function __construct(
         private EntityManagerInterface $manager,
         private ExtraDataService $extraDataService,
@@ -24,6 +27,8 @@ class DefaultEventListener
 
     public function preUpdate(PreUpdateEventArgs $args): void
     {
+        $entity = $args->getObject();
+        self::$oldEntitySnapshot[get_class($entity)][$entity->getId()] = clone $entity;
         $this->execute($args->getObject(), 'preUpdate');
     }
 
@@ -55,7 +60,15 @@ class DefaultEventListener
         $class = get_class($entity);
         $serviceName = str_replace('Entity', 'Service', $class) . 'Service';
         $this->extraDataService->persist($entity);
-        $this->dispatcher->dispatch(new EntityChangedEvent($entity, $method));
+        $oldEntity = null;
+        if (isset(self::$oldEntitySnapshot[$class][$entity->getId()])) {
+            $oldEntity = self::$oldEntitySnapshot[$class][$entity->getId()];
+            unset(self::$oldEntitySnapshot[$class][$entity->getId()]);
+            if (empty(self::$oldEntitySnapshot[$class])) {
+                unset(self::$oldEntitySnapshot[$class]);
+            }
+        }
+        $this->dispatcher->dispatch(new EntityChangedEvent($entity, $method, $oldEntity));
         if ($this->container->has($serviceName)) {
             $service = $this->container->get($serviceName);
             if (method_exists($service, $method)) {

@@ -14,8 +14,14 @@ class EntityChangedEvent extends Event
 
     public function __construct(
         public readonly object $entity,
-        public readonly string $phase
+        public readonly string $phase,
+        public readonly ?object $oldEntity = null
     ) {}
+
+    public function getOldEntity(): object
+    {
+        return $this->entity;
+    }
 
     public function getEntity(): object
     {
