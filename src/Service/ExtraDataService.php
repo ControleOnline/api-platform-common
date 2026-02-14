@@ -70,7 +70,7 @@ class ExtraDataService
         if ($extraData) return $extraData;
 
         $extraData = new ExtraData();
-        $extraData->setEntityId($entityId);
+        $extraData->setEntityId($entity->getId());
         $extraData->setExtraFields($extraFields);
         $extraData->setValue($code);
         $extraData->setEntityName($class->getShortName());
