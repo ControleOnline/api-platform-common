@@ -2,14 +2,12 @@
 
 namespace ControleOnline\Serializer;
 
-use ControleOnline\Service\ExtraDataService;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class ExtraDataNormalizer implements NormalizerInterface
 {
     public function __construct(
-        private NormalizerInterface $decorated,
-        private ExtraDataService $extraDataService
+        private NormalizerInterface $decorated
     ) {}
 
     public function supportsNormalization(
@@ -17,7 +15,7 @@ class ExtraDataNormalizer implements NormalizerInterface
         ?string $format = null,
         array $context = []
     ): bool {
-        return true;
+        return is_object($data);
     }
 
     public function normalize(
@@ -28,18 +26,15 @@ class ExtraDataNormalizer implements NormalizerInterface
 
         $normalized = $this->decorated->normalize($data, $format, $context);
 
-        if (!is_array($normalized)) {
-            return $normalized;
+        if (is_array($normalized)) {
+            $normalized['extra_data'] = ['teste' => 'ok'];
         }
-
-        $normalized['extra_data'] = ['x' => 'y'];
-        //$this->extraDataService->getExtraData($data);
 
         return $normalized;
     }
 
     public function getSupportedTypes(?string $format): array
     {
-        return ['*' => false];
+        return ['object' => false];
     }
 }
