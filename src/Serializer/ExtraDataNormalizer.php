@@ -2,13 +2,15 @@
 
 namespace ControleOnline\Serializer;
 
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class ExtraDataNormalizer implements NormalizerInterface
+class ExtraDataNormalizer implements
+    NormalizerInterface,
+    NormalizerAwareInterface
 {
-    public function __construct(
-        private NormalizerInterface $serializer
-    ) {}
+    use NormalizerAwareTrait;
 
     public function supportsNormalization(
         mixed $data,
@@ -28,7 +30,7 @@ class ExtraDataNormalizer implements NormalizerInterface
 
         $context['_extra_data_added'] = true;
 
-        $normalized = $this->serializer->normalize($data, $format, $context);
+        $normalized = $this->normalizer->normalize($data, $format, $context);
 
         if (is_array($normalized)) {
             $normalized['extra_data'] = ['teste' => 'ok'];

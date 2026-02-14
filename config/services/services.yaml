@@ -43,9 +43,6 @@ services:
         tags:
             - { name: 'doctrine.event_subscriber' }
     ControleOnline\Serializer\ExtraDataNormalizer:
-        arguments:
-            $serializer: '@serializer'
         tags:
             - { name: serializer.normalizer, priority: 1000 }
-
 
