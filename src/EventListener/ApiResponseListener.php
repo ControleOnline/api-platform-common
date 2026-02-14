@@ -9,13 +9,6 @@ class ApiResponseListener
     public function onKernelResponse(ResponseEvent $event): void
     {
         $response = $event->getResponse();
-
-        if (
-            !str_contains($response->headers->get('content-type') ?? '', 'application/json')
-        ) {
-            return;
-        }
-
         $content = $response->getContent();
 
         if (!$content) {
