@@ -45,7 +45,7 @@ services:
     ControleOnline\Serializer\ApiSerializerDecorator:
         decorates: serializer
         arguments:
-            $decorated: '@App\Serializer\ApiSerializerDecorator.inner'
+            $decorated: '@ControleOnline\Serializer\ApiSerializerDecorator.inner'
         autoconfigure: false
 
 
