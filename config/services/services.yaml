@@ -42,8 +42,6 @@ services:
     ControleOnline\Listener\DefaultEventSubscriber:
         tags:
             - { name: 'doctrine.event_subscriber' }
-    ControleOnline\Serializer\ApiExtraDataNormalizer:
-        decorates: 'api_platform.serializer.normalizer.item'
-        arguments:
-            $decorated: '@ControleOnline\Serializer\ApiExtraDataNormalizer.inner'
-        autoconfigure: false
+    ControleOnline\EventListener\ApiResponseListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.response }
