@@ -4,39 +4,53 @@ namespace ControleOnline\Serializer;
 
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
 
 class ExtraDataNormalizer implements
-    NormalizerInterface,
+    ContextAwareNormalizerInterface,
     NormalizerAwareInterface
 {
     use NormalizerAwareTrait;
 
     public function supportsNormalization(
-        mixed $data,
-        ?string $format = null,
+        $data,
+        string $format = null,
         array $context = []
     ): bool {
         return is_object($data)
-            && !isset($context['_extra_data_added'])
-            && str_starts_with($data::class, 'ControleOnline\\');
+            && !isset($context['_extra_data_done']);
     }
 
     public function normalize(
-        mixed $data,
-        ?string $format = null,
+        $object,
+        string $format = null,
         array $context = []
-    ): array|string|int|float|bool|\ArrayObject|null {
+    ) {
+        $context['_extra_data_done'] = true;
 
-        $context['_extra_data_added'] = true;
+        $data = $this->normalizer->normalize($object, $format, $context);
 
-        $normalized = $this->normalizer->normalize($data, $format, $context);
+        return $this->injectExtraDataRecursive($data);
+    }
 
-        if (is_array($normalized)) {
-            $normalized['extra_data'] = ['teste' => 'ok'];
+    private function injectExtraDataRecursive($data)
+    {
+        if (!is_array($data)) {
+            return $data;
         }
 
-        return $normalized;
+        // Se for objeto normalizado (tem @id ou id)
+        if (isset($data['@id']) || isset($data['id'])) {
+            $data['extra_data'] = ['teste' => 'ok'];
+        }
+
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $data[$key] = $this->injectExtraDataRecursive($value);
+            }
+        }
+
+        return $data;
     }
 
     public function getSupportedTypes(?string $format): array
