@@ -47,4 +47,3 @@ services:
         arguments:
             - '@ControleOnline\Serializer\ApiExtraDataNormalizer.inner'
         autoconfigure: false
-

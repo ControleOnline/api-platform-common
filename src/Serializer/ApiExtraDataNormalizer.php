@@ -2,17 +2,17 @@
 
 namespace ControleOnline\Serializer;
 
-use Symfony\Component\Serializer\Normalizer\ContextAwareNormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 
-class ApiExtraDataNormalizer implements ContextAwareNormalizerInterface, NormalizerAwareInterface
+class ApiExtraDataNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
     use NormalizerAwareTrait;
 
     public function supportsNormalization(
         mixed $data,
-        string $format = null,
+        ?string $format = null,
         array $context = []
     ): bool {
         return isset($context['resource_class']);
@@ -20,7 +20,7 @@ class ApiExtraDataNormalizer implements ContextAwareNormalizerInterface, Normali
 
     public function normalize(
         mixed $object,
-        string $format = null,
+        ?string $format = null,
         array $context = []
     ): mixed {
         $data = $this->normalizer->normalize($object, $format, $context);
@@ -33,5 +33,10 @@ class ApiExtraDataNormalizer implements ContextAwareNormalizerInterface, Normali
         }
 
         return $data;
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return ['*' => false];
     }
 }
