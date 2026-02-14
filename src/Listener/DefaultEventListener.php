@@ -2,6 +2,7 @@
 
 namespace ControleOnline\Listener;
 
+use ControleOnline\Event\EntityChangedEvent;
 use ControleOnline\Service\ExtraDataService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PrePersistEventArgs;
@@ -10,13 +11,14 @@ use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Psr\Container\ContainerInterface;
-
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class DefaultEventListener
 {
     public function __construct(
         private EntityManagerInterface $manager,
         private ExtraDataService $extraDataService,
+        private EventDispatcherInterface $dispatcher,
         private ContainerInterface $container,
     ) {}
 
@@ -53,9 +55,11 @@ class DefaultEventListener
         $class = get_class($entity);
         $serviceName = str_replace('Entity', 'Service', $class) . 'Service';
         $this->extraDataService->persist($entity);
+        $this->dispatcher->dispatch(new EntityChangedEvent($entity, $method));
         if ($this->container->has($serviceName)) {
             $service = $this->container->get($serviceName);
             if (method_exists($service, $method)) {
+
                 $newEntity = $service->$method($entity);
 
                 if ('postPersist' === $method && $newEntity)
