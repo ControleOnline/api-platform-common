@@ -43,8 +43,9 @@ services:
         tags:
             - { name: 'doctrine.event_subscriber' }
     ControleOnline\Serializer\ApiSerializerDecorator:
-        decorates: 'serializer'
+        decorates: serializer
         arguments:
-            - '@App\Serializer\ApiSerializerDecorator.inner'
+            $decorated: '@App\Serializer\ApiSerializerDecorator.inner'
+        autoconfigure: false
 
 
