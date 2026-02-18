@@ -17,7 +17,7 @@ class StatusService
 
 
 
-    public function discoveryRealStatus($realStatus, $name, $context): Status
+    public function discoveryRealStatus($realStatus, $context, $name): Status
     {
         $status =  $this->manager->getRepository(Status::class)->findOneBy([
             'realStatus' => $realStatus,
