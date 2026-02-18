@@ -76,6 +76,7 @@ class ExtraDataService
         $extraData->setEntityId($entity->getId());
         $extraData->setExtraFields($extraFields);
         $extraData->setValue($code);
+        $extraData->setSource($context);
         $extraData->setEntityName($class->getShortName());
         $this->manager->persist($extraData);
         $this->manager->flush();
