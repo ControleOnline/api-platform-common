@@ -78,10 +78,6 @@ class ExtraData
     #[Column(name: 'data_value', type: 'string', nullable: false)]
     private string $value;
 
-    #[Groups(['extra_data:read'])]
-    #[Column(name: 'source', type: 'string', nullable: true)]
-    private ?string $source = null;
-
     public function __construct()
     {
     }
@@ -100,17 +96,6 @@ class ExtraData
     public function getValue(): string
     {
         return $this->value;
-    }
-
-    public function getSource(): ?string
-    {
-        return $this->source;
-    }
-
-    public function setSource(?string $source): self
-    {
-        $this->source = $source;
-        return $this;
     }
 
     public function getEntityId(): string
