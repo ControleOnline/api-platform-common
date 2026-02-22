@@ -23,8 +23,22 @@ class AddDeviceConfigAction
   public function __invoke(Request $request): JsonResponse
   {
     try {
-      $json = json_decode($request->getContent(), true);
-      $device = $request->headers->get('device');
+      $json = json_decode($request->getContent(), true) ?? [];
+      $deviceHeader = $request->headers->get('device');
+      $deviceBody = $json['device'] ?? null;
+      $device = $deviceHeader ?: $deviceBody;
+      error_log(sprintf(
+        '[AddDeviceConfigAction] device resolved: %s | source: %s',
+        (string) ($device ?? 'null'),
+        $deviceHeader ? 'header' : ($deviceBody ? 'body' : 'none')
+      ));
+
+      if (!$device || !is_string($device) || trim($device) === '') {
+        return new JsonResponse([
+          'error' => 'DEVICE header or body field "device" is required.'
+        ], Response::HTTP_BAD_REQUEST);
+      }
+
       $people = $this->manager->getRepository(People::class)->find(preg_replace("/[^0-9]/", "", $json['people']));
       $configs = json_decode($json['configs'], true);
       $device_config = $this->deviceService->addDeviceConfigs($people, $configs, $device);
