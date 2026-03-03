@@ -9,6 +9,7 @@ use Symfony\Component\Lock\LockFactory;
 use ControleOnline\Service\DatabaseSwitchService;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Throwable;
 
 abstract class DefaultCommand extends Command
 {
@@ -40,7 +41,10 @@ abstract class DefaultCommand extends Command
             $this->addLog(sprintf('Executando worker para o domínio: %s', $domain));
             if ($_ENV['MULTI_TENANCY'])
                 $this->databaseSwitchService->switchDatabaseByDomain($domain);
-            $this->skyNetService->discoveryBotUser();
+            // ALEMAC // 2026/03/03 15:00:00
+            if ($this->skyNetService && method_exists($this->skyNetService, 'discoveryBotUser')) {
+                $this->skyNetService->discoveryBotUser();
+            }
             return $this->runCommand();
         }
 
@@ -50,7 +54,10 @@ abstract class DefaultCommand extends Command
             $this->addLog(sprintf('Executando migrações para o domínio: %s', $domain));
             if ($_ENV['MULTI_TENANCY'])
                 $this->databaseSwitchService->switchDatabaseByDomain($domain);
-            $this->skyNetService->discoveryBotUser();
+            // ALEMAC // 2026/03/03 15:00:00
+            if ($this->skyNetService && method_exists($this->skyNetService, 'discoveryBotUser')) {
+                $this->skyNetService->discoveryBotUser();
+            }
             $this->runCommand();
         }
 
@@ -60,7 +67,16 @@ abstract class DefaultCommand extends Command
     public function addLog(string|iterable $messages, int $options = 0, ?string $logName = 'integration')
     {
         $this->output->writeln($messages, $options);
-        $this->loggerService->getLogger($logName)->info($messages);
+        // ALEMAC // 2026/03/03 15:00:00
+        if (!$this->loggerService || !method_exists($this->loggerService, 'getLogger')) {
+            return;
+        }
+
+        try {
+            $this->loggerService->getLogger($logName)->info($messages);
+        } catch (Throwable $exception) {
+            // ALEMAC // 2026/03/03 15:00:00
+        }
     }
 
     public function __destruct()
