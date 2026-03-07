@@ -1,6 +1,6 @@
 <?php
 
-namespace ControleOnline\Service\Import;
+namespace ControleOnline\Service\Imports;
 
 use ControleOnline\Entity\Import;
 

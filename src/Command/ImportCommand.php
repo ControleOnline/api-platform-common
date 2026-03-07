@@ -9,7 +9,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Lock\LockFactory;
 use ControleOnline\Service\DatabaseSwitchService;
 use ControleOnline\Service\DomainService;
-use ControleOnline\Service\Import\ImportService;
+use ControleOnline\Service\ImportService;
 use ControleOnline\Service\LoggerService;
 use ControleOnline\Service\SkyNetService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
