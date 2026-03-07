@@ -46,7 +46,7 @@ use Doctrine\ORM\Mapping\Table;
 )]
 
 #[Entity(repositoryClass: ImportRepository::class)]
-#[Table(name: 'import')]
+#[Table(name: 'imports')]
 class Import
 {
 
