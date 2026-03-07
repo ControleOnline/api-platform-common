@@ -2,7 +2,6 @@
 
 namespace ControleOnline\Command;
 
-
 use ControleOnline\Service\StatusService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -17,10 +16,6 @@ use Throwable;
 
 class ImportCommand extends DefaultCommand
 {
-    protected $input;
-    protected $output;
-    protected $lock;
-
     public function __construct(
         LockFactory $lockFactory,
         DatabaseSwitchService $databaseSwitchService,
@@ -32,10 +27,11 @@ class ImportCommand extends DefaultCommand
         private DomainService $domainService,
         private ContainerInterface $container,
     ) {
-        $this->skyNetService = $skyNetService;
+
         $this->lockFactory = $lockFactory;
         $this->databaseSwitchService = $databaseSwitchService;
         $this->loggerService = $loggerService;
+        $this->skyNetService = $skyNetService;
 
         parent::__construct('import:start');
     }
@@ -47,57 +43,53 @@ class ImportCommand extends DefaultCommand
 
     protected function runCommand(): int
     {
-        if ($this->lock->acquire()) {
-
-            $this->addLog('Iniciando processamento da fila de importações...');
-
-            $imports = $this->importService->getAllOpenImports(50);
-
-            foreach ($imports as $import) {
-
-                try {
-
-                    $serviceName = 'ControleOnline\\Service\\Import\\' . ucfirst($import->getImportType()) . 'ImportService';
-
-                    $this->addLog(sprintf(
-                        'Processando import ID: %d - type: %s',
-                        $import->getId(),
-                        $import->getImportType()
-                    ));
-
-                    $this->addLog('Service: ' . $serviceName);
-
-                    $this->importService->executeImport($import);
-
-                } catch (Throwable $e) {
-
-                    $statusError = $this->statusService->discoveryStatus('pending', 'error', 'import');
-
-                    $this->addLog(sprintf(
-                        '<error>Erro ao processar import ID: %d. Erro: %s</error>',
-                        $import->getId(),
-                        $e->getMessage()
-                    ));
-
-                    $this->addLog($e->getLine());
-                    $this->addLog($e->getFile());
-
-                    $import->setStatus($statusError);
-
-                    $this->entityManager->persist($import);
-                    $this->entityManager->flush();
-                }
-            }
-
-            $this->addLog('Processamento da fila de importações concluído.');
-
-            return Command::SUCCESS;
-
-        } else {
-
+        if (!$this->lock->acquire()) {
             $this->addLog('Outro processo ainda está em execução. Ignorando...');
-
             return Command::SUCCESS;
         }
+
+        $this->addLog('Iniciando processamento da fila de importações...');
+
+        $imports = $this->importService->getAllOpenImports(50);
+
+        foreach ($imports as $import) {
+
+            try {
+
+                $this->addLog(sprintf(
+                    'Processando import ID: %d - type: %s',
+                    $import->getId(),
+                    $import->getImportType()
+                ));
+
+                $this->importService->executeImport($import);
+
+            } catch (Throwable $e) {
+
+                $statusError = $this->statusService->discoveryStatus(
+                    'pending',
+                    'error',
+                    'import'
+                );
+
+                $this->addLog(sprintf(
+                    '<error>Erro ao processar import ID: %d. Erro: %s</error>',
+                    $import->getId(),
+                    $e->getMessage()
+                ));
+
+                $this->addLog($e->getFile());
+                $this->addLog($e->getLine());
+
+                $import->setStatus($statusError);
+
+                $this->entityManager->persist($import);
+                $this->entityManager->flush();
+            }
+        }
+
+        $this->addLog('Processamento da fila de importações concluído.');
+
+        return Command::SUCCESS;
     }
 }
