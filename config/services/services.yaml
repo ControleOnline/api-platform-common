@@ -29,26 +29,12 @@ services:
     ControleOnline\Filter\:
         resource: '../../src/Filter'
         public: true
-
-
-    # Aplica automaticamente a tag para qualquer processor de import
     _instanceof:
         ControleOnline\Service\Imports\ImportProcessorInterface:
             tags: ['app.import_processor']
-
-
-    # Carrega todos os services da pasta Service recursivamente
-    ControleOnline\Service\:
-        resource: '../../src/Service/**/*'
-        autowire: true
-        autoconfigure: true
-
-
-    # Resolver dos processors
     ControleOnline\Service\Imports\ImportProcessorResolver:
         arguments:
             $processors: !tagged_iterator app.import_processor
-
 
     ControleOnline\Listener\DefaultEventListener:
         arguments:
