@@ -1,10 +1,11 @@
 <?php
 
-namespace ControleOnline\Service;
+namespace ControleOnline\Service\Import;
 
 use ControleOnline\Entity\Import;
 use ControleOnline\Repository\ImportRepository;
 use ControleOnline\Service\Import\ImportProcessorResolver;
+use ControleOnline\Service\StatusService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ImportService
