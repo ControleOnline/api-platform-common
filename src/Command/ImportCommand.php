@@ -11,7 +11,6 @@ use ControleOnline\Service\DomainService;
 use ControleOnline\Service\ImportService;
 use ControleOnline\Service\LoggerService;
 use ControleOnline\Service\SkyNetService;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Throwable;
 
 class ImportCommand extends DefaultCommand
@@ -24,8 +23,7 @@ class ImportCommand extends DefaultCommand
         private ImportService $importService,
         private EntityManagerInterface $entityManager,
         private StatusService $statusService,
-        private DomainService $domainService,
-        private ContainerInterface $container,
+        private DomainService $domainService
     ) {
 
         $this->lockFactory = $lockFactory;
