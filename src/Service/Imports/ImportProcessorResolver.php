@@ -4,7 +4,6 @@ namespace ControleOnline\Service\Imports;
 
 class ImportProcessorResolver
 {
-
     private array $processors = [];
 
     public function __construct(iterable $processors)
@@ -17,7 +16,7 @@ class ImportProcessorResolver
     public function resolve(string $type): ImportProcessorInterface
     {
         if (!isset($this->processors[$type])) {
-            throw new \Exception('Import processor not found: ' . $type);
+            throw new \Exception('Processor not found for type: ' . $type);
         }
 
         return $this->processors[$type];

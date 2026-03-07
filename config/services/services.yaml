@@ -6,7 +6,7 @@ services:
     Symfony\Component\DependencyInjection\ContainerInterface: '@service_container'
     ControleOnline\:
         resource: '../../src/*'
-        exclude: '../src/{DependencyInjection,Entity,Resource,Migrations,Library,Tests,Kernel.php}'
+        exclude: '../../src/{DependencyInjection,Entity,Resource,Migrations,Library,Tests,Kernel.php}'
     ControleOnline\Repository\:
         resource: '../../src/Repository'
         tags: ['doctrine.repository_service']
@@ -22,14 +22,18 @@ services:
     ControleOnline\Filter\:
         resource: '../../src/Filter'
         public: true
-    #ControleOnline\Listener\LogListener:
-    #    tags:
-    #        - { name: 'doctrine.event_listener', event: 'prePersist' }
-    #        - { name: 'doctrine.event_listener', event: 'postPersist' }
-    #        - { name: 'doctrine.event_listener', event: 'preUpdate' }
-    #        - { name: 'doctrine.event_listener', event: 'postUpdate' }
-    #        - { name: 'doctrine.event_listener', event: 'preRemove' }
-    #        - { name: 'doctrine.event_listener', event: 'postRemove' }
+
+    _instanceof:
+        ControleOnline\Service\Imports\ImportProcessorInterface:
+            tags: ['app.import_processor']
+
+    ControleOnline\Service\Imports\:
+        resource: '../../src/Service/Imports/*'
+        autowire: true
+        autoconfigure: true
+    ControleOnline\Service\Imports\ImportProcessorResolver:
+        arguments:
+            $processors: !tagged_iterator app.import_processor
     ControleOnline\Listener\DefaultEventListener:
         arguments:
             $container: '@Symfony\Component\DependencyInjection\ContainerInterface'
@@ -45,4 +49,3 @@ services:
     ControleOnline\Serializer\ExtraDataNormalizer:
         tags:
             - { name: serializer.normalizer, priority: 1000 }
-
