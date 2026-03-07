@@ -19,7 +19,7 @@ class ImportCommand extends DefaultCommand
         LockFactory $lockFactory,
         DatabaseSwitchService $databaseSwitchService,
         LoggerService $loggerService,
-        SkyNetService $skyNetService,
+        //SkyNetService $skyNetService,
         private ImportService $importService,
         private EntityManagerInterface $entityManager,
         private StatusService $statusService
@@ -28,7 +28,7 @@ class ImportCommand extends DefaultCommand
         $this->lockFactory = $lockFactory;
         $this->databaseSwitchService = $databaseSwitchService;
         $this->loggerService = $loggerService;
-        $this->skyNetService = $skyNetService;
+        //$this->skyNetService = $skyNetService;
 
         parent::__construct('import:start');
     }
