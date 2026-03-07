@@ -13,7 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
- AS Security;
+as Security;
 
 
 

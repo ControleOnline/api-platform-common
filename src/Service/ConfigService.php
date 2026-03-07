@@ -46,7 +46,7 @@ class ConfigService
         string $key,
         $values,
         Module $module,
-        $visibility = 'private'
+        ?string $visibility = 'private'
     ) {
         $config = $this->discoveryConfig($people, $key);
 

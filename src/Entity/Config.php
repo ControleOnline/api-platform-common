@@ -72,17 +72,17 @@ class Config
     #[Groups(['config:read', 'config:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['configKey' => 'exact'])]
     #[Column(name: 'config_key', type: 'string', length: 255, nullable: false)]
-    private string $configKey;
+    private string $configKey = '';
 
     #[Groups(['config:read', 'config:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['visibility' => 'exact'])]
     #[Column(name: 'visibility', type: 'string', length: 255, nullable: false)]
-    private string $visibility;
+    private string $visibility = 'private';
 
     #[Groups(['config:read', 'config:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['configValue' => 'exact'])]
     #[Column(name: 'config_value', type: 'string', length: 255, nullable: false)]
-    private string $configValue;
+    private string $configValue = '';
 
     #[Groups(['config:read', 'config:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['module' => 'exact'])]
