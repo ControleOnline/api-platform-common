@@ -69,7 +69,7 @@ class ImportCommand extends DefaultCommand
                 $statusError = $this->statusService->discoveryStatus(
                     'pending',
                     'error',
-                    'import'
+                    'integration'
                 );
 
                 $this->addLog(sprintf(
