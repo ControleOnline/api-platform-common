@@ -22,8 +22,7 @@ class ImportCommand extends DefaultCommand
         SkyNetService $skyNetService,
         private ImportService $importService,
         private EntityManagerInterface $entityManager,
-        private StatusService $statusService,
-        private DomainService $domainService
+        private StatusService $statusService
     ) {
 
         $this->lockFactory = $lockFactory;

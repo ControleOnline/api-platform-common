@@ -37,16 +37,6 @@ abstract class DefaultCommand extends Command
         $domain = $input->getOption('domain');
 
         if ($domain) {
-
-
-            if ($_ENV['MULTI_TENANCY']) {
-                $this->output->writeln('Chamando switchDatabaseByDomain...'.$domain);
-                $this->databaseSwitchService->switchDatabaseByDomain($domain);
-            } else {
-                $this->output->writeln('MULTI_TENANCY está FALSE');
-            }
-
-
             $this->addLog(sprintf('Executando worker para o domínio: %s', $domain));
             if ($_ENV['MULTI_TENANCY'])
                 $this->databaseSwitchService->switchDatabaseByDomain($domain);
