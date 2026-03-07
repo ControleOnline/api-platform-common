@@ -17,9 +17,15 @@ class ImportService
         private StatusService $statusService
     ) {}
 
-    public function getAllOpenImports(int $limit): array
+    public function getAllOpenImports(int $limit)
     {
-        return $this->repository->getOpenImports($limit);
+        $status = $this->statusService->discoveryStatus(
+            'open',
+            'open',
+            'integration'
+        );
+
+        return $this->repository->getImportsByStatus($status, $limit);
     }
 
     public function executeImport(Import $import): void
@@ -29,7 +35,7 @@ class ImportService
         $statusProcessing = $this->statusService->discoveryStatus(
             'pending',
             'processing',
-            'import'
+            'integration'
         );
 
         $import->setStatus($statusProcessing);
@@ -44,7 +50,7 @@ class ImportService
             $statusDone = $this->statusService->discoveryStatus(
                 'pending',
                 'done',
-                'import'
+                'integration'
             );
 
             $import->setStatus($statusDone);
@@ -53,7 +59,7 @@ class ImportService
             $statusError = $this->statusService->discoveryStatus(
                 'pending',
                 'error',
-                'import'
+                'integration'
             );
 
             $import->setStatus($statusError);

@@ -3,7 +3,6 @@
 namespace ControleOnline\Repository;
 
 use ControleOnline\Entity\Import;
-use ControleOnline\Entity\People;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -15,17 +14,18 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ImportRepository extends ServiceEntityRepository
 {
-  public function __construct(ManagerRegistry $registry)
-  {
+
+  public function __construct(
+    ManagerRegistry $registry
+  ) {
     parent::__construct($registry, Import::class);
   }
 
-  public function getOpenImports(int $limit)
+  public function getImportsByStatus($status, int $limit)
   {
     return $this->createQueryBuilder('i')
-      ->join('i.status', 's')
-      ->where('s.key = :status')
-      ->setParameter('status', 'pending')
+      ->where('i.status = :status')
+      ->setParameter('status', $status)
       ->setMaxResults($limit)
       ->orderBy('i.id', 'ASC')
       ->getQuery()
