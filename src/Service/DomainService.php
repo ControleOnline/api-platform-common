@@ -8,88 +8,68 @@ use Symfony\Component\HttpFoundation\Request;
 use InvalidArgumentException;
 use Doctrine\ORM\EntityManagerInterface;
 
+
 class DomainService
 {
-    private ?PeopleDomain $peopleDomain = null;
-    private ?Request $request;
-
+    private static $peopleDomain;
+    private $request;
     public function __construct(
-        private EntityManagerInterface $manager,
+        private  EntityManagerInterface $manager,
         RequestStack $requestStack
     ) {
         $this->request = $requestStack->getCurrentRequest();
     }
-
-    public function getDomain(): string
+    /**
+     * @return string
+     */
+    public function getDomain()
     {
-        $domain = !$this->request
-            ? $this->getMainDomain()
-            : preg_replace(
-                "/[^a-zA-Z0-9.:_-]/",
-                "",
-                str_replace(
-                    ['https://', 'http://'],
-                    '',
-                    $this->request->get(
-                        'App-domain',
-                        $this->request->get(
-                            'app-domain',
-                            $this->request->headers->get(
-                                'app-domain',
-                                $this->request->headers->get(
-                                    'referer',
-                                    $this->getMainDomain()
-                                )
-                            )
+
+        $domain = !$this->request ? $this->getMainDomain() : preg_replace("/[^a-zA-Z0-9.:_-]/", "", str_replace(
+            ['https://', 'http://'],
+            '',
+            $this->request->get(
+                'App-domain',
+                $this->request->get(
+                    'app-domain',
+                    $this->request->headers->get(
+                        'app-domain',
+                        $this->request->headers->get(
+                            'referer',
+                            $this->getMainDomain()
                         )
                     )
                 )
-            );
+            )
+        ));
 
-        if (!$domain) {
-            throw new InvalidArgumentException(
-                'Please define header or get param "app-domain"',
-                301
-            );
-        }
-
+        if (!$domain)
+            throw new InvalidArgumentException('Please define header or get param "app-domain"', 301);
         return $domain;
     }
 
-    public function getMainDomain(): string
+    public function getMainDomain()
     {
-        return $this->request
-            ? $this->request->server->get('HTTP_HOST')
-            : 'api.controleonline.com';
+        return $this->request ? $this->request->server->get('HTTP_HOST') : 'api.controleonline.com';
     }
 
     public function getPeopleDomain(): PeopleDomain
     {
-        if ($this->peopleDomain) {
-            return $this->peopleDomain;
+        if (self::$peopleDomain) return self::$peopleDomain;
+
+        $domain  = $this->getDomain();
+        self::$peopleDomain = $this->manager->getRepository(PeopleDomain::class)->findOneBy(['domain' => $domain]);
+
+        if (!self::$peopleDomain) {
+            $domain  = $this->getMainDomain();
+            self::$peopleDomain = $this->manager->getRepository(PeopleDomain::class)->findOneBy(['domain' => $domain]);
         }
 
-        $domain = $this->getDomain();
-
-        $this->peopleDomain = $this->manager
-            ->getRepository(PeopleDomain::class)
-            ->findOneBy(['domain' => $domain]);
-
-        if (!$this->peopleDomain) {
-
-            $domain = $this->getMainDomain();
-
-            $this->peopleDomain = $this->manager
-                ->getRepository(PeopleDomain::class)
-                ->findOneBy(['domain' => $domain]);
-        }
-
-        if ($this->peopleDomain === null) {
+        if (self::$peopleDomain === null)
             throw new \Exception(
                 sprintf('Main company "%s" not found', $domain)
             );
-        }
 
-        return $this->peopleDomain;
+        return self::$peopleDomain;
     }
 }
