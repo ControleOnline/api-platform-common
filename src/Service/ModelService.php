@@ -2,20 +2,29 @@
 
 namespace ControleOnline\Service;
 
-use Doctrine\ORM\EntityManagerInterface;
-use ControleOnline\Entity\Contract as MyContract;
-
+use ControleOnline\Entity\Contract;
+use Twig\Environment;
 
 class ModelService
 {
-    protected $request;
     public function __construct(
-        private EntityManagerInterface $manager,
+        private Environment $twig
     ) {}
 
-
-    public function genetateFromModel(MyContract $contract): string
+    public function genetateFromModel(Contract $contract): string
     {
-        return $contract->getContractModel()->getFile()->getContent();
+        $content = $contract
+            ->getContractModel()
+            ->getFile()
+            ->getContent();
+
+        $template = $this->twig->createTemplate($content);
+
+        $data = [
+            'contract' => $contract,
+            'service' => $this
+        ];
+
+        return $template->render($data);
     }
 }
