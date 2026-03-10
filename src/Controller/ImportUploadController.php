@@ -5,7 +5,7 @@ namespace ControleOnline\Controller;
 use ControleOnline\Entity\File;
 use ControleOnline\Entity\Import;
 use ControleOnline\Entity\People;
-
+use ControleOnline\Service\StatusService;
 use Doctrine\ORM\EntityManagerInterface;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -17,8 +17,10 @@ class ImportUploadController extends AbstractController
 
     private EntityManagerInterface $em;
 
-    public function __construct(EntityManagerInterface $em)
-    {
+    public function __construct(
+        private StatusService $statusService,
+        EntityManagerInterface $em
+    ) {
         $this->em = $em;
     }
 
@@ -61,13 +63,18 @@ class ImportUploadController extends AbstractController
 
         $this->em->persist($file);
 
-
+        $status = $this->statusService->discoveryStatus(
+            'open',
+            'open',
+            'integration'
+        );
 
         $import = new Import();
 
         $import->setImportType($importType);
         $import->setFileFormat('csv');
         $import->setFile($file);
+        $import->setStatus($status);
 
         if ($people) {
             $import->setPeople($people);
