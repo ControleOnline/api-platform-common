@@ -7,7 +7,7 @@ use ControleOnline\Entity\Import;
 use ControleOnline\Entity\People;
 use ControleOnline\Service\StatusService;
 use Doctrine\ORM\EntityManagerInterface;
-
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,7 +24,7 @@ class ImportUploadController extends AbstractController
         $this->em = $em;
     }
 
-    public function __invoke(Request $request): Import
+    public function __invoke(Request $request): Response
     {
 
         $importType = $request->request->get('importType');
@@ -84,6 +84,13 @@ class ImportUploadController extends AbstractController
 
         $this->em->flush();
 
-        return $import;
+        $data = [
+            'id' => $import->getId(),
+            'importType' => $import->getImportType(),
+            'fileName' => $import->getFile()->getFileName(),
+            'status' => $import->getStatus()->getStatus(),
+        ];
+
+        return new Response(json_encode($data), 200, ['Content-Type' => 'application/json']);
     }
 }
