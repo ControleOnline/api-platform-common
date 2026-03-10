@@ -23,6 +23,7 @@ use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
+use ControleOnline\Controller\ImportUploadController;
 
 #[ApiResource(
     operations: [
@@ -30,6 +31,12 @@ use Doctrine\ORM\Mapping\Table;
         new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
         new Post(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new Post(
+            uriTemplate: '/imports/upload',
+            controller: ImportUploadController::class,
+            deserialize: false,
+            security: 'is_granted(\'ROLE_CLIENT\')'
+        ),
         new Get(
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/imports/example/{type}',
