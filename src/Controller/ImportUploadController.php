@@ -65,7 +65,6 @@ class ImportUploadController extends AbstractController
 
         $import = new Import();
 
-        $import->setName($name);
         $import->setImportType($importType);
         $import->setFileFormat('csv');
         $import->setFile($file);
