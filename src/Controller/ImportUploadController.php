@@ -28,12 +28,18 @@ class ImportUploadController extends AbstractController
     {
 
         $importType = $request->request->get('importType');
+        $peopleId = $request->request->get('people');
+
 
         $uploadedFile = $request->files->get('file');
 
+        if (!$peopleId) {
+            throw new BadRequestHttpException('people is required');
+        }
         if (!$importType) {
             throw new BadRequestHttpException('importType is required');
         }
+
 
         if (!$uploadedFile) {
             throw new BadRequestHttpException('CSV file is required');
@@ -54,8 +60,9 @@ class ImportUploadController extends AbstractController
         $file->setContext('import');
         $file->setContent(file_get_contents($uploadedFile->getPathname()));
 
-        /** @var People $people */
-        $people = $this->getUser()->getPeople();
+        $people =   $this->em->getRepository(People::class)->find(
+            str_replace('/\D/', '', $peopleId)
+        );
 
         if ($people) {
             $file->setPeople($people);
