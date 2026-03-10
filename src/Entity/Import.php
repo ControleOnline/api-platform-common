@@ -75,10 +75,6 @@ class Import
     private ?Status $status = null;
 
     #[Groups(['import:read', 'import:write'])]
-    #[Column(name: 'name', type: 'string', length: 255)]
-    private string $name = '';
-
-    #[Groups(['import:read', 'import:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['file' => 'exact'])]
     #[JoinColumn(name: 'file_id', referencedColumnName: 'id')]
     #[ManyToOne(targetEntity: File::class)]
@@ -132,17 +128,6 @@ class Import
     public function setStatus(?Status $status): self
     {
         $this->status = $status;
-        return $this;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): self
-    {
-        $this->name = $name;
         return $this;
     }
 
