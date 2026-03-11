@@ -60,7 +60,7 @@ class CreateTranslateController extends AbstractController
             ]);
 
             if ($existing) {
-                $result = [$existing];
+                $result = $existing;
             } else {
 
                 $translate = new Translate();
@@ -74,12 +74,12 @@ class CreateTranslateController extends AbstractController
                 $this->em->persist($translate);
                 $this->em->flush();
 
-                $result = [$translate];
+                $result = $translate;
             }
 
             return new Response(
                 json_encode(
-                    $this->hydrator->item(Translate::class, $translate->getId(), ['translate:read'])
+                    $this->hydrator->data($result, ['translate:read'])
                 ),
                 200,
                 ['Content-Type' => 'application/ld+json']
