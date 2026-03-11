@@ -3,7 +3,7 @@
 namespace ControleOnline\Entity;
 
 use Symfony\Component\Serializer\Attribute\Groups;
-
+use ControleOnline\State\AddressDiscoveryProcessor;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
@@ -18,7 +18,10 @@ use Doctrine\ORM\Mapping as ORM;
     operations: [
         new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
+        new Post(
+            processor: AddressDiscoveryProcessor::class,
+            security: 'is_granted(\'ROLE_CLIENT\')'
+        ),
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['address:read']],
