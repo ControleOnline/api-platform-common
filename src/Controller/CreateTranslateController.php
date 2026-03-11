@@ -79,7 +79,7 @@ class CreateTranslateController extends AbstractController
 
             return new Response(
                 json_encode(
-                    $this->hydrator->data($result, ['translate:read'])
+                    $this->hydrator->item(Translate::class, $translate->getId(), ['translate:read'])
                 ),
                 200,
                 ['Content-Type' => 'application/ld+json']
