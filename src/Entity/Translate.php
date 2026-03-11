@@ -18,6 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\Language;
 use ControleOnline\Repository\TranslateRepository;
+use ControleOnline\Controller\CreateTranslateController;
 
 
 #[ORM\Table(name: 'translate')]
@@ -30,7 +31,12 @@ use ControleOnline\Repository\TranslateRepository;
     operations: [
         new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
         new Get(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_CLIENT')"),
-        new Post(securityPostDenormalize: "is_granted('ROLE_CLIENT')"),
+        new Post(
+            uriTemplate: '/imports/upload',
+            controller: CreateTranslateController::class,
+            deserialize: false,
+            security: 'is_granted(\'ROLE_CLIENT\')'
+        ),
         new Put(
             security: "is_granted('ROLE_CLIENT')",
             denormalizationContext: ['groups' => ['translate:write']]
