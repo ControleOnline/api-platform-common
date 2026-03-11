@@ -32,7 +32,6 @@ use ControleOnline\Controller\CreateTranslateController;
         new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
         new Get(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_CLIENT')"),
         new Post(
-            uriTemplate: '/imports/upload',
             controller: CreateTranslateController::class,
             deserialize: false,
             security: 'is_granted(\'ROLE_CLIENT\')'
