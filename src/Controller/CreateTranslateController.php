@@ -29,7 +29,7 @@ class CreateTranslateController extends AbstractController
                 throw new BadRequestHttpException('Invalid JSON');
             }
 
-            foreach (['key','language','people','store','type','translate'] as $field) {
+            foreach (['key', 'language', 'people', 'store', 'type', 'translate'] as $field) {
                 if (!isset($data[$field])) {
                     throw new BadRequestHttpException("Field '{$field}' is required");
                 }
@@ -79,14 +79,11 @@ class CreateTranslateController extends AbstractController
 
             return new Response(
                 json_encode(
-                    $this->hydrator->result(
-                        $this->hydrator->data($result, ['translate:read'])
-                    )
+                    $this->hydrator->data($result, ['translate:read'])
                 ),
                 200,
                 ['Content-Type' => 'application/ld+json']
             );
-
         } catch (\Exception $e) {
 
             return new Response(
