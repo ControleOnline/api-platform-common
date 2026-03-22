@@ -133,7 +133,7 @@ class File
 
     public function getContent(): string
     {
-        return $this->content;
+        return base64_encode($this->content);
     }
 
     public function setContent(string $content): self
