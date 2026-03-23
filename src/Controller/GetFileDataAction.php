@@ -45,7 +45,7 @@ class GetFileDataAction
                 throw new \Exception('Not found', 404);
 
 
-            $content  = $file->getContent();
+            $content  = $file->getContent(true);
             $response = new StreamedResponse(function () use ($content) {
                 fputs(fopen('php://output', 'wb'), $content);
             });

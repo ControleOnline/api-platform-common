@@ -131,8 +131,9 @@ class File
         return $this;
     }
 
-    public function getContent(): string
+    public function getContent($decoded = false): string
     {
+        if ($decoded) return $this->content;
         return base64_encode($this->content);
     }
 
