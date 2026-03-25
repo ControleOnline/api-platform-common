@@ -9,6 +9,9 @@ use Symfony\Component\Lock\LockFactory;
 use ControleOnline\Service\DatabaseSwitchService;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+
 
 abstract class DefaultCommand extends Command
 {
@@ -19,6 +22,8 @@ abstract class DefaultCommand extends Command
     protected $databaseSwitchService;
     protected $loggerService;
     protected $skyNetService;
+    protected MessageBusInterface $bus;
+    protected EventDispatcherInterface $eventDispatcher;
 
     abstract protected function runCommand(): int;
 
