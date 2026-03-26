@@ -16,11 +16,14 @@ class ImportExampleCsvController
         $csv = $this->importService->getExampleCsv($type);
 
         $fp = fopen('php://temp', 'r+');
-
         fwrite($fp, "\xEF\xBB\xBF");
 
         foreach ($csv as $row) {
-            fputcsv($fp, $row);
+            $utf8Row = array_map(function ($field) {
+                return mb_convert_encoding((string)$field, 'UTF-8', 'auto');
+            }, $row);
+
+            fputcsv($fp, $utf8Row);
         }
 
         rewind($fp);
