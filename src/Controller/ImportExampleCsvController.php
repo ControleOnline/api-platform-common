@@ -15,23 +15,17 @@ class ImportExampleCsvController
     {
         $csv = $this->importService->getExampleCsv($type);
 
-        $fp = fopen('php://memory', 'r+');
+        $fp = fopen('php://temp', 'r+');
 
-        // BOM UTF-8
         fwrite($fp, "\xEF\xBB\xBF");
 
         foreach ($csv as $row) {
-            // Garante que cada campo é UTF-8
-            $row = array_map(function($field) {
-                return mb_convert_encoding((string)$field, 'UTF-8', 'UTF-8');
-            }, $row);
-            
-            fputcsv($fp, $row, ',', '"');
+            fputcsv($fp, $row);
         }
 
         rewind($fp);
+
         $stream = stream_get_contents($fp);
-        fclose($fp);
 
         return new Response(
             $stream,
