@@ -20,7 +20,7 @@ class ImportExampleCsvController
 
         foreach ($csv as $row) {
             $utf8Row = array_map(function ($field) {
-                return mb_convert_encoding((string)$field, 'UTF-8', 'auto');
+                return mb_convert_encoding((string)$field, 'UTF-8', 'ISO-8859-1');
             }, $row);
 
             fputcsv($fp, $utf8Row);
