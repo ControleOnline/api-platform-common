@@ -15,23 +15,21 @@ class ImportExampleCsvController
     {
         $csv = $this->importService->getExampleCsv($type);
 
-        $fp = fopen('php://temp', 'w+');
-        fwrite($fp, "\xEF\xBB\xBF");
+        $output = '';
 
         foreach ($csv as $row) {
-            $utf8Row = array_map(function ($field) {
-                return mb_convert_encoding((string)$field, 'UTF-8', 'ISO-8859-1');
-            }, $row);
-
-            fputcsv($fp, $utf8Row);
+            $output .= implode(',', array_map(function($field) {
+                // Escapa aspas e coloca entre aspas se tiver vírgula ou caracteres especiais
+                $field = str_replace('"', '""', $field);
+                return '"' . $field . '"';
+            }, $row)) . "\n";
         }
 
-        rewind($fp);
+        // Garante UTF-8
+        $output = mb_convert_encoding($output, 'UTF-8', 'UTF-8');
 
-        $stream = stream_get_contents($fp);
-        fclose($fp);
         return new Response(
-            $stream,
+            "\xEF\xBB\xBF" . $output,
             200,
             [
                 'Content-Type' => 'text/csv; charset=UTF-8',
