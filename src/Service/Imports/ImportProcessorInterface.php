@@ -8,7 +8,7 @@ interface ImportProcessorInterface
 {
     public function process(Import $import): void;
 
-    public function getExampleCsv(): string;
+    public function getExampleCsv(): array;
 
     public function getType(): string;
 }

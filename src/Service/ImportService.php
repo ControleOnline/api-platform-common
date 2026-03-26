@@ -73,7 +73,7 @@ class ImportService
         $this->entityManager->flush();
     }
 
-    public function getExampleCsv(string $type): string
+    public function getExampleCsv(string $type): array
     {
         $processor = $this->resolver->resolve($type);
 

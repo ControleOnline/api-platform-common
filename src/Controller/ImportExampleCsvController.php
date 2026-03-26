@@ -16,12 +16,22 @@ class ImportExampleCsvController
     {
         $csv = $this->importService->getExampleCsv($type);
 
+        $fp = fopen('php://temp', 'r+');
+
+        foreach ($csv as $row) {
+            fputcsv($fp, $row);
+        }
+
+        rewind($fp);
+
+        $stream =  stream_get_contents($fp);
+
         return new Response(
-            $csv,
+            $stream,
             200,
             [
                 'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename="import-'.$type.'-example.csv"',
+                'Content-Disposition' => 'attachment; filename="import-' . $type . '-example.csv"',
             ]
         );
     }
