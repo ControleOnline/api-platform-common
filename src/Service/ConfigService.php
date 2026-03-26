@@ -23,7 +23,7 @@ class ConfigService
         return $json ? json_decode($value, true) : $value;
     }
 
-    private function discoveryConfig(People $people, $key, $create = true): ?Config
+    public function discoveryConfig(People $people, $key, $create = true): ?Config
     {
         $config =   $this->manager->getRepository(Config::class)->findOneBy([
             'people' => $people,
