@@ -15,25 +15,27 @@ class ImportExampleCsvController
     {
         $csv = $this->importService->getExampleCsv($type);
 
-        $output = '';
+        $fp = fopen('php://memory', 'r+');
+
+        // BOM UTF-8 - ESSENCIAL para Excel Mac reconhecer
+        fwrite($fp, "\xEF\xBB\xBF");
 
         foreach ($csv as $row) {
-            $output .= implode(',', array_map(function($field) {
-                // Escapa aspas e coloca entre aspas se tiver vírgula ou caracteres especiais
-                $field = str_replace('"', '""', $field);
-                return '"' . $field . '"';
-            }, $row)) . "\n";
+            fputcsv($fp, $row, ',', '"');
         }
 
-        // Garante UTF-8
-        $output = mb_convert_encoding($output, 'UTF-8', 'UTF-8');
+        rewind($fp);
+        $stream = stream_get_contents($fp);
+        fclose($fp);
 
         return new Response(
-            "\xEF\xBB\xBF" . $output,
+            $stream,
             200,
             [
                 'Content-Type' => 'text/csv; charset=UTF-8',
                 'Content-Disposition' => 'attachment; filename="import-' . $type . '-example.csv"',
+                'Pragma' => 'no-cache',
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
             ]
         );
     }
