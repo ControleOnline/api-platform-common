@@ -16,11 +16,15 @@ class ImportExampleCsvController
     {
         $csv = $this->importService->getExampleCsv($type);
 
+        if (!str_starts_with($csv, "\xEF\xBB\xBF")) {
+            $csv = "\xEF\xBB\xBF" . $csv;
+        }
+
         return new Response(
             $csv,
             200,
             [
-                'Content-Type' => 'text/csv',
+                'Content-Type' => 'text/csv; charset=UTF-8',
                 'Content-Disposition' => 'attachment; filename="import-'.$type.'-example.csv"',
             ]
         );
