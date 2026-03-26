@@ -17,10 +17,15 @@ class ImportExampleCsvController
 
         $fp = fopen('php://memory', 'r+');
 
-        // BOM UTF-8 - ESSENCIAL para Excel Mac reconhecer
+        // BOM UTF-8
         fwrite($fp, "\xEF\xBB\xBF");
 
         foreach ($csv as $row) {
+            // Garante que cada campo é UTF-8
+            $row = array_map(function($field) {
+                return mb_convert_encoding((string)$field, 'UTF-8', 'UTF-8');
+            }, $row);
+            
             fputcsv($fp, $row, ',', '"');
         }
 
@@ -34,8 +39,6 @@ class ImportExampleCsvController
             [
                 'Content-Type' => 'text/csv; charset=UTF-8',
                 'Content-Disposition' => 'attachment; filename="import-' . $type . '-example.csv"',
-                'Pragma' => 'no-cache',
-                'Cache-Control' => 'no-cache, no-store, must-revalidate',
             ]
         );
     }
