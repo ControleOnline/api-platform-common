@@ -15,7 +15,7 @@ class ImportExampleCsvController
     {
         $csv = $this->importService->getExampleCsv($type);
 
-        $fp = fopen('php://temp', 'r+');
+        $fp = fopen('php://temp', 'w+');
         fwrite($fp, "\xEF\xBB\xBF");
 
         foreach ($csv as $row) {
@@ -29,7 +29,7 @@ class ImportExampleCsvController
         rewind($fp);
 
         $stream = stream_get_contents($fp);
-
+        fclose($fp);
         return new Response(
             $stream,
             200,
