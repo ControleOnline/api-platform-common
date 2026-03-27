@@ -4,7 +4,7 @@ namespace ControleOnline\Service\Imports;
 
 use ControleOnline\Entity\Import;
 
-class ImportCommon
+abstract class ImportCommon implements ImportProcessorInterface
 {
     protected static $CSV_HEADERS;
 
@@ -17,7 +17,7 @@ class ImportCommon
     }
 
 
-    public function import(Import $import, array $headers, $service): void
+    protected function import(Import $import, array $headers, $service): void
     {
         self::$CSV_HEADERS = $headers;
         $file = $import->getFile();
