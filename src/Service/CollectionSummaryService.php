@@ -105,7 +105,7 @@ class CollectionSummaryService
             $this->copyParameter($summaryQueryBuilder, $parameter);
         }
 
-        $selects = [sprintf('COUNT(%s.%s) AS totalItems', $summaryAlias, $identifier)];
+        $selects = [];
 
         foreach ($summaryFields as $field) {
             foreach ($field['operations'] as $operationName) {
@@ -179,23 +179,17 @@ class CollectionSummaryService
 
     private function normalizeSummary(array $result, array $summaryFields): array
     {
-        $summary = [
-            'totalItems' => (int) ($result['totalItems'] ?? 0),
-        ];
+        $summary = [];
 
         foreach ($summaryFields as $field) {
-            $fieldSummary = [];
-
             foreach ($field['operations'] as $operation) {
                 $selectAlias = $this->getSelectAlias($field['name'], $operation);
-                $fieldSummary[$operation] = $this->castAggregateValue(
+                $summary[$operation][$field['name']] = $this->castAggregateValue(
                     $result[$selectAlias] ?? null,
                     $operation,
                     $field['doctrineType']
                 );
             }
-
-            $summary[$field['name']] = $fieldSummary;
         }
 
         return $summary;
