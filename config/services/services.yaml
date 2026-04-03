@@ -55,3 +55,23 @@ services:
     ControleOnline\Serializer\ExtraDataNormalizer:
         tags:
             - { name: serializer.normalizer, priority: 1000 }
+
+    ControleOnline\Service\CollectionSummaryService:
+        autowire: true
+        autoconfigure: false
+        arguments:
+            $collectionExtensions: !tagged_iterator api_platform.doctrine.orm.query_extension.collection
+            $handleLinksLocator: !tagged_locator { tag: 'api_platform.doctrine.orm.links_handler', index_by: 'key' }
+
+    ControleOnline\State\CollectionSummaryProvider:
+        autowire: true
+        autoconfigure: false
+        decorates: 'api_platform.state_provider.security_parameter'
+        arguments:
+            $inner: '@ControleOnline\State\CollectionSummaryProvider.inner'
+
+    ControleOnline\Serializer\CollectionSummaryNormalizer:
+        autowire: true
+        autoconfigure: false
+        tags:
+            - { name: serializer.normalizer, priority: 1100 }
