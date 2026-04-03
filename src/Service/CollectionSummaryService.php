@@ -102,7 +102,7 @@ class CollectionSummaryService
         );
 
         foreach ($filteredIdsQueryBuilder->getParameters() as $parameter) {
-            $summaryQueryBuilder->setParameter($parameter->getName(), $parameter->getValue(), $parameter->getType());
+            $this->copyParameter($summaryQueryBuilder, $parameter);
         }
 
         $selects = [sprintf('COUNT(%s.%s) AS totalItems', $summaryAlias, $identifier)];
@@ -221,5 +221,16 @@ class CollectionSummaryService
     private function getSelectAlias(string $fieldName, string $operation): string
     {
         return sprintf('summary_%s_%s', preg_replace('/[^a-z0-9_]/i', '_', $fieldName), $operation);
+    }
+
+    private function copyParameter(\Doctrine\ORM\QueryBuilder $queryBuilder, \Doctrine\ORM\Query\Parameter $parameter): void
+    {
+        if ($parameter->typeWasSpecified()) {
+            $queryBuilder->setParameter($parameter->getName(), $parameter->getValue(), $parameter->getType());
+
+            return;
+        }
+
+        $queryBuilder->setParameter($parameter->getName(), $parameter->getValue());
     }
 }
