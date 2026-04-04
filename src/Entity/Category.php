@@ -51,14 +51,14 @@ class Category
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[Groups(['invoice:read','product_category:read', 'logistic:read', 'invoice_details:read', 'category:read', 'task:read', 'company_expense:read', 'model:read', 'model_detail:read', 'menu:read', 'invoice:read'])]
+    #[Groups(['category:read', 'company_expense:read', 'invoice:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'task:read'])]
     private $id;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['name' => 'partial'])]
     #[ORM\Column(name: 'name', type: 'string', length: 100, nullable: false)]
     #[Assert\NotBlank]
     #[Assert\Type(type: 'string')]
-    #[Groups(['invoice:read','product_category:read', 'menu:read', 'logistic:read', 'invoice_details:read', 'category:read', 'task:read', 'category:write', 'model:read', 'model_detail:read', 'company_expense:read', 'queue:read', 'invoice:read'])]
+    #[Groups(['category:read', 'category:write', 'company_expense:read', 'invoice:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read'])]
     private $name;
 
     #[ApiFilter(filterClass: ExistsFilter::class, properties: ['categoryFiles'])]
@@ -71,32 +71,32 @@ class Category
     #[ORM\Column(name: 'context', type: 'string', length: 100, nullable: false)]
     #[Assert\NotBlank]
     #[Assert\Type(type: 'string')]
-    #[Groups(['invoice:read','product_category:read', 'logistic:read', 'invoice_details:read', 'category:read', 'task:read', 'category:write', 'menu:read', 'model:read', 'model_detail:read', 'queue:read', 'invoice:read'])]
+    #[Groups(['category:read', 'category:write', 'invoice:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read'])]
     private $context;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['parent' => 'exact'])]
     #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: self::class)]
-    #[Groups(['logistic:read', 'invoice_details:read', 'category:read', 'task:read', 'category:write', 'model:read', 'model_detail:read', 'menu:read', 'queue:read'])]
+    #[Groups(['category:read', 'category:write', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'queue:read', 'task:read'])]
     private $parent;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['company' => 'exact'])]
     #[ORM\JoinColumn(name: 'company_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: People::class)]
     #[Assert\NotBlank]
-    #[Groups(['product_category:read', 'logistic:read', 'invoice_details:read', 'category:read', 'category:write', 'menu:read', 'model:read', 'model_detail:read', 'queue:read', 'invoice:read'])]
+    #[Groups(['category:read', 'category:write', 'invoice:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read'])]
     private $company;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['icon' => 'exact'])]
     #[ORM\Column(name: 'icon', type: 'string', length: 50, nullable: true)]
     #[Assert\Type(type: 'string')]
-    #[Groups(['invoice:read','product_category:read', 'logistic:read', 'invoice_details:read', 'category:read', 'task:read', 'category:write', 'company_expense:read', 'model:read', 'model_detail:read', 'menu:read', 'queue:read', 'invoice:read'])]
+    #[Groups(['category:read', 'category:write', 'company_expense:read', 'invoice:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read'])]
     private $icon;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['color' => 'exact'])]
     #[ORM\Column(name: 'color', type: 'string', length: 50, nullable: true)]
     #[Assert\Type(type: 'string')]
-    #[Groups(['invoice:read','product_category:read', 'logistic:read', 'invoice_details:read', 'category:read', 'task:read', 'category:write', 'company_expense:read', 'model:read', 'model_detail:read', 'menu:read', 'queue:read', 'invoice:read'])]
+    #[Groups(['category:read', 'category:write', 'company_expense:read', 'invoice:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read'])]
     private $color;
 
     public function __construct()
