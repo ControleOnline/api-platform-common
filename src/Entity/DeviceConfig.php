@@ -78,7 +78,7 @@ class DeviceConfig
     #[Groups(['device_config:read', 'device:read', 'device_config:write'])]
     #[NotBlank]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['configs' => 'exact'])]
-    #[Column(name: 'configs', type: 'string', length: 100, nullable: false)]
+    #[Column(name: 'configs', type: 'string', length: 1024, nullable: false)]
     private string $configs;
 
     public function __construct()
