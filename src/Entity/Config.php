@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ControleOnline\Controller\AddAppConfigAction;
+use ControleOnline\Controller\AddAppConfigsAction;
 use ControleOnline\Controller\DiscoveryMainConfigsAction;
 
 use ControleOnline\Repository\ConfigRepository;
@@ -36,6 +37,11 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
             security: 'is_granted(\'ROLE_CLIENT\')',
             uriTemplate: '/configs/add-configs',
             controller: AddAppConfigAction::class
+        ),
+        new Post(
+            security: 'is_granted(\'ROLE_CLIENT\')',
+            uriTemplate: '/configs/add-many-configs',
+            controller: AddAppConfigsAction::class
         ),
         new Post(
             security: 'is_granted(\'ROLE_CLIENT\')',
