@@ -6,13 +6,21 @@ use ControleOnline\Entity\Device;
 use ControleOnline\Entity\DeviceConfig;
 use ControleOnline\Entity\People;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class DeviceService
 {
+    private $request;
+
     public function __construct(
         private EntityManagerInterface $manager,
         private ConfigService $configService,
-    ) {}
+        private PeopleService $peopleService,
+        RequestStack $requestStack,
+    ) {
+        $this->request = $requestStack->getCurrentRequest();
+    }
 
     public function getPrinters(People $people)
     {
@@ -78,5 +86,34 @@ class DeviceService
         $this->manager->flush();
 
         return $device_config;
+    }
+
+    public function securityFilter(QueryBuilder $queryBuilder, $resourceClass = null, $applyTo = null, $rootAlias = null): void
+    {
+        $companies = $this->peopleService->getMyCompanies();
+
+        if (empty($companies)) {
+            $queryBuilder->andWhere('1 = 0');
+            return;
+        }
+
+        $aliases = $queryBuilder->getAllAliases();
+        if (!in_array('DeviceCompanyConfig', $aliases, true)) {
+            $queryBuilder->innerJoin(
+                DeviceConfig::class,
+                'DeviceCompanyConfig',
+                'WITH',
+                sprintf('DeviceCompanyConfig.device = %s', $rootAlias)
+            );
+        }
+
+        $queryBuilder->distinct();
+        $queryBuilder->andWhere('DeviceCompanyConfig.people IN(:companies)');
+        $queryBuilder->setParameter('companies', $companies);
+
+        if ($people = $this->request?->query->get('people', null)) {
+            $queryBuilder->andWhere('DeviceCompanyConfig.people IN(:people)');
+            $queryBuilder->setParameter('people', preg_replace("/[^0-9]/", "", $people));
+        }
     }
 }

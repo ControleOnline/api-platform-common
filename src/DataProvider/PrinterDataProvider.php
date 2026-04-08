@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use ControleOnline\Entity\People;
 use ControleOnline\Service\DeviceService;
+use ControleOnline\Service\PeopleService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
 as Security;
@@ -21,7 +22,8 @@ class PrinterDataProvider implements ProviderInterface
         private EntityManagerInterface $entityManager,
         private HydratorService $hydratorService,
         private Security $security,
-        private DeviceService $deviceService
+        private DeviceService $deviceService,
+        private PeopleService $peopleService
 
     ) {}
 
@@ -34,6 +36,18 @@ class PrinterDataProvider implements ProviderInterface
             }
             $filters = $context['filters'];
             $people = $this->entityManager->getRepository(People::class)->find($filters['people']);
+            $myCompanies = array_map(
+                fn($company) => $company->getId(),
+                $this->peopleService->getMyCompanies()
+            );
+
+            if (
+                !$this->security->isGranted('ROLE_ADMIN') &&
+                (!$people || !in_array($people->getId(), $myCompanies, true))
+            ) {
+                throw new \Exception('Company access denied');
+            }
+
             $printers = $this->deviceService->getPrinters($people);
             return new JsonResponse($this->hydratorService->collectionData($printers, Device::class, 'device:read'));
         } catch (Exception $e) {
