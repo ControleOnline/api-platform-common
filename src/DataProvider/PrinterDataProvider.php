@@ -31,7 +31,7 @@ class PrinterDataProvider implements ProviderInterface
     {
         try {
             $currentUser = $this->security->getToken()->getUser();
-            if (!$currentUser && !$this->security->isGranted('ROLE_ADMIN')) {
+            if (!$currentUser) {
                 throw new \Exception('You should not pass!!!');
             }
             $filters = $context['filters'];
@@ -42,7 +42,7 @@ class PrinterDataProvider implements ProviderInterface
             );
 
             if (
-                !$this->security->isGranted('ROLE_ADMIN') &&
+
                 (!$people || !in_array($people->getId(), $myCompanies, true))
             ) {
                 throw new \Exception('Company access denied');
