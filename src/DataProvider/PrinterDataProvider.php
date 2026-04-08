@@ -30,12 +30,17 @@ class PrinterDataProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): JsonResponse
     {
         try {
-            $currentUser = $this->security->getToken()->getUser();
-            if (!$currentUser) {
+            $token = $this->security->getToken();
+            $currentUser = $token?->getUser();
+            if (!is_object($currentUser)) {
                 throw new \Exception('You should not pass!!!');
             }
-            $filters = $context['filters'];
-            $people = $this->entityManager->getRepository(People::class)->find($filters['people']);
+
+            $filters = $context['filters'] ?? [];
+            $peopleId = preg_replace("/[^0-9]/", "", (string) ($filters['people'] ?? ''));
+            $people = $peopleId
+                ? $this->entityManager->getRepository(People::class)->find($peopleId)
+                : null;
             $myCompanies = array_map(
                 fn($company) => $company->getId(),
                 $this->peopleService->getMyCompanies()
