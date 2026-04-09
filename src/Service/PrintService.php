@@ -56,7 +56,7 @@ class PrintService
 
         $content =  [
             "operation" => "PRINT_TEXT",
-            "styles" => [[]],
+            "styles" => [(object) []],
             "value" => [$this->text]
         ];
 
