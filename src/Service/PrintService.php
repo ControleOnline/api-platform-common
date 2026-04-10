@@ -6,6 +6,7 @@ use ControleOnline\Entity\Device;
 use ControleOnline\Entity\File;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\Spool;
+use ControleOnline\Entity\User;
 use ControleOnline\Service\Client\WebsocketClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
@@ -69,13 +70,16 @@ class PrintService
         if (isset($device_config['printer']))
             $printer = $this->deviceService->discoveryDevice($device_config['printer']);
 
+        $text = $this->text;
+        $this->text = '';
+
         $content =  [
             "operation" => "PRINT_TEXT",
             "styles" => [(object) []],
-            "value" => [$this->text]
+            "value" => [$text]
         ];
 
-        $printData = $this->addToSpool($printer ?: $device, json_encode($content), $aditionalData);
+        $printData = $this->addToSpool($printer ?: $device, $provider, json_encode($content), $aditionalData);
 
         if ($printer != $device)
             $x = '';
@@ -83,11 +87,12 @@ class PrintService
         return $printData;
     }
 
-    public function addToSpool(Device $printer, string  $content, ?array $data = []): Spool
+    public function addToSpool(Device $printer, People $provider, string  $content, ?array $data = []): Spool
     {
-        $user = $this->security->getToken()->getUser();
+        $user = $this->security->getToken()?->getUser();
         $status = $this->statusService->discoveryStatus('open', 'open', 'print');
-        $file = $this->fileService->addFile($user->getPeople(), $content, 'print', 'print', 'text', 'txt');
+        $fileOwner = $user instanceof User ? $user->getPeople() : $provider;
+        $file = $this->fileService->addFile($fileOwner, $content, 'print', 'print', 'text', 'txt');
         self::$logger->error($printer->getDevice());
         self::$logger->error($printer->getId());
 
@@ -95,7 +100,9 @@ class PrintService
         $spool->setDevice($printer);
         $spool->setStatus($status);
         $spool->setFile($file);
-        $spool->setUser($user);
+        if ($user instanceof User) {
+            $spool->setUser($user);
+        }
         $this->entityManager->persist($spool);
         $this->entityManager->flush();
 
