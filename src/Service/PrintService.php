@@ -86,6 +86,10 @@ class PrintService
 
         $data["action"] = "print";
         $data["store"] = "print";
+        $data["spoolId"] = $spool->getId();
+        $data["spool"] = '/spools/' . $spool->getId();
+        $data["device"] = $printer->getDevice();
+        $data["deviceId"] = $printer->getId();
 
 
         $this->websocketClient->push($printer, json_encode($data));

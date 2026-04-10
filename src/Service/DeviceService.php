@@ -91,6 +91,12 @@ class DeviceService
     public function securityFilter(QueryBuilder $queryBuilder, $resourceClass = null, $applyTo = null, $rootAlias = null): void
     {
         $companies = $this->peopleService->getMyCompanies();
+        $requestedDevice = trim((string) $this->request?->query->get('device', ''));
+        $headerDevice = trim((string) $this->request?->headers->get('device', ''));
+        $allowSelfDeviceWithoutConfig =
+            $requestedDevice !== '' &&
+            $headerDevice !== '' &&
+            $requestedDevice === $headerDevice;
 
         if (empty($companies)) {
             $queryBuilder->andWhere('1 = 0');
@@ -99,7 +105,7 @@ class DeviceService
 
         $aliases = $queryBuilder->getAllAliases();
         if (!in_array('DeviceCompanyConfig', $aliases, true)) {
-            $queryBuilder->innerJoin(
+            $queryBuilder->{$allowSelfDeviceWithoutConfig ? 'leftJoin' : 'innerJoin'}(
                 DeviceConfig::class,
                 'DeviceCompanyConfig',
                 'WITH',
@@ -108,8 +114,17 @@ class DeviceService
         }
 
         $queryBuilder->distinct();
-        $queryBuilder->andWhere('DeviceCompanyConfig.people IN(:companies)');
         $queryBuilder->setParameter('companies', $companies);
+
+        if ($allowSelfDeviceWithoutConfig) {
+            $queryBuilder->andWhere(sprintf(
+                '(DeviceCompanyConfig.people IN(:companies) OR %s.device = :selfDevice)',
+                $rootAlias
+            ));
+            $queryBuilder->setParameter('selfDevice', $requestedDevice);
+        } else {
+            $queryBuilder->andWhere('DeviceCompanyConfig.people IN(:companies)');
+        }
 
         if ($people = $this->request?->query->get('people', null)) {
             $queryBuilder->andWhere('DeviceCompanyConfig.people IN(:people)');
