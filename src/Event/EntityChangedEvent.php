@@ -20,7 +20,7 @@ class EntityChangedEvent extends Event
 
     public function getOldEntity(): object
     {
-        return $this->entity;
+        return $this->oldEntity ?? $this->entity;
     }
 
     public function getEntity(): object
