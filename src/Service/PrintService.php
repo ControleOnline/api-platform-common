@@ -3,6 +3,7 @@
 namespace ControleOnline\Service;
 
 use ControleOnline\Entity\Device;
+use ControleOnline\Entity\File;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\Spool;
 use ControleOnline\Service\Client\WebsocketClient;
@@ -38,13 +39,27 @@ class PrintService
         $this->text .= $initialSpace . $prefix . $delimiter . $suffix . "\n";
     }
 
-    public function makePrintDone(Spool $spool): Spool
+    public function makePrintDone(Spool $spool): void
     {
-        $status = $this->statusService->discoveryStatus('closed', 'done', 'print');
-        $spool->setStatus($status);
-        $this->entityManager->persist($spool);
-        $this->entityManager->flush();
-        return  $spool;
+        $connection = $this->entityManager->getConnection();
+        $fileId = $spool->getFile()->getId();
+
+        $connection->beginTransaction();
+        try {
+            $this->entityManager->remove($spool);
+            $this->entityManager->flush();
+
+            $file = $this->entityManager->find(File::class, $fileId);
+            if ($file instanceof File) {
+                $this->entityManager->remove($file);
+                $this->entityManager->flush();
+            }
+
+            $connection->commit();
+        } catch (\Throwable $exception) {
+            $connection->rollBack();
+            throw $exception;
+        }
     }
 
     public function generatePrintData(Device $device, People $provider, ?array $aditionalData = []): Spool

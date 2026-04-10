@@ -6,7 +6,6 @@ use ControleOnline\Entity\Spool;
 use ControleOnline\Service\HydratorService;
 use Symfony\Component\Security\Http\Attribute\Security;
 use ControleOnline\Service\PrintService;
-use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,7 +15,6 @@ use Symfony\Component\Routing\Attribute\Route;
 class PrintController extends AbstractController
 {
     public function __construct(
-        private EntityManagerInterface $manager,
         private PrintService $printService,
         private HydratorService $hydratorService
     ) {}
@@ -25,8 +23,11 @@ class PrintController extends AbstractController
     public function makePrintDone(Spool $spool): JsonResponse
     {
         try {
-            $spool = $this->printService->makePrintDone($spool);
-            return new JsonResponse($this->hydratorService->item(Spool::class, $spool->getId(), "spool_item:write"), Response::HTTP_OK);
+            $this->printService->makePrintDone($spool);
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Print spool removed',
+            ], Response::HTTP_OK);
         } catch (Exception $e) {
             return new JsonResponse($this->hydratorService->error($e));
         }
