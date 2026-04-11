@@ -24,16 +24,16 @@ class AddDeviceConfigAction
   {
     try {
       $json = json_decode($request->getContent(), true) ?? [];
-      $deviceHeader = $request->headers->get('device');
-      $deviceBody = $json['device'] ?? null;
-      $device = $deviceHeader ?: $deviceBody;
+      $deviceHeader = trim((string) $request->headers->get('device', ''));
+      $deviceBody = trim((string) ($json['device'] ?? ''));
+      $device = $deviceBody !== '' ? $deviceBody : $deviceHeader;
       error_log(sprintf(
         '[AddDeviceConfigAction] device resolved: %s | source: %s',
         (string) ($device ?? 'null'),
-        $deviceHeader ? 'header' : ($deviceBody ? 'body' : 'none')
+        $deviceBody !== '' ? 'body' : ($deviceHeader !== '' ? 'header' : 'none')
       ));
 
-      if (!$device || !is_string($device) || trim($device) === '') {
+      if ($device === '') {
         return new JsonResponse([
           'error' => 'DEVICE header or body field "device" is required.'
         ], Response::HTTP_BAD_REQUEST);
