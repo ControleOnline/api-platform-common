@@ -3,6 +3,7 @@
 namespace ControleOnline\Service;
 
 use ControleOnline\Entity\Device;
+use ControleOnline\Entity\DeviceConfig;
 use ControleOnline\Entity\File;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\Spool;
@@ -17,6 +18,7 @@ class PrintService
     private $initialSpace = 8;
     private $totalChars = 48;
     private $text = '';
+    private string $networkPrinterManagerDeviceConfigKey = 'print-network-manager-device';
     protected static $logger;
 
     public function __construct(
@@ -87,6 +89,33 @@ class PrintService
         return $printData;
     }
 
+    private function resolveNotificationDevice(Device $printer, People $provider): Device
+    {
+        $deviceConfig = $this->entityManager->getRepository(DeviceConfig::class)->findOneBy([
+            'device' => $printer,
+            'people' => $provider,
+        ]);
+
+        if (!$deviceConfig instanceof DeviceConfig) {
+            return $printer;
+        }
+
+        $configs = $deviceConfig->getConfigs(true);
+        $managerDeviceId = trim((string) (
+            $configs[$this->networkPrinterManagerDeviceConfigKey] ?? ''
+        ));
+
+        if ($managerDeviceId === '') {
+            return $printer;
+        }
+
+        $managerDevice = $this->entityManager->getRepository(Device::class)->findOneBy([
+            'device' => $managerDeviceId,
+        ]);
+
+        return $managerDevice instanceof Device ? $managerDevice : $printer;
+    }
+
     public function addToSpool(Device $printer, People $provider, string  $content, ?array $data = []): Spool
     {
         $user = $this->security->getToken()?->getUser();
@@ -113,8 +142,8 @@ class PrintService
         $data["device"] = $printer->getDevice();
         $data["deviceId"] = $printer->getId();
 
-
-        $this->websocketClient->push($printer, json_encode($data));
+        $notificationDevice = $this->resolveNotificationDevice($printer, $provider);
+        $this->websocketClient->push($notificationDevice, json_encode($data));
 
         return $spool;
     }
