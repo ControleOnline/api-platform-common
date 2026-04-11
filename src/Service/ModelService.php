@@ -3,6 +3,7 @@
 namespace ControleOnline\Service;
 
 use ControleOnline\Entity\Contract;
+use ControleOnline\Entity\Model;
 use Twig\Environment;
 
 class ModelService
@@ -11,20 +12,19 @@ class ModelService
         private Environment $twig
     ) {}
 
-    public function genetateFromModel(Contract $contract): string
+    public function render(Model $model, array $data = []): string
     {
-        $content = $contract
-            ->getContractModel()
-            ->getFile()
-            ->getContent();
-
+        $content = $model->getFile()->getContent(true);
         $template = $this->twig->createTemplate($content);
 
-        $data = [
+        return $template->render($data);
+    }
+
+    public function genetateFromModel(Contract $contract): string
+    {
+        return $this->render($contract->getContractModel(), [
             'contract' => $contract,
             'service' => $this
-        ];
-
-        return $template->render($data);
+        ]);
     }
 }

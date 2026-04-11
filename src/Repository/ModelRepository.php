@@ -3,7 +3,7 @@
 namespace ControleOnline\Repository;
 
 use ControleOnline\Entity\Model;
-use Doctrine\ORM\Query\ResultSetMapping;
+use ControleOnline\Entity\People;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
@@ -20,5 +20,28 @@ class ModelRepository extends ServiceEntityRepository
         parent::__construct($registry, Model::class);
     }
 
- 
+    public function findCompanyContextModel(
+        People $company,
+        string $context,
+        ?int $modelId = null
+    ): ?Model {
+        $qb = $this->createQueryBuilder('model')
+            ->addSelect('file')
+            ->leftJoin('model.file', 'file')
+            ->andWhere('model.people = :company')
+            ->andWhere('model.context = :context')
+            ->setParameter('company', $company)
+            ->setParameter('context', $context)
+            ->orderBy('model.model', 'ASC')
+            ->addOrderBy('model.id', 'ASC');
+
+        if ($modelId !== null) {
+            $qb->andWhere('model.id = :modelId')
+                ->setParameter('modelId', $modelId);
+        } else {
+            $qb->setMaxResults(1);
+        }
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
 }
