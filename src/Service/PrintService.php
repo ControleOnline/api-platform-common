@@ -15,6 +15,12 @@ as Security;
 
 class PrintService
 {
+    private string $printDeviceType = 'PRINT';
+    private string $pdvDeviceType = 'PDV';
+    private string $networkPrinterProtocol = 'network-ip-raw';
+    private string $pdvPrinterProtocol = 'pdv-text';
+    private string $networkCutMarker = '[__PRINT_CUT__]';
+    private string $networkCutCommand = "\x1D\x56\x00";
     private $initialSpace = 8;
     private $totalChars = 48;
     private $text = '';
@@ -42,6 +48,11 @@ class PrintService
         $this->text .= $initialSpace . $prefix . $delimiter . $suffix . "\n";
     }
 
+    public function addCutMarker(): void
+    {
+        $this->text = rtrim($this->text, "\n") . "\n" . $this->networkCutMarker . "\n";
+    }
+
     public function makePrintDone(Spool $spool): void
     {
         $connection = $this->entityManager->getConnection();
@@ -67,26 +78,103 @@ class PrintService
 
     public function generatePrintData(Device $device, People $provider, ?array $aditionalData = []): Spool
     {
-        $printer = null;
-        $device_config =  $this->deviceService->discoveryDeviceConfig($device, $provider)->getConfigs(true);
-        if (isset($device_config['printer']))
-            $printer = $this->deviceService->discoveryDevice($device_config['printer']);
-
+        $printer = $this->resolveSpoolTargetDevice($device, $provider);
         $text = $this->text;
         $this->text = '';
+        $resolvedPrinter = $printer ?: $device;
+        $printProtocol = $this->resolvePrintProtocol($resolvedPrinter);
+        $content = $this->buildPrintContent($text, $printProtocol);
 
-        $content =  [
+        return $this->addToSpool(
+            $resolvedPrinter,
+            $provider,
+            $content,
+            array_merge($aditionalData ?? [], ['printProtocol' => $printProtocol])
+        );
+    }
+
+    private function resolveSpoolTargetDevice(Device $device, People $provider): ?Device
+    {
+        $deviceConfig = $this->deviceService
+            ->discoveryDeviceConfig($device, $provider)
+            ->getConfigs(true);
+
+        if (!isset($deviceConfig['printer'])) {
+            return null;
+        }
+
+        return $this->deviceService->discoveryDevice($deviceConfig['printer']);
+    }
+
+    private function normalizeDeviceType(?string $deviceType): string
+    {
+        return strtoupper(trim((string) $deviceType));
+    }
+
+    private function isNetworkPrinterDevice(Device $device): bool
+    {
+        return $this->normalizeDeviceType($device->getType()) === $this->printDeviceType;
+    }
+
+    private function resolvePrintProtocol(Device $device): string
+    {
+        if ($this->isNetworkPrinterDevice($device)) {
+            return $this->networkPrinterProtocol;
+        }
+
+        if ($this->normalizeDeviceType($device->getType()) === $this->pdvDeviceType) {
+            return $this->pdvPrinterProtocol;
+        }
+
+        return $this->pdvPrinterProtocol;
+    }
+
+    private function buildPrintContent(string $text, string $printProtocol): string
+    {
+        if ($printProtocol === $this->networkPrinterProtocol) {
+            return $this->buildNetworkPrintContent($text);
+        }
+
+        return $this->buildPdvPrintContent($text);
+    }
+
+    private function buildPdvPrintContent(string $text): string
+    {
+        $normalizedText = str_replace($this->networkCutMarker, '', $text);
+        $content = [
             "operation" => "PRINT_TEXT",
             "styles" => [(object) []],
-            "value" => [$text]
+            "value" => [$normalizedText]
         ];
 
-        $printData = $this->addToSpool($printer ?: $device, $provider, json_encode($content), $aditionalData);
+        return json_encode($content);
+    }
 
-        if ($printer != $device)
-            $x = '';
+    private function buildNetworkPrintContent(string $text): string
+    {
+        $normalizedText = str_replace(["\r\n", "\r"], "\n", $text);
+        $cutMarkerCount = substr_count($normalizedText, $this->networkCutMarker);
 
-        return $printData;
+        if ($cutMarkerCount === 0) {
+            $payload = rtrim($normalizedText, "\n") . "\n\n" . $this->networkCutCommand;
+            return base64_encode($payload);
+        }
+
+        $segments = explode($this->networkCutMarker, $normalizedText);
+        $payload = '';
+
+        foreach ($segments as $index => $segment) {
+            $trimmedSegment = rtrim($segment, "\n");
+            if ($trimmedSegment !== '') {
+                $payload .= $trimmedSegment . "\n";
+            }
+
+            if ($index < $cutMarkerCount) {
+                $payload .= "\n" . $this->networkCutCommand;
+            }
+        }
+
+        return base64_encode(rtrim($payload, "\n"));
     }
 
     private function resolveNotificationDevice(Device $printer, People $provider): Device
@@ -141,6 +229,7 @@ class PrintService
         $data["spool"] = '/spools/' . $spool->getId();
         $data["device"] = $printer->getDevice();
         $data["deviceId"] = $printer->getId();
+        $data["deviceType"] = $printer->getType();
 
         $notificationDevice = $this->resolveNotificationDevice($printer, $provider);
         $this->websocketClient->push($notificationDevice, json_encode($data));
