@@ -17,6 +17,7 @@ class PrintService
 {
     private string $printDeviceType = 'PRINT';
     private string $pdvDeviceType = 'PDV';
+    private string $displayDeviceType = 'DISPLAY';
     private string $networkPrinterProtocol = 'network-ip-raw';
     private string $pdvPrinterProtocol = 'pdv-text';
     private string $networkCutMarker = '[__PRINT_CUT__]';
@@ -89,7 +90,8 @@ class PrintService
             $resolvedPrinter,
             $provider,
             $content,
-            array_merge($aditionalData ?? [], ['printProtocol' => $printProtocol])
+            array_merge($aditionalData ?? [], ['printProtocol' => $printProtocol]),
+            $this->resolveNotificationDevice($resolvedPrinter, $provider, $device)
         );
     }
 
@@ -177,8 +179,21 @@ class PrintService
         return base64_encode(rtrim($payload, "\n"));
     }
 
-    private function resolveNotificationDevice(Device $printer, People $provider): Device
+    private function resolveNotificationDevice(
+        Device $printer,
+        People $provider,
+        ?Device $gatewayDevice = null
+    ): Device
     {
+        if (
+            $gatewayDevice instanceof Device &&
+            $gatewayDevice->getId() !== $printer->getId() &&
+            $this->isNetworkPrinterDevice($printer) &&
+            $this->normalizeDeviceType($gatewayDevice->getType()) === $this->displayDeviceType
+        ) {
+            return $gatewayDevice;
+        }
+
         $deviceConfig = $this->entityManager->getRepository(DeviceConfig::class)->findOneBy([
             'device' => $printer,
             'people' => $provider,
@@ -204,7 +219,13 @@ class PrintService
         return $managerDevice instanceof Device ? $managerDevice : $printer;
     }
 
-    public function addToSpool(Device $printer, People $provider, string  $content, ?array $data = []): Spool
+    public function addToSpool(
+        Device $printer,
+        People $provider,
+        string  $content,
+        ?array $data = [],
+        ?Device $notificationDevice = null
+    ): Spool
     {
         $user = $this->security->getToken()?->getUser();
         $status = $this->statusService->discoveryStatus('open', 'open', 'print');
@@ -231,8 +252,10 @@ class PrintService
         $data["deviceId"] = $printer->getId();
         $data["deviceType"] = $printer->getType();
 
-        $notificationDevice = $this->resolveNotificationDevice($printer, $provider);
-        $this->websocketClient->push($notificationDevice, json_encode($data));
+        $targetNotificationDevice = $notificationDevice instanceof Device
+            ? $notificationDevice
+            : $this->resolveNotificationDevice($printer, $provider);
+        $this->websocketClient->push($targetNotificationDevice, json_encode($data));
 
         return $spool;
     }
