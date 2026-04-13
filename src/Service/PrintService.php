@@ -159,7 +159,7 @@ class PrintService
 
         if ($cutMarkerCount === 0) {
             $payload = rtrim($normalizedText, "\n") . "\n\n" . $this->networkCutCommand;
-            return base64_encode($payload);
+            return $payload;
         }
 
         $segments = explode($this->networkCutMarker, $normalizedText);
@@ -176,7 +176,7 @@ class PrintService
             }
         }
 
-        return base64_encode(rtrim($payload, "\n"));
+        return rtrim($payload, "\n");
     }
 
     private function resolveNotificationDevice(
