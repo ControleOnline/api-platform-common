@@ -129,6 +129,42 @@ class DeviceService
         ], ['id' => 'ASC']);
     }
 
+    public function extractDeviceConfigReferenceId(mixed $reference): ?int
+    {
+        $normalizedReference = trim((string) $reference);
+        if ($normalizedReference === '') {
+            return null;
+        }
+
+        if (preg_match('#/device_configs/(\d+)$#', $normalizedReference, $matches) === 1) {
+            return (int) $matches[1];
+        }
+
+        return null;
+    }
+
+    public function isDeviceConfigReference(mixed $reference): bool
+    {
+        return $this->extractDeviceConfigReferenceId($reference) !== null;
+    }
+
+    public function findDeviceConfigByReference(
+        mixed $reference,
+        ?People $people = null
+    ): ?DeviceConfig {
+        $deviceConfigId = $this->extractDeviceConfigReferenceId($reference);
+        if ($deviceConfigId === null) {
+            return null;
+        }
+
+        $criteria = ['id' => $deviceConfigId];
+        if ($people instanceof People) {
+            $criteria['people'] = $people;
+        }
+
+        return $this->manager->getRepository(DeviceConfig::class)->findOneBy($criteria);
+    }
+
     public function findDeviceConfig(
         Device $device,
         People $people,
