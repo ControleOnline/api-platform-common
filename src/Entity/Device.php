@@ -73,11 +73,6 @@ class Device
     private string $alias = '';
 
     #[Groups(['device_config:read', 'device:read', 'spool_item:read', 'spool:read', 'spool:write', 'device:write'])]
-    #[ApiFilter(filterClass: SearchFilter::class, properties: ['type' => 'exact'])]
-    #[Column(name: 'device_type', type: 'string', length: 50, nullable: true)]
-    private ?string $type = null;
-
-    #[Groups(['device_config:read', 'device:read', 'spool_item:read', 'spool:read', 'spool:write', 'device:write'])]
     #[Column(name: 'metadata', type: 'json', nullable: true)]
     private ?array $metadata = [];
 
@@ -111,18 +106,6 @@ class Device
     public function setAlias(string | null $alias): self
     {
         $this->alias = $alias;
-
-        return $this;
-    }
-
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    public function setType(?string $type): self
-    {
-        $this->type = $type;
 
         return $this;
     }

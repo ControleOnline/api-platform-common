@@ -16,6 +16,7 @@ as Security;
 class PrintService
 {
     private string $printDeviceType = 'PRINT';
+    private string $printerDeviceType = 'PRINTER';
     private string $pdvDeviceType = 'PDV';
     private string $displayDeviceType = 'DISPLAY';
     private string $networkPrinterProtocol = 'network-ip-raw';
@@ -84,7 +85,7 @@ class PrintService
         $text = $this->text;
         $this->text = '';
         $resolvedPrinter = $printer ?: $device;
-        $printProtocol = $this->resolvePrintProtocol($resolvedPrinter);
+        $printProtocol = $this->resolvePrintProtocol($resolvedPrinter, $provider);
         $content = $this->buildPrintContent($text, $printProtocol);
 
         return $this->addToSpool(
@@ -98,15 +99,14 @@ class PrintService
 
     private function resolveSpoolTargetDevice(Device $device, People $provider): ?Device
     {
-        $deviceConfig = $this->deviceService
-            ->discoveryDeviceConfig($device, $provider)
-            ->getConfigs(true);
+        $deviceConfig = $this->deviceService->findDeviceConfig($device, $provider);
+        $configs = $deviceConfig?->getConfigs(true);
 
-        if (!isset($deviceConfig['printer'])) {
+        if (!is_array($configs) || !isset($configs['printer'])) {
             return null;
         }
 
-        return $this->deviceService->discoveryDevice($deviceConfig['printer']);
+        return $this->deviceService->discoveryDevice($configs['printer']);
     }
 
     private function normalizeDeviceType(?string $deviceType): string
@@ -114,18 +114,30 @@ class PrintService
         return strtoupper(trim((string) $deviceType));
     }
 
-    private function isNetworkPrinterDevice(Device $device): bool
+    private function resolveConfiguredDeviceType(Device $device, People $provider): string
     {
-        return $this->normalizeDeviceType($device->getType()) === $this->printDeviceType;
+        $deviceConfig = $this->deviceService->findDeviceConfig($device, $provider);
+        return $this->normalizeDeviceType($deviceConfig?->getType());
     }
 
-    private function resolvePrintProtocol(Device $device): string
+    private function isNetworkPrinterDevice(Device $device, People $provider): bool
     {
-        if ($this->isNetworkPrinterDevice($device)) {
+        return in_array(
+            $this->resolveConfiguredDeviceType($device, $provider),
+            [$this->printDeviceType, $this->printerDeviceType],
+            true
+        );
+    }
+
+    private function resolvePrintProtocol(Device $device, People $provider): string
+    {
+        $deviceType = $this->resolveConfiguredDeviceType($device, $provider);
+
+        if (in_array($deviceType, [$this->printDeviceType, $this->printerDeviceType], true)) {
             return $this->networkPrinterProtocol;
         }
 
-        if ($this->normalizeDeviceType($device->getType()) === $this->pdvDeviceType) {
+        if ($deviceType === $this->pdvDeviceType) {
             return $this->pdvPrinterProtocol;
         }
 
@@ -189,16 +201,13 @@ class PrintService
         if (
             $gatewayDevice instanceof Device &&
             $gatewayDevice->getId() !== $printer->getId() &&
-            $this->isNetworkPrinterDevice($printer) &&
-            $this->normalizeDeviceType($gatewayDevice->getType()) === $this->displayDeviceType
+            $this->isNetworkPrinterDevice($printer, $provider) &&
+            $this->resolveConfiguredDeviceType($gatewayDevice, $provider) === $this->displayDeviceType
         ) {
             return $gatewayDevice;
         }
 
-        $deviceConfig = $this->entityManager->getRepository(DeviceConfig::class)->findOneBy([
-            'device' => $printer,
-            'people' => $provider,
-        ]);
+        $deviceConfig = $this->deviceService->findDeviceConfig($printer, $provider);
 
         if (!$deviceConfig instanceof DeviceConfig) {
             return $printer;
@@ -251,7 +260,7 @@ class PrintService
         $data["spool"] = '/spools/' . $spool->getId();
         $data["device"] = $printer->getDevice();
         $data["deviceId"] = $printer->getId();
-        $data["deviceType"] = $printer->getType();
+        $data["deviceType"] = $this->resolveConfiguredDeviceType($printer, $provider);
 
         $targetNotificationDevice = $notificationDevice instanceof Device
             ? $notificationDevice

@@ -55,6 +55,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Entity(repositoryClass: DeviceConfigRepository::class)]
 class DeviceConfig
 {
+    private const DEFAULT_DEVICE_TYPE = 'DEVICE';
+
     #[Groups(['device_config:read', 'device:read', 'device_config:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['id' => 'exact'])]
     #[Column(name: 'id', type: 'integer', nullable: false)]
@@ -74,6 +76,12 @@ class DeviceConfig
     #[JoinColumn(name: 'device_id', referencedColumnName: 'id', nullable: false)]
     #[ManyToOne(targetEntity: Device::class)]
     private Device $device;
+
+    #[Groups(['device_config:read', 'device:read', 'device_config:write'])]
+    #[NotBlank]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['type' => 'exact'])]
+    #[Column(name: 'device_type', type: 'string', length: 50, nullable: false)]
+    private string $type = self::DEFAULT_DEVICE_TYPE;
 
     #[Groups(['device_config:read', 'device:read', 'device_config:write'])]
     #[NotBlank]
@@ -133,6 +141,24 @@ class DeviceConfig
     public function setDevice(Device $device): self
     {
         $this->device = $device;
+        return $this;
+    }
+
+    public function getType(): string
+    {
+        $normalizedType = strtoupper(trim((string) $this->type));
+        return $normalizedType !== ''
+            ? $normalizedType
+            : self::DEFAULT_DEVICE_TYPE;
+    }
+
+    public function setType(?string $type): self
+    {
+        $normalizedType = strtoupper(trim((string) $type));
+        $this->type = $normalizedType !== ''
+            ? $normalizedType
+            : self::DEFAULT_DEVICE_TYPE;
+
         return $this;
     }
 }
