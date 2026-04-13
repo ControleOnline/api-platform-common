@@ -22,6 +22,7 @@ class PrintService
     private string $pdvPrinterProtocol = 'pdv-text';
     private string $networkCutMarker = '[__PRINT_CUT__]';
     private string $networkCutCommand = "\x1D\x56\x00";
+    private string $networkCutSpacing = "\n\n\n";
     private $initialSpace = 8;
     private $totalChars = 48;
     private $text = '';
@@ -158,7 +159,7 @@ class PrintService
         $cutMarkerCount = substr_count($normalizedText, $this->networkCutMarker);
 
         if ($cutMarkerCount === 0) {
-            $payload = rtrim($normalizedText, "\n") . "\n\n" . $this->networkCutCommand;
+            $payload = rtrim($normalizedText, "\n") . $this->networkCutSpacing . $this->networkCutCommand;
             return $payload;
         }
 
@@ -172,7 +173,7 @@ class PrintService
             }
 
             if ($index < $cutMarkerCount) {
-                $payload .= "\n" . $this->networkCutCommand;
+                $payload .= $this->networkCutSpacing . $this->networkCutCommand;
             }
         }
 
