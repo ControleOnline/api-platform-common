@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\Put;
 
 use ControleOnline\Repository\ModelRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
@@ -49,33 +50,39 @@ class Model
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['category' => 'exact'])]
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: Category::class)]
+    #[Assert\NotNull(message: 'Selecione uma categoria para o modelo.')]
     #[Groups(['contract:read', 'model:read', 'model:write'])]
     private $category;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
     #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: People::class)]
+    #[Assert\NotNull(message: 'Selecione a empresa do modelo.')]
     #[Groups(['contract:read', 'model:read', 'model:write'])]
     private $people;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['signer' => 'exact'])]
     #[ORM\JoinColumn(name: 'signer_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: People::class)]
+    #[Assert\NotNull(message: 'Selecione um signatario responsavel para o modelo.')]
     #[Groups(['contract:read', 'model:read', 'model:write'])]
     private $signer;
 
     #[ORM\JoinColumn(name: 'file_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: File::class)]
+    #[Assert\NotNull(message: 'Associe um arquivo HTML ao modelo.')]
     #[Groups(['model_detail:read', 'model:read', 'model:write'])]
     private $file;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['context' => 'exact'])]
     #[ORM\Column(name: 'context', type: 'string')]
+    #[Assert\NotBlank(message: 'Informe o contexto do modelo.')]
     #[Groups(['contract:read', 'model:read', 'model:write'])]
     private $context;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['model' => 'partial'])]
     #[ORM\Column(name: 'model', type: 'string')]
+    #[Assert\NotBlank(message: 'Informe o nome do modelo.')]
     #[Groups(['contract:read', 'model:read', 'model:write'])]
     private $model;
 
