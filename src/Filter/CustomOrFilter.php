@@ -25,45 +25,55 @@ class CustomOrFilter extends AbstractFilter
 
     protected function filterProperty(string $property, $value, QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
-        if ($property !== 'search') {
+        if ($property !== 'search' || $value === null || $value === '') {
             return;
         }
 
-        $alias = $queryBuilder->getRootAliases()[0];
-        $andWhere = '';
-        $relations = [];
+        $rootAlias = $queryBuilder->getRootAliases()[0];
+        $orWhere = $queryBuilder->expr()->orX();
+        $joinedRelations = [];
 
-        foreach ($this->properties as $property => $propVal) {
-            $relation = explode('.', $property);
+        foreach ($this->properties as $configuredProperty => $propVal) {
+            $relation = explode('.', $configuredProperty, 2);
 
             if (count($relation) > 1) {
-                if (!array_key_exists($relation[0], $relations)) {
-                    $relations[$relation[0]] = uniqid();
-                    $queryBuilder->leftJoin(sprintf('%s.%s', $alias, $relation[0]), 'i');
+                [$relationName, $relationField] = $relation;
+
+                if (!array_key_exists($relationName, $joinedRelations)) {
+                    $joinedRelations[$relationName] = $queryNameGenerator->generateJoinAlias($relationName);
+                    $queryBuilder->leftJoin(
+                        sprintf('%s.%s', $rootAlias, $relationName),
+                        $joinedRelations[$relationName]
+                    );
                 }
 
-                $queryBuilder->orWhere(sprintf('%s.%s LIKE :search', 'i', $relation[1]));
-                $queryBuilder->setParameter('search', '%' . $value . '%');
+                $orWhere->add(
+                    $queryBuilder->expr()->like(
+                        sprintf('%s.%s', $joinedRelations[$relationName], $relationField),
+                        ':search'
+                    )
+                );
+
                 continue;
             }
 
-            $andWhere .= sprintf('%s.%s LIKE :search', $alias, $property);
-
-            next($this->properties);
-            $nextKey = key($this->properties);
-
-            if ($nextKey !== null && !strpos($nextKey, '.') !== false) {
-                $andWhere .= ' OR ';
-            }
+            $orWhere->add(
+                $queryBuilder->expr()->like(
+                    sprintf('%s.%s', $rootAlias, $configuredProperty),
+                    ':search'
+                )
+            );
         }
 
-
-        if (empty($relations)) {
-            $queryBuilder->andWhere($andWhere);
-        } else {
-            $queryBuilder->orWhere($andWhere);
+        if (count($joinedRelations) > 0) {
+            $queryBuilder->distinct();
         }
 
+        if ($orWhere->count() === 0) {
+            return;
+        }
+
+        $queryBuilder->andWhere($orWhere);
         $queryBuilder->setParameter('search', '%' . $value . '%');
     }
 }
