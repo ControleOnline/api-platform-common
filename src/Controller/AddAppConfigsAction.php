@@ -20,8 +20,7 @@ class AddAppConfigsAction
   public function __invoke(Request $request): JsonResponse
   {
     try {
-      $json = json_decode($request->getContent(), true) ?? [];
-      $savedConfigs = $this->configService->addConfigsFromPayload($json);
+      $savedConfigs = $this->configService->addConfigsFromJson($request->getContent());
       $savedItems = array_map(
         fn (Config $config) => $this->hydratorService->item(
           Config::class,

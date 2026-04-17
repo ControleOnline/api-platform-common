@@ -20,8 +20,7 @@ class AddAppConfigAction
   public function __invoke(Request $request): JsonResponse
   {
     try {
-      $json = json_decode($request->getContent(), true);
-      $config = $this->configService->addConfigFromPayload($json);
+      $config = $this->configService->addConfigFromJson($request->getContent());
 
       return new JsonResponse($this->hydratorService->item(Config::class, $config->getId(), "config:read"), Response::HTTP_OK);
     } catch (Exception $e) {

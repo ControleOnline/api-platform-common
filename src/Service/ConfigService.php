@@ -79,6 +79,11 @@ class ConfigService
         );
     }
 
+    public function addConfigFromJson(?string $content): Config
+    {
+        return $this->addConfigFromPayload($this->decodePayload($content));
+    }
+
     public function addConfigsFromPayload(array $payload): array
     {
         $people = $this->resolvePeopleReference($payload['people'] ?? '');
@@ -104,6 +109,11 @@ class ConfigService
         }
 
         return $savedItems;
+    }
+
+    public function addConfigsFromJson(?string $content): array
+    {
+        return $this->addConfigsFromPayload($this->decodePayload($content));
     }
 
     public function normalizeConfigValue(mixed $configValue): mixed
@@ -137,9 +147,32 @@ class ConfigService
         );
     }
 
+    public function resolveDeviceReference(mixed $deviceReference): ?Device
+    {
+        $normalizedDevice = trim((string) $deviceReference);
+        if ($normalizedDevice === '') {
+            return null;
+        }
+
+        return $this->manager->getRepository(Device::class)->findOneBy([
+            'device' => $normalizedDevice,
+        ]);
+    }
+
     public function decodeConfigValue(mixed $configValue): mixed
     {
         return json_decode($configValue, true);
+    }
+
+    public function decodePayload(?string $content): array
+    {
+        if (!is_string($content) || trim($content) === '') {
+            return [];
+        }
+
+        $decoded = json_decode($content, true);
+
+        return is_array($decoded) ? $decoded : [];
     }
 
     private function normalizeReferenceId(mixed $reference): string
@@ -155,6 +188,33 @@ class ConfigService
         $this->discoveryCieloWallet($people);
 
         return $this->getCompanyConfigs($people);
+    }
+
+    public function discoveryMainConfigsFromPayload(
+        array $payload,
+        ?string $deviceIdentifier = null
+    )
+    {
+        $people = $this->resolvePeopleReference($payload['people'] ?? '');
+        if (!$people instanceof People) {
+            throw new \InvalidArgumentException('People not found');
+        }
+
+        return $this->discoveryMainConfigs(
+            $people,
+            $this->resolveDeviceReference($deviceIdentifier)
+        );
+    }
+
+    public function discoveryMainConfigsFromJson(
+        ?string $content,
+        ?string $deviceIdentifier = null
+    )
+    {
+        return $this->discoveryMainConfigsFromPayload(
+            $this->decodePayload($content),
+            $deviceIdentifier
+        );
     }
 
     public function getCompanyConfigs(People $people, $visibility = 'public')

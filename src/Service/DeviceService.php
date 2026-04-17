@@ -88,6 +88,39 @@ class DeviceService
         return $deviceBody !== '' ? $deviceBody : $deviceHeader;
     }
 
+    public function resolveDeviceReference(mixed $reference): ?Device
+    {
+        $normalizedReference = trim((string) $reference);
+        if ($normalizedReference === '') {
+            return null;
+        }
+
+        $device = $this->manager->getRepository(Device::class)->findOneBy([
+            'device' => $normalizedReference,
+        ]);
+
+        if ($device instanceof Device) {
+            return $device;
+        }
+
+        if (
+            preg_match('#/devices/(\d+)$#', $normalizedReference, $matches) === 1
+        ) {
+            return $this->manager->getRepository(Device::class)->find(
+                (int) $matches[1]
+            );
+        }
+
+        return null;
+    }
+
+    public function resolvePeopleReference(mixed $reference): ?People
+    {
+        return $this->manager->getRepository(People::class)->find(
+            preg_replace("/[^0-9]/", "", (string) $reference)
+        );
+    }
+
     public function normalizeDeviceConfigsPayload(mixed $rawConfigs): array
     {
         if (is_array($rawConfigs)) {
@@ -103,6 +136,41 @@ class DeviceService
         return is_array($decodedConfigs) ? $decodedConfigs : [];
     }
 
+    public function addDeviceConfigFromPayload(
+        Request $request,
+        array $payload = []
+    ): DeviceConfig {
+        $device = $this->resolveDeviceIdentifier($request, $payload);
+
+        if ($device === '') {
+            throw new \InvalidArgumentException(
+                'DEVICE header or body field "device" is required.'
+            );
+        }
+
+        $people = $this->resolvePeopleReference($payload['people'] ?? '');
+        if (!$people instanceof People) {
+            throw new \InvalidArgumentException('People not found');
+        }
+
+        return $this->addDeviceConfigs(
+            $people,
+            $this->normalizeDeviceConfigsPayload($payload['configs'] ?? []),
+            $device,
+            $this->resolveDeviceConfigTypeFromRequest($request, $payload)
+        );
+    }
+
+    public function addDeviceConfigFromContent(
+        Request $request,
+        ?string $content
+    ): DeviceConfig {
+        return $this->addDeviceConfigFromPayload(
+            $request,
+            $this->decodePayload($content)
+        );
+    }
+
     public function resolveDeviceConfigTypeFromRequest(Request $request, array $payload = []): string
     {
         $type = trim((string) (
@@ -113,6 +181,17 @@ class DeviceService
         ));
 
         return $this->normalizeDeviceConfigType($type);
+    }
+
+    private function decodePayload(?string $content): array
+    {
+        if (!is_string($content) || trim($content) === '') {
+            return [];
+        }
+
+        $decoded = json_decode($content, true);
+
+        return is_array($decoded) ? $decoded : [];
     }
 
     private function isPrinterDeviceConfigType(?string $type): bool
