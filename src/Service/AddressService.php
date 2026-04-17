@@ -25,7 +25,7 @@ class AddressService
   public function discoveryAddress(
     ?People $people = null,
     int $postalCode,
-    int $streetNumber,
+    int|string|null $streetNumber,
     string $streetName,
     string $district,
     string $city,
@@ -36,6 +36,9 @@ class AddressService
     ?int $longitude = 0,
     ?string $nickName = 'Default',
   ): Address {
+    $streetNumberPayload = $this->normalizeStreetNumberPayload($streetNumber, $complement);
+    $streetNumber = $streetNumberPayload['number'];
+    $complement = $streetNumberPayload['complement'];
 
     $cep = ($postalCode) ? $this->discoveryCep($postalCode) : null;
     $country = ($countryCode) ? $this->getCountry($countryCode) : null;
@@ -67,6 +70,45 @@ class AddressService
     $this->manager->flush();
 
     return  $address;
+  }
+
+  private function normalizeStreetNumberPayload(int|string|null $streetNumber, ?string $complement): array
+  {
+    $rawStreetNumber = trim((string) $streetNumber);
+
+    if ($rawStreetNumber === '') {
+      return [
+        'number' => null,
+        'complement' => $complement
+      ];
+    }
+
+    if (ctype_digit($rawStreetNumber)) {
+      return [
+        'number' => (int) $rawStreetNumber,
+        'complement' => $complement
+      ];
+    }
+
+    return [
+      'number' => null,
+      'complement' => $this->mergeStreetNumberIntoComplement($rawStreetNumber, $complement)
+    ];
+  }
+
+  private function mergeStreetNumberIntoComplement(string $streetNumber, ?string $complement): string
+  {
+    $complement = trim((string) $complement);
+
+    if ($complement === '') {
+      return $streetNumber;
+    }
+
+    if (stripos($complement, $streetNumber) !== false) {
+      return $complement;
+    }
+
+    return trim(sprintf('%s %s', $streetNumber, $complement));
   }
 
 
