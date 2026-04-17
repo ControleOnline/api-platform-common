@@ -7,6 +7,7 @@ use ControleOnline\Entity\DeviceConfig;
 use ControleOnline\Entity\People;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class DeviceService
@@ -77,6 +78,41 @@ class DeviceService
         return $normalizedType !== ''
             ? $normalizedType
             : self::DEFAULT_DEVICE_CONFIG_TYPE;
+    }
+
+    public function resolveDeviceIdentifier(Request $request, array $payload = []): string
+    {
+        $deviceHeader = trim((string) $request->headers->get('device', ''));
+        $deviceBody = trim((string) ($payload['device'] ?? ''));
+
+        return $deviceBody !== '' ? $deviceBody : $deviceHeader;
+    }
+
+    public function normalizeDeviceConfigsPayload(mixed $rawConfigs): array
+    {
+        if (is_array($rawConfigs)) {
+            return $rawConfigs;
+        }
+
+        if (!is_string($rawConfigs)) {
+            return [];
+        }
+
+        $decodedConfigs = json_decode($rawConfigs, true);
+
+        return is_array($decodedConfigs) ? $decodedConfigs : [];
+    }
+
+    public function resolveDeviceConfigTypeFromRequest(Request $request, array $payload = []): string
+    {
+        $type = trim((string) (
+            $payload['type']
+            ?? $request->headers->get('device-type')
+            ?? $request->headers->get('type')
+            ?? ''
+        ));
+
+        return $this->normalizeDeviceConfigType($type);
     }
 
     private function isPrinterDeviceConfigType(?string $type): bool

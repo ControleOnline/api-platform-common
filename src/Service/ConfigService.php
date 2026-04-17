@@ -68,6 +68,85 @@ class ConfigService
         return $config;
     }
 
+    public function addConfigFromPayload(array $payload): Config
+    {
+        return $this->addConfig(
+            $this->resolvePeopleReference($payload['people'] ?? ''),
+            $payload['configKey'],
+            $this->decodeConfigValue($payload['configValue'] ?? null),
+            $this->resolveModuleReference($payload['module'] ?? ''),
+            $payload['visibility'] ?? 'public'
+        );
+    }
+
+    public function addConfigsFromPayload(array $payload): array
+    {
+        $people = $this->resolvePeopleReference($payload['people'] ?? '');
+        $module = $this->resolveModuleReference($payload['module'] ?? '');
+        $visibility = $payload['visibility'] ?? 'public';
+        $configs = is_array($payload['configs'] ?? null) ? $payload['configs'] : [];
+        $savedItems = [];
+
+        foreach ($configs as $configItem) {
+            $configKey = $configItem['configKey'] ?? null;
+
+            if (!$configKey) {
+                continue;
+            }
+
+            $savedItems[] = $this->addConfig(
+                $people,
+                $configKey,
+                $this->normalizeConfigValue($configItem['configValue'] ?? ''),
+                $module,
+                $visibility
+            );
+        }
+
+        return $savedItems;
+    }
+
+    public function normalizeConfigValue(mixed $configValue): mixed
+    {
+        if (!is_string($configValue)) {
+            return $configValue;
+        }
+
+        if (trim($configValue) === '') {
+            return '';
+        }
+
+        try {
+            return json_decode($configValue, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return $configValue;
+        }
+    }
+
+    public function resolvePeopleReference(mixed $peopleReference): ?People
+    {
+        return $this->manager->getRepository(People::class)->find(
+            $this->normalizeReferenceId($peopleReference)
+        );
+    }
+
+    public function resolveModuleReference(mixed $moduleReference): ?Module
+    {
+        return $this->manager->getRepository(Module::class)->find(
+            $this->normalizeReferenceId($moduleReference)
+        );
+    }
+
+    public function decodeConfigValue(mixed $configValue): mixed
+    {
+        return json_decode($configValue, true);
+    }
+
+    private function normalizeReferenceId(mixed $reference): string
+    {
+        return preg_replace("/[^0-9]/", "", (string) $reference);
+    }
+
     public function discoveryMainConfigs(People $people, ?Device $device = null)
     {
         $this->discoveryCashWallet($people);

@@ -24,14 +24,7 @@ class AddDeviceConfigAction
   {
     try {
       $json = json_decode($request->getContent(), true) ?? [];
-      $deviceHeader = trim((string) $request->headers->get('device', ''));
-      $deviceBody = trim((string) ($json['device'] ?? ''));
-      $device = $deviceBody !== '' ? $deviceBody : $deviceHeader;
-      error_log(sprintf(
-        '[AddDeviceConfigAction] device resolved: %s | source: %s',
-        (string) ($device ?? 'null'),
-        $deviceBody !== '' ? 'body' : ($deviceHeader !== '' ? 'header' : 'none')
-      ));
+      $device = $this->deviceService->resolveDeviceIdentifier($request, $json);
 
       if ($device === '') {
         return new JsonResponse([
@@ -40,16 +33,8 @@ class AddDeviceConfigAction
       }
 
       $people = $this->manager->getRepository(People::class)->find(preg_replace("/[^0-9]/", "", $json['people']));
-      $rawConfigs = $json['configs'] ?? [];
-      $configs = is_string($rawConfigs)
-        ? (json_decode($rawConfigs, true) ?? [])
-        : (is_array($rawConfigs) ? $rawConfigs : []);
-      $type = trim((string) (
-        $json['type']
-        ?? $request->headers->get('device-type')
-        ?? $request->headers->get('type')
-        ?? ''
-      ));
+      $configs = $this->deviceService->normalizeDeviceConfigsPayload($json['configs'] ?? []);
+      $type = $this->deviceService->resolveDeviceConfigTypeFromRequest($request, $json);
       $device_config = $this->deviceService->addDeviceConfigs(
         $people,
         $configs,
