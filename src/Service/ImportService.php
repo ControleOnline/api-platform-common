@@ -3,6 +3,8 @@
 namespace ControleOnline\Service;
 
 use ControleOnline\Entity\Import;
+use ControleOnline\Entity\File;
+use ControleOnline\Entity\People;
 use ControleOnline\Repository\ImportRepository;
 use ControleOnline\Service\Imports\ImportProcessorResolver;
 use ControleOnline\Service\StatusService;
@@ -78,5 +80,32 @@ class ImportService
         $processor = $this->resolver->resolve($type);
 
         return $processor->getExampleCsv();
+    }
+
+    public function createCsvImport(
+        File $file,
+        ?People $people,
+        string $importType
+    ): Import {
+        $status = $this->statusService->discoveryStatus(
+            'open',
+            'open',
+            'integration'
+        );
+
+        $import = new Import();
+        $import->setImportType($importType);
+        $import->setFileFormat('csv');
+        $import->setFile($file);
+        $import->setStatus($status);
+
+        if ($people instanceof People) {
+            $import->setPeople($people);
+        }
+
+        $this->entityManager->persist($import);
+        $this->entityManager->flush();
+
+        return $import;
     }
 }

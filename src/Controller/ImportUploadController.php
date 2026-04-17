@@ -2,27 +2,20 @@
 
 namespace ControleOnline\Controller;
 
-use ControleOnline\Entity\File;
-use ControleOnline\Entity\Import;
-use ControleOnline\Entity\People;
-use ControleOnline\Service\StatusService;
-use Doctrine\ORM\EntityManagerInterface;
+use ControleOnline\Service\FileService;
+use ControleOnline\Service\ImportService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ImportUploadController extends AbstractController
 {
-
-    private EntityManagerInterface $em;
-
     public function __construct(
-        private StatusService $statusService,
-        EntityManagerInterface $em
-    ) {
-        $this->em = $em;
-    }
+        private FileService $fileService,
+        private ImportService $importService
+    ) {}
 
     public function __invoke(Request $request): Response
     {
@@ -51,45 +44,9 @@ class ImportUploadController extends AbstractController
             throw new BadRequestHttpException('Only CSV files are allowed');
         }
 
-
-        $file = new File();
-
-        $file->setFileName($uploadedFile->getClientOriginalName());
-        $file->setExtension('csv');
-        $file->setFileType('import');
-        $file->setContext('import');
-        $file->setContent(file_get_contents($uploadedFile->getPathname()));
-
-        $people =   $this->em->getRepository(People::class)->find(
-            str_replace('/\D/', '', $peopleId)
-        );
-
-        if ($people) {
-            $file->setPeople($people);
-        }
-
-        $this->em->persist($file);
-
-        $status = $this->statusService->discoveryStatus(
-            'open',
-            'open',
-            'integration'
-        );
-
-        $import = new Import();
-
-        $import->setImportType($importType);
-        $import->setFileFormat('csv');
-        $import->setFile($file);
-        $import->setStatus($status);
-
-        if ($people) {
-            $import->setPeople($people);
-        }
-
-        $this->em->persist($import);
-
-        $this->em->flush();
+        $people = $this->fileService->resolvePeopleReference($peopleId);
+        $file = $this->fileService->addUploadedFile($uploadedFile, $people, 'import');
+        $import = $this->importService->createCsvImport($file, $people, $importType);
 
         $data = [
             'id' => $import->getId(),
@@ -98,6 +55,6 @@ class ImportUploadController extends AbstractController
             'status' => $import->getStatus()->getStatus(),
         ];
 
-        return new Response(json_encode($data), 200, ['Content-Type' => 'application/json']);
+        return new JsonResponse($data, 200);
     }
 }

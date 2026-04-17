@@ -88,6 +88,11 @@ class DeviceService
         return $deviceBody !== '' ? $deviceBody : $deviceHeader;
     }
 
+    public function decodePayloadContent(?string $content): array
+    {
+        return $this->decodePayload($content);
+    }
+
     public function resolveDeviceReference(mixed $reference): ?Device
     {
         $normalizedReference = trim((string) $reference);
