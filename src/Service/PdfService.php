@@ -30,6 +30,10 @@ class PdfService
     {
         $options = new Options();
         $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isFontSubsettingEnabled', true);
+        $options->set('defaultFont', 'DejaVu Sans');
+        $options->set('dpi', 96);
 
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml($html);
