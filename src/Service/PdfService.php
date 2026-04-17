@@ -26,14 +26,19 @@ class PdfService
         return $response;
     }
 
-    public function convertHtmlToPdf($html): string
+    public function convertHtmlToPdf($html, bool $allowRemoteAssets = true, array $localAssetRoots = []): string
     {
         $options = new Options();
-        $options->set('isRemoteEnabled', true);
+        $options->set('isRemoteEnabled', $allowRemoteAssets);
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isFontSubsettingEnabled', true);
         $options->set('defaultFont', 'DejaVu Sans');
         $options->set('dpi', 96);
+        $options->set('tempDir', sys_get_temp_dir());
+
+        if ($localAssetRoots !== []) {
+            $options->setChroot($localAssetRoots);
+        }
 
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml($html);
