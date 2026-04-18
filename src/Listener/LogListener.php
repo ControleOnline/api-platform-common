@@ -3,159 +3,268 @@
 namespace ControleOnline\Listener;
 
 use ControleOnline\Entity\Log;
-use ControleOnline\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Event\PrePersistEventArgs;
-use Doctrine\ORM\Event\PostPersistEventArgs;
-use Doctrine\ORM\Event\PreUpdateEventArgs;
-use Doctrine\ORM\Event\PostUpdateEventArgs;
-use Doctrine\ORM\Event\PreRemoveEventArgs;
-use Doctrine\ORM\Event\PostRemoveEventArgs;
-use Symfony\Bundle\SecurityBundle\Security;
+use Doctrine\ORM\Event\OnFlushEventArgs;
+use Doctrine\ORM\Event\PostFlushEventArgs;
+use Doctrine\ORM\Mapping\ClassMetadata;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class LogListener
 {
-    private array $log = [];
-    private ?User $currentUser = null;
-    private array $getterCache = [];
+    private array $pendingLogs = [];
+    private bool $writingLogs = false;
 
-    public function __construct(private Security $security) {}
+    public function __construct(private TokenStorageInterface $tokenStorage) {}
 
-    public function prePersist(PrePersistEventArgs $event): void
+    public function onFlush(OnFlushEventArgs $event): void
     {
-        $this->logEntity($event->getObject(), 'insert', $event->getObjectManager());
-    }
-
-    public function postPersist(PostPersistEventArgs $event): void
-    {
-        $this->persistLogs($event->getObjectManager(), $event->getObject());
-    }
-
-    public function preUpdate(PreUpdateEventArgs $event): void
-    {
-        $this->logEntity($event->getObject(), 'update', $event->getObjectManager());
-    }
-
-    public function postUpdate(PostUpdateEventArgs $event): void
-    {
-        $this->persistLogs($event->getObjectManager(), $event->getObject());
-    }
-
-    public function preRemove(PreRemoveEventArgs $event): void
-    {
-        $this->logEntity($event->getObject(), 'delete', $event->getObjectManager());
-    }
-
-    public function postRemove(PostRemoveEventArgs $event): void
-    {
-        $this->persistLogs($event->getObjectManager(), $event->getObject());
-    }
-
-    private function logEntity(?object $entity, string $action, EntityManagerInterface $em): void
-    {
-        if (!$entity || $entity instanceof Log) return;
-
-        $className = $em->getClassMetadata(get_class($entity))->getName();
-        $changes = $this->normalizeChanges($this->extractChanges($entity, $em));
-
-        if (!empty($changes)) {
-            $this->log[] = [
-                'action' => $action,
-                'class'  => $className,
-                'object' => $changes,
-                'row_id' => method_exists($entity, 'getId') ? $entity->getId() : null,
-            ];
+        if ($this->writingLogs) {
+            return;
         }
-    }
 
-    private function extractChanges(object $entity, EntityManagerInterface $em): array
-    {
+        $em = $event->getObjectManager();
         $uow = $em->getUnitOfWork();
-        if ($uow->isInIdentityMap($entity)) {
-            $changes = $uow->getEntityChangeSet($entity);
-            if (!empty($changes)) {
-                return $changes;
-            }
+
+        foreach ($uow->getScheduledEntityInsertions() as $entity) {
+            $this->queueLog(
+                $em,
+                $entity,
+                'insert',
+                $this->extractEntityState($entity, $em),
+                true
+            );
         }
 
-        $class = get_class($entity);
-        if (!isset($this->getterCache[$class])) {
-            $this->getterCache[$class] = [];
-            $reflection = new \ReflectionClass($entity);
-            foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
-                if (
-                    str_starts_with($method->getName(), 'get') &&
-                    !$method->isStatic() &&
-                    $method->getNumberOfParameters() === 0
-                ) {
-                    $this->getterCache[$class][] = $method->getName();
-                }
-            }
+        foreach ($uow->getScheduledEntityUpdates() as $entity) {
+            $this->queueLog(
+                $em,
+                $entity,
+                'update',
+                $uow->getEntityChangeSet($entity)
+            );
         }
 
-        $data = [];
-        foreach ($this->getterCache[$class] as $methodName) {
-            try {
-                $value = $entity->{$methodName}();
-                if (!is_object($value)) {
-                    $property = lcfirst(substr($methodName, 3));
-                    $data[$property] = $value;
-                }
-            } catch (\Throwable) {
+        foreach ($uow->getScheduledEntityDeletions() as $entity) {
+            $changes = $uow->getOriginalEntityData($entity);
+            if ($changes === []) {
+                $changes = $this->extractEntityState($entity, $em);
+            }
+
+            $this->queueLog($em, $entity, 'delete', $changes);
+        }
+    }
+
+    public function postFlush(PostFlushEventArgs $event): void
+    {
+        if ($this->writingLogs || $this->pendingLogs === []) {
+            return;
+        }
+
+        $this->writingLogs = true;
+
+        try {
+            $this->writeLogs($event->getObjectManager());
+        } finally {
+            $this->writingLogs = false;
+        }
+    }
+
+    private function queueLog(
+        EntityManagerInterface $em,
+        object $entity,
+        string $action,
+        array $changes,
+        bool $resolveRowAfterFlush = false
+    ): void {
+        if ($entity instanceof Log) {
+            return;
+        }
+
+        if ($action === 'update' && $changes === []) {
+            return;
+        }
+
+        $metadata = $em->getClassMetadata($entity::class);
+
+        $this->pendingLogs[] = [
+            'action' => $action,
+            'class' => $metadata->getName(),
+            'object' => $this->normalizeChanges($changes),
+            'row' => $resolveRowAfterFlush ? null : $this->resolveRowId($entity, $metadata),
+            'entity' => $resolveRowAfterFlush ? $entity : null,
+            'metadata' => $resolveRowAfterFlush ? $metadata : null,
+        ];
+    }
+
+    private function writeLogs(EntityManagerInterface $em): void
+    {
+        $logs = $this->pendingLogs;
+        $this->pendingLogs = [];
+
+        $userId = $this->resolveCurrentUserId();
+        $connection = $em->getConnection();
+
+        foreach ($logs as $logData) {
+            $rowId = $logData['row'];
+            $object = $logData['object'];
+
+            if (
+                $rowId === null
+                && isset($logData['entity'], $logData['metadata'])
+                && is_object($logData['entity'])
+                && $logData['metadata'] instanceof ClassMetadata
+            ) {
+                $rowId = $this->resolveRowId($logData['entity'], $logData['metadata']);
+                $object = $this->appendResolvedIdentifier($object, $rowId, $logData['metadata']);
+            }
+
+            if ($rowId === null) {
                 continue;
             }
+
+            $connection->insert('log', [
+                'type' => 'entity',
+                'action' => $logData['action'],
+                'class' => $logData['class'],
+                'object' => json_encode(
+                    $object,
+                    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR
+                ),
+                'user_id' => $userId,
+                'row' => $rowId,
+            ]);
+        }
+    }
+
+    private function extractEntityState(object $entity, EntityManagerInterface $em): array
+    {
+        $metadata = $em->getClassMetadata($entity::class);
+        $state = [];
+
+        foreach ($metadata->getFieldNames() as $fieldName) {
+            $state[$fieldName] = $metadata->getFieldValue($entity, $fieldName);
         }
 
-        return $data;
+        foreach ($metadata->getAssociationNames() as $associationName) {
+            if ($metadata->isCollectionValuedAssociation($associationName)) {
+                continue;
+            }
+
+            $state[$associationName] = $metadata->getFieldValue($entity, $associationName);
+        }
+
+        return $state;
+    }
+
+    private function resolveCurrentUserId(): ?int
+    {
+        $token = $this->tokenStorage->getToken();
+        $user = $token?->getUser();
+
+        if (!is_object($user) || !method_exists($user, 'getId')) {
+            return null;
+        }
+
+        $id = $user->getId();
+        if ($id === null || $id === '') {
+            return null;
+        }
+
+        return is_int($id) ? $id : (is_numeric($id) ? (int) $id : null);
+    }
+
+    private function resolveRowId(object $entity, ClassMetadata $metadata): ?int
+    {
+        $identifierValues = $metadata->getIdentifierValues($entity);
+        if (count($identifierValues) !== 1) {
+            return null;
+        }
+
+        $id = array_values($identifierValues)[0];
+        if ($id === null || $id === '') {
+            return null;
+        }
+
+        return is_int($id) ? $id : (is_numeric($id) ? (int) $id : null);
+    }
+
+    private function appendResolvedIdentifier(array $object, ?int $rowId, ClassMetadata $metadata): array
+    {
+        if ($rowId === null) {
+            return $object;
+        }
+
+        $identifierFields = $metadata->getIdentifierFieldNames();
+        if (count($identifierFields) !== 1) {
+            return $object;
+        }
+
+        $identifierField = $identifierFields[0];
+        if (($object[$identifierField] ?? null) !== null) {
+            return $object;
+        }
+
+        $object[$identifierField] = $rowId;
+
+        return $object;
     }
 
     private function normalizeChanges(array $changes): array
     {
         $normalized = [];
-        foreach ($changes as $field => $values) {
-            if (is_array($values) && count($values) === 2) {
+
+        foreach ($changes as $field => $value) {
+            if (
+                is_array($value)
+                && count($value) === 2
+                && array_key_exists(0, $value)
+                && array_key_exists(1, $value)
+            ) {
                 $normalized[$field] = [
-                    $this->stringifyValue($values[0]),
-                    $this->stringifyValue($values[1])
+                    $this->normalizeValue($value[0]),
+                    $this->normalizeValue($value[1]),
                 ];
-            } else {
-                $normalized[$field] = $this->stringifyValue($values);
+                continue;
             }
+
+            $normalized[$field] = $this->normalizeValue($value);
         }
+
         return $normalized;
     }
 
-    private function stringifyValue($value): mixed
+    private function normalizeValue(mixed $value): mixed
     {
+        if (is_array($value)) {
+            $normalized = [];
+            foreach ($value as $key => $item) {
+                $normalized[$key] = $this->normalizeValue($item);
+            }
+
+            return $normalized;
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d H:i:s');
+        }
+
+        if ($value instanceof \BackedEnum) {
+            return $value->value;
+        }
+
+        if ($value instanceof \UnitEnum) {
+            return $value->name;
+        }
+
         if (is_object($value)) {
-            if ($value instanceof \DateTimeInterface) {
-                return $value->format('Y-m-d H:i:s');
-            }
             if (method_exists($value, 'getId')) {
-                return 'Entity:' . get_class($value) . '#' . $value->getId();
+                $entityId = $value->getId();
+                return sprintf('%s#%s', $value::class, $entityId ?? 'null');
             }
-            return (string) get_class($value);
+
+            return $value::class;
         }
+
         return $value;
-    }
-
-    public function persistLogs(EntityManagerInterface $em, ?object $entity = null): void
-    {
-        if (empty($this->log)) return;
-
-        $this->currentUser = $this->security->getUser();
-        $conn = $em->getConnection();
-
-        foreach ($this->log as $logData) {
-            $conn->insert('log', [
-                'action'   => $logData['action'],
-                'class'    => $logData['class'],
-                'object'   => json_encode($logData['object'], JSON_UNESCAPED_UNICODE),
-                'user_id'  => $this->currentUser?->getId(),
-                'row'   => $logData['row_id'],
-            ]);
-        }
-
-        $this->log = [];
     }
 }

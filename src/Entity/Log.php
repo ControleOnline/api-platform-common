@@ -10,6 +10,9 @@ class Log
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: 'integer')]
     private ?int $id = null;
 
+    #[ORM\Column(type: 'string', length: 50, options: ['default' => 'entity'])]
+    private string $type = 'entity';
+
     #[ORM\Column(type: 'string')]
     private string $action;
 
@@ -41,6 +44,24 @@ class Log
     public function setId(?int $id): self
     {
         $this->id = $id;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of type
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set the value of type
+     */
+    public function setType(string $type): self
+    {
+        $this->type = $type;
 
         return $this;
     }
