@@ -9,3 +9,4 @@
 - Nao mover para `common` regra de negocio que pertence claramente a um dominio especifico.
 - `common` deve servir de base para os outros modulos, nao virar dono de regras de `orders`, `financial`, `people` ou `products`.
 - O `DefaultEventListener` precisa preservar o estado anterior real da entidade no `preUpdate`, porque o contrato de `onEntityChanged` depende desse diff.
+- `HydratorService` define o payload padrao interno das colecoes e itens. Quando algum endpoint customizado ou decorado precisar manter filtros/paginacao da API Platform, adapte o resultado para esse payload aqui em vez de criar tolerancia no frontend.

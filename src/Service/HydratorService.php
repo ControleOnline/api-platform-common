@@ -44,13 +44,15 @@ class HydratorService
         return $errorResponse;
     }
 
-    public function collectionData($data, $class, $groups,  mixed $arguments = [])
+    public function collectionData($data, $class, $groups,  mixed $arguments = [], ?int $totalItems = null)
     {
         $response = $this->getBasicResponse($class);
 
         $response['member']      =   $this->data($data, $groups);
         $response['search']       =   $this->getSearch($class);
-        $response['totalItems']   =   $this->getCount($class, $arguments);
+        $response['totalItems']   =   null !== $totalItems
+            ? $totalItems
+            : $this->getCount($class, $arguments);
 
         return $response;
     }
