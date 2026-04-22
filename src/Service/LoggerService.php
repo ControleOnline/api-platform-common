@@ -2,32 +2,25 @@
 
 namespace ControleOnline\Service;
 
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class LoggerService
 {
-  private static $loggers = [];
-  private string $logsDir;
+    public function __construct(
+        private EntityManagerInterface $manager,
+        private TokenStorageInterface $tokenStorage
+    ) {}
 
-  public function __construct(ParameterBagInterface $parameterBag)
-  {
-    $this->logsDir = $parameterBag->get('kernel.logs_dir');
-  }
+    public function getLogger(string $name): LoggerInterface
+    {
+        $normalizedName = trim($name) !== '' ? trim($name) : 'application';
 
-  public function getLogger(string $name): LoggerInterface
-  {
-    if (!isset(self::$loggers[$name])) {
-      $logger = new Logger($name);
-      $logger->pushHandler(new StreamHandler(
-        $this->logsDir . '/' . $name . '.log',
-        Logger::INFO
-      ));
-      self::$loggers[$name] = $logger;
+        return new DatabaseLogger(
+            $this->manager->getConnection(),
+            $this->tokenStorage,
+            $normalizedName
+        );
     }
-
-    return self::$loggers[$name];
-  }
 }

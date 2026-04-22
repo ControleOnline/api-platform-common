@@ -10,11 +10,19 @@
       "ControleOnline\\Listener\\": "src/Listener/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "ControleOnline\\Common\\Tests\\": "tests/"
+    }
+  },
   "authors": [
     {
       "name": "Controle Online",
       "email": "luiz.kim@controleonline.com"
     }
   ],
-  "require": {}
+  "require": {},
+  "require-dev": {
+    "phpunit/phpunit": "^12.1"
+  }
 }

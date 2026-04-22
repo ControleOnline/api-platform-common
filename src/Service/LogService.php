@@ -18,8 +18,18 @@ class LogService
     public function securityFilter(QueryBuilder $queryBuilder, $resourceClass = null, $applyTo = null, $rootAlias = null): void
     {
         $request = $this->requestStack->getCurrentRequest();
+        $logType = strtolower(trim((string) $request?->query->get('type', 'entity')));
         $targetClass = trim((string) $request?->query->get('class', ''));
         $targetRow = (int) preg_replace('/\D+/', '', (string) $request?->query->get('row', ''));
+
+        if ($logType === 'generic') {
+            $queryBuilder->andWhere(sprintf('%s.type = :log_type', $rootAlias));
+            $queryBuilder->andWhere(sprintf('%s.class IS NULL', $rootAlias));
+            $queryBuilder->andWhere(sprintf('%s.row IS NULL', $rootAlias));
+            $queryBuilder->setParameter('log_type', 'generic');
+
+            return;
+        }
 
         if (
             $targetClass === ''
@@ -31,8 +41,10 @@ class LogService
             return;
         }
 
+        $queryBuilder->andWhere(sprintf('%s.type = :log_type', $rootAlias));
         $queryBuilder->andWhere(sprintf('%s.class = :log_target_class', $rootAlias));
         $queryBuilder->andWhere(sprintf('%s.row = :log_target_row', $rootAlias));
+        $queryBuilder->setParameter('log_type', 'entity');
         $queryBuilder->setParameter('log_target_class', $targetClass);
         $queryBuilder->setParameter('log_target_row', $targetRow);
 

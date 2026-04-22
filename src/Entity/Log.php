@@ -49,13 +49,13 @@ class Log
     #[Groups(['log:read'])]
     private string $action;
 
-    #[ORM\Column(name: 'class', type: 'string')]
+    #[ORM\Column(name: 'class', type: 'string', nullable: true)]
     #[Groups(['log:read'])]
-    private string $class;
+    private ?string $class = null;
 
-    #[ORM\Column(name: 'row', type: 'integer')]
+    #[ORM\Column(name: 'row', type: 'integer', nullable: true)]
     #[Groups(['log:read'])]
-    private int $row;
+    private ?int $row = null;
 
     #[ORM\Column(type: 'text')]
     private string $object;
@@ -103,12 +103,12 @@ class Log
         return $this;
     }
 
-    public function getClass(): string
+    public function getClass(): ?string
     {
         return $this->class;
     }
 
-    public function setClass(string $class): self
+    public function setClass(?string $class): self
     {
         $this->class = $class;
 
@@ -139,12 +139,12 @@ class Log
         return $this;
     }
 
-    public function getRow(): int
+    public function getRow(): ?int
     {
         return $this->row;
     }
 
-    public function setRow(int $row): self
+    public function setRow(?int $row): self
     {
         $this->row = $row;
 
@@ -165,6 +165,39 @@ class Log
     }
 
     #[Groups(['log:read'])]
+    public function getLevel(): string
+    {
+        return $this->action;
+    }
+
+    #[Groups(['log:read'])]
+    public function getChannel(): ?string
+    {
+        $payload = $this->getPayload();
+        $channel = $payload['channel'] ?? null;
+
+        return is_string($channel) && trim($channel) !== '' ? trim($channel) : null;
+    }
+
+    #[Groups(['log:read'])]
+    public function getMessage(): ?string
+    {
+        $payload = $this->getPayload();
+        $message = $payload['message'] ?? null;
+
+        return is_string($message) && trim($message) !== '' ? trim($message) : null;
+    }
+
+    #[Groups(['log:read'])]
+    public function getContextData(): array
+    {
+        $payload = $this->getPayload();
+        $context = $payload['context'] ?? [];
+
+        return is_array($context) ? $context : [];
+    }
+
+    #[Groups(['log:read'])]
     public function getUserDisplayName(): ?string
     {
         return $this->user?->getPeople()?->getAlias()
@@ -175,6 +208,10 @@ class Log
     #[Groups(['log:read'])]
     public function getEntityShortName(): string
     {
+        if (!$this->class) {
+            return 'Log';
+        }
+
         $classParts = explode('\\', $this->class);
 
         return end($classParts) ?: $this->class;

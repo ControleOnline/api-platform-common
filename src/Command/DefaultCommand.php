@@ -65,7 +65,24 @@ abstract class DefaultCommand extends Command
     public function addLog(string|iterable $messages, int $options = 0, ?string $logName = 'integration')
     {
         $this->output->writeln($messages, $options);
-        $this->loggerService->getLogger($logName)->info($messages);
+        $this->loggerService->getLogger($logName)->info($this->normalizeLogMessage($messages));
+    }
+
+    private function normalizeLogMessage(string|iterable $messages): string
+    {
+        if (is_string($messages)) {
+            return $messages;
+        }
+
+        $normalized = [];
+        foreach ($messages as $key => $message) {
+            $normalized[$key] = (string) $message;
+        }
+
+        return json_encode(
+            $normalized,
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR
+        ) ?: '[]';
     }
 
     public function __destruct()
