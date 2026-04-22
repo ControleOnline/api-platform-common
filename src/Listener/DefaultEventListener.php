@@ -28,7 +28,10 @@ class DefaultEventListener
     public function preUpdate(PreUpdateEventArgs $args): void
     {
         $entity = $args->getObject();
-        self::$oldEntitySnapshot[get_class($entity)][$entity->getId()] = clone $entity;
+        self::$oldEntitySnapshot[get_class($entity)][$entity->getId()] = $this->buildOldEntitySnapshot(
+            $entity,
+            $args->getEntityChangeSet()
+        );
         $this->execute($args->getObject(), 'preUpdate');
     }
 
@@ -53,6 +56,37 @@ class DefaultEventListener
     public function preRemove(PreRemoveEventArgs $args): void
     {
         $this->execute($args->getObject(), 'preRemove');
+    }
+
+    private function buildOldEntitySnapshot(object $entity, array $changeSet): object
+    {
+        $snapshot = clone $entity;
+
+        foreach ($changeSet as $fieldName => $change) {
+            if (!is_array($change) || !array_key_exists(0, $change)) {
+                continue;
+            }
+
+            $this->restoreSnapshotFieldValue($snapshot, (string) $fieldName, $change[0]);
+        }
+
+        return $snapshot;
+    }
+
+    private function restoreSnapshotFieldValue(object $entity, string $fieldName, mixed $value): void
+    {
+        $reflection = new \ReflectionObject($entity);
+
+        while ($reflection) {
+            if ($reflection->hasProperty($fieldName)) {
+                $property = $reflection->getProperty($fieldName);
+                $property->setAccessible(true);
+                $property->setValue($entity, $value);
+                return;
+            }
+
+            $reflection = $reflection->getParentClass();
+        }
     }
 
     private function execute($entity, $method)

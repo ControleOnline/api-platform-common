@@ -8,3 +8,4 @@
 ## Limites
 - Nao mover para `common` regra de negocio que pertence claramente a um dominio especifico.
 - `common` deve servir de base para os outros modulos, nao virar dono de regras de `orders`, `financial`, `people` ou `products`.
+- O `DefaultEventListener` precisa preservar o estado anterior real da entidade no `preUpdate`, porque o contrato de `onEntityChanged` depende desse diff.
