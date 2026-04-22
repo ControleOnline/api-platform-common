@@ -40,6 +40,7 @@ class LogService
             $queryBuilder->andWhere(
                 $this->buildEntityCollectionAccessExpression($queryBuilder, $rootAlias)
             );
+            $queryBuilder->setParameter('log_entity_type', 'entity');
 
             return;
         }
