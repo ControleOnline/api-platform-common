@@ -2,6 +2,7 @@
 
 namespace ControleOnline\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
@@ -28,12 +29,15 @@ use Symfony\Component\Serializer\Attribute\Groups;
     'id' => 'exact',
     'type' => 'exact',
     'action' => 'exact',
-    'class' => 'exact',
+    'class' => 'partial',
     'row' => 'exact',
 ])]
 #[ApiFilter(OrderFilter::class, properties: [
     'createdAt',
     'id',
+])]
+#[ApiFilter(DateFilter::class, properties: [
+    'createdAt',
 ])]
 class Log
 {
