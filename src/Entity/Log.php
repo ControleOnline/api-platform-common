@@ -8,6 +8,8 @@ use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ControleOnline\Controller\FrontendDebugLogAction;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -16,6 +18,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Table(name: 'log')]
 #[ApiResource(
     operations: [
+        new Post(
+            uriTemplate: '/logs/frontend-debug',
+            controller: FrontendDebugLogAction::class,
+            deserialize: false,
+            security: "is_granted('ROLE_CLIENT')",
+        ),
         new GetCollection(
             security: "is_granted('ROLE_CLIENT')",
         ),
