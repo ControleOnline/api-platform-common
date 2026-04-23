@@ -1,0 +1,3 @@
+ALTER TABLE `translate`
+ADD COLUMN IF NOT EXISTS `revised` TINYINT(1) NOT NULL DEFAULT 0
+AFTER `translate`;

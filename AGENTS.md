@@ -11,3 +11,10 @@
 - O `DefaultEventListener` precisa preservar o estado anterior real da entidade no `preUpdate`, porque o contrato de `onEntityChanged` depende desse diff.
 - `HydratorService` define o payload padrao interno das colecoes e itens. Quando algum endpoint customizado ou decorado precisar manter filtros/paginacao da API Platform, adapte o resultado para esse payload aqui em vez de criar tolerancia no frontend.
 - Quando a API Platform serializar colecoes Hydra do fluxo padrao, a adaptacao para `member`, `totalItems`, `search` e `view` deve acontecer nos normalizers compartilhados de `common`, sem criar controllers por recurso so para isso.
+
+## Regras de traducao
+- A traducao especifica da empresa selecionada deve prevalecer sobre qualquer fallback.
+- Quando nao existir traducao propria para a empresa selecionada, a API deve considerar a traducao da empresa principal como fallback de leitura.
+- Empresas que nao sao a principal precisam conseguir consultar a traducao da empresa principal como referencia para criar a propria sobrescrita.
+- Somente usuarios com acesso a uma empresa podem criar ou alterar traducoes vinculadas a ela.
+- A consulta no contexto de empresa secundaria nao deve permitir alterar a traducao da empresa principal indiretamente; a sobrescrita precisa ser gravada na propria empresa secundaria.

@@ -19,6 +19,7 @@ use ControleOnline\Entity\People;
 use ControleOnline\Entity\Language;
 use ControleOnline\Repository\TranslateRepository;
 use ControleOnline\Controller\CreateTranslateController;
+use ControleOnline\Controller\GetTranslateOverviewAction;
 
 
 #[ORM\Table(name: 'translate')]
@@ -30,6 +31,11 @@ use ControleOnline\Controller\CreateTranslateController;
     denormalizationContext: ['groups' => ['translate:write']],
     operations: [
         new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
+        new GetCollection(
+            uriTemplate: '/translates/overview',
+            controller: GetTranslateOverviewAction::class,
+            security: "is_granted('ROLE_CLIENT')"
+        ),
         new Get(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_CLIENT')"),
         new Post(
             controller: CreateTranslateController::class,
@@ -37,10 +43,10 @@ use ControleOnline\Controller\CreateTranslateController;
             security: 'is_granted(\'ROLE_CLIENT\')'
         ),
         new Put(
-            security: "is_granted('ROLE_CLIENT')",
+            security: "is_granted('TRANSLATE_MANAGE', object)",
             denormalizationContext: ['groups' => ['translate:write']]
         ),
-        new Delete(security: "is_granted('ROLE_CLIENT')")
+        new Delete(security: "is_granted('TRANSLATE_MANAGE', object)")
     ]
 )]
 #[ApiFilter(OrderFilter::class, properties: ['key' => 'ASC'])]
@@ -50,6 +56,7 @@ use ControleOnline\Controller\CreateTranslateController;
     'store' => 'exact',
     'type' => 'exact',
     'key' => 'exact',
+    'revised' => 'exact',
     'language.language' => 'exact'
 ])]
 class Translate
@@ -80,10 +87,14 @@ class Translate
     #[Assert\NotBlank]
     private $key;
 
-    #[ORM\Column(name: 'translate', type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(name: 'translate', type: 'string', length: 255, nullable: false)]
     #[Groups(['translate:read', 'translate:write'])]
     #[Assert\NotBlank]
     private $translate;
+
+    #[ORM\Column(name: 'revised', type: 'boolean', nullable: false, options: ['default' => false])]
+    #[Groups(['translate:read', 'translate:write'])]
+    private bool $revised = false;
 
     #[ORM\ManyToOne(targetEntity: Language::class)]
     #[ORM\JoinColumn(name: 'lang_id', referencedColumnName: 'id')]
@@ -103,6 +114,7 @@ class Translate
     public function setPeople($people): self
     {
         $this->people = $people;
+        $this->markRevisedOnUpdate();
         return $this;
     }
 
@@ -114,6 +126,7 @@ class Translate
     public function setStore($store): self
     {
         $this->store = $store;
+        $this->markRevisedOnUpdate();
         return $this;
     }
 
@@ -125,6 +138,7 @@ class Translate
     public function setType($type): self
     {
         $this->type = $type;
+        $this->markRevisedOnUpdate();
         return $this;
     }
 
@@ -136,6 +150,7 @@ class Translate
     public function setKey($key): self
     {
         $this->key = $key;
+        $this->markRevisedOnUpdate();
         return $this;
     }
 
@@ -147,6 +162,7 @@ class Translate
     public function setTranslate($translate): self
     {
         $this->translate = $translate;
+        $this->markRevisedOnUpdate();
         return $this;
     }
 
@@ -158,6 +174,34 @@ class Translate
     public function setLanguage($language): self
     {
         $this->language = $language;
+        $this->markRevisedOnUpdate();
         return $this;
+    }
+
+    public function isRevised(): bool
+    {
+        return $this->revised;
+    }
+
+    public function getRevised(): bool
+    {
+        return $this->isRevised();
+    }
+
+    public function setRevised($revised): self
+    {
+        if (is_string($revised)) {
+            $revised = in_array(strtolower($revised), ['1', 'true', 'yes', 'sim'], true);
+        }
+
+        $this->revised = (bool) $revised;
+        return $this;
+    }
+
+    private function markRevisedOnUpdate(): void
+    {
+        if ($this->id !== null) {
+            $this->revised = true;
+        }
     }
 }
