@@ -6,6 +6,7 @@ use ControleOnline\Entity\Language;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\Translate;
 use ControleOnline\Entity\User;
+use ControleOnline\Repository\LanguageRepository;
 use ControleOnline\Repository\TranslateRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -98,7 +99,7 @@ class TranslateService
         }
         $this->assertCompanyAccess($selectedCompany);
 
-        $languageFilter = $filters['language.language'] ?? $filters['language'] ?? null;
+        $languageFilter = $filters['language.language'] ?? $filters['language_language'] ?? $filters['language'] ?? null;
         $language = $this->resolveLanguage($languageFilter);
         if (!$language instanceof Language) {
             throw new BadRequestHttpException('Language not found');
@@ -163,25 +164,7 @@ class TranslateService
 
         return [
             'items' => array_values($items),
-            'summary' => [
-                'total' => count($summaryItems),
-                'pendingReview' => count(array_filter($summaryItems, fn (array $item) => $item['pendingReview'])),
-                'reviewed' => count(array_filter($summaryItems, fn (array $item) => !$item['pendingReview'])),
-                'overrides' => count(array_filter($summaryItems, fn (array $item) => $item['hasOverride'])),
-                'fallbacks' => count(array_filter($summaryItems, fn (array $item) => !$item['hasOverride'])),
-                'selectedCompany' => [
-                    'id' => $selectedCompany->getId(),
-                    'name' => $selectedCompany->getAlias() ?: $selectedCompany->getName(),
-                ],
-                'mainCompany' => [
-                    'id' => $mainCompany->getId(),
-                    'name' => $mainCompany->getAlias() ?: $mainCompany->getName(),
-                ],
-                'language' => [
-                    'id' => $language->getId(),
-                    'language' => $language->getLanguage(),
-                ],
-            ],
+            'summary' => $this->buildOverviewSummary($summaryItems, $selectedCompany, $mainCompany, $language),
         ];
     }
 
@@ -248,9 +231,10 @@ class TranslateService
             return $id === '' ? null : $this->manager->getRepository(Language::class)->find($id);
         }
 
-        return $this->manager->getRepository(Language::class)->findOneBy([
-            'language' => trim((string) $reference),
-        ]);
+        /** @var LanguageRepository $repository */
+        $repository = $this->manager->getRepository(Language::class);
+
+        return $repository->findOneByCode((string) $reference);
     }
 
     private function assertCompanyAccess(People $company): void
@@ -360,5 +344,32 @@ class TranslateService
             return mb_strtolower($haystack) !== ''
                 && str_contains(mb_strtolower($haystack), $needle);
         }));
+    }
+
+    private function buildOverviewSummary(
+        array $items,
+        People $selectedCompany,
+        People $mainCompany,
+        Language $language
+    ): array {
+        return [
+            'total' => count($items),
+            'pendingReview' => count(array_filter($items, fn (array $item) => $item['pendingReview'])),
+            'reviewed' => count(array_filter($items, fn (array $item) => !$item['pendingReview'])),
+            'overrides' => count(array_filter($items, fn (array $item) => $item['hasOverride'])),
+            'fallbacks' => count(array_filter($items, fn (array $item) => !$item['hasOverride'])),
+            'selectedCompany' => [
+                'id' => $selectedCompany->getId(),
+                'name' => $selectedCompany->getAlias() ?: $selectedCompany->getName(),
+            ],
+            'mainCompany' => [
+                'id' => $mainCompany->getId(),
+                'name' => $mainCompany->getAlias() ?: $mainCompany->getName(),
+            ],
+            'language' => [
+                'id' => $language->getId(),
+                'language' => $language->getLanguage(),
+            ],
+        ];
     }
 }

@@ -18,4 +18,24 @@ class LanguageRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Language::class);
     }
+
+    public function findOneByCode(string $languageCode): ?Language
+    {
+        $normalizedCode = trim(str_replace('_', '-', $languageCode));
+        if ($normalizedCode === '') {
+            return null;
+        }
+
+        $exactMatch = $this->findOneBy(['language' => $normalizedCode]);
+        if ($exactMatch instanceof Language) {
+            return $exactMatch;
+        }
+
+        return $this->createQueryBuilder('language')
+            ->andWhere('LOWER(language.language) = :language')
+            ->setParameter('language', mb_strtolower($normalizedCode))
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

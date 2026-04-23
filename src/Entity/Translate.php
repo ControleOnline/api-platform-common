@@ -19,8 +19,6 @@ use ControleOnline\Entity\People;
 use ControleOnline\Entity\Language;
 use ControleOnline\Repository\TranslateRepository;
 use ControleOnline\Controller\CreateTranslateController;
-use ControleOnline\Controller\GetTranslateOverviewAction;
-
 
 #[ORM\Table(name: 'translate')]
 
@@ -31,11 +29,6 @@ use ControleOnline\Controller\GetTranslateOverviewAction;
     denormalizationContext: ['groups' => ['translate:write']],
     operations: [
         new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
-        new GetCollection(
-            uriTemplate: '/translates/overview',
-            controller: GetTranslateOverviewAction::class,
-            security: "is_granted('ROLE_CLIENT')"
-        ),
         new Get(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_CLIENT')"),
         new Post(
             controller: CreateTranslateController::class,
