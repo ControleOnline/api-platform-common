@@ -13,6 +13,8 @@
 - Quando a API Platform serializar colecoes Hydra do fluxo padrao, a adaptacao para `member`, `totalItems`, `search` e `view` deve acontecer nos normalizers compartilhados de `common`, sem criar controllers por recurso so para isso.
 - Para resumos e agregacoes de colecoes, prefira o padrao de entidade com `CollectionSummary`, `CollectionSummaryProvider` e `CollectionSummaryNormalizer` em vez de criar controller customizado so para calcular `summary`.
 - Controllers customizados so entram quando a entidade e o fluxo padrao da API Platform realmente nao cobrirem o caso; para listagens internas, a prioridade e manter o comportamento no padrao de entidade/provider/normalizer.
+- A politica global de logs e alertas de erro deve ficar centralizada em servicos compartilhados deste modulo, usando a empresa principal como dona da configuracao publica.
+- Captura de excecao backend, persistencia em `log`, filtros de habilitacao e retencao nao devem ser implementados em varios pontos com regras duplicadas.
 
 ## Regras de traducao
 - A traducao especifica da empresa selecionada deve prevalecer sobre qualquer fallback.

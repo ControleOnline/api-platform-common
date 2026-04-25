@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class LogService
 {
@@ -15,6 +16,8 @@ class LogService
         private EntityManagerInterface $manager,
         private ContainerInterface $container,
         private RequestStack $requestStack,
+        private TokenStorageInterface $tokenStorage,
+        private PeopleRoleService $peopleRoleService,
     ) {}
 
     public function securityFilter(QueryBuilder $queryBuilder, $resourceClass = null, $applyTo = null, $rootAlias = null): void
@@ -36,7 +39,24 @@ class LogService
             return;
         }
 
+        $canAccessGlobalLogs = $this->canAccessGlobalLogs();
+
         if ($logType === 'entity') {
+            $queryBuilder->andWhere(
+                $this->buildEntityCollectionAccessExpression($queryBuilder, $rootAlias)
+            );
+            $queryBuilder->setParameter('log_entity_type', 'entity');
+
+            return;
+        }
+
+        if (!$canAccessGlobalLogs) {
+            if ($logType !== '' && $logType !== 'all') {
+                $queryBuilder->andWhere('1 = 0');
+
+                return;
+            }
+
             $queryBuilder->andWhere(
                 $this->buildEntityCollectionAccessExpression($queryBuilder, $rootAlias)
             );
@@ -220,5 +240,30 @@ class LogService
         }
 
         return $normalized;
+    }
+
+    private function canAccessGlobalLogs(): bool
+    {
+        try {
+            $token = $this->tokenStorage->getToken();
+            $user = $token?->getUser();
+
+            if (!is_object($user) || !method_exists($user, 'getPeople')) {
+                return false;
+            }
+
+            $people = $user->getPeople();
+            if (!$people) {
+                return false;
+            }
+
+            return in_array(
+                'super',
+                $this->peopleRoleService->getAllRoles($people),
+                true
+            );
+        } catch (\Throwable) {
+            return false;
+        }
     }
 }

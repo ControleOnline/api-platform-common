@@ -2,10 +2,8 @@
 
 namespace ControleOnline\Service;
 
-use Doctrine\DBAL\Connection;
 use Psr\Log\AbstractLogger;
 use Stringable;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DatabaseLogger extends AbstractLogger
 {
@@ -49,8 +47,7 @@ class DatabaseLogger extends AbstractLogger
     ];
 
     public function __construct(
-        private Connection $connection,
-        private TokenStorageInterface $tokenStorage,
+        private SystemLogWriter $systemLogWriter,
         private string $channel
     ) {}
 
@@ -69,36 +66,16 @@ class DatabaseLogger extends AbstractLogger
                 $payload['context'] = $normalizedContext;
             }
 
-            $this->connection->insert('log', [
-                'type' => $entityReference ? 'entity' : 'generic',
-                'action' => $payload['level'],
-                'class' => $entityReference['class'] ?? null,
-                'object' => json_encode(
-                    $payload,
-                    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR
-                ),
-                'row' => $entityReference['row'] ?? null,
-                'user_id' => $this->resolveCurrentUserId(),
-            ]);
+            $this->systemLogWriter->write(
+                $entityReference ? 'entity' : 'generic',
+                $payload['level'],
+                $entityReference['class'] ?? null,
+                $entityReference['row'] ?? null,
+                $payload,
+                $this->channel
+            );
         } catch (\Throwable) {
         }
-    }
-
-    private function resolveCurrentUserId(): ?int
-    {
-        $token = $this->tokenStorage->getToken();
-        $user = $token?->getUser();
-
-        if (!is_object($user) || !method_exists($user, 'getId')) {
-            return null;
-        }
-
-        $id = $user->getId();
-        if ($id === null || $id === '') {
-            return null;
-        }
-
-        return is_int($id) ? $id : (is_numeric($id) ? (int) $id : null);
     }
 
     private function resolveEntityReference(array $context): ?array

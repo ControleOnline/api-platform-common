@@ -3,18 +3,18 @@
 namespace ControleOnline\Listener;
 
 use ControleOnline\Entity\Log;
+use ControleOnline\Service\SystemLogWriter;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class LogListener
 {
     private array $pendingLogs = [];
     private bool $writingLogs = false;
 
-    public function __construct(private TokenStorageInterface $tokenStorage) {}
+    public function __construct(private SystemLogWriter $systemLogWriter) {}
 
     public function onFlush(OnFlushEventArgs $event): void
     {
@@ -101,9 +101,6 @@ class LogListener
         $logs = $this->pendingLogs;
         $this->pendingLogs = [];
 
-        $userId = $this->resolveCurrentUserId();
-        $connection = $em->getConnection();
-
         foreach ($logs as $logData) {
             $rowId = $logData['row'];
             $object = $logData['object'];
@@ -122,17 +119,13 @@ class LogListener
                 continue;
             }
 
-            $connection->insert('log', [
-                'type' => 'entity',
-                'action' => $logData['action'],
-                'class' => $logData['class'],
-                'object' => json_encode(
-                    $object,
-                    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR
-                ),
-                'user_id' => $userId,
-                'row' => $rowId,
-            ]);
+            $this->systemLogWriter->write(
+                'entity',
+                $logData['action'],
+                $logData['class'],
+                $rowId,
+                $object
+            );
         }
     }
 
@@ -154,23 +147,6 @@ class LogListener
         }
 
         return $state;
-    }
-
-    private function resolveCurrentUserId(): ?int
-    {
-        $token = $this->tokenStorage->getToken();
-        $user = $token?->getUser();
-
-        if (!is_object($user) || !method_exists($user, 'getId')) {
-            return null;
-        }
-
-        $id = $user->getId();
-        if ($id === null || $id === '') {
-            return null;
-        }
-
-        return is_int($id) ? $id : (is_numeric($id) ? (int) $id : null);
     }
 
     private function resolveRowId(object $entity, ClassMetadata $metadata): ?int
