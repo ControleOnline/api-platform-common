@@ -7,13 +7,16 @@ use ControleOnline\Entity\Device;
 use ControleOnline\Entity\Module;
 use ControleOnline\Entity\People;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 
 
 class ConfigService
 {
     public function __construct(
         private EntityManagerInterface $manager,
-        private WalletService $walletService
+        private WalletService $walletService,
+        private PeopleService $peopleService,
+        private TechnicalConfigAccessService $technicalConfigAccessService,
     ) {}
 
     public function getConfig(People $people, $key, $json = false)
@@ -48,6 +51,7 @@ class ConfigService
         Module $module,
         ?string $visibility = 'private'
     ) {
+        $this->technicalConfigAccessService->assertCanManageConfig($people, $key);
         $config = $this->discoveryConfig($people, $key);
 
         if (is_array($values)) {
@@ -223,6 +227,72 @@ class ConfigService
             'people' => $people,
             'visibility' => $visibility
         ]);
+    }
+
+    public function securityFilter(
+        QueryBuilder $queryBuilder,
+        $resourceClass = null,
+        $applyTo = null,
+        $rootAlias = null
+    ): void {
+        $rootAlias ??= $queryBuilder->getRootAliases()[0] ?? null;
+        if (!$rootAlias) {
+            return;
+        }
+
+        $accessiblePeopleIds = [];
+        foreach ($this->peopleService->getMyCompanies() as $company) {
+            $accessiblePeopleIds[] = (int) $company->getId();
+        }
+
+        $myPeople = $this->peopleService->getMyPeople();
+        if ($myPeople) {
+            $accessiblePeopleIds[] = (int) $myPeople->getId();
+        }
+
+        $accessiblePeopleIds = array_values(array_unique(array_filter(
+            $accessiblePeopleIds,
+            fn(mixed $value): bool => (int) $value > 0
+        )));
+
+        if (!$accessiblePeopleIds) {
+            $queryBuilder->andWhere('1 = 0');
+
+            return;
+        }
+
+        $queryBuilder->andWhere(
+            sprintf('IDENTITY(%s.people) IN (:config_people_ids)', $rootAlias)
+        );
+        $queryBuilder->setParameter('config_people_ids', $accessiblePeopleIds);
+
+        $technicalKeys = $this->technicalConfigAccessService->getTechnicalConfigKeys();
+        if (!$technicalKeys) {
+            return;
+        }
+
+        $mainCompanyId = $this->technicalConfigAccessService->getMainCompanyId();
+        if (
+            $mainCompanyId !== null
+            && $this->technicalConfigAccessService->canAccessMainCompanyTechnicalSettings()
+        ) {
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->orX(
+                    sprintf('%s.configKey NOT IN (:technical_config_keys)', $rootAlias),
+                    $queryBuilder->expr()->andX(
+                        sprintf('%s.configKey IN (:technical_config_keys)', $rootAlias),
+                        sprintf('IDENTITY(%s.people) = :technical_main_company_id', $rootAlias)
+                    )
+                )
+            );
+            $queryBuilder->setParameter('technical_main_company_id', $mainCompanyId);
+        } else {
+            $queryBuilder->andWhere(
+                sprintf('%s.configKey NOT IN (:technical_config_keys)', $rootAlias)
+            );
+        }
+
+        $queryBuilder->setParameter('technical_config_keys', $technicalKeys);
     }
 
     private function discoveryCashWallet(People $company)

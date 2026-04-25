@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class AddAppConfigAction
 {
@@ -23,6 +24,8 @@ class AddAppConfigAction
       $config = $this->configService->addConfigFromJson($request->getContent());
 
       return new JsonResponse($this->hydratorService->item(Config::class, $config->getId(), "config:read"), Response::HTTP_OK);
+    } catch (AccessDeniedException $e) {
+      return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_FORBIDDEN);
     } catch (Exception $e) {
       return new JsonResponse($this->hydratorService->error($e));
     }
