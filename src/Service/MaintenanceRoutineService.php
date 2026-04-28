@@ -12,20 +12,50 @@ class MaintenanceRoutineService
     public function __construct(
         private ConfigService $configService,
         private PeopleRoleService $peopleRoleService,
-        private LogCleanupService $logCleanupService,
-    ) {}
+        iterable $routineHandlers,
+    ) {
+        $this->routineHandlers = [];
+
+        foreach ($routineHandlers as $handler) {
+            if (!$handler instanceof MaintenanceRoutineHandlerInterface) {
+                continue;
+            }
+
+            $definition = $handler->getDefinition();
+            $routineKey = trim((string) ($definition['key'] ?? ''));
+            if ($routineKey === '') {
+                continue;
+            }
+
+            $this->routineHandlers[$routineKey] = $handler;
+        }
+    }
+
+    /**
+     * @var array<string, MaintenanceRoutineHandlerInterface>
+     */
+    private array $routineHandlers;
 
     public function getRoutineDefinitions(): array
     {
-        return [
-            self::ROUTINE_CLEANUP_LOGS => [
-                'key' => self::ROUTINE_CLEANUP_LOGS,
-                'title' => 'Limpeza de logs',
-                'description' => 'Remove logs expirados conforme a politica configurada.',
-                'defaultEnabled' => true,
-                'defaultCronExpression' => '* * * * *',
-            ],
-        ];
+        $definitions = [];
+
+        foreach ($this->routineHandlers as $routineKey => $handler) {
+            $definition = $handler->getDefinition();
+            $definitions[$routineKey] = [
+                'key' => $routineKey,
+                'title' => (string) ($definition['title'] ?? $routineKey),
+                'description' => (string) ($definition['description'] ?? ''),
+                'defaultEnabled' => array_key_exists('defaultEnabled', $definition)
+                    ? (bool) $definition['defaultEnabled']
+                    : false,
+                'defaultCronExpression' => trim((string) (
+                    $definition['defaultCronExpression'] ?? '* * * * *'
+                )) ?: '* * * * *',
+            ];
+        }
+
+        return $definitions;
     }
 
     public function getConfiguredRoutines(): array
@@ -91,18 +121,24 @@ class MaintenanceRoutineService
 
     public function runRoutine(string $routineKey): array
     {
-        return match ($routineKey) {
-            self::ROUTINE_CLEANUP_LOGS => [
-                'key' => $routineKey,
-                'status' => 'success',
-                'summary' => $this->logCleanupService->cleanup(),
-            ],
-            default => [
+        $handler = $this->routineHandlers[$routineKey] ?? null;
+
+        if (!$handler) {
+            return [
                 'key' => $routineKey,
                 'status' => 'ignored',
                 'summary' => ['message' => 'Rotina sem executor registrado.'],
-            ],
-        };
+            ];
+        }
+
+        $result = $handler->run();
+        $result['key'] = trim((string) ($result['key'] ?? $routineKey));
+
+        if ($result['key'] === '') {
+            $result['key'] = $routineKey;
+        }
+
+        return $result;
     }
 
     public function isRoutineDue(array $routine, \DateTimeImmutable $now): bool

@@ -32,9 +32,14 @@ services:
     _instanceof:
         ControleOnline\Service\Imports\ImportProcessorInterface:
             tags: ['app.import_processor']
+        ControleOnline\Service\MaintenanceRoutineHandlerInterface:
+            tags: ['controleonline.maintenance_routine_handler']
     ControleOnline\Service\Imports\ImportProcessorResolver:
         arguments:
             $processors: !tagged_iterator app.import_processor
+    ControleOnline\Service\MaintenanceRoutineService:
+        arguments:
+            $routineHandlers: !tagged_iterator controleonline.maintenance_routine_handler
 
     ControleOnline\Listener\DefaultEventListener:
         arguments:

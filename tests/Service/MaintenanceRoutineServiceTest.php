@@ -3,8 +3,9 @@
 namespace ControleOnline\Tests\Service;
 
 use ControleOnline\Entity\People;
+use ControleOnline\Service\CleanupLogsMaintenanceRoutine;
 use ControleOnline\Service\ConfigService;
-use ControleOnline\Service\LogCleanupService;
+use ControleOnline\Service\MaintenanceRoutineHandlerInterface;
 use ControleOnline\Service\MaintenanceRoutineService;
 use ControleOnline\Service\PeopleRoleService;
 use PHPUnit\Framework\TestCase;
@@ -16,7 +17,7 @@ class MaintenanceRoutineServiceTest extends TestCase
         $service = new MaintenanceRoutineService(
             $this->createMock(ConfigService::class),
             $this->createMock(PeopleRoleService::class),
-            $this->createMock(LogCleanupService::class),
+            [$this->createCleanupRoutineHandler()],
         );
 
         $normalized = $service->normalizeConfiguredRoutines([
@@ -56,7 +57,7 @@ class MaintenanceRoutineServiceTest extends TestCase
         $service = new MaintenanceRoutineService(
             $configService,
             $peopleRoleService,
-            $this->createMock(LogCleanupService::class),
+            [$this->createCleanupRoutineHandler()],
         );
 
         $dueRoutines = $service->getDueRoutines(
@@ -72,15 +73,10 @@ class MaintenanceRoutineServiceTest extends TestCase
 
     public function testRunsCleanupLogsRoutine(): void
     {
-        $cleanupService = $this->createMock(LogCleanupService::class);
-        $cleanupService->expects(self::once())
-            ->method('cleanup')
-            ->willReturn(['deletedTotal' => 3]);
-
         $service = new MaintenanceRoutineService(
             $this->createMock(ConfigService::class),
             $this->createMock(PeopleRoleService::class),
-            $cleanupService,
+            [$this->createCleanupRoutineHandler(['deletedTotal' => 3])],
         );
 
         $result = $service->runRoutine(
@@ -89,5 +85,25 @@ class MaintenanceRoutineServiceTest extends TestCase
 
         self::assertSame('success', $result['status']);
         self::assertSame(3, $result['summary']['deletedTotal']);
+    }
+
+    private function createCleanupRoutineHandler(
+        array $summary = ['deletedTotal' => 0],
+    ): MaintenanceRoutineHandlerInterface {
+        $handler = $this->createMock(CleanupLogsMaintenanceRoutine::class);
+        $handler->method('getDefinition')->willReturn([
+            'key' => MaintenanceRoutineService::ROUTINE_CLEANUP_LOGS,
+            'title' => 'Limpeza de logs',
+            'description' => 'Remove logs expirados conforme a politica configurada.',
+            'defaultEnabled' => true,
+            'defaultCronExpression' => '* * * * *',
+        ]);
+        $handler->method('run')->willReturn([
+            'key' => MaintenanceRoutineService::ROUTINE_CLEANUP_LOGS,
+            'status' => 'success',
+            'summary' => $summary,
+        ]);
+
+        return $handler;
     }
 }
