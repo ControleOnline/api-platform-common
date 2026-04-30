@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new GetCollection(
             uriTemplate: '/translates/overview',
             provider: TranslateOverviewProvider::class,
-            security: "is_granted('ROLE_CLIENT')",
+            security: "is_granted('ROLE_HUMAN')",
             paginationEnabled: false,
         ),
     ],

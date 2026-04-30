@@ -29,11 +29,11 @@ use ControleOnline\Controller\CreateTranslateController;
     denormalizationContext: ['groups' => ['translate:write']],
     operations: [
         new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
-        new Get(security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_CLIENT')"),
+        new Get(security: "is_granted('ROLE_HUMAN')"),
         new Post(
             controller: CreateTranslateController::class,
             deserialize: false,
-            security: 'is_granted(\'ROLE_CLIENT\')'
+            security: 'is_granted(\'ROLE_HUMAN\')'
         ),
         new Put(
             security: "is_granted('TRANSLATE_MANAGE', object)",

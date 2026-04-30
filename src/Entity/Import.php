@@ -27,24 +27,24 @@ use ControleOnline\Controller\ImportUploadController;
 
 #[ApiResource(
     operations: [
-        new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new Post(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new Get(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Delete(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new GetCollection(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Post(security: 'is_granted(\'ROLE_HUMAN\')'),
         new Post(
             uriTemplate: '/imports/upload',
             controller: ImportUploadController::class,
             deserialize: false,
-            security: 'is_granted(\'ROLE_CLIENT\')'
+            security: 'is_granted(\'ROLE_HUMAN\')'
         ),
         new Get(
-            security: 'is_granted(\'ROLE_CLIENT\')',
+            security: 'is_granted(\'ROLE_HUMAN\')',
             uriTemplate: '/imports/example/{type}',
             controller: ImportExampleCsvController::class,
             read: false
         ),
         new Put(
-            security: 'is_granted(\'ROLE_CLIENT\')',
+            security: 'is_granted(\'ROLE_HUMAN\')',
             denormalizationContext: ['groups' => ['import:write']]
         ),
     ],

@@ -25,13 +25,13 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 
 #[ApiResource(
     operations: [
-        new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
+        new Get(security: 'is_granted(\'ROLE_HUMAN\')'),
         new Put(
-            security: 'is_granted(\'ROLE_CLIENT\')',
+            security: 'is_granted(\'ROLE_HUMAN\')',
             denormalizationContext: ['groups' => ['language:read']] // Note: Usually Put uses a :write group, check if :read is intended
         ),
-        new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'), // Consider adding validationContext/denormalizationContext if needed
+        new Delete(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Post(securityPostDenormalize: 'is_granted(\'ROLE_HUMAN\')'), // Consider adding validationContext/denormalizationContext if needed
         new GetCollection(
             security: 'is_granted(\'PUBLIC_ACCESS\')',
         )

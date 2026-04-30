@@ -23,15 +23,15 @@ use Doctrine\ORM\Mapping\Table;
 
 #[ApiResource(
     operations: [
-        new Get(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new Get(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new GetCollection(security: 'is_granted(\'ROLE_HUMAN\')'),
         new Put(
-            security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))',
+            security: 'is_granted(\'ROLE_HUMAN\')',
             validationContext: ['groups' => ['extra_fields:write']],
             denormalizationContext: ['groups' => ['extra_fields:write']]
         ),
-        new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
+        new Delete(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Post(securityPostDenormalize: 'is_granted(\'ROLE_HUMAN\')'),
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['extra_fields:read']],

@@ -26,11 +26,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(security: 'is_granted(\'PUBLIC_ACCESS\')'),
         new Put(
-            security: 'is_granted(\'ROLE_CLIENT\')',
+            security: 'is_granted(\'ROLE_HUMAN\')',
             denormalizationContext: ['groups' => ['category:write']]
         ),
-        new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
+        new Delete(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Post(securityPostDenormalize: 'is_granted(\'ROLE_HUMAN\')'),
         new GetCollection(
             security: 'is_granted(\'PUBLIC_ACCESS\')',
         )

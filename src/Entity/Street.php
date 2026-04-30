@@ -28,8 +28,8 @@ use ControleOnline\Repository\StreetRepository;
     normalizationContext: ['groups' => ['street:read']],
     denormalizationContext: ['groups' => ['street:write']],
     operations: [
-        new GetCollection(security: "is_granted('ROLE_CLIENT')"),
-        new Get(security: "is_granted('ROLE_CLIENT')")
+        new GetCollection(security: "is_granted('ROLE_HUMAN')"),
+        new Get(security: "is_granted('ROLE_HUMAN')")
     ]
 )]
 class Street

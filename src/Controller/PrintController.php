@@ -19,7 +19,7 @@ class PrintController extends AbstractController
         private HydratorService $hydratorService
     ) {}
     #[Route('/print/{id}/done', name: "print_done", methods: ["PUT"])]
-    #[Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_CLIENT')")]
+    #[Security("is_granted('ROLE_HUMAN')")]
     public function makePrintDone(Spool $spool): JsonResponse
     {
         try {

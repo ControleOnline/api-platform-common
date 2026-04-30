@@ -22,15 +22,15 @@ use Symfony\Component\Serializer\Attribute\Groups;
             uriTemplate: '/logs/frontend-debug',
             controller: FrontendDebugLogAction::class,
             deserialize: false,
-            security: "is_granted('ROLE_CLIENT')",
+            security: "is_granted('ROLE_HUMAN')",
         ),
         new GetCollection(
-            security: "is_granted('ROLE_CLIENT')",
+            security: "is_granted('ROLE_HUMAN')",
         ),
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['log:read']],
-    security: "is_granted('ROLE_CLIENT')",
+    security: "is_granted('ROLE_HUMAN')",
     order: ['createdAt' => 'DESC', 'id' => 'DESC']
 )]
 #[ApiFilter(SearchFilter::class, properties: [

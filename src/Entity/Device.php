@@ -26,18 +26,18 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 #[ApiResource(
     operations: [
-        new Get(security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')'),
+        new Get(security: 'is_granted(\'ROLE_HUMAN\')'),
         new Put(
-            security: 'is_granted(\'ROLE_CLIENT\')',
+            security: 'is_granted(\'ROLE_HUMAN\')',
             denormalizationContext: ['groups' => ['device:write']]
         ),
-        new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new Post(securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
+        new Delete(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Post(securityPostDenormalize: 'is_granted(\'ROLE_HUMAN\')'),
         new GetCollection(
             security: 'is_granted(\'PUBLIC_ACCESS\')',
         ),
         new GetCollection(
-            security: 'is_granted(\'ROLE_ADMIN\') or is_granted(\'ROLE_CLIENT\')',
+            security: 'is_granted(\'ROLE_HUMAN\')',
             uriTemplate: '/printers',
             provider: PrinterDataProvider::class,
             normalizationContext: ['groups' => ['device:read']],

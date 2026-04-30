@@ -25,16 +25,16 @@ use Doctrine\ORM\Mapping\Table;
 
 #[ApiResource(
     operations: [
-        new Get(uriTemplate: '/extra_data/{id}', security: 'is_granted(\'ROLE_CLIENT\')'),
-        new GetCollection(uriTemplate: '/extra_data', security: 'is_granted(\'ROLE_CLIENT\')'),
+        new Get(uriTemplate: '/extra_data/{id}', security: 'is_granted(\'ROLE_HUMAN\')'),
+        new GetCollection(uriTemplate: '/extra_data', security: 'is_granted(\'ROLE_HUMAN\')'),
         new Put(
             uriTemplate: '/extra_data/{id}',
-            security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))',
+            security: 'is_granted(\'ROLE_HUMAN\')',
             validationContext: ['groups' => ['extra_data:write']],
             denormalizationContext: ['groups' => ['extra_data:write']]
         ),
-        new Delete(uriTemplate: '/extra_data/{id}', security: 'is_granted(\'ROLE_CLIENT\')'),
-        new Post(uriTemplate: '/extra_data', securityPostDenormalize: 'is_granted(\'ROLE_CLIENT\')'),
+        new Delete(uriTemplate: '/extra_data/{id}', security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Post(uriTemplate: '/extra_data', securityPostDenormalize: 'is_granted(\'ROLE_HUMAN\')'),
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['extra_data:read']],

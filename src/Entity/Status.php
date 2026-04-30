@@ -25,17 +25,17 @@ use ControleOnline\Repository\StatusRepository;
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['status:read']],
     denormalizationContext: ['groups' => ['status:write']],
-    security: "is_granted('ROLE_CLIENT')",
+    security: "is_granted('ROLE_HUMAN')",
     operations: [
-        new GetCollection(security: "is_granted('ROLE_CLIENT')"),
-        new Get(security: "is_granted('ROLE_CLIENT')"),
-        new Post(security: "is_granted('ROLE_CLIENT')"),
+        new GetCollection(security: "is_granted('ROLE_HUMAN')"),
+        new Get(security: "is_granted('ROLE_HUMAN')"),
+        new Post(security: "is_granted('ROLE_HUMAN')"),
         new Put(
-            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_CLIENT')",
+            security: "is_granted('ROLE_HUMAN')",
             validationContext: ['groups' => ['status:read']],
             denormalizationContext: ['groups' => ['status:write']]
         ),
-        new Delete(security: "is_granted('ROLE_CLIENT')")
+        new Delete(security: "is_granted('ROLE_HUMAN')")
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: [

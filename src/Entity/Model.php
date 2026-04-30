@@ -20,18 +20,18 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     operations: [
         new Get(
-            security: 'is_granted(\'ROLE_CLIENT\')',
+            security: 'is_granted(\'ROLE_HUMAN\')',
         ),
         new Put(
-            security: 'is_granted(\'ROLE_CLIENT\')'
+            security: 'is_granted(\'ROLE_HUMAN\')'
         ),
         new Post(
-            security: 'is_granted(\'ROLE_CLIENT\')'
+            security: 'is_granted(\'ROLE_HUMAN\')'
         ),
         new Delete(
-            security: 'is_granted(\'ROLE_CLIENT\')'
+            security: 'is_granted(\'ROLE_HUMAN\')'
         ),
-        new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')')
+        new GetCollection(security: 'is_granted(\'ROLE_HUMAN\')')
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['model:read']],

@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[ApiResource(
     operations: [
         new Get(
-            security: 'is_granted(\'ROLE_CLIENT\')',
+            security: 'is_granted(\'ROLE_HUMAN\')',
             normalizationContext: ['groups' => ['file_item:read']],
         ),
         new Get(
@@ -39,22 +39,22 @@ use Symfony\Component\Validator\Constraints\NotBlank;
             uriTemplate: '/files/{id}/download',
             controller: GetFileDataAction::class
         ),
-        new Delete(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new Delete(security: 'is_granted(\'ROLE_HUMAN\')'),
         new Post(
-            security: 'is_granted(\'ROLE_CLIENT\')',
+            security: 'is_granted(\'ROLE_HUMAN\')',
             uriTemplate: '/files/upload',
             controller: FileUploadController::class,
             deserialize: false
         ),
-        new GetCollection(security: 'is_granted(\'ROLE_CLIENT\')'),
-        new Post(security: 'is_granted(\'ROLE_CLIENT\')'),
+        new GetCollection(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Post(security: 'is_granted(\'ROLE_HUMAN\')'),
         new Put(
-            security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))',
+            security: 'is_granted(\'ROLE_HUMAN\')',
             validationContext: ['groups' => ['file:write']],
             denormalizationContext: ['groups' => ['file:write']]
         ),
         new Post(
-            security: 'is_granted(\'ROLE_ADMIN\') or (is_granted(\'ROLE_CLIENT\'))',
+            security: 'is_granted(\'ROLE_HUMAN\')',
             uriTemplate: '/files/{id}/convert',
             controller: FileConvertController::class,
             deserialize: false

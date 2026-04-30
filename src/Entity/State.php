@@ -27,8 +27,8 @@ use ControleOnline\Repository\StateRepository;
     normalizationContext: ['groups' => ['state:read']],
     denormalizationContext: ['groups' => ['state:write']],
     operations: [
-        new GetCollection(security: "is_granted('ROLE_CLIENT')"),
-        new Get(security: "is_granted('ROLE_CLIENT')")
+        new GetCollection(security: "is_granted('ROLE_HUMAN')"),
+        new Get(security: "is_granted('ROLE_HUMAN')")
     ]
 )]
 #[ApiFilter(OrderFilter::class, properties: ['state' => 'ASC'])]

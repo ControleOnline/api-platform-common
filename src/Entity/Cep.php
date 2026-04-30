@@ -20,7 +20,7 @@ use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 
 #[ApiResource(
-    operations: [new Get(security: 'is_granted(\'ROLE_CLIENT\')')],
+    operations: [new Get(security: 'is_granted(\'ROLE_HUMAN\')')],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['cep:read']],
     denormalizationContext: ['groups' => ['cep:write']]
