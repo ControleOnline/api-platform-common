@@ -6,6 +6,7 @@ use ControleOnline\Entity\Device;
 use ControleOnline\Entity\DeviceConfig;
 use ControleOnline\Entity\ExtraData;
 use ControleOnline\Entity\ExtraFields;
+use ControleOnline\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
 as Security;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -126,9 +127,17 @@ class ExtraDataService
     public function discoveryUser(&$entity)
     {
         $token = $this->security->getToken();
-        $user = $token ? $token->getUser() : $this->skyNetService->getBotUser();
+        $user = $token ? $token->getUser() : null;
 
-        if (method_exists($entity, 'setUser') && !$entity->getUser())
+        if (!$user instanceof User) {
+            if (!$this->skyNetService->getBotUser() instanceof User) {
+                $this->skyNetService->discoveryBotUser();
+            }
+
+            $user = $this->skyNetService->getBotUser();
+        }
+
+        if ($user instanceof User && method_exists($entity, 'setUser') && !$entity->getUser())
             $entity->setUser($user);
     }
 
