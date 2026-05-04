@@ -14,8 +14,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     operations: [
-        new GetCollection(security: "is_granted('ROLE_CLIENT')"),
-        new Get(security: "is_granted('ROLE_CLIENT')")
+        new GetCollection(
+            security: "is_granted('ROLE_HUMAN') or is_granted('ROLE_CLIENT')"
+        ),
+        new Get(
+            security: "is_granted('ROLE_HUMAN') or is_granted('ROLE_CLIENT')"
+        )
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['timezone:read']],
