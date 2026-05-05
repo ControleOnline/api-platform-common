@@ -28,6 +28,8 @@ class CollectionSummaryService
 
     private iterable $collectionExtensions;
     private array $summaryFieldsCache = [];
+    private ?ContainerInterface $summaryResolverLocator;
+    private ?RequestStack $requestStack;
 
     public function __construct(
         ResourceMetadataCollectionFactoryInterface $resourceMetadataCollectionFactory,
