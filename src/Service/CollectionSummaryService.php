@@ -16,6 +16,7 @@ use ApiPlatform\State\Util\StateOptionsTrait;
 use ControleOnline\Attribute\CollectionSummary;
 use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
 
@@ -32,12 +33,16 @@ class CollectionSummaryService
         ResourceMetadataCollectionFactoryInterface $resourceMetadataCollectionFactory,
         ManagerRegistry $managerRegistry,
         iterable $collectionExtensions = [],
-        ?ContainerInterface $handleLinksLocator = null
+        ?ContainerInterface $handleLinksLocator = null,
+        ?ContainerInterface $summaryResolverLocator = null,
+        ?RequestStack $requestStack = null
     ) {
         $this->resourceMetadataCollectionFactory = $resourceMetadataCollectionFactory;
         $this->handleLinksLocator = $handleLinksLocator;
         $this->managerRegistry = $managerRegistry;
         $this->collectionExtensions = $collectionExtensions;
+        $this->summaryResolverLocator = $summaryResolverLocator;
+        $this->requestStack = $requestStack;
     }
 
     public function buildSummary(Operation $operation, array $uriVariables = [], array $context = []): ?array
@@ -47,7 +52,11 @@ class CollectionSummaryService
             return null;
         }
 
-        $summaryFields = $this->getSummaryFields($resourceClass);
+        $summaryFields = $this->filterEnabledSummaryFields(
+            $this->getSummaryFields($resourceClass),
+            $operation,
+            $context
+        );
         if ([] === $summaryFields) {
             return null;
         }
@@ -105,24 +114,49 @@ class CollectionSummaryService
             $this->copyParameter($summaryQueryBuilder, $parameter);
         }
 
-        $selects = [];
+        $aggregateFields = array_values(array_filter(
+            $summaryFields,
+            static fn(array $field) => null === ($field['resolver'] ?? null)
+        ));
+        $resolverFields = array_values(array_filter(
+            $summaryFields,
+            static fn(array $field) => null !== ($field['resolver'] ?? null)
+        ));
 
-        foreach ($summaryFields as $field) {
-            foreach ($field['operations'] as $operationName) {
-                $selects[] = $this->buildSelectExpression(
-                    $summaryAlias,
-                    $field['property'],
-                    $operationName,
-                    $this->getSelectAlias($field['name'], $operationName)
-                );
+        $summary = [];
+
+        if ([] !== $aggregateFields) {
+            $selects = [];
+
+            foreach ($aggregateFields as $field) {
+                foreach ($field['operations'] as $operationName) {
+                    $selects[] = $this->buildSelectExpression(
+                        $summaryAlias,
+                        $field['property'],
+                        $operationName,
+                        $this->getSelectAlias($field['name'], $operationName)
+                    );
+                }
             }
+
+            $summaryQueryBuilder->select(implode(', ', $selects));
+
+            $result = $summaryQueryBuilder->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY) ?: [];
+            $summary = $this->normalizeSummary($result, $aggregateFields);
         }
 
-        $summaryQueryBuilder->select(implode(', ', $selects));
+        foreach ($resolverFields as $field) {
+            $summary[$field['name']] = $this->resolveCustomSummaryField(
+                $field,
+                $operation,
+                $resourceClass,
+                $filteredIdsQueryBuilder,
+                $uriVariables,
+                $context
+            );
+        }
 
-        $result = $summaryQueryBuilder->getQuery()->getOneOrNullResult(Query::HYDRATE_ARRAY) ?: [];
-
-        return $this->normalizeSummary($result, $summaryFields);
+        return [] !== $summary ? $summary : null;
     }
 
     private function getSummaryFields(string $resourceClass): array
@@ -142,21 +176,85 @@ class CollectionSummaryService
 
         foreach ($reflectionClass->getProperties() as $property) {
             $attributes = $property->getAttributes(CollectionSummary::class);
-            if ([] === $attributes || !$classMetadata->hasField($property->getName())) {
+            if ([] === $attributes) {
                 continue;
             }
 
             /** @var CollectionSummary $attribute */
             $attribute = $attributes[0]->newInstance();
+            $resolver = $attribute->getResolver();
+
+            if (null === $resolver && !$classMetadata->hasField($property->getName())) {
+                continue;
+            }
+
             $summaryFields[] = [
                 'property' => $property->getName(),
                 'name' => $attribute->getName() ?: $property->getName(),
                 'operations' => $attribute->getOperations(),
-                'doctrineType' => (string) $classMetadata->getTypeOfField($property->getName()),
+                'doctrineType' => $classMetadata->hasField($property->getName())
+                    ? (string) $classMetadata->getTypeOfField($property->getName())
+                    : null,
+                'parameter' => $attribute->getParameter(),
+                'parameterValues' => $attribute->getParameterValues(),
+                'groups' => $attribute->getGroups(),
+                'resolver' => $resolver,
             ];
         }
 
         return $this->summaryFieldsCache[$resourceClass] = $summaryFields;
+    }
+
+    private function filterEnabledSummaryFields(array $summaryFields, Operation $operation, array $context): array
+    {
+        return array_values(array_filter(
+            $summaryFields,
+            fn(array $field) => $this->isSummaryFieldEnabled($field, $operation, $context)
+        ));
+    }
+
+    private function isSummaryFieldEnabled(array $field, Operation $operation, array $context): bool
+    {
+        $parameter = $field['parameter'] ?? null;
+        if ($parameter) {
+            $parameterValues = $field['parameterValues'] ?? [];
+            $requestValue = $this->getRequestParameterValue($parameter, $context);
+
+            if (null === $requestValue) {
+                return false;
+            }
+
+            if ([] !== $parameterValues) {
+                $normalizedValues = is_array($requestValue) ? $requestValue : [$requestValue];
+                $normalizedValues = array_map(static fn($value) => trim((string) $value), $normalizedValues);
+
+                if ([] === array_intersect($parameterValues, $normalizedValues)) {
+                    return false;
+                }
+            }
+        }
+
+        $requiredGroups = $field['groups'] ?? [];
+        if ([] === $requiredGroups) {
+            return true;
+        }
+
+        $contextGroups = $context['groups']
+            ?? $operation->getNormalizationContext()['groups']
+            ?? [];
+        $contextGroups = is_array($contextGroups) ? $contextGroups : [$contextGroups];
+
+        return [] !== array_intersect($requiredGroups, $contextGroups);
+    }
+
+    private function getRequestParameterValue(string $parameter, array $context): mixed
+    {
+        $filters = $context['filters'] ?? [];
+        if (array_key_exists($parameter, $filters)) {
+            return $filters[$parameter];
+        }
+
+        return $this->requestStack?->getCurrentRequest()?->query->all()[$parameter] ?? null;
     }
 
     private function shouldSkipExtension(object $extension): bool
@@ -215,6 +313,31 @@ class CollectionSummaryService
     private function getSelectAlias(string $fieldName, string $operation): string
     {
         return sprintf('summary_%s_%s', preg_replace('/[^a-z0-9_]/i', '_', $fieldName), $operation);
+    }
+
+    private function resolveCustomSummaryField(
+        array $field,
+        Operation $operation,
+        string $resourceClass,
+        \Doctrine\ORM\QueryBuilder $filteredIdsQueryBuilder,
+        array $uriVariables,
+        array $context
+    ): mixed {
+        $resolver = $field['resolver'] ?? null;
+        if (!$resolver || !$this->summaryResolverLocator?->has($resolver)) {
+            return null;
+        }
+
+        $service = $this->summaryResolverLocator->get($resolver);
+        if (!$service instanceof CollectionSummaryResolverInterface) {
+            throw new \RuntimeException(sprintf(
+                'Collection summary resolver "%s" must implement %s.',
+                $resolver,
+                CollectionSummaryResolverInterface::class
+            ));
+        }
+
+        return $service->resolve($operation, $resourceClass, $field, $filteredIdsQueryBuilder, $uriVariables, $context);
     }
 
     private function copyParameter(\Doctrine\ORM\QueryBuilder $queryBuilder, \Doctrine\ORM\Query\Parameter $parameter): void
