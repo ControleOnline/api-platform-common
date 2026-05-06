@@ -4,6 +4,7 @@
 
 ## Quando usar
 - Prompts sobre utilitarios compartilhados, configuracoes globais, importacao, upload, eventos comuns e funcionalidades reaproveitadas por varios modulos.
+- Endpoints tecnicos compartilhados de runtime, como descoberta do IP visto pelo backend para o frontend web, devem nascer aqui e nao consultar banco quando o dado vier so da request.
 
 ## Limites
 - Nao mover para `common` regra de negocio que pertence claramente a um dominio especifico.
