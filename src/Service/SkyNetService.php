@@ -18,9 +18,11 @@ class SkyNetService
     public function discoveryBotUser($bot = null): void
     {
         if (!$bot) {
-            if (!self::$botUser)
-                $bots = ['R2D2', 'C3PO', 'T800', 'SkyNet'];
+            if (self::$botUser instanceof User) {
+                return;
+            }
 
+            $bots = ['R2D2', 'C3PO', 'T800', 'SkyNet'];
             $online = array_rand($bots);
             $bot = $bots[$online];
         }

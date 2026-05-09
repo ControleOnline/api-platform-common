@@ -65,7 +65,16 @@ abstract class DefaultCommand extends Command
     public function addLog(string|iterable $messages, int $options = 0, ?string $logName = 'integration')
     {
         $this->output->writeln($messages, $options);
-        $this->loggerService->getLogger($logName)->info($this->normalizeLogMessage($messages));
+
+        if (!$this->loggerService) {
+            return;
+        }
+
+        try {
+            $this->loggerService->getLogger($logName)->info($this->normalizeLogMessage($messages));
+        } catch (\Throwable) {
+            // Console output must not fail because database logging is unavailable.
+        }
     }
 
     private function normalizeLogMessage(string|iterable $messages): string
