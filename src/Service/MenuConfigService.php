@@ -19,10 +19,7 @@ class MenuConfigService
 
     public function getAllowedLinkTypes(): array
     {
-        return array_values(array_unique(array_merge(
-            PeopleLink::HUMAN_LINK,
-            PeopleLink::COMMERCIAL_LINK
-        )));
+        return PeopleLink::HUMAN_LINK;
     }
 
     public function normalizeAppType(?string $appType): string
@@ -277,9 +274,13 @@ class MenuConfigService
 
     private function normalizeMenuLinkTypes(Menu $menu): array
     {
+        $allowedLinkTypes = $this->getAllowedLinkTypes();
         $linkTypes = [];
         foreach ($menu->getLinkTypes() as $linkType) {
-            if ($linkType instanceof MenuLinkType) {
+            if (
+                $linkType instanceof MenuLinkType
+                && in_array($linkType->getLinkType(), $allowedLinkTypes, true)
+            ) {
                 $linkTypes[] = $linkType->getLinkType();
             }
         }

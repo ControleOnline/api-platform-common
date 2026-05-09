@@ -25,6 +25,7 @@
 - Menus visiveis filtram por `menu.app_type`, `menu.enabled` e vinculos ativos de `people_link.link_type`.
 - `ROLE_SUPER` ve todos os menus habilitados do `APP_TYPE` aberto e e o unico papel que pode configurar menus e rotas.
 - A tela de configuracao salva os vinculos em `menu_link_type`; `menu_role` e `people_role` ficam apenas como legado.
+- `menu_link_type` aceita somente vinculos humanos. `client`, `provider` e `franchisee` sao comerciais e nao representam perfis de menu no backend.
 
 ## Regras de traducao
 - A traducao especifica da empresa selecionada deve prevalecer sobre qualquer fallback.

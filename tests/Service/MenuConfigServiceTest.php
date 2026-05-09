@@ -73,6 +73,16 @@ class MenuConfigServiceTest extends TestCase
         self::assertSame('MANAGER', $service->normalizeAppType('unknown'));
     }
 
+    public function testAllowedMenuLinkTypesExcludeCommercialLinks(): void
+    {
+        $service = new MenuConfigService($this->createStub(EntityManagerInterface::class));
+
+        self::assertSame(
+            ['employee', 'owner', 'director', 'manager', 'salesman', 'after-sales'],
+            $service->getAllowedLinkTypes()
+        );
+    }
+
     public function testGetMenuForPeopleDelegatesFiltersAndBuildsRuntimePayload(): void
     {
         $userPeople = new People();
