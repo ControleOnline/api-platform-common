@@ -45,7 +45,7 @@ abstract class DefaultCommand extends Command
             $this->addLog(sprintf('Executando worker para o domínio: %s', $domain));
             if ($_ENV['MULTI_TENANCY'])
                 $this->databaseSwitchService->switchDatabaseByDomain($domain);
-            $this->skyNetService->discoveryBotUser();
+            $this->discoveryBotUser();
             return $this->runCommand();
         }
 
@@ -55,7 +55,7 @@ abstract class DefaultCommand extends Command
             $this->addLog(sprintf('Executando migrações para o domínio: %s', $domain));
             if ($_ENV['MULTI_TENANCY'])
                 $this->databaseSwitchService->switchDatabaseByDomain($domain);
-            $this->skyNetService->discoveryBotUser();
+            $this->discoveryBotUser();
             $this->runCommand();
         }
 
@@ -92,6 +92,21 @@ abstract class DefaultCommand extends Command
             $normalized,
             JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR
         ) ?: '[]';
+    }
+
+    private function discoveryBotUser(): void
+    {
+        if (!$this->skyNetService) {
+            return;
+        }
+
+        try {
+            $this->skyNetService->discoveryBotUser();
+        } catch (\Throwable $exception) {
+            $this->addLog(
+                sprintf('Bot user discovery skipped: %s', $exception->getMessage())
+            );
+        }
     }
 
     public function __destruct()
