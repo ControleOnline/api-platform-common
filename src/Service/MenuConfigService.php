@@ -10,6 +10,7 @@ use ControleOnline\Entity\PeopleLink;
 use ControleOnline\Entity\Routes;
 use ControleOnline\Repository\MenuRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 
 class MenuConfigService
 {
@@ -64,7 +65,7 @@ class MenuConfigService
         );
 
         if ($ids === []) {
-            return ['member' => [], 'totalItems' => $totalItems];
+            return ['member' => [], 'groups' => [], 'totalItems' => $totalItems];
         }
 
         $menus = $this->manager->createQueryBuilder()
@@ -93,7 +94,22 @@ class MenuConfigService
             }
         }
 
-        return ['member' => $member, 'totalItems' => $totalItems];
+        return [
+            'member' => $member,
+            'groups' => $this->groupMenusByCategory($member),
+            'totalItems' => $totalItems,
+        ];
+    }
+
+    public function getConfigSummary(?string $appType = null): array
+    {
+        return [
+            'appTypes' => self::APP_TYPES,
+            'linkTypes' => $this->getAllowedLinkTypes(),
+            'categories' => $this->getMenuCategories(),
+            'routes' => $this->getAvailableRoutes(),
+            'appType' => $appType !== null ? $this->normalizeAppType($appType) : null,
+        ];
     }
 
     public function getMenuForPeople(People $userPeople, People $company, string $appType, bool $isSuper): array
@@ -115,8 +131,8 @@ class MenuConfigService
 
     public function updateMenu(Menu $menu, array $payload): Menu
     {
-        if (array_key_exists('menu', $payload)) {
-            $menu->setMenu(trim((string) $payload['menu']));
+        if (array_key_exists('menu', $payload) || array_key_exists('label', $payload)) {
+            $menu->setMenu($this->limitString((string) ($payload['menu'] ?? $payload['label']), 50));
         }
 
         if (array_key_exists('menuKey', $payload) || array_key_exists('menu_key', $payload)) {
@@ -153,6 +169,28 @@ class MenuConfigService
             }
         }
 
+        $route = $menu->getRoute();
+        if ($route instanceof Routes) {
+            if (array_key_exists('icon', $payload) || array_key_exists('routeIcon', $payload)) {
+                $route->setIcon($this->limitString((string) ($payload['icon'] ?? $payload['routeIcon']), 50));
+                $this->manager->persist($route);
+            }
+
+            if (array_key_exists('color', $payload) || array_key_exists('routeColor', $payload)) {
+                $route->setColor($this->limitString((string) ($payload['color'] ?? $payload['routeColor']), 50));
+                $this->manager->persist($route);
+            }
+
+            if (isset($payload['routeConfig']) && is_array($payload['routeConfig'])) {
+                $this->updateRouteAppearance($route, $payload['routeConfig'], false);
+            }
+        }
+
+        $category = $menu->getCategory();
+        if ($category instanceof Category && isset($payload['categoryConfig']) && is_array($payload['categoryConfig'])) {
+            $this->updateCategory($category, $payload['categoryConfig'], false);
+        }
+
         if (array_key_exists('linkTypes', $payload) || array_key_exists('link_types', $payload)) {
             $this->syncLinkTypes($menu, $payload['linkTypes'] ?? $payload['link_types']);
         }
@@ -161,6 +199,83 @@ class MenuConfigService
         $this->manager->flush();
 
         return $menu;
+    }
+
+    public function createMenu(array $payload): Menu
+    {
+        $route = $this->resolveEntity(Routes::class, $payload['route'] ?? $payload['routeId'] ?? null);
+        if (!$route instanceof Routes) {
+            throw new InvalidArgumentException('Route is required to create a menu item.');
+        }
+
+        $category = $this->resolveEntity(Category::class, $payload['category'] ?? $payload['categoryId'] ?? null);
+        if (!$category instanceof Category) {
+            throw new InvalidArgumentException('Category is required to create a menu item.');
+        }
+
+        $appType = $this->normalizeAppType((string) ($payload['appType'] ?? $payload['app_type'] ?? 'MANAGER'));
+        $label = trim((string) ($payload['menu'] ?? $payload['label'] ?? ''));
+        if ($label === '') {
+            $label = (string) $route->getRoute();
+        }
+
+        $menu = new Menu();
+        $menu->setAppType($appType);
+        $menu->setRoute($route);
+        $menu->setCategory($category);
+        $menu->setMenu($this->limitString($label, 50));
+        $menu->setMenuKey($this->generateUniqueMenuKey(
+            $appType,
+            (string) ($payload['menuKey'] ?? $payload['menu_key'] ?? ''),
+            $route,
+            $category,
+            $label
+        ));
+        $menu->setSortOrder(
+            array_key_exists('sortOrder', $payload) || array_key_exists('sort_order', $payload)
+                ? (int) ($payload['sortOrder'] ?? $payload['sort_order'])
+                : $this->getNextSortOrder($appType, $category)
+        );
+        $menu->setEnabled((bool) ($payload['enabled'] ?? true));
+        $menu->setRouteParams($this->normalizeRouteParams($payload['routeParams'] ?? $payload['route_params'] ?? null));
+
+        if (array_key_exists('icon', $payload) || array_key_exists('routeIcon', $payload)) {
+            $route->setIcon($this->limitString((string) ($payload['icon'] ?? $payload['routeIcon']), 50));
+            $this->manager->persist($route);
+        }
+
+        if (array_key_exists('color', $payload) || array_key_exists('routeColor', $payload)) {
+            $route->setColor($this->limitString((string) ($payload['color'] ?? $payload['routeColor']), 50));
+            $this->manager->persist($route);
+        }
+
+        $this->manager->persist($menu);
+        $this->syncLinkTypes($menu, $payload['linkTypes'] ?? $payload['link_types'] ?? []);
+        $this->manager->flush();
+
+        return $menu;
+    }
+
+    public function updateCategory(Category $category, array $payload, bool $flush = true): Category
+    {
+        if (array_key_exists('name', $payload) || array_key_exists('label', $payload)) {
+            $category->setName($this->limitString((string) ($payload['name'] ?? $payload['label']), 100));
+        }
+
+        if (array_key_exists('icon', $payload)) {
+            $category->setIcon($this->limitString((string) $payload['icon'], 50));
+        }
+
+        if (array_key_exists('color', $payload)) {
+            $category->setColor($this->limitString((string) $payload['color'], 50));
+        }
+
+        $this->manager->persist($category);
+        if ($flush) {
+            $this->manager->flush();
+        }
+
+        return $category;
     }
 
     public function normalizeMenu(Menu $menu): array
@@ -179,6 +294,8 @@ class MenuConfigService
             'routeParams' => $menu->getRouteParams() ?? [],
             'sortOrder' => $menu->getSortOrder(),
             'enabled' => $menu->getEnabled(),
+            'icon' => $route instanceof Routes ? $route->getIcon() : null,
+            'color' => $route instanceof Routes ? $route->getColor() : null,
             'route' => $route instanceof Routes ? [
                 '@id' => '/routes/' . $route->getId(),
                 'id' => $route->getId(),
@@ -198,6 +315,122 @@ class MenuConfigService
             ] : null,
             'linkTypes' => $this->normalizeMenuLinkTypes($menu),
         ];
+    }
+
+    public function normalizeCategory(Category $category): array
+    {
+        return [
+            '@id' => '/categories/' . $category->getId(),
+            'id' => $category->getId(),
+            'name' => $category->getName(),
+            'icon' => $category->getIcon(),
+            'color' => $category->getColor(),
+        ];
+    }
+
+    private function updateRouteAppearance(Routes $route, array $payload, bool $flush = true): Routes
+    {
+        if (array_key_exists('icon', $payload)) {
+            $route->setIcon($this->limitString((string) $payload['icon'], 50));
+        }
+
+        if (array_key_exists('color', $payload)) {
+            $route->setColor($this->limitString((string) $payload['color'], 50));
+        }
+
+        $this->manager->persist($route);
+        if ($flush) {
+            $this->manager->flush();
+        }
+
+        return $route;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $menus
+     * @return array<int, array<string, mixed>>
+     */
+    private function groupMenusByCategory(array $menus): array
+    {
+        $groups = [];
+
+        foreach ($menus as $menu) {
+            $category = is_array($menu['category'] ?? null) ? $menu['category'] : [];
+            $categoryId = (int) ($category['id'] ?? 0);
+            $groupKey = $categoryId > 0 ? (string) $categoryId : 'none';
+
+            if (!isset($groups[$groupKey])) {
+                $groups[$groupKey] = [
+                    'category' => [
+                        'id' => $categoryId,
+                        'name' => $category['name'] ?? 'Sem categoria',
+                        'icon' => $category['icon'] ?? null,
+                        'color' => $category['color'] ?? null,
+                    ],
+                    'menus' => [],
+                ];
+            }
+
+            $groups[$groupKey]['menus'][] = $menu;
+        }
+
+        return array_values($groups);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function getMenuCategories(): array
+    {
+        $categories = $this->manager->createQueryBuilder()
+            ->select('category')
+            ->from(Category::class, 'category')
+            ->andWhere('category.context = :context')
+            ->setParameter('context', 'menu')
+            ->addOrderBy('category.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return array_values(array_map(
+            fn(Category $category): array => $this->normalizeCategory($category),
+            array_filter($categories, static fn($category): bool => $category instanceof Category)
+        ));
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function getAvailableRoutes(): array
+    {
+        $routes = $this->manager->createQueryBuilder()
+            ->select('route', 'module')
+            ->from(Routes::class, 'route')
+            ->leftJoin('route.module', 'module')
+            ->addOrderBy('module.name', 'ASC')
+            ->addOrderBy('route.route', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $normalized = [];
+        foreach ($routes as $route) {
+            if (!$route instanceof Routes) {
+                continue;
+            }
+
+            $module = $route->getModule();
+            $normalized[] = [
+                '@id' => '/routes/' . $route->getId(),
+                'id' => $route->getId(),
+                'route' => $route->getRoute(),
+                'icon' => $route->getIcon(),
+                'color' => $route->getColor(),
+                'module' => is_object($module) && method_exists($module, 'getName')
+                    ? $module->getName()
+                    : null,
+            ];
+        }
+
+        return $normalized;
     }
 
     /**
@@ -307,6 +540,68 @@ class MenuConfigService
         }
 
         return null;
+    }
+
+    private function getNextSortOrder(string $appType, Category $category): int
+    {
+        $currentMax = $this->manager->createQueryBuilder()
+            ->select('MAX(menu.sortOrder)')
+            ->from(Menu::class, 'menu')
+            ->andWhere('menu.appType = :appType')
+            ->andWhere('menu.category = :category')
+            ->setParameter('appType', $appType)
+            ->setParameter('category', $category)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return ((int) $currentMax) + 10;
+    }
+
+    private function generateUniqueMenuKey(
+        string $appType,
+        string $requestedKey,
+        Routes $route,
+        Category $category,
+        string $label
+    ): string {
+        $base = trim($requestedKey) !== ''
+            ? trim($requestedKey)
+            : sprintf('%s_%s_%s', $route->getRoute(), $category->getId(), $label);
+
+        $base = $this->slug($base);
+        if ($base === '') {
+            $base = sprintf('menu_%s_%s', $route->getId(), $category->getId());
+        }
+
+        $base = substr($base, 0, 90);
+        $candidate = $base;
+        $suffix = 2;
+
+        while ($this->manager->getRepository(Menu::class)->findOneBy([
+            'appType' => $appType,
+            'menuKey' => $candidate,
+        ]) instanceof Menu) {
+            $candidate = substr($base, 0, 90 - strlen((string) $suffix)) . '_' . $suffix;
+            ++$suffix;
+        }
+
+        return $candidate;
+    }
+
+    private function slug(string $value): string
+    {
+        $slug = strtolower(trim($value));
+        $slug = preg_replace('/[^a-z0-9]+/i', '_', $slug) ?? '';
+        $slug = trim($slug, '_');
+
+        return $slug;
+    }
+
+    private function limitString(string $value, int $length): string
+    {
+        $value = trim($value);
+
+        return strlen($value) > $length ? substr($value, 0, $length) : $value;
     }
 
     private function resolveEntity(string $className, mixed $value): ?object

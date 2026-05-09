@@ -20,11 +20,9 @@ class GetMenuConfigAction
 
         return new JsonResponse([
             'member' => $result['member'],
+            'groups' => $result['groups'],
             'totalItems' => $result['totalItems'],
-            'summary' => [
-                'appTypes' => MenuConfigService::APP_TYPES,
-                'linkTypes' => $this->menuConfigService->getAllowedLinkTypes(),
-            ],
+            'summary' => $this->menuConfigService->getConfigSummary($appType),
         ]);
     }
 }

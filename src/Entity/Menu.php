@@ -12,8 +12,10 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ControleOnline\Controller\GetActionByPeopleAction;
+use ControleOnline\Controller\CreateMenuConfigAction;
 use ControleOnline\Controller\GetMenuByPeopleAction;
 use ControleOnline\Controller\GetMenuConfigAction;
+use ControleOnline\Controller\SaveMenuCategoryConfigAction;
 use ControleOnline\Controller\SaveMenuConfigAction;
 
 use ControleOnline\Repository\MenuRepository;
@@ -39,6 +41,18 @@ use Doctrine\ORM\Mapping as ORM;
         new GetCollection(
             uriTemplate: '/menu-config',
             controller: GetMenuConfigAction::class,
+            security: 'is_granted(\'ROLE_SUPER\')'
+        ),
+        new Post(
+            uriTemplate: '/menu-config',
+            controller: CreateMenuConfigAction::class,
+            read: false,
+            security: 'is_granted(\'ROLE_SUPER\')'
+        ),
+        new Patch(
+            uriTemplate: '/menu-config/categories/{id}',
+            controller: SaveMenuCategoryConfigAction::class,
+            read: false,
             security: 'is_granted(\'ROLE_SUPER\')'
         ),
         new Put(
