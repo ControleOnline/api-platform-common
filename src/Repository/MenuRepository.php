@@ -3,7 +3,9 @@
 namespace ControleOnline\Repository;
 
 use ControleOnline\Entity\Menu;
+use ControleOnline\Entity\PeopleLink;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -41,6 +43,7 @@ class MenuRepository extends ServiceEntityRepository
     $params = [
       'appType' => $appType,
     ];
+    $types = [];
 
     if ($isSuper) {
       $sql .= ' WHERE menu.enabled = 1 AND menu.app_type = :appType ';
@@ -51,14 +54,17 @@ class MenuRepository extends ServiceEntityRepository
                 AND menu.app_type = :appType
                 AND people_link.enable = 1
                 AND people_link.company_id = :companyId
-                AND people_link.people_id = :peopleId ';
+                AND people_link.people_id = :peopleId
+                AND people_link.link_type IN (:menuLinkTypes) ';
 
       $params['companyId'] = $companyId;
       $params['peopleId'] = $peopleId;
+      $params['menuLinkTypes'] = PeopleLink::HUMAN_LINK;
+      $types['menuLinkTypes'] = ArrayParameterType::STRING;
     }
 
     $sql .= ' ORDER BY category.name ASC, menu.sort_order ASC, menu.menu ASC';
 
-    return $connection->executeQuery($sql, $params)->fetchAllAssociative();
+    return $connection->executeQuery($sql, $params, $types)->fetchAllAssociative();
   }
 }
