@@ -18,14 +18,14 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ApiResource(
     operations: [
-        new Get(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Get(security: 'is_granted(\'ROLE_SUPER\')'),
         new Put(
-            security: 'is_granted(\'ROLE_HUMAN\')',
+            security: 'is_granted(\'ROLE_SUPER\')',
             denormalizationContext: ['groups' => ['route:write']]
         ),
-        new Delete(security: 'is_granted(\'ROLE_HUMAN\')'),
-        new GetCollection(security: 'is_granted(\'ROLE_HUMAN\')'),
-        new Post(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Delete(security: 'is_granted(\'ROLE_SUPER\')'),
+        new GetCollection(security: 'is_granted(\'ROLE_SUPER\')'),
+        new Post(security: 'is_granted(\'ROLE_SUPER\')'),
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['route:read']],

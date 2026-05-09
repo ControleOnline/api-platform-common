@@ -20,6 +20,12 @@
 - O cron geral de manutencao e suas rotinas tecnicas devem usar o Scheduler do Symfony e ler a agenda a partir de configuracoes da empresa principal.
 - Chaves tecnicas de `config` como logs, rotinas e credenciais centrais devem ser filtradas no backend e nunca podem ser gravadas fora da `defaultCompany`.
 
+## Regras de menu
+- O menu da home pertence ao `common` e deve ser resolvido por service/repository, nunca com query dentro de controller.
+- Menus visiveis filtram por `menu.app_type`, `menu.enabled` e vinculos ativos de `people_link.link_type`.
+- `ROLE_SUPER` ve todos os menus habilitados do `APP_TYPE` aberto e e o unico papel que pode configurar menus e rotas.
+- A tela de configuracao salva os vinculos em `menu_link_type`; `menu_role` e `people_role` ficam apenas como legado.
+
 ## Regras de traducao
 - A traducao especifica da empresa selecionada deve prevalecer sobre qualquer fallback.
 - Quando nao existir traducao propria para a empresa selecionada, a API deve considerar a traducao da empresa principal como fallback de leitura.
