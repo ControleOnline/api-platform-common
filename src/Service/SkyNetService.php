@@ -18,7 +18,7 @@ class SkyNetService
     public function discoveryBotUser($bot = null): void
     {
         if (!$bot) {
-            if (self::$botUser instanceof User) {
+            if ($this->reloadBotUser() instanceof User) {
                 return;
             }
 
@@ -38,6 +38,37 @@ class SkyNetService
     }
     public function getBotUser(): ?User
     {
-        return self::$botUser;
+        return $this->reloadBotUser() ?? self::$botUser;
+    }
+
+    private function reloadBotUser(): ?User
+    {
+        if (!self::$botUser instanceof User) {
+            return null;
+        }
+
+        if ($this->manager->contains(self::$botUser)) {
+            return self::$botUser;
+        }
+
+        $botUserId = self::$botUser->getId();
+        if (is_int($botUserId) && $botUserId > 0) {
+            $managedBotUser = $this->manager->getRepository(User::class)->find($botUserId);
+            if ($managedBotUser instanceof User) {
+                self::$botUser = $managedBotUser;
+                return self::$botUser;
+            }
+        }
+
+        $username = trim(self::$botUser->getUsername());
+        if ($username !== '') {
+            $managedBotUser = $this->manager->getRepository(User::class)->findOneBy(['username' => $username]);
+            if ($managedBotUser instanceof User) {
+                self::$botUser = $managedBotUser;
+                return self::$botUser;
+            }
+        }
+
+        return null;
     }
 }

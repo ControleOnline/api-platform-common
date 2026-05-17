@@ -108,13 +108,19 @@ class ExtraDataService
 
     private function getUserIp()
     {
-        return $this->request->getClientIp();
+        return $this->request?->getClientIp();
     }
 
     public function discoveryDevice(&$entity)
     {
-        if ($entity instanceof Device || $entity instanceof DeviceConfig || !$this->request->headers)
+        if (
+            $entity instanceof Device
+            || $entity instanceof DeviceConfig
+            || !$this->request
+            || !$this->request->headers
+        ) {
             return;
+        }
 
         $deviceId = $this->request->headers->get('DEVICE') ?: $this->getUserIp();
         if (method_exists($entity, 'setDevice')) {
