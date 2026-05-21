@@ -60,15 +60,30 @@ class DeviceService
 
     public function discoveryDevice($deviceId)
     {
-        $device = $this->manager->getRepository(Device::class)->findOneBy([
-            'device' => $deviceId
-        ]);
-        if (!$device) {
-            $device = new Device();
-            $device->setDevice($deviceId);
-            $this->manager->persist($device);
-            $this->manager->flush();
+        $normalizedDeviceId = trim((string) $deviceId);
+        if ($normalizedDeviceId === '') {
+            throw new \InvalidArgumentException('Device identifier is required.');
         }
+
+        $device = $this->manager->getRepository(Device::class)->findOneBy([
+            'device' => $normalizedDeviceId,
+        ]);
+        if ($device instanceof Device) {
+            return $device;
+        }
+
+        $this->manager->getConnection()->executeStatement(
+            'INSERT INTO device (device) VALUES (:device) ON DUPLICATE KEY UPDATE id = id',
+            ['device' => $normalizedDeviceId]
+        );
+
+        $device = $this->manager->getRepository(Device::class)->findOneBy([
+            'device' => $normalizedDeviceId,
+        ]);
+        if (!$device instanceof Device) {
+            throw new \RuntimeException('Unable to resolve device after persistence.');
+        }
+
         return $device;
     }
 
