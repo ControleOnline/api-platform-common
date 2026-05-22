@@ -29,7 +29,7 @@ class SkyNetService
         self::$botUser = $this->manager->getRepository(User::class)->findOneBy(['username' => $bot]);
         if (!self::$botUser) {
             self::$botUser = new User();
-            self::$botUser->setUserName($bot);
+            self::$botUser->setUsername($bot);
             self::$botUser->setHash('872844840.0');
             self::$botUser->setPeople($this->domainService->getPeopleDomain()->getPeople());
             $this->manager->persist(self::$botUser);

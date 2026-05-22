@@ -48,7 +48,7 @@ class DefaultEventListenerTest extends TestCase
             ->willReturn(false);
 
         $listener = new DefaultEventListener(
-            $this->createMock(EntityManagerInterface::class),
+            $this->createStub(EntityManagerInterface::class),
             $extraDataService,
             $dispatcher,
             $container,
@@ -60,7 +60,7 @@ class DefaultEventListenerTest extends TestCase
 
         $listener->preUpdate(new PreUpdateEventArgs(
             $entity,
-            $this->createMock(EntityManagerInterface::class),
+            $this->createStub(EntityManagerInterface::class),
             $changeSet,
         ));
     }

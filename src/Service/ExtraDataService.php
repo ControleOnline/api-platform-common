@@ -130,21 +130,55 @@ class ExtraDataService
         }
     }
 
+    private function resolveManagedUser(?User $user): ?User
+    {
+        if (!$user instanceof User) {
+            return null;
+        }
+
+        if ($this->manager->contains($user)) {
+            return $user;
+        }
+
+        $userId = $user->getId();
+        if (is_int($userId) && $userId > 0) {
+            $managedUser = $this->manager->getRepository(User::class)->find($userId);
+            if ($managedUser instanceof User) {
+                return $managedUser;
+            }
+        }
+
+        $username = trim((string) $user->getUsername());
+        if ($username !== '') {
+            $managedUser = $this->manager->getRepository(User::class)->findOneBy(['username' => $username]);
+            if ($managedUser instanceof User) {
+                return $managedUser;
+            }
+        }
+
+        return null;
+    }
+
     public function discoveryUser(&$entity)
     {
         $token = $this->security->getToken();
         $user = $token ? $token->getUser() : null;
 
         if (!$user instanceof User) {
-            if (!$this->skyNetService->getBotUser() instanceof User) {
+            $botUser = $this->skyNetService->getBotUser();
+            if (!$botUser instanceof User) {
                 $this->skyNetService->discoveryBotUser();
+                $botUser = $this->skyNetService->getBotUser();
             }
 
-            $user = $this->skyNetService->getBotUser();
+            $user = $botUser;
         }
 
-        if ($user instanceof User && method_exists($entity, 'setUser') && !$entity->getUser())
-            $entity->setUser($user);
+        $managedUser = $this->resolveManagedUser($user);
+
+        if ($managedUser instanceof User && method_exists($entity, 'setUser') && !$entity->getUser()) {
+            $entity->setUser($managedUser);
+        }
     }
 
     public function persist(&$entity)
