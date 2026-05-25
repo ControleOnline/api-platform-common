@@ -19,6 +19,7 @@
 - Captura de excecao backend, persistencia em `log`, filtros de habilitacao e retencao nao devem ser implementados em varios pontos com regras duplicadas.
 - O cron geral de manutencao e suas rotinas tecnicas devem usar o Scheduler do Symfony e ler a agenda a partir de configuracoes da empresa principal.
 - Chaves tecnicas de `config` como logs, rotinas e credenciais centrais devem ser filtradas no backend e nunca podem ser gravadas fora da `defaultCompany`.
+- A manutencao deve remover integracoes efemeras (`Websocket` e `PushNotification`) abertas ha mais de 24 horas; itens entregues dessas filas devem ser apagados no fluxo de entrega.
 
 ## Regras de menu
 - O menu da home pertence ao `common` e deve ser resolvido por service/repository, nunca com query dentro de controller.

@@ -8,11 +8,13 @@ class MaintenanceRoutineService
 {
     public const ROUTINES_CONFIG_KEY = 'maintenance-routines';
     public const ROUTINE_CLEANUP_LOGS = 'cleanup_logs';
+    public const ROUTINE_CLEANUP_EPHEMERAL_INTEGRATIONS = 'cleanup_ephemeral_integrations';
 
     public function __construct(
         private ConfigService $configService,
         private PeopleRoleService $peopleRoleService,
         private LogCleanupService $logCleanupService,
+        private ?IntegrationService $integrationService = null,
     ) {}
 
     public function getRoutineDefinitions(): array
@@ -22,6 +24,13 @@ class MaintenanceRoutineService
                 'key' => self::ROUTINE_CLEANUP_LOGS,
                 'title' => 'Limpeza de logs',
                 'description' => 'Remove logs expirados conforme a politica configurada.',
+                'defaultEnabled' => true,
+                'defaultCronExpression' => '* * * * *',
+            ],
+            self::ROUTINE_CLEANUP_EPHEMERAL_INTEGRATIONS => [
+                'key' => self::ROUTINE_CLEANUP_EPHEMERAL_INTEGRATIONS,
+                'title' => 'Limpeza de integracoes efemeras',
+                'description' => 'Remove Websocket e PushNotification abertos ha mais de 24 horas.',
                 'defaultEnabled' => true,
                 'defaultCronExpression' => '* * * * *',
             ],
@@ -96,6 +105,13 @@ class MaintenanceRoutineService
                 'key' => $routineKey,
                 'status' => 'success',
                 'summary' => $this->logCleanupService->cleanup(),
+            ],
+            self::ROUTINE_CLEANUP_EPHEMERAL_INTEGRATIONS => [
+                'key' => $routineKey,
+                'status' => $this->integrationService instanceof IntegrationService ? 'success' : 'ignored',
+                'summary' => $this->integrationService instanceof IntegrationService
+                    ? $this->integrationService->cleanupExpiredEphemeralIntegrations()
+                    : ['message' => 'IntegrationService indisponivel.'],
             ],
             default => [
                 'key' => $routineKey,
