@@ -55,12 +55,17 @@ class ConfigService
         $config = $this->discoveryConfig($people, $key);
 
         if (is_array($values)) {
-            $currentValue = json_decode($config->getConfigValue(), true);
-            $newValue = is_array($currentValue) ? $currentValue : [];
-            foreach ($values as $k => $v) {
-                $newValue[$k] = $v;
+            $isList = $values === [] || array_keys($values) === range(0, count($values) - 1);
+            if ($isList) {
+                $config->setConfigValue(json_encode($values));
+            } else {
+                $currentValue = json_decode($config->getConfigValue(), true);
+                $newValue = is_array($currentValue) ? $currentValue : [];
+                foreach ($values as $k => $v) {
+                    $newValue[$k] = $v;
+                }
+                $config->setConfigValue(json_encode($newValue));
             }
-            $config->setConfigValue(json_encode($newValue));
         } else {
             $config->setConfigValue($values);
         }
