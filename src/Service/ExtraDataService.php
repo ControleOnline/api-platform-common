@@ -106,6 +106,65 @@ class ExtraDataService
         return $extraFields;
     }
 
+    public function getExtraDataValue(
+        string $context,
+        string $entityName,
+        int $entityId,
+        string $fieldName = 'code',
+        string $fieldType = 'text'
+    ): ?string {
+        $extraFields = $this->manager->getRepository(ExtraFields::class)->findOneBy([
+            'name' => $fieldName,
+            'type' => $fieldType,
+            'context' => $context,
+        ]);
+
+        if (!$extraFields instanceof ExtraFields) {
+            return null;
+        }
+
+        $extraData = $this->manager->getRepository(ExtraData::class)->findOneBy([
+            'extra_fields' => $extraFields,
+            'entity_name' => $entityName,
+            'entity_id' => $entityId,
+        ]);
+
+        if (!$extraData instanceof ExtraData) {
+            return null;
+        }
+
+        $value = trim((string) $extraData->getValue());
+
+        return $value !== '' ? $value : null;
+    }
+
+    public function upsertExtraDataValue(
+        string $context,
+        string $entityName,
+        int $entityId,
+        string $fieldName,
+        mixed $value,
+        string $fieldType = 'text'
+    ): void {
+        $extraFields = $this->discoveryExtraFields($fieldName, $context, '{}', $fieldType);
+        $extraData = $this->manager->getRepository(ExtraData::class)->findOneBy([
+            'extra_fields' => $extraFields,
+            'entity_name' => $entityName,
+            'entity_id' => $entityId,
+        ]);
+
+        if (!$extraData instanceof ExtraData) {
+            $extraData = new ExtraData();
+        }
+
+        $extraData->setExtraFields($extraFields);
+        $extraData->setEntityName($entityName);
+        $extraData->setEntityId($entityId);
+        $extraData->setValue($this->normalizeExtraDataValue($value));
+        $this->manager->persist($extraData);
+        $this->manager->flush();
+    }
+
     private function getUserIp()
     {
         return $this->request?->getClientIp();
@@ -247,5 +306,28 @@ class ExtraDataService
     public function  noChange()
     {
         $this->persistData();
+    }
+
+    private function normalizeExtraDataValue(mixed $value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d H:i:s');
+        }
+
+        if (is_bool($value)) {
+            return $value ? '1' : '0';
+        }
+
+        if (is_scalar($value)) {
+            return trim((string) $value);
+        }
+
+        $encoded = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+        return is_string($encoded) ? $encoded : '';
     }
 }
