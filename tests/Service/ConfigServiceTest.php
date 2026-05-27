@@ -52,12 +52,40 @@ class ConfigServiceTest extends TestCase
         );
     }
 
+    public function testAddConfigSynchronizesDuplicatedKeysAcrossModules(): void
+    {
+        $firstConfig = new Config();
+        $firstConfig->setConfigValue('["2211"]');
+        $secondConfig = new Config();
+        $secondConfig->setConfigValue('["2211"]');
+
+        $service = $this->createServiceForConfigs([$firstConfig, $secondConfig]);
+        $service->addConfig(
+            new People(),
+            'shop-franchise-visible-company-ids',
+            [],
+            new Module(),
+            'public'
+        );
+
+        self::assertSame('[]', $firstConfig->getConfigValue());
+        self::assertSame('[]', $secondConfig->getConfigValue());
+    }
+
     private function createServiceForConfig(Config $config): ConfigService
+    {
+        return $this->createServiceForConfigs([$config]);
+    }
+
+    /**
+     * @param Config[] $configs
+     */
+    private function createServiceForConfigs(array $configs): ConfigService
     {
         $repository = $this->createMock(ObjectRepository::class);
         $repository
-            ->method('findOneBy')
-            ->willReturn($config);
+            ->method('findBy')
+            ->willReturn($configs);
 
         $manager = $this->createMock(EntityManagerInterface::class);
         $manager
@@ -65,9 +93,9 @@ class ConfigServiceTest extends TestCase
             ->with(Config::class)
             ->willReturn($repository);
         $manager
-            ->expects(self::once())
+            ->expects(self::exactly(count($configs)))
             ->method('persist')
-            ->with($config);
+            ->with(self::isInstanceOf(Config::class));
         $manager
             ->expects(self::once())
             ->method('flush');

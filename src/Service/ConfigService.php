@@ -52,29 +52,55 @@ class ConfigService
         ?string $visibility = 'private'
     ) {
         $this->technicalConfigAccessService->assertCanManageConfig($people, $key);
-        $config = $this->discoveryConfig($people, $key);
 
+        $configs = $this->manager->getRepository(Config::class)->findBy([
+            'people' => $people,
+            'configKey' => $key
+        ]);
+
+        if (empty($configs)) {
+            $config = new Config();
+            $config->setConfigKey($key);
+            $config->setPeople($people);
+            $configs = [$config];
+        }
+
+        $shouldUpdateModule = count($configs) === 1;
+
+        foreach ($configs as $config) {
+            $this->applyConfigValue($config, $values);
+            $config->setVisibility($visibility);
+
+            if ($shouldUpdateModule) {
+                $config->setModule($module);
+            }
+
+            $this->manager->persist($config);
+        }
+
+        $this->manager->flush();
+        return $configs[0];
+    }
+
+    private function applyConfigValue(Config $config, mixed $values): void
+    {
         if (is_array($values)) {
             $isList = $values === [] || array_keys($values) === range(0, count($values) - 1);
             if ($isList) {
                 $config->setConfigValue(json_encode($values));
-            } else {
-                $currentValue = json_decode($config->getConfigValue(), true);
-                $newValue = is_array($currentValue) ? $currentValue : [];
-                foreach ($values as $k => $v) {
-                    $newValue[$k] = $v;
-                }
-                $config->setConfigValue(json_encode($newValue));
+                return;
             }
-        } else {
-            $config->setConfigValue($values);
+
+            $currentValue = json_decode($config->getConfigValue(), true);
+            $newValue = is_array($currentValue) ? $currentValue : [];
+            foreach ($values as $k => $v) {
+                $newValue[$k] = $v;
+            }
+            $config->setConfigValue(json_encode($newValue));
+            return;
         }
 
-        $config->setVisibility($visibility);
-        $config->setModule($module);
-        $this->manager->persist($config);
-        $this->manager->flush();
-        return $config;
+        $config->setConfigValue($values);
     }
 
     public function addConfigFromPayload(array $payload): Config
