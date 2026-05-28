@@ -108,6 +108,81 @@ class ExtraDataServiceTest extends TestCase
         self::assertTrue(true);
     }
 
+    public function testDiscoveryExtraDataUpdatesExistingRecordWithoutDuplicateInsert(): void
+    {
+        $extraFields = $this->createExtraFields(44, 'code', 'Food99');
+        $existingExtraData = new ExtraData();
+        $existingExtraData->setEntityId(71670);
+        $existingExtraData->setEntityName('People');
+        $existingExtraData->setValue('123');
+        $existingExtraData->setExtraFields($extraFields);
+        $existingExtraData->setSource('Food99');
+
+        $extraFieldsRepository = $this->getMockBuilder(EntityRepository::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['find', 'findOneBy'])
+            ->getMock();
+        $extraFieldsRepository->expects(self::once())
+            ->method('findOneBy')
+            ->with([
+                'name' => 'code',
+                'type' => 'text',
+                'context' => 'Food99',
+            ])
+            ->willReturn($extraFields);
+        $extraFieldsRepository->expects(self::never())
+            ->method('find');
+
+        $extraDataRepository = $this->getMockBuilder(EntityRepository::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['find', 'findOneBy'])
+            ->getMock();
+        $extraDataRepository->expects(self::once())
+            ->method('findOneBy')
+            ->with([
+                'extra_fields' => $extraFields,
+                'entity_name' => 'People',
+                'entity_id' => 71670,
+            ])
+            ->willReturn($existingExtraData);
+        $extraDataRepository->expects(self::never())
+            ->method('find');
+
+        $people = $this->createPeople(71670);
+        $peopleRepository = $this->getMockBuilder(EntityRepository::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['find', 'findOneBy'])
+            ->getMock();
+        $peopleRepository->expects(self::once())
+            ->method('find')
+            ->with(71670)
+            ->willReturn($people);
+        $peopleRepository->expects(self::never())
+            ->method('findOneBy');
+
+        $manager = $this->createMock(EntityManagerInterface::class);
+        $manager->expects(self::exactly(3))
+            ->method('getRepository')
+            ->willReturnOnConsecutiveCalls($extraFieldsRepository, $extraDataRepository, $peopleRepository);
+        $manager->expects(self::once())
+            ->method('persist')
+            ->with($existingExtraData);
+        $manager->expects(self::once())
+            ->method('flush');
+
+        $service = new ExtraDataService(
+            $manager,
+            $this->createStub(RequestStack::class),
+            $this->createStub(TokenStorageInterface::class),
+            $this->createStub(DeviceService::class),
+            $this->createStub(SkyNetService::class),
+        );
+
+        $resolved = $service->discoveryExtraData($people, 'Food99', 'code', '123', 'Food99');
+
+        self::assertSame($people, $resolved);
+    }
+
     public function testDiscoveryUserReattachesBotUserThroughCurrentEntityManager(): void
     {
         $incomingBotUser = $this->createUser(17, 'SkyNet');

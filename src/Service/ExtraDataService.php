@@ -93,31 +93,17 @@ class ExtraDataService
             return $entity;
         }
 
+        $this->upsertExtraDataValue(
+            $context,
+            $class->getShortName(),
+            $entityId,
+            $fieldName,
+            $normalizedCode,
+            'text',
+            $source
+        );
+
         $managedEntity = $this->manager->getRepository($class->getName())->find($entityId);
-        $extraData = $this->getEntityByExtraData($context, $fieldName, $normalizedCode, $entity);
-        $extraFields = $this->discoveryExtraFields($fieldName, $context, '{}');
-        $normalizedSource = $this->normalizeExtraDataSource($source);
-
-        if ($extraData instanceof ExtraData) {
-            if ($normalizedSource !== null && $extraData->getSource() !== $normalizedSource) {
-                $extraData->setSource($normalizedSource);
-                $this->manager->persist($extraData);
-                $this->manager->flush();
-            }
-
-            return $managedEntity ?? $entity;
-        }
-
-        $extraData = new ExtraData();
-        $extraData->setEntityId($entity->getId());
-        $extraData->setExtraFields($extraFields);
-        $extraData->setValue($normalizedCode);
-        $extraData->setEntityName($class->getShortName());
-        if ($normalizedSource !== null) {
-            $extraData->setSource($normalizedSource);
-        }
-        $this->manager->persist($extraData);
-        $this->manager->flush();
 
         return $managedEntity ?? $entity;
     }
