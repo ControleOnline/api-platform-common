@@ -51,13 +51,19 @@ class ExtraDataService
     public function getEntityByExtraData(string $context, string $fieldName, string $code, object|string $entity)
     {
         $class = $this->getEntityName($entity);
-        $entityId = method_exists($entity, 'getId') ? (int) $entity->getId() : 0;
         $context = trim($context);
         $fieldName = trim($fieldName);
         $code = trim($code);
 
-        if ($entityId <= 0 || $context === '' || $fieldName === '' || $code === '') {
+        if ($context === '' || $fieldName === '' || $code === '') {
             return null;
+        }
+
+        if (is_object($entity)) {
+            $entityId = method_exists($entity, 'getId') ? (int) $entity->getId() : 0;
+            if ($entityId <= 0) {
+                return null;
+            }
         }
 
         $extraFields = $this->discoveryExtraFields($fieldName, $context, '{}');
