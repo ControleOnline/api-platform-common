@@ -23,6 +23,11 @@
 - Valores de configuracao que representam listas devem substituir a lista inteira. Lista vazia significa limpar a configuracao anterior, nunca fazer merge com valores antigos.
 - A manutencao deve remover integracoes efemeras (`Websocket` e `PushNotification`) remanescentes com mais de 24 horas; itens entregues dessas filas devem ser apagados no fluxo de entrega.
 
+## Regra de extra_data
+- `extra_data` e `extra_fields` so podem guardar chaves remotas, IDs e codigos que nao tenham coluna ou tabela materializada equivalente.
+- Nao usar `extra_data` para snapshot de pedido, pessoa, financeiro, configuracao, logistica ou qualquer outro estado que ja caiba no dominio dono.
+- Quando um fluxo ja tiver o destino canonico, o dado deve ir para a entidade dona e a limpeza de legado deve remover a chave correspondente de `extra_data` e, se ficar sem uso, de `extra_fields`.
+
 ## Regras de menu
 - O menu da home pertence ao `common` e deve ser resolvido por service/repository, nunca com query dentro de controller.
 - Menus visiveis filtram por `menu.app_type`, `menu.enabled` e vinculos ativos de `people_link.link_type`.
