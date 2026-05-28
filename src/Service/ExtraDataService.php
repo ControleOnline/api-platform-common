@@ -51,6 +51,15 @@ class ExtraDataService
     public function getEntityByExtraData(string $context, string $fieldName, string $code, object|string $entity)
     {
         $class = $this->getEntityName($entity);
+        $entityId = method_exists($entity, 'getId') ? (int) $entity->getId() : 0;
+        $context = trim($context);
+        $fieldName = trim($fieldName);
+        $code = trim($code);
+
+        if ($entityId <= 0 || $context === '' || $fieldName === '' || $code === '') {
+            return null;
+        }
+
         $extraFields = $this->discoveryExtraFields($fieldName, $context, '{}');
 
         $extraData = $this->manager->getRepository(ExtraData::class)->findOneBy([
@@ -65,23 +74,46 @@ class ExtraDataService
         return null;
     }
 
-    public function discoveryExtraData(object $entity, string $context, string $fieldName, string $code)
+    public function discoveryExtraData(object $entity, string $context, string $fieldName, string $code, ?string $source = null)
     {
         $class = $this->getEntityName($entity);
-        $extraData = $this->getEntityByExtraData($context, $fieldName, $code, $entity);
-        $extraFields = $this->discoveryExtraFields($fieldName, $context, '{}');
+        $entityId = (int) $entity->getId();
+        if ($entityId <= 0) {
+            return $entity;
+        }
 
-        if ($extraData) return $extraData;
+        $normalizedCode = $this->normalizeExtraDataValue($code);
+        if ($normalizedCode === '') {
+            return $entity;
+        }
+
+        $managedEntity = $this->manager->getRepository($class->getName())->find($entityId);
+        $extraData = $this->getEntityByExtraData($context, $fieldName, $normalizedCode, $entity);
+        $extraFields = $this->discoveryExtraFields($fieldName, $context, '{}');
+        $normalizedSource = $this->normalizeExtraDataSource($source);
+
+        if ($extraData instanceof ExtraData) {
+            if ($normalizedSource !== null && $extraData->getSource() !== $normalizedSource) {
+                $extraData->setSource($normalizedSource);
+                $this->manager->persist($extraData);
+                $this->manager->flush();
+            }
+
+            return $managedEntity ?? $entity;
+        }
 
         $extraData = new ExtraData();
         $extraData->setEntityId($entity->getId());
         $extraData->setExtraFields($extraFields);
-        $extraData->setValue($code);
+        $extraData->setValue($normalizedCode);
         $extraData->setEntityName($class->getShortName());
+        if ($normalizedSource !== null) {
+            $extraData->setSource($normalizedSource);
+        }
         $this->manager->persist($extraData);
         $this->manager->flush();
 
-        return $this->manager->getRepository($class->getName())->find($extraData->getEntityId());
+        return $managedEntity ?? $entity;
     }
 
     public function discoveryExtraFields(string $fieldName, string $context, ?string $configs = '{}', ?string $fieldType = 'text', ?bool $required = false): ExtraFields
@@ -113,6 +145,18 @@ class ExtraDataService
         string $fieldName = 'code',
         string $fieldType = 'text'
     ): ?string {
+        if ($entityId <= 0) {
+            return null;
+        }
+
+        $context = trim($context);
+        $entityName = trim($entityName);
+        $fieldName = trim($fieldName);
+
+        if ($context === '' || $entityName === '' || $fieldName === '') {
+            return null;
+        }
+
         $extraFields = $this->manager->getRepository(ExtraFields::class)->findOneBy([
             'name' => $fieldName,
             'type' => $fieldType,
@@ -144,8 +188,21 @@ class ExtraDataService
         int $entityId,
         string $fieldName,
         mixed $value,
-        string $fieldType = 'text'
+        string $fieldType = 'text',
+        ?string $source = null
     ): void {
+        $context = trim($context);
+        $entityName = trim($entityName);
+        $fieldName = trim($fieldName);
+        if ($entityId <= 0) {
+            return;
+        }
+
+        $normalizedValue = $this->normalizeExtraDataValue($value);
+        if ($context === '' || $entityName === '' || $fieldName === '' || $normalizedValue === '') {
+            return;
+        }
+
         $extraFields = $this->discoveryExtraFields($fieldName, $context, '{}', $fieldType);
         $extraData = $this->manager->getRepository(ExtraData::class)->findOneBy([
             'extra_fields' => $extraFields,
@@ -160,7 +217,11 @@ class ExtraDataService
         $extraData->setExtraFields($extraFields);
         $extraData->setEntityName($entityName);
         $extraData->setEntityId($entityId);
-        $extraData->setValue($this->normalizeExtraDataValue($value));
+        $extraData->setValue($normalizedValue);
+        $normalizedSource = $this->normalizeExtraDataSource($source);
+        if ($normalizedSource !== null) {
+            $extraData->setSource($normalizedSource);
+        }
         $this->manager->persist($extraData);
         $this->manager->flush();
     }
@@ -271,6 +332,7 @@ class ExtraDataService
                 return;
             $entity_id = $extra_data['entity_id'];
             $entity_name = $extra_data['entity_name'];
+            $source = $this->normalizeExtraDataSource($extra_data['source'] ?? $json['source'] ?? null);
         }
 
 
@@ -282,6 +344,14 @@ class ExtraDataService
 
         foreach ($extra_data['data'] as $key => $data) {
             $extra_fields = $this->manager->getRepository(ExtraFields::class)->find($key);
+            if (!$extra_fields instanceof ExtraFields) {
+                continue;
+            }
+
+            $normalizedData = $this->normalizeExtraDataValue($data);
+            if ($normalizedData === '') {
+                continue;
+            }
 
             $extraData = $this->manager->getRepository(ExtraData::class)->findOneBy([
                 'entity_id' => $entity_id,
@@ -295,7 +365,10 @@ class ExtraDataService
             $extraData->setExtraFields($extra_fields);
             $extraData->setEntityName($entity_name);
             $extraData->setEntityId($entity_id);
-            $extraData->setValue($data);
+            $extraData->setValue($normalizedData);
+            if (isset($source) && $source !== null) {
+                $extraData->setSource($source);
+            }
             $this->manager->persist($extraData);
         }
 
@@ -318,6 +391,12 @@ class ExtraDataService
             return $value->format('Y-m-d H:i:s');
         }
 
+        if (is_string($value)) {
+            $normalized = trim($value);
+
+            return $normalized !== '' ? $normalized : '';
+        }
+
         if (is_bool($value)) {
             return $value ? '1' : '0';
         }
@@ -326,8 +405,13 @@ class ExtraDataService
             return trim((string) $value);
         }
 
-        $encoded = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        return '';
+    }
 
-        return is_string($encoded) ? $encoded : '';
+    private function normalizeExtraDataSource(mixed $source): ?string
+    {
+        $normalized = trim((string) $source);
+
+        return $normalized !== '' ? $normalized : null;
     }
 }

@@ -78,6 +78,10 @@ class ExtraData
     #[Column(name: 'data_value', type: 'string', nullable: false)]
     private string $value;
 
+    #[Groups(['extra_data:read'])]
+    #[Column(name: 'source', type: 'string', nullable: true)]
+    private ?string $source = null;
+
     public function __construct()
     {
     }
@@ -128,6 +132,19 @@ class ExtraData
     public function setExtraFields(?ExtraFields $extra_fields): self
     {
         $this->extra_fields = $extra_fields;
+        return $this;
+    }
+
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(?string $source): self
+    {
+        $normalizedSource = trim((string) $source);
+        $this->source = $normalizedSource !== '' ? $normalizedSource : null;
+
         return $this;
     }
 }

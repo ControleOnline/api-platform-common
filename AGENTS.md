@@ -27,6 +27,8 @@
 - `extra_data` e `extra_fields` so podem guardar chaves remotas, IDs e codigos que nao tenham coluna ou tabela materializada equivalente.
 - Nao usar `extra_data` para snapshot de pedido, pessoa, financeiro, configuracao, logistica ou qualquer outro estado que ja caiba no dominio dono.
 - Quando um fluxo ja tiver o destino canonico, o dado deve ir para a entidade dona e a limpeza de legado deve remover a chave correspondente de `extra_data` e, se ficar sem uso, de `extra_fields`.
+- Writers de `extra_data` devem rejeitar `data_value` vazio, `null` ou espacos em branco; nada sem valor util pode ser persistido.
+- Quando o writer souber a origem canonica, o campo `source` da linha deve ser preenchido com o app/dominio dono. Marketplace nao deve continuar gravando `source` nulo em bindings novos.
 
 ## Regras de menu
 - O menu da home pertence ao `common` e deve ser resolvido por service/repository, nunca com query dentro de controller.

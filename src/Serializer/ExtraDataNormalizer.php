@@ -34,6 +34,7 @@ class ExtraDataNormalizer implements NormalizerInterface, NormalizerAwareInterfa
                 'entity_id' => $extraData->getEntityId(),
                 'entity_name' => $extraData->getEntityName(),
                 'value' => $extraData->getValue(),
+                'source' => $extraData->getSource(),
                 'extra_fields' => [
                     'id' => $extraData->getExtraFields()->getId(),
                     'name' => $extraData->getExtraFields()->getName(),

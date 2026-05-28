@@ -54,6 +54,28 @@ class ExtraDataRepository extends ServiceEntityRepository
             ->toIterable();
     }
 
+    /**
+     * @param array<int, int|string> $ids
+     */
+    public function deleteByIds(array $ids): int
+    {
+        $normalizedIds = array_values(array_unique(array_filter(array_map(
+            static fn ($value): int => (int) $value,
+            $ids
+        ), static fn (int $value): bool => $value > 0)));
+
+        if ($normalizedIds === []) {
+            return 0;
+        }
+
+        return (int) $this->createQueryBuilder('ed')
+            ->delete(ExtraData::class, 'ed')
+            ->where('ed.id IN (:ids)')
+            ->setParameter('ids', $normalizedIds)
+            ->getQuery()
+            ->execute();
+    }
+
     private function createMarketplaceLegacyRowsQueryBuilder(array $contexts, array $entityNames): QueryBuilder
     {
         return $this->createQueryBuilder('ed')
