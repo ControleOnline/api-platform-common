@@ -15,6 +15,8 @@ use Doctrine\ORM\EntityRepository;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use ControleOnline\Repository\ExtraDataRepository;
+use ControleOnline\Repository\ExtraFieldsRepository;
 
 class ExtraDataServiceTest extends TestCase
 {
@@ -23,6 +25,8 @@ class ExtraDataServiceTest extends TestCase
         $manager = $this->createMock(EntityManagerInterface::class);
         $manager->expects(self::never())
             ->method('getRepository');
+        $manager->expects(self::never())
+            ->method('getConnection');
         $manager->expects(self::never())
             ->method('persist');
         $manager->expects(self::never())
@@ -45,54 +49,30 @@ class ExtraDataServiceTest extends TestCase
     {
         $extraFields = $this->createExtraFields(44, 'code', 'Food99');
 
-        $extraFieldsRepository = $this->getMockBuilder(EntityRepository::class)
+        $extraFieldsRepository = $this->getMockBuilder(ExtraFieldsRepository::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['find', 'findOneBy'])
+            ->onlyMethods(['findOneByContextNameType'])
             ->getMock();
         $extraFieldsRepository->expects(self::once())
-            ->method('findOneBy')
-            ->with([
-                'name' => 'code',
-                'type' => 'text',
-                'context' => 'Food99',
-            ])
+            ->method('findOneByContextNameType')
+            ->with('Food99', 'code', 'text')
             ->willReturn($extraFields);
-        $extraFieldsRepository->expects(self::never())
-            ->method('find');
 
-        $extraDataRepository = $this->getMockBuilder(EntityRepository::class)
+        $extraDataRepository = $this->getMockBuilder(ExtraDataRepository::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['find', 'findOneBy'])
+            ->onlyMethods(['upsertValue'])
             ->getMock();
         $extraDataRepository->expects(self::once())
-            ->method('findOneBy')
-            ->with([
-                'extra_fields' => $extraFields,
-                'entity_name' => 'Order',
-                'entity_id' => 71670,
-            ])
-            ->willReturn(null);
-        $extraDataRepository->expects(self::never())
-            ->method('find');
+            ->method('upsertValue')
+            ->with($extraFields, 'Order', 71670, 'abc', 'Food99');
 
         $manager = $this->createMock(EntityManagerInterface::class);
         $manager->expects(self::exactly(2))
             ->method('getRepository')
             ->willReturnOnConsecutiveCalls($extraFieldsRepository, $extraDataRepository);
-        $manager->expects(self::once())
-            ->method('persist')
-            ->with(self::callback(function (object $entity) use ($extraFields): bool {
-                if (!$entity instanceof ExtraData) {
-                    return false;
-                }
-
-                return $entity->getExtraFields() === $extraFields
-                    && $entity->getEntityName() === 'Order'
-                    && (int) $entity->getEntityId() === 71670
-                    && $entity->getValue() === 'abc'
-                    && $entity->getSource() === 'Food99';
-            }));
-        $manager->expects(self::once())
+        $manager->expects(self::never())
+            ->method('persist');
+        $manager->expects(self::never())
             ->method('flush');
 
         $service = new ExtraDataService(
@@ -111,42 +91,23 @@ class ExtraDataServiceTest extends TestCase
     public function testDiscoveryExtraDataUpdatesExistingRecordWithoutDuplicateInsert(): void
     {
         $extraFields = $this->createExtraFields(44, 'code', 'Food99');
-        $existingExtraData = new ExtraData();
-        $existingExtraData->setEntityId(71670);
-        $existingExtraData->setEntityName('People');
-        $existingExtraData->setValue('123');
-        $existingExtraData->setExtraFields($extraFields);
-        $existingExtraData->setSource('Food99');
 
-        $extraFieldsRepository = $this->getMockBuilder(EntityRepository::class)
+        $extraFieldsRepository = $this->getMockBuilder(ExtraFieldsRepository::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['find', 'findOneBy'])
+            ->onlyMethods(['findOneByContextNameType'])
             ->getMock();
         $extraFieldsRepository->expects(self::once())
-            ->method('findOneBy')
-            ->with([
-                'name' => 'code',
-                'type' => 'text',
-                'context' => 'Food99',
-            ])
+            ->method('findOneByContextNameType')
+            ->with('Food99', 'code', 'text')
             ->willReturn($extraFields);
-        $extraFieldsRepository->expects(self::never())
-            ->method('find');
 
-        $extraDataRepository = $this->getMockBuilder(EntityRepository::class)
+        $extraDataRepository = $this->getMockBuilder(ExtraDataRepository::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['find', 'findOneBy'])
+            ->onlyMethods(['upsertValue'])
             ->getMock();
         $extraDataRepository->expects(self::once())
-            ->method('findOneBy')
-            ->with([
-                'extra_fields' => $extraFields,
-                'entity_name' => 'People',
-                'entity_id' => 71670,
-            ])
-            ->willReturn($existingExtraData);
-        $extraDataRepository->expects(self::never())
-            ->method('find');
+            ->method('upsertValue')
+            ->with($extraFields, 'People', 71670, '123', 'Food99');
 
         $people = $this->createPeople(71670);
         $peopleRepository = $this->getMockBuilder(EntityRepository::class)
@@ -164,10 +125,9 @@ class ExtraDataServiceTest extends TestCase
         $manager->expects(self::exactly(3))
             ->method('getRepository')
             ->willReturnOnConsecutiveCalls($extraFieldsRepository, $extraDataRepository, $peopleRepository);
-        $manager->expects(self::once())
-            ->method('persist')
-            ->with($existingExtraData);
-        $manager->expects(self::once())
+        $manager->expects(self::never())
+            ->method('persist');
+        $manager->expects(self::never())
             ->method('flush');
 
         $service = new ExtraDataService(
@@ -244,35 +204,23 @@ class ExtraDataServiceTest extends TestCase
         $extraData->setValue('3');
         $extraData->setExtraFields($extraFields);
 
-        $extraFieldsRepository = $this->getMockBuilder(EntityRepository::class)
+        $extraFieldsRepository = $this->getMockBuilder(ExtraFieldsRepository::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['find', 'findOneBy'])
+            ->onlyMethods(['findOneByContextNameType'])
             ->getMock();
         $extraFieldsRepository->expects(self::once())
-            ->method('findOneBy')
-            ->with([
-                'name' => 'code',
-                'type' => 'text',
-                'context' => 'Food99',
-            ])
+            ->method('findOneByContextNameType')
+            ->with('Food99', 'code', 'text')
             ->willReturn($extraFields);
-        $extraFieldsRepository->expects(self::never())
-            ->method('find');
 
-        $extraDataRepository = $this->getMockBuilder(EntityRepository::class)
+        $extraDataRepository = $this->getMockBuilder(ExtraDataRepository::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['find', 'findOneBy'])
+            ->onlyMethods(['findOneByExtraFieldsEntityNameValue'])
             ->getMock();
         $extraDataRepository->expects(self::once())
-            ->method('findOneBy')
-            ->with([
-                'extra_fields' => $extraFields,
-                'entity_name' => 'People',
-                'value' => '3',
-            ])
+            ->method('findOneByExtraFieldsEntityNameValue')
+            ->with($extraFields, 'People', '3')
             ->willReturn($extraData);
-        $extraDataRepository->expects(self::never())
-            ->method('find');
 
         $peopleRepository = $this->getMockBuilder(EntityRepository::class)
             ->disableOriginalConstructor()

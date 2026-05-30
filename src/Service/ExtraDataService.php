@@ -7,6 +7,8 @@ use ControleOnline\Entity\DeviceConfig;
 use ControleOnline\Entity\ExtraData;
 use ControleOnline\Entity\ExtraFields;
 use ControleOnline\Entity\User;
+use ControleOnline\Repository\ExtraDataRepository;
+use ControleOnline\Repository\ExtraFieldsRepository;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
 as Security;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -31,20 +33,20 @@ class ExtraDataService
     public function getByExtraFieldByEntity(ExtraFields $extraFields, object $entity)
     {
         $class = $this->getEntityName($entity);
-        return $this->manager->getRepository(ExtraData::class)->findOneBy([
-            'extra_fields' => $extraFields,
-            'entity_name' => $class->getShortName(),
-            'entity_id' => $entity->getId()
-        ]);
+        return $this->extraDataRepository()->findOneByExtraFieldsEntityNameEntityId(
+            $extraFields,
+            $class->getShortName(),
+            $entity->getId()
+        );
     }
 
     public function getExtraDataFromEntity(object $entity)
     {
         $class = $this->getEntityName($entity);
-        return $this->manager->getRepository(ExtraData::class)->findBy([
-            'entity_id' => $entity->getId(),
-            'entity_name' => $class->getShortName(),
-        ]);
+        return $this->extraDataRepository()->findByEntityNameEntityId(
+            $class->getShortName(),
+            $entity->getId()
+        );
     }
     
 
@@ -67,12 +69,15 @@ class ExtraDataService
         }
 
         $extraFields = $this->discoveryExtraFields($fieldName, $context, '{}');
+        if (!$extraFields instanceof ExtraFields) {
+            return null;
+        }
 
-        $extraData = $this->manager->getRepository(ExtraData::class)->findOneBy([
-            'extra_fields' => $extraFields,
-            'entity_name' => $class->getShortName(),
-            'value' => $code
-        ]);
+        $extraData = $this->extraDataRepository()->findOneByExtraFieldsEntityNameValue(
+            $extraFields,
+            $class->getShortName(),
+            $code
+        );
 
         if ($extraData)
             return $this->manager->getRepository($class->getName())->find($extraData->getEntityId());
@@ -110,11 +115,11 @@ class ExtraDataService
 
     public function discoveryExtraFields(string $fieldName, string $context, ?string $configs = '{}', ?string $fieldType = 'text', ?bool $required = false): ExtraFields
     {
-        $extraFields = $this->manager->getRepository(ExtraFields::class)->findOneBy([
-            'name' => $fieldName,
-            'type' => $fieldType,
-            'context' => $context
-        ]);
+        $extraFields = $this->extraFieldsRepository()->findOneByContextNameType(
+            $context,
+            $fieldName,
+            $fieldType ?? 'text'
+        );
 
         if (!$extraFields) {
             $extraFields = new ExtraFields();
@@ -149,21 +154,21 @@ class ExtraDataService
             return null;
         }
 
-        $extraFields = $this->manager->getRepository(ExtraFields::class)->findOneBy([
-            'name' => $fieldName,
-            'type' => $fieldType,
-            'context' => $context,
-        ]);
+        $extraFields = $this->extraFieldsRepository()->findOneByContextNameType(
+            $context,
+            $fieldName,
+            $fieldType
+        );
 
         if (!$extraFields instanceof ExtraFields) {
             return null;
         }
 
-        $extraData = $this->manager->getRepository(ExtraData::class)->findOneBy([
-            'extra_fields' => $extraFields,
-            'entity_name' => $entityName,
-            'entity_id' => $entityId,
-        ]);
+        $extraData = $this->extraDataRepository()->findOneByExtraFieldsEntityNameEntityId(
+            $extraFields,
+            $entityName,
+            $entityId
+        );
 
         if (!$extraData instanceof ExtraData) {
             return null;
@@ -196,26 +201,15 @@ class ExtraDataService
         }
 
         $extraFields = $this->discoveryExtraFields($fieldName, $context, '{}', $fieldType);
-        $extraData = $this->manager->getRepository(ExtraData::class)->findOneBy([
-            'extra_fields' => $extraFields,
-            'entity_name' => $entityName,
-            'entity_id' => $entityId,
-        ]);
-
-        if (!$extraData instanceof ExtraData) {
-            $extraData = new ExtraData();
-        }
-
-        $extraData->setExtraFields($extraFields);
-        $extraData->setEntityName($entityName);
-        $extraData->setEntityId($entityId);
-        $extraData->setValue($normalizedValue);
         $normalizedSource = $this->normalizeExtraDataSource($source);
-        if ($normalizedSource !== null) {
-            $extraData->setSource($normalizedSource);
-        }
-        $this->manager->persist($extraData);
-        $this->manager->flush();
+
+        $this->extraDataRepository()->upsertValue(
+            $extraFields,
+            $entityName,
+            $entityId,
+            $normalizedValue,
+            $normalizedSource
+        );
     }
 
     private function getUserIp()
@@ -309,6 +303,22 @@ class ExtraDataService
         return (new \ReflectionClass($entity));
     }
 
+    /**
+     * @return ExtraFieldsRepository
+     */
+    private function extraFieldsRepository(): ExtraFieldsRepository
+    {
+        return $this->manager->getRepository(ExtraFields::class);
+    }
+
+    /**
+     * @return ExtraDataRepository
+     */
+    private function extraDataRepository(): ExtraDataRepository
+    {
+        return $this->manager->getRepository(ExtraData::class);
+    }
+
     private function persistData(&$entity = null)
     {
 
@@ -345,11 +355,11 @@ class ExtraDataService
                 continue;
             }
 
-            $extraData = $this->manager->getRepository(ExtraData::class)->findOneBy([
-                'entity_id' => $entity_id,
-                'entity_name' => $entity_name,
-                'extra_fields' => $extra_fields
-            ]);
+            $extraData = $this->extraDataRepository()->findOneByExtraFieldsEntityNameEntityId(
+                $extra_fields,
+                $entity_name,
+                $entity_id
+            );
 
             if (!$extraData)
                 $extraData = new ExtraData();

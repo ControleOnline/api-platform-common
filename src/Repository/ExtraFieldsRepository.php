@@ -20,6 +20,25 @@ class ExtraFieldsRepository extends ServiceEntityRepository
         parent::__construct($registry, ExtraFields::class);
     }
 
+    public function findOneByContextNameType(string $context, string $name, string $type = 'text'): ?ExtraFields
+    {
+        $context = trim($context);
+        $name = trim($name);
+        $type = trim($type);
+
+        if ($context === '' || $name === '' || $type === '') {
+            return null;
+        }
+
+        $extraFields = $this->findOneBy([
+            'context' => $context,
+            'name' => $name,
+            'type' => $type,
+        ]);
+
+        return $extraFields instanceof ExtraFields ? $extraFields : null;
+    }
+
     /**
      * @return ExtraFields[]
      */
