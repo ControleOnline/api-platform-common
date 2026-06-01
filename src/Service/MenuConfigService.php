@@ -14,7 +14,7 @@ use InvalidArgumentException;
 
 class MenuConfigService
 {
-    public const APP_TYPES = ['MANAGER', 'CRM', 'POS', 'DELIVERY', 'PPC', 'SHOP'];
+    public const APP_TYPES = ['MANAGER', 'CRM', 'POS', 'DELIVERY', 'PPC', 'SHOP', 'SERVICE'];
 
     public function __construct(private EntityManagerInterface $manager) {}
 
