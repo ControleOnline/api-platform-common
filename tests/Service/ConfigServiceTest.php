@@ -10,7 +10,7 @@ use ControleOnline\Service\PeopleService;
 use ControleOnline\Service\TechnicalConfigAccessService;
 use ControleOnline\Service\WalletService;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\ObjectRepository;
+use Doctrine\ORM\EntityRepository;
 use PHPUnit\Framework\TestCase;
 
 class ConfigServiceTest extends TestCase
@@ -72,6 +72,18 @@ class ConfigServiceTest extends TestCase
         self::assertSame('[]', $secondConfig->getConfigValue());
     }
 
+    public function testGetConfigRequiresExplicitPeopleContext(): void
+    {
+        $service = new ConfigService(
+            $this->createStub(EntityManagerInterface::class),
+            $this->createStub(WalletService::class),
+            $this->createStub(PeopleService::class),
+            $this->createStub(TechnicalConfigAccessService::class)
+        );
+
+        self::assertNull($service->getConfig(null, 'OAUTH_IFOOD_CLIENT_ID'));
+    }
+
     private function createServiceForConfig(Config $config): ConfigService
     {
         return $this->createServiceForConfigs([$config]);
@@ -82,7 +94,7 @@ class ConfigServiceTest extends TestCase
      */
     private function createServiceForConfigs(array $configs): ConfigService
     {
-        $repository = $this->createMock(ObjectRepository::class);
+        $repository = $this->createMock(EntityRepository::class);
         $repository
             ->method('findBy')
             ->willReturn($configs);

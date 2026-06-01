@@ -19,8 +19,12 @@ class ConfigService
         private TechnicalConfigAccessService $technicalConfigAccessService,
     ) {}
 
-    public function getConfig(People $people, $key, $json = false)
+    public function getConfig(?People $people, $key, $json = false)
     {
+        if (!$people instanceof People) {
+            return null;
+        }
+
         $config = $this->discoveryConfig($people, $key, false);
         $value =  $config ? $config->getConfigValue() : null;
         return $json ? json_decode($value, true) : $value;
