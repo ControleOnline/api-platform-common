@@ -70,6 +70,7 @@ class MenuConfigServiceTest extends TestCase
         $service = new MenuConfigService($this->createStub(EntityManagerInterface::class));
 
         self::assertSame('CRM', $service->normalizeAppType('crm'));
+        self::assertSame('DELIVERY', $service->normalizeAppType('delivery'));
         self::assertSame('SERVICE', $service->normalizeAppType('service'));
         self::assertSame('MANAGER', $service->normalizeAppType('unknown'));
     }
