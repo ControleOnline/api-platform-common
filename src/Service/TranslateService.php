@@ -23,63 +23,70 @@ class TranslateService
 
     public function createFromContent(?string $content): Translate
     {
-        return $this->createFromPayload($this->decodePayload($content));
+        return $this->persistFromContent($content);
     }
 
     public function createFromPayload(array $payload): Translate
+    {
+        return $this->persistFromPayload($payload);
+    }
+
+    public function persistFromContent(?string $content): Translate
+    {
+        return $this->persistFromPayload($this->decodePayload($content));
+    }
+
+    public function persistFromPayload(array $payload): Translate
     {
         if ($payload === []) {
             throw new BadRequestHttpException('Invalid JSON');
         }
 
-        foreach (['key', 'language', 'people', 'store', 'type', 'translate'] as $field) {
-            if (!isset($payload[$field])) {
-                throw new BadRequestHttpException("Field '{$field}' is required");
-            }
+        $intentional = $this->normalizeBoolean($payload['intentional'] ?? false);
+        if (!$intentional) {
+            throw new BadRequestHttpException('Intentional translation save required');
         }
 
-        $people = $this->resolvePeople($payload['people']);
+        $requiredFields = [];
+        foreach (['key', 'language', 'people', 'store', 'type', 'translate'] as $field) {
+            $requiredFields[$field] = $this->requireStringPayloadField($payload, $field);
+        }
+
+        $people = $this->resolvePeople($requiredFields['people']);
         if (!$people instanceof People) {
             throw new BadRequestHttpException('People not found');
         }
         $this->assertCompanyAccess($people);
 
-        $language = $this->resolveLanguage($payload['language']);
+        $language = $this->resolveLanguage($requiredFields['language']);
         if (!$language instanceof Language) {
             throw new BadRequestHttpException('Language not found');
         }
 
         $existing = $this->manager->getRepository(Translate::class)->findOneBy([
-            'key' => $payload['key'],
+            'key' => $requiredFields['key'],
             'language' => $language,
             'people' => $people,
-            'store' => $payload['store'],
-            'type' => $payload['type'],
+            'store' => $requiredFields['store'],
+            'type' => $requiredFields['type'],
         ]);
 
         if ($existing instanceof Translate) {
-            $revised = $this->normalizeBoolean($payload['revised'] ?? false);
-            $translateChanged = $existing->getTranslate() !== $payload['translate'];
-
-            if ($revised || $translateChanged) {
-                $existing->setTranslate($payload['translate']);
-                if ($revised) {
-                    $existing->setRevised(true);
-                }
-                $this->manager->flush();
-            }
+            $existing->setTranslate($requiredFields['translate']);
+            $existing->setRevised(true);
+            $this->manager->flush();
 
             return $existing;
         }
 
         $translate = new Translate();
-        $translate->setKey($payload['key']);
+        $translate->setKey($requiredFields['key']);
         $translate->setLanguage($language);
         $translate->setPeople($people);
-        $translate->setStore($payload['store']);
-        $translate->setType($payload['type']);
-        $translate->setTranslate($payload['translate']);
-        $translate->setRevised($this->normalizeBoolean($payload['revised'] ?? false));
+        $translate->setStore($requiredFields['store']);
+        $translate->setType($requiredFields['type']);
+        $translate->setTranslate($requiredFields['translate']);
+        $translate->setRevised($this->normalizeBoolean($payload['revised'] ?? true) || $intentional);
 
         $this->manager->persist($translate);
         $this->manager->flush();
@@ -199,6 +206,20 @@ class TranslateService
         }
 
         return false;
+    }
+
+    private function requireStringPayloadField(array $payload, string $field): string
+    {
+        if (!array_key_exists($field, $payload)) {
+            throw new BadRequestHttpException("Field '{$field}' is required");
+        }
+
+        $value = trim((string) $payload[$field]);
+        if ($value === '') {
+            throw new BadRequestHttpException("Field '{$field}' is required");
+        }
+
+        return $value;
     }
 
     private function resolveNullableBoolean(mixed $value): ?bool

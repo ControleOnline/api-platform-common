@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class CreateTranslateController extends AbstractController
+class PersistTranslateController extends AbstractController
 {
     public function __construct(
         private HydratorService $hydrator,
@@ -18,7 +18,7 @@ class CreateTranslateController extends AbstractController
     public function __invoke(Request $request): Response
     {
         try {
-            $result = $this->translateService->createFromContent($request->getContent());
+            $result = $this->translateService->persistFromContent($request->getContent());
 
             return new Response(
                 json_encode(

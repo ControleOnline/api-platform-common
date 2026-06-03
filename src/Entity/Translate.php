@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\Language;
 use ControleOnline\Repository\TranslateRepository;
-use ControleOnline\Controller\CreateTranslateController;
+use ControleOnline\Controller\PersistTranslateController;
 
 #[ORM\Table(name: 'translate')]
 
@@ -31,7 +31,7 @@ use ControleOnline\Controller\CreateTranslateController;
         new GetCollection(security: "is_granted('PUBLIC_ACCESS')"),
         new Get(security: "is_granted('ROLE_HUMAN')"),
         new Post(
-            controller: CreateTranslateController::class,
+            controller: PersistTranslateController::class,
             deserialize: false,
             security: 'is_granted(\'ROLE_HUMAN\')'
         ),
