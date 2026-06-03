@@ -19,7 +19,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class TranslateServiceTest extends TestCase
 {
-    public function testPersistFromPayloadCreatesAnIntentionalTranslation(): void
+    public function testPersistFromPayloadCreatesARevisedTranslation(): void
     {
         [$service, $manager, $existingTranslation] = $this->buildService();
         $persistedTranslation = null;
@@ -38,7 +38,6 @@ class TranslateServiceTest extends TestCase
             ->method('flush');
 
         $result = $service->persistFromPayload([
-            'intentional' => true,
             'key' => 'orders',
             'language' => '/languages/1',
             'people' => '/people/1',
@@ -58,7 +57,7 @@ class TranslateServiceTest extends TestCase
         self::assertNull($existingTranslation);
     }
 
-    public function testPersistFromPayloadRejectsNonIntentionalRuntimePayloads(): void
+    public function testPersistFromPayloadRejectsNonRevisedRuntimePayloads(): void
     {
         [$service, $manager] = $this->buildService();
 
@@ -70,14 +69,14 @@ class TranslateServiceTest extends TestCase
             ->method('flush');
 
         $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage('Intentional translation save required');
+        $this->expectExceptionMessage('Revised translation save required');
 
         $service->persistFromPayload([
-            'intentional' => false,
+            'revised' => false,
         ]);
     }
 
-    public function testPersistFromPayloadUpdatesExistingIntentionalTranslation(): void
+    public function testPersistFromPayloadUpdatesExistingRevisedTranslation(): void
     {
         $existingTranslation = new Translate();
         $existingTranslation->setKey('orders');
@@ -97,14 +96,13 @@ class TranslateServiceTest extends TestCase
             ->method('flush');
 
         $result = $service->persistFromPayload([
-            'intentional' => true,
             'key' => 'orders',
             'language' => '/languages/1',
             'people' => '/people/1',
             'store' => 'menu',
             'type' => 'label',
             'translate' => 'Pedidos novos',
-            'revised' => false,
+            'revised' => true,
         ]);
 
         self::assertSame($existingTranslation, $result);

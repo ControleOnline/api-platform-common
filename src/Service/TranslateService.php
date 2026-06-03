@@ -42,9 +42,9 @@ class TranslateService
             throw new BadRequestHttpException('Invalid JSON');
         }
 
-        $intentional = $this->normalizeBoolean($payload['intentional'] ?? false);
-        if (!$intentional) {
-            throw new BadRequestHttpException('Intentional translation save required');
+        $revised = $this->normalizeBoolean($payload['revised'] ?? false);
+        if (!$revised) {
+            throw new BadRequestHttpException('Revised translation save required');
         }
 
         $requiredFields = [];
@@ -86,7 +86,7 @@ class TranslateService
         $translate->setStore($requiredFields['store']);
         $translate->setType($requiredFields['type']);
         $translate->setTranslate($requiredFields['translate']);
-        $translate->setRevised($this->normalizeBoolean($payload['revised'] ?? true) || $intentional);
+        $translate->setRevised($revised);
 
         $this->manager->persist($translate);
         $this->manager->flush();
