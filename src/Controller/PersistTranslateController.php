@@ -7,6 +7,7 @@ use ControleOnline\Service\TranslateService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class PersistTranslateController extends AbstractController
 {
@@ -28,10 +29,13 @@ class PersistTranslateController extends AbstractController
                 ['Content-Type' => 'application/ld+json']
             );
         } catch (\Exception $e) {
+            $statusCode = $e instanceof HttpExceptionInterface
+                ? $e->getStatusCode()
+                : Response::HTTP_INTERNAL_SERVER_ERROR;
 
             return new Response(
                 json_encode($this->hydrator->error($e)),
-                400,
+                $statusCode,
                 ['Content-Type' => 'application/ld+json']
             );
         }
