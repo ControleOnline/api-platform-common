@@ -43,9 +43,6 @@ class TranslateService
         }
 
         $revised = $this->normalizeBoolean($payload['revised'] ?? false);
-        if (!$revised) {
-            throw new BadRequestHttpException('Revised translation save required');
-        }
 
         $requiredFields = [];
         foreach (['key', 'language', 'people', 'store', 'type', 'translate'] as $field) {
@@ -72,6 +69,10 @@ class TranslateService
         ]);
 
         if ($existing instanceof Translate) {
+            if (!$revised) {
+                return $existing;
+            }
+
             $existing->setTranslate($requiredFields['translate']);
             $existing->setRevised(true);
             $this->manager->flush();

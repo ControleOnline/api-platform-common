@@ -13,7 +13,6 @@ use ControleOnline\Service\PeopleRoleService;
 use ControleOnline\Service\TranslateService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
@@ -57,9 +56,55 @@ class TranslateServiceTest extends TestCase
         self::assertNull($existingTranslation);
     }
 
-    public function testPersistFromPayloadRejectsNonRevisedRuntimePayloads(): void
+    public function testPersistFromPayloadCreatesANonRevisedTranslation(): void
     {
-        [$service, $manager] = $this->buildService();
+        [$service, $manager, $existingTranslation] = $this->buildService();
+        $persistedTranslation = null;
+
+        $manager
+            ->expects(self::once())
+            ->method('persist')
+            ->with(self::callback(static function ($entity) use (&$persistedTranslation) {
+                self::assertInstanceOf(Translate::class, $entity);
+                $persistedTranslation = $entity;
+
+                return true;
+            }));
+        $manager
+            ->expects(self::once())
+            ->method('flush');
+
+        $result = $service->persistFromPayload([
+            'key' => 'accountsReceivable',
+            'language' => '/languages/1',
+            'people' => '/people/1',
+            'store' => 'invoice',
+            'type' => 'label',
+            'translate' => 'accountsReceivable',
+            'revised' => false,
+        ]);
+
+        self::assertSame($persistedTranslation, $result);
+        self::assertInstanceOf(Translate::class, $result);
+        self::assertSame('accountsReceivable', $result->getKey());
+        self::assertSame('invoice', $result->getStore());
+        self::assertSame('label', $result->getType());
+        self::assertSame('accountsReceivable', $result->getTranslate());
+        self::assertFalse($result->isRevised());
+        self::assertNull($existingTranslation);
+    }
+
+    public function testPersistFromPayloadDoesNotUpdateExistingNonRevisedTranslation(): void
+    {
+        $existingTranslation = new Translate();
+        $existingTranslation->setKey('orders');
+        $existingTranslation->setStore('menu');
+        $existingTranslation->setType('label');
+        $existingTranslation->setTranslate('Pedidos antigos');
+        $existingTranslation->setRevised(false);
+        $this->setEntityId($existingTranslation, 27);
+
+        [$service, $manager] = $this->buildService($existingTranslation);
 
         $manager
             ->expects(self::never())
@@ -68,12 +113,20 @@ class TranslateServiceTest extends TestCase
             ->expects(self::never())
             ->method('flush');
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage('Revised translation save required');
-
-        $service->persistFromPayload([
+        $result = $service->persistFromPayload([
+            'key' => 'orders',
+            'language' => '/languages/1',
+            'people' => '/people/1',
+            'store' => 'menu',
+            'type' => 'label',
+            'translate' => 'Pedidos novos',
             'revised' => false,
         ]);
+
+        self::assertSame($existingTranslation, $result);
+        self::assertSame('Pedidos antigos', $result->getTranslate());
+        self::assertFalse($result->isRevised());
+        self::assertSame(27, $result->getId());
     }
 
     public function testPersistFromPayloadUpdatesExistingRevisedTranslation(): void
