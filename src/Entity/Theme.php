@@ -10,6 +10,8 @@ use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use ControleOnline\Controller\GetThemeColorsAction;
 
 use ControleOnline\Repository\ThemeRepository;
@@ -19,6 +21,11 @@ use Doctrine\ORM\Mapping as ORM;
     operations: [
         new Get(security: 'is_granted(\'ROLE_HUMAN\')'),
         new GetCollection(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Post(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Put(
+            security: 'is_granted(\'ROLE_HUMAN\')',
+            denormalizationContext: ['groups' => ['theme:write']]
+        ),
         new GetCollection(
             security: 'is_granted(\'PUBLIC_ACCESS\')',
             uriTemplate: '/themes-colors.css',
@@ -49,16 +56,16 @@ class Theme
     private int $id = 0;
 
     #[ORM\Column(name: 'theme', type: 'string', length: 80, nullable: false)]
-    #[Groups(['theme:read'])]
-    private string $theme;
+    #[Groups(['theme:read', 'theme:write'])]
+    private string $theme = '';
 
     #[ORM\Column(name: 'background', type: 'integer', nullable: true)]
-    #[Groups(['theme:read'])]
+    #[Groups(['theme:read', 'theme:write'])]
     private ?int $background = null;
 
     #[ORM\Column(name: 'colors', type: 'json', nullable: false)]
-    #[Groups(['theme:read'])]
-    private array $colors;
+    #[Groups(['theme:read', 'theme:write'])]
+    private array $colors = [];
 
     public function getId(): int
     {
