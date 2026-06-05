@@ -94,6 +94,33 @@ class TranslateServiceTest extends TestCase
         self::assertNull($existingTranslation);
     }
 
+    public function testPersistFromPayloadCreatesANonRevisedRuntimeTranslation(): void
+    {
+        [$service, $manager, $existingTranslation] = $this->buildService();
+
+        $manager
+            ->expects(self::once())
+            ->method('persist');
+        $manager
+            ->expects(self::once())
+            ->method('flush');
+
+        $result = $service->persistFromPayload([
+            'key' => 'orders',
+            'language' => '/languages/1',
+            'people' => '/people/1',
+            'store' => 'menu',
+            'type' => 'label',
+            'translate' => 'Orders',
+            'revised' => false,
+        ]);
+
+        self::assertInstanceOf(Translate::class, $result);
+        self::assertSame('Orders', $result->getTranslate());
+        self::assertFalse($result->isRevised());
+        self::assertNull($existingTranslation);
+    }
+
     public function testPersistFromPayloadDoesNotUpdateExistingNonRevisedTranslation(): void
     {
         $existingTranslation = new Translate();
@@ -162,6 +189,41 @@ class TranslateServiceTest extends TestCase
         self::assertSame('Pedidos novos', $result->getTranslate());
         self::assertTrue($result->isRevised());
         self::assertSame(27, $result->getId());
+    }
+
+    public function testPersistFromPayloadKeepsExistingTranslationWhenRuntimePayloadIsNotRevised(): void
+    {
+        $existingTranslation = new Translate();
+        $existingTranslation->setKey('orders');
+        $existingTranslation->setStore('menu');
+        $existingTranslation->setType('label');
+        $existingTranslation->setTranslate('Pedidos revisados');
+        $existingTranslation->setRevised(true);
+        $this->setEntityId($existingTranslation, 55);
+
+        [$service, $manager] = $this->buildService($existingTranslation);
+
+        $manager
+            ->expects(self::never())
+            ->method('persist');
+        $manager
+            ->expects(self::never())
+            ->method('flush');
+
+        $result = $service->persistFromPayload([
+            'key' => 'orders',
+            'language' => '/languages/1',
+            'people' => '/people/1',
+            'store' => 'menu',
+            'type' => 'label',
+            'translate' => 'Orders auto generated',
+            'revised' => false,
+        ]);
+
+        self::assertSame($existingTranslation, $result);
+        self::assertSame('Pedidos revisados', $result->getTranslate());
+        self::assertTrue($result->isRevised());
+        self::assertSame(55, $result->getId());
     }
 
     /**
