@@ -24,6 +24,7 @@ class PrintService
     private string $networkCutMarker = '[__PRINT_CUT__]';
     private string $networkCutCommand = "\x1D\x56\x00";
     private string $networkCutSpacing = "\n\n\n";
+    private bool $binaryOutput = false;
     private $initialSpace = 8;
     private $totalChars = 48;
     private $text = '';
@@ -53,7 +54,33 @@ class PrintService
 
     public function addCutMarker(): void
     {
+        if ($this->binaryOutput) {
+            $this->text = rtrim($this->text, "\n") . "\n" . $this->networkCutCommand;
+            return;
+        }
+
         $this->text = rtrim($this->text, "\n") . "\n" . $this->networkCutMarker . "\n";
+    }
+
+    // Queue conference tickets need a machine-readable barcode without changing the plain-text flow.
+    public function addCode128Barcode(
+        string $value,
+        int $width = 2,
+        int $height = 80,
+        int $hriPosition = 2
+    ): void {
+        $normalizedValue = trim($value);
+        if ($normalizedValue === '') {
+            return;
+        }
+
+        $this->binaryOutput = true;
+        $this->text = rtrim($this->text, "\n") . "\n" . $this->buildCode128BarcodeBytes(
+            $normalizedValue,
+            $width,
+            $height,
+            $hriPosition
+        ) . "\n";
     }
 
     public function makePrintDone(Spool $spool): void
@@ -87,8 +114,6 @@ class PrintService
             $provider,
             $requestedDeviceType
         );
-        $text = $this->text;
-        $this->text = '';
         $resolvedPrinter = $printer ?: $device;
         $resolvedPrinterType = $printer instanceof Device
             ? (
@@ -100,12 +125,16 @@ class PrintService
                 $this->resolvePrinterDeviceType($resolvedPrinter, $provider)
             )
             : $requestedDeviceType;
+        $binaryOutput = $this->binaryOutput;
+        $text = $this->text;
+        $this->text = '';
+        $this->binaryOutput = false;
         $printProtocol = $this->resolvePrintProtocol(
             $resolvedPrinter,
             $provider,
             $resolvedPrinterType
         );
-        $content = $this->buildPrintContent($text, $printProtocol);
+        $content = $this->buildPrintContent($text, $printProtocol, $binaryOutput);
 
         return $this->addToSpool(
             $resolvedPrinter,
@@ -261,13 +290,38 @@ class PrintService
         return $this->pdvPrinterProtocol;
     }
 
-    private function buildPrintContent(string $text, string $printProtocol): string
+    private function buildPrintContent(string $text, string $printProtocol, bool $binaryOutput = false): string
     {
+        if ($binaryOutput) {
+            return base64_encode($text);
+        }
+
         if ($printProtocol === $this->networkPrinterProtocol) {
             return $this->buildNetworkPrintContent($text);
         }
 
         return $this->buildPdvPrintContent($text);
+    }
+
+    private function buildCode128BarcodeBytes(
+        string $value,
+        int $width = 2,
+        int $height = 80,
+        int $hriPosition = 2
+    ): string {
+        $normalizedWidth = max(2, min(6, $width));
+        $normalizedHeight = max(1, min(255, $height));
+        $normalizedHriPosition = in_array($hriPosition, [0, 1, 2, 3], true)
+            ? $hriPosition
+            : 2;
+
+        return pack(
+            'C*',
+            29, 119, $normalizedWidth,
+            29, 104, $normalizedHeight,
+            29, 72, $normalizedHriPosition,
+            29, 107, 79, strlen($value)
+        ) . $value;
     }
 
     private function buildPdvPrintContent(string $text): string
