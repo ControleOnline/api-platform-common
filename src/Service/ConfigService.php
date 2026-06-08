@@ -17,6 +17,7 @@ class ConfigService
         private WalletService $walletService,
         private PeopleService $peopleService,
         private TechnicalConfigAccessService $technicalConfigAccessService,
+        private ?DomainService $domainService = null,
     ) {}
 
     public function getConfig(?People $people, $key, $json = false)
@@ -438,59 +439,22 @@ class ConfigService
 
     private function discoveryCieloWallet(People $company)
     {
+        $paymentTypes = $this->defaultPaymentTypes();
 
-        $paymentTypes = [
-            [
-                'paymentType' => 'Débito',
-                'frequency' => 'single',
-                'installments' => 'single',
-
-                'paymentCode' => 'DEBITO_AVISTA',
-            ],
-
-            [
-                'paymentType' => 'Refeição',
-                'frequency' => 'single',
-                'installments' => 'single',
-
-                'paymentCode' => 'VOUCHER_REFEICAO',
-            ],
-            [
-                'paymentType' => 'Alimentação',
-                'frequency' => 'single',
-                'installments' => 'single',
-
-                'paymentCode' => 'VOUCHER_ALIMENTACAO',
-            ],
-            [
-                'paymentType' => 'Crédito à Vista',
-                'frequency' => 'single',
-                'installments' => 'single',
-
-                'paymentCode' => 'CREDITO_AVISTA',
-            ],
-            [
-                'paymentType' => 'PIX',
-                'frequency' => 'single',
-                'installments' => 'single',
-
-                'paymentCode' => 'PIX',
-            ],
-            [
-                'paymentType' => 'Crédito Parcelado - Cliente',
-                'frequency' => 'single',
-                'installments' => 'split',
-
-                'paymentCode' => 'CREDITO_PARCELADO_CLIENTE',
-            ],
-            [
-                'paymentType' => 'Crédito Parcelado - Loja',
-                'frequency' => 'single',
-                'installments' => 'split',
-
-                'paymentCode' => 'CREDITO_PARCELADO_LOJA',
-            ],
-        ];
+        try {
+            $domain = strtolower((string) $this->domainService?->getDomain());
+            if (!$domain || !str_contains($domain, 'lave-go.com')) {
+                $paymentTypes = array_merge(
+                    $paymentTypes,
+                    $this->extraPaymentTypes()
+                );
+            }
+        } catch (\Throwable) {
+            $paymentTypes = array_merge(
+                $paymentTypes,
+                $this->extraPaymentTypes()
+            );
+        }
 
         /**
          * @todo Module need be variable
@@ -511,5 +475,66 @@ class ConfigService
                 $this->walletService->discoverPaymentType($company, $paymentType),
                 $paymentType['paymentCode']
             );
+    }
+
+    private function defaultPaymentTypes(): array
+    {
+        return [
+            [
+                'paymentType' => 'Débito',
+                'frequency' => 'single',
+                'installments' => 'single',
+
+                'paymentCode' => 'DEBITO_AVISTA',
+            ],
+            [
+                'paymentType' => 'Crédito à Vista',
+                'frequency' => 'single',
+                'installments' => 'single',
+
+                'paymentCode' => 'CREDITO_AVISTA',
+            ],
+            [
+                'paymentType' => 'PIX',
+                'frequency' => 'single',
+                'installments' => 'single',
+
+                'paymentCode' => 'PIX',
+            ],
+        ];
+    }
+
+    private function extraPaymentTypes(): array
+    {
+        return [
+            [
+                'paymentType' => 'Refeição',
+                'frequency' => 'single',
+                'installments' => 'single',
+
+                'paymentCode' => 'VOUCHER_REFEICAO',
+            ],
+            [
+                'paymentType' => 'Alimentação',
+                'frequency' => 'single',
+                'installments' => 'single',
+
+                'paymentCode' => 'VOUCHER_ALIMENTACAO',
+            ],
+            [
+                'paymentType' => 'Crédito Parcelado - Cliente',
+                'frequency' => 'single',
+                'installments' => 'split',
+
+                'paymentCode' => 'CREDITO_PARCELADO_CLIENTE',
+            ],
+            [
+                'paymentType' => 'Crédito Parcelado - Loja',
+                'frequency' => 'single',
+                'installments' => 'split',
+
+                'paymentCode' => 'CREDITO_PARCELADO_LOJA',
+            ],
+        ];
     }
 }
