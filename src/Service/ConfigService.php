@@ -426,7 +426,7 @@ class ConfigService
             'pos-infinite-pay-wallet',
             $wallet->getId(),
             $module,
-            'private'
+            'public'
         );
 
         foreach ($paymentTypes as $paymentType)
@@ -466,7 +466,7 @@ class ConfigService
             'pos-cielo-wallet',
             $wallet->getId(),
             $module,
-            'private'
+            'public'
         );
 
         foreach ($paymentTypes as $paymentType)
