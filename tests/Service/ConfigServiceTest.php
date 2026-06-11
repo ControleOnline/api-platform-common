@@ -4,8 +4,11 @@ namespace ControleOnline\Tests\Service;
 
 use ControleOnline\Entity\Config;
 use ControleOnline\Entity\Module;
+use ControleOnline\Entity\PaymentType;
 use ControleOnline\Entity\People;
+use ControleOnline\Entity\Wallet;
 use ControleOnline\Service\ConfigService;
+use ControleOnline\Service\DomainService;
 use ControleOnline\Service\PeopleService;
 use ControleOnline\Service\TechnicalConfigAccessService;
 use ControleOnline\Service\WalletService;
@@ -82,6 +85,127 @@ class ConfigServiceTest extends TestCase
         );
 
         self::assertNull($service->getConfig(null, 'OAUTH_IFOOD_CLIENT_ID'));
+    }
+
+    public function testDiscoveryMainConfigsMakesGatewayWalletsPublic(): void
+    {
+        $company = new People();
+        $storedConfigs = [];
+
+        $configRepository = $this->createMock(EntityRepository::class);
+        $configRepository
+            ->method('findBy')
+            ->willReturnCallback(function (array $criteria) use (&$storedConfigs) {
+                return array_values(array_filter(
+                    $storedConfigs,
+                    static function (Config $config) use ($criteria): bool {
+                        foreach ($criteria as $field => $expectedValue) {
+                            if (
+                                $field === 'people' &&
+                                $config->getPeople() !== $expectedValue
+                            ) {
+                                return false;
+                            }
+
+                            if (
+                                $field === 'configKey' &&
+                                $config->getConfigKey() !== $expectedValue
+                            ) {
+                                return false;
+                            }
+
+                            if (
+                                $field === 'visibility' &&
+                                $config->getVisibility() !== $expectedValue
+                            ) {
+                                return false;
+                            }
+                        }
+
+                        return true;
+                    }
+                ));
+            });
+
+        $moduleRepository = $this->createMock(EntityRepository::class);
+        $moduleRepository
+            ->method('find')
+            ->with(8)
+            ->willReturn(new Module());
+
+        $manager = $this->createMock(EntityManagerInterface::class);
+        $manager
+            ->method('getRepository')
+            ->willReturnCallback(
+                static fn(string $entityClass) => match ($entityClass) {
+                    Config::class => $configRepository,
+                    Module::class => $moduleRepository,
+                }
+            );
+        $manager
+            ->method('persist')
+            ->willReturnCallback(function (Config $config) use (&$storedConfigs): void {
+                if (!in_array($config, $storedConfigs, true)) {
+                    $storedConfigs[] = $config;
+                }
+            });
+        $manager->method('flush');
+
+        $walletService = $this->createMock(WalletService::class);
+        $walletService
+            ->method('discoverWallet')
+            ->willReturnCallback(function (People $people, string $walletName): Wallet {
+                $wallet = $this->createMock(Wallet::class);
+                $wallet
+                    ->method('getId')
+                    ->willReturn(match ($walletName) {
+                        'Caixa' => 101,
+                        'Reserva' => 102,
+                        'Infine Pay' => 103,
+                        'Cielo' => 104,
+                        default => 999,
+                    });
+
+                return $wallet;
+            });
+        $walletService
+            ->method('discoverPaymentType')
+            ->willReturn(new PaymentType());
+
+        $technicalConfigAccessService = $this->createMock(
+            TechnicalConfigAccessService::class
+        );
+        $technicalConfigAccessService
+            ->expects(self::exactly(4))
+            ->method('assertCanManageConfig');
+
+        $domainService = $this->createStub(DomainService::class);
+        $domainService
+            ->method('getDomain')
+            ->willReturn('app.controleonline.com');
+
+        $service = new ConfigService(
+            $manager,
+            $walletService,
+            $this->createStub(PeopleService::class),
+            $technicalConfigAccessService,
+            $domainService
+        );
+
+        $configs = $service->discoveryMainConfigs($company);
+        $configsByKey = [];
+
+        foreach ($configs as $config) {
+            $configsByKey[$config->getConfigKey()] = $config;
+        }
+
+        self::assertArrayHasKey('pos-cielo-wallet', $configsByKey);
+        self::assertArrayHasKey('pos-infinite-pay-wallet', $configsByKey);
+        self::assertSame('public', $configsByKey['pos-cielo-wallet']->getVisibility());
+        self::assertSame(
+            'public',
+            $configsByKey['pos-infinite-pay-wallet']->getVisibility()
+        );
     }
 
     private function createServiceForConfig(Config $config): ConfigService

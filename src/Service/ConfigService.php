@@ -17,6 +17,7 @@ class ConfigService
         private WalletService $walletService,
         private PeopleService $peopleService,
         private TechnicalConfigAccessService $technicalConfigAccessService,
+        private ?DomainService $domainService = null,
     ) {}
 
     public function getConfig(?People $people, $key, $json = false)
@@ -425,7 +426,7 @@ class ConfigService
             'pos-infinite-pay-wallet',
             $wallet->getId(),
             $module,
-            'private'
+            'public'
         );
 
         foreach ($paymentTypes as $paymentType)
@@ -438,29 +439,53 @@ class ConfigService
 
     private function discoveryCieloWallet(People $company)
     {
+        $paymentTypes = $this->defaultPaymentTypes();
 
-        $paymentTypes = [
+        try {
+            $domain = strtolower((string) $this->domainService?->getDomain());
+            if (!$domain || !str_contains($domain, 'lave-go.com')) {
+                $paymentTypes = array_merge(
+                    $paymentTypes,
+                    $this->extraPaymentTypes()
+                );
+            }
+        } catch (\Throwable) {
+            $paymentTypes = array_merge(
+                $paymentTypes,
+                $this->extraPaymentTypes()
+            );
+        }
+
+        /**
+         * @todo Module need be variable
+         */
+        $module = $this->manager->getRepository(Module::class)->find(8);
+        $wallet = $this->walletService->discoverWallet($company, 'Cielo');
+        $this->addConfig(
+            $company,
+            'pos-cielo-wallet',
+            $wallet->getId(),
+            $module,
+            'public'
+        );
+
+        foreach ($paymentTypes as $paymentType)
+            $this->walletService->discoverWalletPaymentType(
+                $wallet,
+                $this->walletService->discoverPaymentType($company, $paymentType),
+                $paymentType['paymentCode']
+            );
+    }
+
+    private function defaultPaymentTypes(): array
+    {
+        return [
             [
                 'paymentType' => 'Débito',
                 'frequency' => 'single',
                 'installments' => 'single',
 
                 'paymentCode' => 'DEBITO_AVISTA',
-            ],
-
-            [
-                'paymentType' => 'Refeição',
-                'frequency' => 'single',
-                'installments' => 'single',
-
-                'paymentCode' => 'VOUCHER_REFEICAO',
-            ],
-            [
-                'paymentType' => 'Alimentação',
-                'frequency' => 'single',
-                'installments' => 'single',
-
-                'paymentCode' => 'VOUCHER_ALIMENTACAO',
             ],
             [
                 'paymentType' => 'Crédito à Vista',
@@ -475,6 +500,26 @@ class ConfigService
                 'installments' => 'single',
 
                 'paymentCode' => 'PIX',
+            ],
+        ];
+    }
+
+    private function extraPaymentTypes(): array
+    {
+        return [
+            [
+                'paymentType' => 'Refeição',
+                'frequency' => 'single',
+                'installments' => 'single',
+
+                'paymentCode' => 'VOUCHER_REFEICAO',
+            ],
+            [
+                'paymentType' => 'Alimentação',
+                'frequency' => 'single',
+                'installments' => 'single',
+
+                'paymentCode' => 'VOUCHER_ALIMENTACAO',
             ],
             [
                 'paymentType' => 'Crédito Parcelado - Cliente',
@@ -491,25 +536,5 @@ class ConfigService
                 'paymentCode' => 'CREDITO_PARCELADO_LOJA',
             ],
         ];
-
-        /**
-         * @todo Module need be variable
-         */
-        $module = $this->manager->getRepository(Module::class)->find(8);
-        $wallet = $this->walletService->discoverWallet($company, 'Cielo');
-        $this->addConfig(
-            $company,
-            'pos-cielo-wallet',
-            $wallet->getId(),
-            $module,
-            'private'
-        );
-
-        foreach ($paymentTypes as $paymentType)
-            $this->walletService->discoverWalletPaymentType(
-                $wallet,
-                $this->walletService->discoverPaymentType($company, $paymentType),
-                $paymentType['paymentCode']
-            );
     }
 }
