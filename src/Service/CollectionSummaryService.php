@@ -12,6 +12,7 @@ use ApiPlatform\Doctrine\Orm\State\Options;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Resource\Factory\ResourceMetadataCollectionFactoryInterface;
+use ApiPlatform\State\Util\RequestParser;
 use ApiPlatform\State\Util\StateOptionsTrait;
 use ControleOnline\Attribute\CollectionSummary;
 use Doctrine\ORM\Query;
@@ -49,6 +50,8 @@ class CollectionSummaryService
 
     public function buildSummary(Operation $operation, array $uriVariables = [], array $context = []): ?array
     {
+        $context = $this->hydrateFiltersFromRequest($context);
+        $operation = $context['operation'] ?? $operation;
         $resourceClass = $this->getStateOptionsClass($operation, $operation->getClass(), Options::class);
         if (!$resourceClass) {
             return null;
@@ -159,6 +162,34 @@ class CollectionSummaryService
         }
 
         return [] !== $summary ? $summary : null;
+    }
+
+    private function hydrateFiltersFromRequest(array $context): array
+    {
+        $request = $context['request'] ?? $this->requestStack?->getCurrentRequest();
+        if (!$request) {
+            return $context;
+        }
+
+        $requestFilters = $request->attributes->get('_api_filters');
+        if (!is_array($requestFilters)) {
+            $queryString = RequestParser::getQueryString($request);
+            $requestFilters = $queryString ? RequestParser::parseRequestParams($queryString) : [];
+        }
+
+        if ([] === $requestFilters) {
+            return $context;
+        }
+
+        if (!isset($context['filters']) || !is_array($context['filters']) || [] === $context['filters']) {
+            $context['filters'] = $requestFilters;
+
+            return $context;
+        }
+
+        $context['filters'] = array_replace_recursive($requestFilters, $context['filters']);
+
+        return $context;
     }
 
     private function getSummaryFields(string $resourceClass): array
