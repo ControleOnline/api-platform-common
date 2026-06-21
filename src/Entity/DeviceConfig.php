@@ -146,6 +146,10 @@ class DeviceConfig
 
     public function getType(): string
     {
+        if (!isset($this->type)) {
+            return self::DEFAULT_DEVICE_TYPE;
+        }
+
         $normalizedType = strtoupper(trim((string) $this->type));
         return $normalizedType !== ''
             ? $normalizedType
