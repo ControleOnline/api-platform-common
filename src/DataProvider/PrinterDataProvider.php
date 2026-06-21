@@ -14,6 +14,8 @@ use ControleOnline\Entity\Device;
 use ControleOnline\Service\HydratorService;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class PrinterDataProvider implements ProviderInterface
 {
@@ -33,7 +35,10 @@ class PrinterDataProvider implements ProviderInterface
             $token = $this->security->getToken();
             $currentUser = $token?->getUser();
             if (!is_object($currentUser)) {
-                throw new \Exception('You should not pass!!!');
+                return new JsonResponse(
+                    $this->hydratorService->error(new Exception('Authentication required')),
+                    Response::HTTP_UNAUTHORIZED
+                );
             }
 
             $filters = $context['filters'] ?? [];
@@ -46,17 +51,32 @@ class PrinterDataProvider implements ProviderInterface
                 $this->peopleService->getMyCompanies()
             );
 
-            if (
-
-                (!$people || !in_array($people->getId(), $myCompanies, true))
-            ) {
-                throw new \Exception('Company access denied');
+            if (!$people || !in_array($people->getId(), $myCompanies, true)) {
+                return new JsonResponse(
+                    $this->hydratorService->error(new Exception('Company access denied')),
+                    Response::HTTP_FORBIDDEN
+                );
             }
 
             $printers = $this->deviceService->getPrinters($people);
-            return new JsonResponse($this->hydratorService->collectionData($printers, Device::class, 'device:read'));
-        } catch (Exception $e) {
-            return new JsonResponse($this->hydratorService->error($e));
+            return new JsonResponse(
+                $this->hydratorService->collectionData(
+                    $printers,
+                    Device::class,
+                    'device:read',
+                    [],
+                    count($printers)
+                )
+            );
+        } catch (Throwable $e) {
+            $exception = $e instanceof Exception
+                ? $e
+                : new Exception($e->getMessage(), (int) $e->getCode(), $e);
+
+            return new JsonResponse(
+                $this->hydratorService->error($exception),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
     }
 }
