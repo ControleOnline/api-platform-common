@@ -86,7 +86,7 @@ class City
 
     public function getCity()
     {
-        return strtoupper($this->city);
+        return strtoupper((string) $this->city);
     }
 
     public function setState(State $state = null)

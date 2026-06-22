@@ -73,7 +73,7 @@ class District
 
     public function getDistrict(): string
     {
-        return strtoupper($this->district);
+        return strtoupper((string) $this->district);
     }
 
     public function setCity(City $city): self

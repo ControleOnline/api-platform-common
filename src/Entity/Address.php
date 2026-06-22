@@ -118,7 +118,7 @@ class Address
 
     public function getNickname()
     {
-        return strtoupper($this->nickname);
+        return strtoupper((string) $this->nickname);
     }
 
     public function setComplement($complement)
@@ -129,7 +129,7 @@ class Address
 
     public function getComplement()
     {
-        return strtoupper($this->complement);
+        return strtoupper((string) $this->complement);
     }
 
     public function setPeople(?People $people = null)
