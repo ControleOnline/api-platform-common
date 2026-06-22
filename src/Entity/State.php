@@ -78,7 +78,7 @@ class State
 
     public function getState()
     {
-        return strtoupper($this->state);
+        return strtoupper((string) $this->state);
     }
 
     public function setUf($uf)
@@ -89,7 +89,7 @@ class State
 
     public function getUf()
     {
-        return strtoupper($this->uf);
+        return strtoupper((string) $this->uf);
     }
 
     public function setCountry(Country $country = null)

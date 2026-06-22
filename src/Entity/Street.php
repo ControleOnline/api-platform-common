@@ -78,7 +78,7 @@ class Street
 
     public function getStreet()
     {
-        return strtoupper($this->street);
+        return strtoupper((string) $this->street);
     }
 
     public function setDistrict(District $district = null)
