@@ -5,8 +5,9 @@ namespace ControleOnline\DataProvider;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use ControleOnline\Entity\People;
+use ControleOnline\Entity\PeopleLink;
+use ControleOnline\Entity\User;
 use ControleOnline\Service\DeviceService;
-use ControleOnline\Service\PeopleService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface
 as Security;
@@ -24,8 +25,7 @@ class PrinterDataProvider implements ProviderInterface
         private EntityManagerInterface $entityManager,
         private HydratorService $hydratorService,
         private Security $security,
-        private DeviceService $deviceService,
-        private PeopleService $peopleService
+        private DeviceService $deviceService
 
     ) {}
 
@@ -34,7 +34,7 @@ class PrinterDataProvider implements ProviderInterface
         try {
             $token = $this->security->getToken();
             $currentUser = $token?->getUser();
-            if (!is_object($currentUser)) {
+            if (!$currentUser instanceof User) {
                 return new JsonResponse(
                     $this->hydratorService->error(new Exception('Authentication required')),
                     Response::HTTP_UNAUTHORIZED
@@ -46,12 +46,13 @@ class PrinterDataProvider implements ProviderInterface
             $people = $peopleId
                 ? $this->entityManager->getRepository(People::class)->find($peopleId)
                 : null;
-            $myCompanies = array_map(
-                fn($company) => $company->getId(),
-                $this->peopleService->getMyCompanies()
-            );
+            $hasCompanyLink = $people instanceof People
+                && $people->getEnabled()
+                && $this->entityManager
+                    ->getRepository(PeopleLink::class)
+                    ->hasLinkWith($currentUser, $people);
 
-            if (!$people || !in_array($people->getId(), $myCompanies, true)) {
+            if (!$hasCompanyLink) {
                 return new JsonResponse(
                     $this->hydratorService->error(new Exception('Company access denied')),
                     Response::HTTP_FORBIDDEN
