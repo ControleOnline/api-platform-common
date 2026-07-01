@@ -65,11 +65,11 @@ class Address
     private $street;
 
     #[ORM\Column(name: 'latitude', type: 'float', nullable: false)]
-    #[Groups(['people:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:read', 'address:read'])]
     private $latitude;
 
     #[ORM\Column(name: 'longitude', type: 'float', nullable: false)]
-    #[Groups(['people:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:read', 'address:read'])]
     private $longitude;
 
     #[ORM\Column(name: 'locator', type: 'string', nullable: false)]
