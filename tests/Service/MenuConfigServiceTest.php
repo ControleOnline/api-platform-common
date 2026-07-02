@@ -41,6 +41,7 @@ class MenuConfigServiceTest extends TestCase
         $menu->setMenu('Menus por perfil');
         $menu->setMenuKey('menu_access');
         $menu->setAppType('manager');
+        $menu->setMenuType('toolbar');
         $menu->setRouteParams(['tab' => 'roles']);
         $menu->setSortOrder(50);
         $menu->setEnabled(true);
@@ -59,6 +60,7 @@ class MenuConfigServiceTest extends TestCase
         $payload = $service->normalizeMenu($menu);
 
         self::assertSame('MANAGER', $payload['appType']);
+        self::assertSame('toolbar', $payload['menuType']);
         self::assertSame('menu_access', $payload['menuKey']);
         self::assertSame(['tab' => 'roles'], $payload['routeParams']);
         self::assertSame('MenuAccessConfigPage', $payload['route']['route']);
@@ -137,6 +139,58 @@ class MenuConfigServiceTest extends TestCase
         self::assertSame('CRM', $payload['modules'][0]['menus'][0]['appType']);
         self::assertSame('CrmIndex', $payload['modules'][0]['menus'][0]['route']);
         self::assertSame([], $payload['modules'][0]['menus'][0]['routeParams']);
+    }
+
+    public function testGetMenuForPeopleCanFilterByMenuType(): void
+    {
+        $userPeople = new People();
+        $this->setEntityId($userPeople, 10);
+
+        $company = new People();
+        $this->setEntityId($company, 20);
+
+        $repository = $this
+            ->getMockBuilder(MenuRepository::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['findVisibleRowsForPeople'])
+            ->getMock();
+
+        $repository
+            ->expects(self::once())
+            ->method('findVisibleRowsForPeople')
+            ->with(10, 20, 'DELIVERY', false, 'toolbar')
+            ->willReturn([
+                [
+                    'id' => 2,
+                    'menu_key' => 'orders',
+                    'app_type' => 'DELIVERY',
+                    'menu_type' => 'toolbar',
+                    'route_params' => null,
+                    'sort_order' => 10,
+                    'menu' => 'Pedidos',
+                    'category_id' => 6,
+                    'category_label' => 'Operacao',
+                    'category_color' => '#0EA5E9',
+                    'category_icon' => 'shopping-bag',
+                    'icon' => 'shopping-bag',
+                    'color' => '#0EA5E9',
+                    'route' => 'DeliveryOrdersPage',
+                    'module' => 8,
+                ],
+            ]);
+
+        $manager = $this->createMock(EntityManagerInterface::class);
+        $manager
+            ->expects(self::once())
+            ->method('getRepository')
+            ->with(Menu::class)
+            ->willReturn($repository);
+
+        $service = new MenuConfigService($manager);
+        $payload = $service->getMenuForPeople($userPeople, $company, 'delivery', false, 'toolbar');
+
+        self::assertSame('toolbar', $payload['modules'][0]['menus'][0]['menuType']);
+        self::assertSame('DeliveryOrdersPage', $payload['modules'][0]['menus'][0]['route']);
     }
 
     private function setEntityId(object $entity, int $id): void
