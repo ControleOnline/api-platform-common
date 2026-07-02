@@ -78,7 +78,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'menu')]
 #[ORM\Index(name: 'category_id', columns: ['category_id'])]
 #[ORM\Index(name: 'menu_app_type_idx', columns: ['app_type'])]
-#[ORM\UniqueConstraint(name: 'menu_app_key_unique', columns: ['app_type', 'menu_key'])]
+#[ORM\UniqueConstraint(name: 'menu_app_key_unique', columns: ['app_type', 'menu_type', 'menu_key'])]
 
 #[ORM\Entity(repositoryClass: MenuRepository::class)]
 class Menu
@@ -100,6 +100,10 @@ class Menu
     #[ORM\Column(name: 'app_type', type: 'string', length: 30, nullable: false, options: ['default' => 'MANAGER'])]
     #[Groups(['menu:read', 'menu:write'])]
     private string $appType = 'MANAGER';
+
+    #[ORM\Column(name: 'menu_type', type: 'string', length: 30, nullable: false, options: ['default' => 'home'])]
+    #[Groups(['menu:read', 'menu:write'])]
+    private string $menuType = 'home';
 
     #[ORM\Column(name: 'route_params', type: 'json', nullable: true)]
     #[Groups(['menu:read', 'menu:write'])]
@@ -167,6 +171,19 @@ class Menu
     public function setAppType(string $appType): self
     {
         $this->appType = strtoupper(trim($appType));
+
+        return $this;
+    }
+
+    public function getMenuType(): string
+    {
+        return $this->menuType;
+    }
+
+    public function setMenuType(string $menuType): self
+    {
+        $normalized = strtolower(trim($menuType));
+        $this->menuType = $normalized !== '' ? $normalized : 'home';
 
         return $this;
     }

@@ -47,6 +47,7 @@ class MenuConfigService
             ->from(Menu::class, 'menu')
             ->leftJoin('menu.category', 'category')
             ->addOrderBy('menu.appType', 'ASC')
+            ->addOrderBy('menu.menuType', 'ASC')
             ->addOrderBy('category.name', 'ASC')
             ->addOrderBy('menu.sortOrder', 'ASC')
             ->addOrderBy('menu.menu', 'ASC')
@@ -143,6 +144,10 @@ class MenuConfigService
             $menu->setAppType($this->normalizeAppType((string) ($payload['appType'] ?? $payload['app_type'])));
         }
 
+        if (array_key_exists('menuType', $payload) || array_key_exists('menu_type', $payload)) {
+            $menu->setMenuType($this->normalizeMenuType((string) ($payload['menuType'] ?? $payload['menu_type'])));
+        }
+
         if (array_key_exists('enabled', $payload)) {
             $menu->setEnabled((bool) $payload['enabled']);
         }
@@ -214,6 +219,7 @@ class MenuConfigService
         }
 
         $appType = $this->normalizeAppType((string) ($payload['appType'] ?? $payload['app_type'] ?? 'MANAGER'));
+        $menuType = $this->normalizeMenuType((string) ($payload['menuType'] ?? $payload['menu_type'] ?? 'home'));
         $label = trim((string) ($payload['menu'] ?? $payload['label'] ?? ''));
         if ($label === '') {
             $label = (string) $route->getRoute();
@@ -221,11 +227,13 @@ class MenuConfigService
 
         $menu = new Menu();
         $menu->setAppType($appType);
+        $menu->setMenuType($menuType);
         $menu->setRoute($route);
         $menu->setCategory($category);
         $menu->setMenu($this->limitString($label, 50));
         $menu->setMenuKey($this->generateUniqueMenuKey(
             $appType,
+            $menuType,
             (string) ($payload['menuKey'] ?? $payload['menu_key'] ?? ''),
             $route,
             $category,
@@ -234,7 +242,7 @@ class MenuConfigService
         $menu->setSortOrder(
             array_key_exists('sortOrder', $payload) || array_key_exists('sort_order', $payload)
                 ? (int) ($payload['sortOrder'] ?? $payload['sort_order'])
-                : $this->getNextSortOrder($appType, $category)
+                : $this->getNextSortOrder($appType, $category, $menuType)
         );
         $menu->setEnabled((bool) ($payload['enabled'] ?? true));
         $menu->setRouteParams($this->normalizeRouteParams($payload['routeParams'] ?? $payload['route_params'] ?? null));
@@ -291,6 +299,7 @@ class MenuConfigService
             'label' => $menu->getMenu(),
             'menuKey' => $menu->getMenuKey(),
             'appType' => $menu->getAppType(),
+            'menuType' => $menu->getMenuType(),
             'routeParams' => $menu->getRouteParams() ?? [],
             'sortOrder' => $menu->getSortOrder(),
             'enabled' => $menu->getEnabled(),
@@ -458,6 +467,7 @@ class MenuConfigService
                 'id' => (int) $menu['id'],
                 'menuKey' => $menu['menu_key'],
                 'appType' => $menu['app_type'],
+                'menuType' => $this->normalizeMenuType((string) ($menu['menu_type'] ?? 'home')),
                 'label' => $menu['menu'],
                 'icon' => $menu['icon'],
                 'color' => $menu['color'],
@@ -542,15 +552,24 @@ class MenuConfigService
         return null;
     }
 
-    private function getNextSortOrder(string $appType, Category $category): int
+    private function normalizeMenuType(string $menuType): string
+    {
+        $normalized = strtolower(trim($menuType));
+
+        return $normalized !== '' ? $normalized : 'home';
+    }
+
+    private function getNextSortOrder(string $appType, Category $category, string $menuType = 'home'): int
     {
         $currentMax = $this->manager->createQueryBuilder()
             ->select('MAX(menu.sortOrder)')
             ->from(Menu::class, 'menu')
             ->andWhere('menu.appType = :appType')
             ->andWhere('menu.category = :category')
+            ->andWhere('menu.menuType = :menuType')
             ->setParameter('appType', $appType)
             ->setParameter('category', $category)
+            ->setParameter('menuType', $this->normalizeMenuType($menuType))
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -559,6 +578,7 @@ class MenuConfigService
 
     private function generateUniqueMenuKey(
         string $appType,
+        string $menuType,
         string $requestedKey,
         Routes $route,
         Category $category,
@@ -579,6 +599,7 @@ class MenuConfigService
 
         while ($this->manager->getRepository(Menu::class)->findOneBy([
             'appType' => $appType,
+            'menuType' => $this->normalizeMenuType($menuType),
             'menuKey' => $candidate,
         ]) instanceof Menu) {
             $candidate = substr($base, 0, 90 - strlen((string) $suffix)) . '_' . $suffix;
