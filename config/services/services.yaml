@@ -72,6 +72,8 @@ services:
     ControleOnline\State\HydratedReadProvider:
         autowire: true
         autoconfigure: false
+        tags:
+            - { name: 'api_platform.state_provider' }
         arguments:
             $collectionExtensions: !tagged_iterator api_platform.doctrine.orm.query_extension.collection
             $collectionSummaryService: '@ControleOnline\Service\CollectionSummaryService'
