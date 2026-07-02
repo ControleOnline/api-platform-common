@@ -113,7 +113,13 @@ class MenuConfigService
         ];
     }
 
-    public function getMenuForPeople(People $userPeople, People $company, string $appType, bool $isSuper): array
+    public function getMenuForPeople(
+        People $userPeople,
+        People $company,
+        string $appType,
+        bool $isSuper,
+        ?string $menuType = null
+    ): array
     {
         $repository = $this->manager->getRepository(Menu::class);
         if (!$repository instanceof MenuRepository) {
@@ -125,7 +131,8 @@ class MenuConfigService
                 (int) $userPeople->getId(),
                 (int) $company->getId(),
                 $this->normalizeAppType($appType),
-                $isSuper
+                $isSuper,
+                $menuType !== null ? $this->normalizeMenuType($menuType) : null
             )
         );
     }
