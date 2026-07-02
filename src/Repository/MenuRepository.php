@@ -24,7 +24,13 @@ class MenuRepository extends ServiceEntityRepository
   /**
    * @return array<int, array<string, mixed>>
    */
-  public function findVisibleRowsForPeople(int $peopleId, int $companyId, string $appType, bool $isSuper): array
+  public function findVisibleRowsForPeople(
+    int $peopleId,
+    int $companyId,
+    string $appType,
+    bool $isSuper,
+    ?string $menuType = null
+  ): array
   {
     $connection = $this->getEntityManager()->getConnection();
 
@@ -61,6 +67,12 @@ class MenuRepository extends ServiceEntityRepository
       $params['peopleId'] = $peopleId;
       $params['menuLinkTypes'] = PeopleLink::HUMAN_LINK;
       $types['menuLinkTypes'] = ArrayParameterType::STRING;
+    }
+
+    $normalizedMenuType = strtolower(trim((string) $menuType));
+    if ($normalizedMenuType !== '') {
+      $sql .= ' AND menu.menu_type = :menuType ';
+      $params['menuType'] = $normalizedMenuType;
     }
 
     $sql .= ' ORDER BY category.name ASC, menu.sort_order ASC, menu.menu ASC';

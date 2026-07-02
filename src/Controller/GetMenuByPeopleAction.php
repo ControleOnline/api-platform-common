@@ -48,6 +48,7 @@ class GetMenuByPeopleAction
       $appType = $this->menuConfigService->normalizeAppType(
         $request->query->get('appType', 'MANAGER')
       );
+      $menuType = $request->query->get('menuType', null);
 
       if ($company === null)
         throw new Exception("Company not found", 404);
@@ -71,7 +72,8 @@ class GetMenuByPeopleAction
         $userPeople,
         $myCompany,
         $appType,
-        in_array('ROLE_SUPER', $currentUser->getRoles(), true)
+        in_array('ROLE_SUPER', $currentUser->getRoles(), true),
+        is_string($menuType) ? $menuType : null
       );
 
 
