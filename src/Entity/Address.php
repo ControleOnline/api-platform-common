@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 
 use ControleOnline\Repository\AddressRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,6 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
     operations: [
         new Get(security: 'is_granted(\'ROLE_HUMAN\')'),
         new GetCollection(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Put(security: 'is_granted(\'ROLE_HUMAN\')'),
         new Post(
             processor: AddressDiscoveryProcessor::class,
             security: 'is_granted(\'ROLE_HUMAN\')'
@@ -44,48 +46,49 @@ class Address
     private $id;
 
     #[ORM\Column(name: 'number', type: 'integer', nullable: true)]
-    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read', 'address:write'])]
     private $number;
 
     #[ORM\Column(name: 'nickname', type: 'string', length: 50, nullable: false)]
-    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read', 'address:write'])]
     private $nickname;
 
     #[ORM\Column(name: 'complement', type: 'string', length: 50, nullable: false)]
-    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read', 'address:write'])]
     private $complement;
 
     #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: People::class, inversedBy: 'address')]
+    #[Groups(['address:write'])]
     private $people;
 
     #[ORM\JoinColumn(name: 'street_id', referencedColumnName: 'id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: Street::class, inversedBy: 'address')]
-    #[Groups(['people:read', 'order_details:read', 'order:write',  'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:write', 'address:read', 'address:write'])]
     private $street;
 
     #[ORM\Column(name: 'latitude', type: 'float', nullable: false)]
-    #[Groups(['people:read', 'order_details:read', 'order:read', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:read', 'address:read', 'address:write'])]
     private $latitude;
 
     #[ORM\Column(name: 'longitude', type: 'float', nullable: false)]
-    #[Groups(['people:read', 'order_details:read', 'order:read', 'address:read'])]
+    #[Groups(['people:read', 'order_details:read', 'order:read', 'address:read', 'address:write'])]
     private $longitude;
 
     #[ORM\Column(name: 'locator', type: 'string', nullable: false)]
-    #[Groups(['people:read'])]
+    #[Groups(['people:read', 'address:write'])]
     private $locator;
 
     #[ORM\Column(name: 'opening_time', type: 'time', nullable: false)]
-    #[Groups(['people:read'])]
+    #[Groups(['people:read', 'address:write'])]
     private $opening_time;
 
     #[ORM\Column(name: 'closing_time', type: 'time', nullable: false)]
-    #[Groups(['people:read'])]
+    #[Groups(['people:read', 'address:write'])]
     private $closing_time;
 
     #[ORM\Column(name: 'search_for', type: 'string', nullable: false)]
-    #[Groups(['people:read'])]
+    #[Groups(['people:read', 'address:write'])]
     private $search_for;
 
     public function __construct()
@@ -138,7 +141,7 @@ class Address
         return $this;
     }
 
-    public function getPeople(): People
+    public function getPeople(): ?People
     {
         return $this->people;
     }
@@ -156,7 +159,7 @@ class Address
 
     public function setLatitude($latitude)
     {
-        $this->latitude = $latitude ?: 0;
+        $this->latitude = $latitude !== null ? (float) $latitude : 0;
         return $this;
     }
 
@@ -167,7 +170,7 @@ class Address
 
     public function setLongitude($longitude)
     {
-        $this->longitude = $longitude ?: 0;
+        $this->longitude = $longitude !== null ? (float) $longitude : 0;
         return $this;
     }
 
@@ -214,7 +217,7 @@ class Address
         return $this->search_for;
     }
 
-    public function setSearchFor(string $search_for = null): self
+    public function setSearchFor(?string $search_for = null): self
     {
         $this->search_for = $search_for;
         return $this;
