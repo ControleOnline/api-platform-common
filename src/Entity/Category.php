@@ -51,14 +51,14 @@ class Category
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[Groups(['category:read', 'company_expense:read', 'invoice:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'task:read', 'order_invoice_invoice:read'])]
+    #[Groups(['category:read', 'company_expense:read', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'task:read', 'order_invoice_invoice:read'])]
     private $id;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['name' => 'partial'])]
     #[ORM\Column(name: 'name', type: 'string', length: 100, nullable: false)]
     #[Assert\NotBlank]
     #[Assert\Type(type: 'string')]
-    #[Groups(['category:read', 'category:write', 'company_expense:read', 'invoice:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read', 'order_invoice_invoice:read'])]
+    #[Groups(['category:read', 'category:write', 'company_expense:read', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read', 'order_invoice_invoice:read'])]
     private $name;
 
     #[ApiFilter(filterClass: ExistsFilter::class, properties: ['categoryFiles'])]
@@ -71,7 +71,7 @@ class Category
     #[ORM\Column(name: 'context', type: 'string', length: 100, nullable: false)]
     #[Assert\NotBlank]
     #[Assert\Type(type: 'string')]
-    #[Groups(['category:read', 'category:write', 'invoice:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read', 'order_invoice_invoice:read'])]
+    #[Groups(['category:read', 'category:write', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read', 'order_invoice_invoice:read'])]
     private $context;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['parent' => 'exact'])]
@@ -84,19 +84,19 @@ class Category
     #[ORM\JoinColumn(name: 'company_id', referencedColumnName: 'id')]
     #[ORM\ManyToOne(targetEntity: People::class)]
     #[Assert\NotBlank]
-    #[Groups(['category:read', 'category:write', 'invoice:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read'])]
+    #[Groups(['category:read', 'category:write', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read'])]
     private $company;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['icon' => 'exact'])]
     #[ORM\Column(name: 'icon', type: 'string', length: 50, nullable: true)]
     #[Assert\Type(type: 'string')]
-    #[Groups(['category:read', 'category:write', 'company_expense:read', 'invoice:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read'])]
+    #[Groups(['category:read', 'category:write', 'company_expense:read', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read'])]
     private $icon;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['color' => 'exact'])]
     #[ORM\Column(name: 'color', type: 'string', length: 50, nullable: true)]
     #[Assert\Type(type: 'string')]
-    #[Groups(['category:read', 'category:write', 'company_expense:read', 'invoice:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read'])]
+    #[Groups(['category:read', 'category:write', 'company_expense:read', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read'])]
     private $color;
 
     public function __construct()
