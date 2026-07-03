@@ -23,24 +23,27 @@ class AddressService
   ) {}
 
   public function discoveryAddress(
-    ?People $people = null,
-    int $postalCode,
+    string|int $postalCode,
     int|string|null $streetNumber,
     string $streetName,
     string $district,
     string $city,
     string $uf,
     string $countryCode,
+    ?People $people = null,
     ?string $complement = null,
-    ?int $latitude = 0,
-    ?int $longitude = 0,
+    ?float $latitude = null,
+    ?float $longitude = null,
     ?string $nickName = 'Default',
   ): Address {
     $streetNumberPayload = $this->normalizeStreetNumberPayload($streetNumber, $complement);
     $streetNumber = $streetNumberPayload['number'];
     $complement = $streetNumberPayload['complement'];
 
-    $cep = ($postalCode) ? $this->discoveryCep($postalCode) : null;
+    $postalCodeValue = trim((string) $postalCode);
+    $cep = ($postalCodeValue !== '' && $postalCodeValue !== '0')
+      ? $this->discoveryCep($postalCodeValue)
+      : null;
     $country = ($countryCode) ? $this->getCountry($countryCode) : null;
     $state = ($uf && $country) ? $this->discoveryState($country, $uf) : null;
     $city = ($city && $state) ? $this->discoveryCity($state, $city) : null;
@@ -62,8 +65,8 @@ class AddressService
       $address->setStreet($street);
       $address->setPeople($people);
     }
-    if ($latitude > 0) $address->setLatitude($latitude);
-    if ($longitude > 0) $address->setLongitude($longitude);
+    if ($latitude !== null) $address->setLatitude($latitude);
+    if ($longitude !== null) $address->setLongitude($longitude);
 
 
     $this->manager->persist($address);
