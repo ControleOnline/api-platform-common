@@ -3,45 +3,37 @@
 namespace ControleOnline\Service;
 
 use ControleOnline\Entity\PeopleDomain;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use InvalidArgumentException;
 use Doctrine\ORM\EntityManagerInterface;
 
 
 class DomainService
 {
-    private static $peopleDomain;
-    private $request;
     public function __construct(
-        private  EntityManagerInterface $manager,
-        RequestStack $requestStack
-    ) {
-        $this->request = $requestStack->getCurrentRequest();
-    }
+        private EntityManagerInterface $manager,
+        private RequestStack $requestStack,
+    ) {}
+
+    private ?PeopleDomain $peopleDomain = null;
+    private ?string $peopleDomainKey = null;
+
     /**
      * @return string
      */
     public function getDomain()
     {
+        $request = $this->requestStack->getCurrentRequest();
+        $domainSource = $request
+            ? $this->resolveRequestDomain($request) ?? $this->getMainDomain()
+            : $this->getMainDomain();
 
-        $domain = !$this->request ? $this->getMainDomain() : preg_replace("/[^a-zA-Z0-9.:_-]/", "", str_replace(
-            ['https://', 'http://'],
+        $domain = preg_replace(
+            "/[^a-zA-Z0-9.:_-]/",
             '',
-            $this->request->get(
-                'App-domain',
-                $this->request->get(
-                    'app-domain',
-                    $this->request->headers->get(
-                        'app-domain',
-                        $this->request->headers->get(
-                            'referer',
-                            $this->getMainDomain()
-                        )
-                    )
-                )
-            )
-        ));
+            str_replace(['https://', 'http://'], '', $domainSource),
+        );
 
         if (!$domain)
             throw new InvalidArgumentException('Please define header or get param "app-domain"', 301);
@@ -50,26 +42,52 @@ class DomainService
 
     public function getMainDomain()
     {
-        return $this->request ? $this->request->server->get('HTTP_HOST') : 'api.controleonline.com';
+        return $this->requestStack->getCurrentRequest()?->server->get('HTTP_HOST') ?: 'api.controleonline.com';
+    }
+
+    private function resolveRequestDomain(Request $request): ?string
+    {
+        $candidateValues = [
+            $request->attributes->get('App-domain'),
+            $request->attributes->get('app-domain'),
+            $request->query->get('App-domain'),
+            $request->query->get('app-domain'),
+            $request->headers->get('app-domain'),
+            $request->headers->get('referer'),
+        ];
+
+        foreach ($candidateValues as $candidate) {
+            if (is_string($candidate) && trim($candidate) !== '') {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 
     public function getPeopleDomain(): PeopleDomain
     {
-        if (self::$peopleDomain) return self::$peopleDomain;
+        $domain = $this->getDomain();
 
-        $domain  = $this->getDomain();
-        self::$peopleDomain = $this->manager->getRepository(PeopleDomain::class)->findOneBy(['domain' => $domain]);
-
-        if (!self::$peopleDomain) {
-            $domain  = $this->getMainDomain();
-            self::$peopleDomain = $this->manager->getRepository(PeopleDomain::class)->findOneBy(['domain' => $domain]);
+        if ($this->peopleDomainKey === $domain && $this->peopleDomain) {
+            return $this->peopleDomain;
         }
 
-        if (self::$peopleDomain === null)
+        $peopleDomain = $this->manager->getRepository(PeopleDomain::class)->findOneBy(['domain' => $domain]);
+
+        if (!$peopleDomain) {
+            $domain = $this->getMainDomain();
+            $peopleDomain = $this->manager->getRepository(PeopleDomain::class)->findOneBy(['domain' => $domain]);
+        }
+
+        if ($peopleDomain === null)
             throw new \Exception(
                 sprintf('Main company "%s" not found', $domain)
             );
 
-        return self::$peopleDomain;
+        $this->peopleDomainKey = $domain;
+        $this->peopleDomain = $peopleDomain;
+
+        return $peopleDomain;
     }
 }
