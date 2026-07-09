@@ -71,10 +71,21 @@ class MenuConfigServiceTest extends TestCase
     {
         $service = new MenuConfigService($this->createStub(EntityManagerInterface::class));
 
+        self::assertSame('ADMIN', $service->normalizeAppType('admin'));
         self::assertSame('CRM', $service->normalizeAppType('crm'));
         self::assertSame('DELIVERY', $service->normalizeAppType('delivery'));
         self::assertSame('SERVICE', $service->normalizeAppType('service'));
         self::assertSame('MANAGER', $service->normalizeAppType('unknown'));
+    }
+
+    public function testConfigSummaryIncludesAdminAppType(): void
+    {
+        $service = new MenuConfigService($this->createStub(EntityManagerInterface::class));
+
+        $summary = $service->getConfigSummary('admin');
+
+        self::assertSame('ADMIN', $summary['appType']);
+        self::assertContains('ADMIN', $summary['appTypes']);
     }
 
     public function testAllowedMenuLinkTypesExcludeCommercialLinks(): void

@@ -14,7 +14,7 @@ use InvalidArgumentException;
 
 class MenuConfigService
 {
-    public const APP_TYPES = ['MANAGER', 'CRM', 'POS', 'DELIVERY', 'PPC', 'SHOP', 'SERVICE'];
+    public const APP_TYPES = ['ADMIN', 'MANAGER', 'CRM', 'POS', 'DELIVERY', 'PPC', 'SHOP', 'SERVICE'];
 
     public function __construct(private EntityManagerInterface $manager) {}
 
@@ -407,6 +407,8 @@ class MenuConfigService
             ->getQuery()
             ->getResult();
 
+        $categories = is_array($categories) ? $categories : [];
+
         return array_values(array_map(
             fn(Category $category): array => $this->normalizeCategory($category),
             array_filter($categories, static fn($category): bool => $category instanceof Category)
@@ -426,6 +428,8 @@ class MenuConfigService
             ->addOrderBy('route.route', 'ASC')
             ->getQuery()
             ->getResult();
+
+        $routes = is_array($routes) ? $routes : [];
 
         $normalized = [];
         foreach ($routes as $route) {
