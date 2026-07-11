@@ -2,6 +2,12 @@
 
 # common
 
+## Categorias
+
+- Leituras internas de `Category` passam por `CategoryService::securityFilter()` e sao escopadas por `company`.
+- O catalogo anonimo usa `GET /shop/categories` e `GET /shop/categories/{id}`.
+- As rotas publicas exigem `PeopleDomain.domainType=SHOP`, aceitam somente a empresa do dominio ou empresas publicadas na configuracao e retornam apenas o contexto `products`.
+
 
 `composer require controleonline/common:dev-master`
 
