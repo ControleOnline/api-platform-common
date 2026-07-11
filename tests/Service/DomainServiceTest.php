@@ -30,6 +30,38 @@ class DomainServiceTest extends TestCase
         self::assertSame('admin.controleonline.com', $service->getDomain());
     }
 
+    public function testGetDomainUsesTheOriginHostWhenTheAppDomainIsMissing(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push($this->createRequest(
+            uri: 'https://s.controleonline.com/tests/index.json',
+            origin: 'https://admin.controleonline.com',
+        ));
+
+        $service = new DomainService(
+            $this->createStub(EntityManagerInterface::class),
+            $requestStack,
+        );
+
+        self::assertSame('admin.controleonline.com', $service->getDomain());
+    }
+
+    public function testGetDomainUsesTheRefererHostWhenTheAppDomainIsMissing(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push($this->createRequest(
+            uri: 'https://s.controleonline.com/tests/index.json',
+            referer: 'https://admin.controleonline.com/tests-playground',
+        ));
+
+        $service = new DomainService(
+            $this->createStub(EntityManagerInterface::class),
+            $requestStack,
+        );
+
+        self::assertSame('admin.controleonline.com', $service->getDomain());
+    }
+
     public function testGetPeopleDomainRefreshesWhenTheDomainChanges(): void
     {
         $requestStack = new RequestStack();
@@ -69,10 +101,26 @@ class DomainServiceTest extends TestCase
         self::assertSame($adminDomain, $service->getPeopleDomain());
     }
 
-    private function createRequest(string $domain): Request
+    private function createRequest(
+        ?string $domain = null,
+        string $uri = 'https://s.controleonline.com/',
+        ?string $origin = null,
+        ?string $referer = null,
+    ): Request
     {
-        $request = Request::create(sprintf('https://%s/', $domain));
-        $request->headers->set('app-domain', $domain);
+        $request = Request::create($uri);
+
+        if ($domain !== null) {
+            $request->headers->set('app-domain', $domain);
+        }
+
+        if ($origin !== null) {
+            $request->headers->set('origin', $origin);
+        }
+
+        if ($referer !== null) {
+            $request->headers->set('referer', $referer);
+        }
 
         return $request;
     }
