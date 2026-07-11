@@ -29,13 +29,9 @@ class DomainService
             ? $this->resolveRequestDomain($request) ?? $this->getMainDomain()
             : $this->getMainDomain();
 
-        $domain = preg_replace(
-            "/[^a-zA-Z0-9.:_-]/",
-            '',
-            str_replace(['https://', 'http://'], '', $domainSource),
-        );
+        $domain = $this->normalizeDomainCandidate($domainSource);
 
-        if (!$domain)
+        if ($domain === null)
             throw new InvalidArgumentException('Please define header or get param "app-domain"', 301);
         return $domain;
     }
@@ -53,16 +49,66 @@ class DomainService
             $request->query->get('App-domain'),
             $request->query->get('app-domain'),
             $request->headers->get('app-domain'),
+            $request->headers->get('origin'),
             $request->headers->get('referer'),
         ];
 
         foreach ($candidateValues as $candidate) {
-            if (is_string($candidate) && trim($candidate) !== '') {
-                return $candidate;
+            $domain = $this->normalizeDomainCandidate($candidate);
+
+            if ($domain !== null) {
+                return $domain;
             }
         }
 
         return null;
+    }
+
+    private function normalizeDomainCandidate(mixed $candidate): ?string
+    {
+        if (!is_string($candidate)) {
+            return null;
+        }
+
+        $candidate = trim($candidate);
+        if ($candidate === '') {
+            return null;
+        }
+
+        $parsedHost = $this->extractHostFromUrl($candidate);
+        if ($parsedHost !== null) {
+            return $parsedHost;
+        }
+
+        $candidate = preg_replace('/[\\/?#].*$/', '', $candidate);
+        $candidate = preg_replace(
+            "/[^a-zA-Z0-9.:_-]/",
+            '',
+            $candidate,
+        );
+
+        return $candidate !== '' ? $candidate : null;
+    }
+
+    private function extractHostFromUrl(string $candidate): ?string
+    {
+        if (!preg_match('/^[a-z][a-z0-9+.-]*:\/\//i', $candidate) && !str_starts_with($candidate, '//')) {
+            return null;
+        }
+
+        $host = parse_url($candidate, PHP_URL_HOST);
+
+        if (!is_string($host) || trim($host) === '') {
+            return null;
+        }
+
+        $port = parse_url($candidate, PHP_URL_PORT);
+
+        if (is_int($port)) {
+            return sprintf('%s:%d', $host, $port);
+        }
+
+        return $host;
     }
 
     public function getPeopleDomain(): PeopleDomain

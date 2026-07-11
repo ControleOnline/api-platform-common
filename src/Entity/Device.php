@@ -26,13 +26,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 #[ApiResource(
     operations: [
-        new Get(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Get(security: 'is_granted(\'ROLE_HUMAN\') or is_granted(\'ROLE_CLIENT\')'),
         new Put(
-            security: 'is_granted(\'ROLE_HUMAN\')',
+            security: 'is_granted(\'ROLE_HUMAN\') or is_granted(\'ROLE_CLIENT\')',
             denormalizationContext: ['groups' => ['device:write']]
         ),
         new Delete(security: 'is_granted(\'ROLE_HUMAN\')'),
-        new Post(securityPostDenormalize: 'is_granted(\'ROLE_HUMAN\')'),
+        new Post(securityPostDenormalize: 'is_granted(\'ROLE_HUMAN\') or is_granted(\'ROLE_CLIENT\')'),
         new GetCollection(
             security: 'is_granted(\'PUBLIC_ACCESS\')',
         ),

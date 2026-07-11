@@ -5,6 +5,7 @@ namespace ControleOnline\Filter;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 
 class CustomOrFilter extends AbstractFilter
@@ -31,42 +32,49 @@ class CustomOrFilter extends AbstractFilter
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
         $orWhere = $queryBuilder->expr()->orX();
-        $joinedRelations = [];
+        $searchParameter = sprintf(':%s', $queryNameGenerator->generateParameterName('search'));
+        $joinedRelations = false;
 
-        foreach ($this->properties as $configuredProperty => $propVal) {
-            $relation = explode('.', $configuredProperty, 2);
+        foreach ($this->properties ?? [] as $configuredProperty => $propertyConfig) {
+            $resolvedProperty = $this->resolveConfiguredPropertyName(
+                $configuredProperty,
+                $propertyConfig,
+            );
 
-            if (count($relation) > 1) {
-                [$relationName, $relationField] = $relation;
+            if (
+                $resolvedProperty === ''
+                || !$this->isPropertyMapped($resolvedProperty, $resourceClass)
+            ) {
+                continue;
+            }
 
-                if (!array_key_exists($relationName, $joinedRelations)) {
-                    $joinedRelations[$relationName] = $queryNameGenerator->generateJoinAlias($relationName);
-                    $queryBuilder->leftJoin(
-                        sprintf('%s.%s', $rootAlias, $relationName),
-                        $joinedRelations[$relationName]
-                    );
-                }
+            $alias = $rootAlias;
+            $field = $resolvedProperty;
+            $associations = [];
 
-                $orWhere->add(
-                    $queryBuilder->expr()->like(
-                        sprintf('%s.%s', $joinedRelations[$relationName], $relationField),
-                        ':search'
-                    )
+            if ($this->isPropertyNested($resolvedProperty, $resourceClass)) {
+                [$alias, $field, $associations] = $this->addJoinsForNestedProperty(
+                    $resolvedProperty,
+                    $rootAlias,
+                    $queryBuilder,
+                    $queryNameGenerator,
+                    $resourceClass,
+                    Join::LEFT_JOIN,
                 );
+                $joinedRelations = true;
+            }
 
+            $metadata = $this->getNestedMetadata($resourceClass, $associations);
+            if (!$metadata->hasField($field)) {
                 continue;
             }
 
             $orWhere->add(
                 $queryBuilder->expr()->like(
-                    sprintf('%s.%s', $rootAlias, $configuredProperty),
-                    ':search'
-                )
+                    sprintf('%s.%s', $alias, $field),
+                    $searchParameter
+                ),
             );
-        }
-
-        if (count($joinedRelations) > 0) {
-            $queryBuilder->distinct();
         }
 
         if ($orWhere->count() === 0) {
@@ -74,6 +82,20 @@ class CustomOrFilter extends AbstractFilter
         }
 
         $queryBuilder->andWhere($orWhere);
-        $queryBuilder->setParameter('search', '%' . $value . '%');
+        $queryBuilder->setParameter(
+            ltrim($searchParameter, ':'),
+            '%' . $value . '%',
+        );
+    }
+
+    private function resolveConfiguredPropertyName(
+        mixed $configuredProperty,
+        mixed $propertyConfig,
+    ): string {
+        if (is_string($configuredProperty) && $configuredProperty !== '') {
+            return $configuredProperty;
+        }
+
+        return is_string($propertyConfig) ? $propertyConfig : '';
     }
 }
