@@ -413,15 +413,17 @@ class DeviceService
     public function securityFilter(QueryBuilder $queryBuilder, $resourceClass = null, $applyTo = null, $rootAlias = null): void
     {
         $companies = $this->peopleService->getMyCompanies();
-        $requestedDevice = trim((string) $this->request?->query->get('device', ''));
-        $headerDevice = trim((string) $this->request?->headers->get('device', ''));
-        $allowSelfDeviceWithoutConfig =
-            $requestedDevice !== '' &&
-            $headerDevice !== '' &&
-            $requestedDevice === $headerDevice;
+        $selfDevice = $this->resolveSelfDeviceIdentifier();
+        $allowSelfDeviceWithoutConfig = $selfDevice !== '';
+
+        if (empty($companies) && !$allowSelfDeviceWithoutConfig) {
+            $queryBuilder->andWhere('1 = 0');
+            return;
+        }
 
         if (empty($companies)) {
-            $queryBuilder->andWhere('1 = 0');
+            $queryBuilder->andWhere(sprintf('%s.device = :selfDevice', $rootAlias));
+            $queryBuilder->setParameter('selfDevice', $selfDevice);
             return;
         }
 
@@ -443,7 +445,7 @@ class DeviceService
                 '(DeviceCompanyConfig.people IN(:companies) OR %s.device = :selfDevice)',
                 $rootAlias
             ));
-            $queryBuilder->setParameter('selfDevice', $requestedDevice);
+            $queryBuilder->setParameter('selfDevice', $selfDevice);
         } else {
             $queryBuilder->andWhere('DeviceCompanyConfig.people IN(:companies)');
         }
@@ -452,5 +454,29 @@ class DeviceService
             $queryBuilder->andWhere('DeviceCompanyConfig.people IN(:people)');
             $queryBuilder->setParameter('people', preg_replace("/[^0-9]/", "", $people));
         }
+    }
+
+    private function resolveSelfDeviceIdentifier(): string
+    {
+        if (!$this->request instanceof Request) {
+            return '';
+        }
+
+        $headerDevice = trim((string) $this->request->headers->get('device', ''));
+        if ($headerDevice === '') {
+            return '';
+        }
+
+        $requestedDevice = trim((string) $this->request->query->get('device', ''));
+        if ($requestedDevice === '') {
+            $payload = $this->decodePayload($this->request->getContent());
+            $requestedDevice = trim((string) ($payload['device'] ?? ''));
+        }
+
+        if ($requestedDevice === '' || $requestedDevice !== $headerDevice) {
+            return '';
+        }
+
+        return $headerDevice;
     }
 }
