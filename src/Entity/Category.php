@@ -14,6 +14,8 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ControleOnline\Controller\GetPublicShopCategoriesAction;
+use ControleOnline\Controller\GetPublicShopCategoryAction;
 use ControleOnline\Filter\CustomOrFilter;
 
 use ControleOnline\Repository\CategoryRepository;
@@ -24,15 +26,25 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
-        new Get(security: 'is_granted(\'PUBLIC_ACCESS\')'),
+        new Get(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Get(
+            uriTemplate: '/shop/categories/{id}',
+            controller: GetPublicShopCategoryAction::class,
+            read: false,
+            security: 'is_granted(\'PUBLIC_ACCESS\')'
+        ),
         new Put(
             security: 'is_granted(\'ROLE_HUMAN\')',
             denormalizationContext: ['groups' => ['category:write']]
         ),
         new Delete(security: 'is_granted(\'ROLE_HUMAN\')'),
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_HUMAN\')'),
+        new GetCollection(security: 'is_granted(\'ROLE_HUMAN\')'),
         new GetCollection(
-            security: 'is_granted(\'PUBLIC_ACCESS\')',
+            uriTemplate: '/shop/categories',
+            controller: GetPublicShopCategoriesAction::class,
+            read: false,
+            security: 'is_granted(\'PUBLIC_ACCESS\')'
         )
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],

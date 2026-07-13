@@ -44,7 +44,7 @@ class HydratorService
         return $errorResponse;
     }
 
-    public function collectionData($data, $class, $groups,  mixed $arguments = [], ?int $totalItems = null)
+    public function collectionData($data, $class, $groups,  mixed $arguments = [], ?int $totalItems = null, array $summary = [])
     {
         $response = $this->getBasicResponse($class);
 
@@ -53,6 +53,9 @@ class HydratorService
         $response['totalItems']   =   null !== $totalItems
             ? $totalItems
             : $this->getCount($class, $arguments);
+        if ($summary !== []) {
+            $response['summary'] = $summary;
+        }
 
         return $response;
     }
