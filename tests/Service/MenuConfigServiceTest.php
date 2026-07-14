@@ -88,6 +88,52 @@ class MenuConfigServiceTest extends TestCase
         self::assertContains('ADMIN', $summary['appTypes']);
     }
 
+    public function testNormalizeMenuSupportsRhEmployeeRoute(): void
+    {
+        $module = new Module();
+        $module->setName('ui-employee');
+        $module->setColor('#7C3AED');
+        $module->setIcon('user-check');
+
+        $route = new Routes();
+        $route->setId(42);
+        $route->setRoute('EmployeesPage');
+        $route->setIcon('user-check');
+        $route->setColor('#7C3AED');
+        $route->setModule($module);
+
+        $category = new Category();
+        $this->setEntityId($category, 11);
+        $category->setName('RH');
+        $category->setContext('menu');
+        $category->setIcon('users');
+        $category->setColor('#7C3AED');
+
+        $menu = new Menu();
+        $this->setEntityId($menu, 31);
+        $menu->setMenu('Funcionarios');
+        $menu->setMenuKey('employees_rh');
+        $menu->setAppType('manager');
+        $menu->setMenuType('home');
+        $menu->setSortOrder(10);
+        $menu->setEnabled(true);
+        $menu->setRoute($route);
+        $menu->setCategory($category);
+
+        $managerLink = new MenuLinkType();
+        $managerLink->setLinkType('manager');
+        $menu->addLinkType($managerLink);
+
+        $service = new MenuConfigService($this->createStub(EntityManagerInterface::class));
+        $payload = $service->normalizeMenu($menu);
+
+        self::assertSame('Funcionarios', $payload['label']);
+        self::assertSame('RH', $payload['category']['name']);
+        self::assertSame('EmployeesPage', $payload['route']['route']);
+        self::assertSame('ui-employee', $payload['route']['module']);
+        self::assertSame(['manager'], $payload['linkTypes']);
+    }
+
     public function testAllowedMenuLinkTypesExcludeCommercialLinks(): void
     {
         $service = new MenuConfigService($this->createStub(EntityManagerInterface::class));
