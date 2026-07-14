@@ -22,10 +22,9 @@ class FileService
 
   public function getFileUrl(People $people): ?array
   {
-    if ($people->getImage() instanceof File)
-      return $this->buildFileUrl($people->getImage());
+    $mediaType = $people->getPeopleType() === 'F' ? 'avatar' : 'logo';
 
-    return null;
+    return $this->getPeopleMediaFileUrl($people, $mediaType);
   }
 
   public function getPeopleMediaFileUrl(People $people, string $mediaType): ?array
