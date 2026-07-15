@@ -246,7 +246,7 @@ class TranslateService
                         $key,
                         $canPersistFallback
                     );
-                    if ($fallbackTranslation->getId() !== null) {
+                    if ($canPersistFallback) {
                         $createdTranslates[] = $fallbackTranslation;
                     }
                 }
@@ -515,7 +515,17 @@ class TranslateService
         return [
             'rowId' => $companyTranslation instanceof Translate
                 ? 'translate-' . $companyTranslation->getId()
-                : 'fallback-' . $fallbackTranslation?->getId(),
+                : 'fallback-' . (
+                    $fallbackTranslation?->getId()
+                    ?? implode('-', [
+                        $selectedCompany->getId(),
+                        $mainCompany->getId(),
+                        $language->getId(),
+                        $effectiveTranslation->getStore(),
+                        $effectiveTranslation->getType(),
+                        $effectiveTranslation->getKey(),
+                    ])
+                ),
             'translateId' => $companyTranslation?->getId(),
             'fallbackId' => $fallbackTranslation?->getId(),
             'language' => [
