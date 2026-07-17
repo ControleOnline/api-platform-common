@@ -26,7 +26,7 @@ class CronRunJobCommand extends Command
         $this->addArgument(
             'jobKey',
             InputArgument::REQUIRED,
-            'Chave do job cron configurado no banco.'
+            'Identificador do job cron configurado no banco.'
         );
     }
 
@@ -34,7 +34,7 @@ class CronRunJobCommand extends Command
     {
         $jobKey = trim((string) $input->getArgument('jobKey'));
         if ($jobKey === '') {
-            $output->writeln('<error>Job key nao informada.</error>');
+            $output->writeln('<error>Identificador do job nao informado.</error>');
 
             return Command::FAILURE;
         }
@@ -43,7 +43,7 @@ class CronRunJobCommand extends Command
         $status = (string) ($result['status'] ?? 'unknown');
 
         $output->writeln(sprintf(
-            '[app:cron:run-job] key=%s | status=%s',
+            '[app:cron:run-job] identifier=%s | status=%s',
             $jobKey,
             $status
         ));
