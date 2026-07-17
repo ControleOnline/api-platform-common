@@ -7,10 +7,13 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Lock\LockFactory;
 use ControleOnline\Service\DatabaseSwitchService;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\Attribute\Required;
+use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\EntityManagerInterface;
 
 
 abstract class DefaultCommand extends Command
@@ -22,6 +25,7 @@ abstract class DefaultCommand extends Command
     protected $databaseSwitchService;
     protected $loggerService;
     protected $skyNetService;
+    protected ?EntityManagerInterface $entityManager = null;
     protected MessageBusInterface $bus;
     protected EventDispatcherInterface $eventDispatcher;
 
@@ -32,6 +36,12 @@ abstract class DefaultCommand extends Command
         parent::__construct($name);
         $this->lock = $this->lockFactory->createLock($name);
         $this->addOption('domain', ['d'], InputOption::VALUE_OPTIONAL,  'Database domain identifier');
+    }
+
+    #[Required]
+    public function setEntityManager(EntityManagerInterface $entityManager): void
+    {
+        $this->entityManager = $entityManager;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -47,7 +57,7 @@ abstract class DefaultCommand extends Command
             if ($_ENV['MULTI_TENANCY'])
                 $this->databaseSwitchService->switchDatabaseByDomain($domain);
             $this->discoveryBotUser();
-            return $this->runCommand();
+            return $this->runTrackedCommand();
         }
 
         $domains = $this->databaseSwitchService->getAllDomains();
@@ -62,6 +72,59 @@ abstract class DefaultCommand extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    private function runTrackedCommand(): int
+    {
+        $status = 'success';
+
+        try {
+            $exitCode = $this->runCommand();
+            $status = $exitCode === Command::SUCCESS ? 'success' : 'failure';
+
+            return $exitCode;
+        } catch (\Throwable $exception) {
+            $status = 'failure';
+
+            throw $exception;
+        } finally {
+            $this->recordCronJobExecution($status);
+        }
+    }
+
+    private function recordCronJobExecution(string $status): void
+    {
+        if (!$this->entityManager) {
+            return;
+        }
+
+        $commandName = trim((string) $this->getName());
+        if ($commandName === '') {
+            return;
+        }
+
+        $normalizedStatus = strtolower(trim($status));
+        if (!in_array($normalizedStatus, ['success', 'failure'], true)) {
+            $normalizedStatus = 'failure';
+        }
+
+        try {
+            $this->entityManager->getConnection()->executeStatement(
+                'UPDATE cron_jobs SET last_execution_at = ?, last_status = ? WHERE command = ?',
+                [
+                    new \DateTimeImmutable(),
+                    $normalizedStatus,
+                    $commandName,
+                ],
+                [
+                    Types::DATETIME_IMMUTABLE,
+                    ParameterType::STRING,
+                    ParameterType::STRING,
+                ]
+            );
+        } catch (\Throwable) {
+            // Cron tracking must never fail the command itself.
+        }
     }
 
     public function addLog(string|iterable $messages, int $options = 0, ?string $logName = 'integration')
