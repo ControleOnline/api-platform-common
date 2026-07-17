@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace DoctrineMigrations\Common;
 
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
 
-final class Version20260717192000 extends AbstractMigration
+final class Version20260717192000 extends AbstractTenantAwareMigration
 {
-    private const MAIN_DOMAIN = 'api.controleonline.com';
     private const MENU_MODULE_NAME = 'ui-manager';
     private const MENU_CATEGORY_NAME = 'Configuracoes';
     private const MENU_ROUTE_NAME = 'CronJobsPage';
@@ -142,26 +140,5 @@ final class Version20260717192000 extends AbstractMigration
                 'menu_key' => self::MENU_KEY,
             ]
         );
-    }
-
-    private function getMainCompanyId(): int
-    {
-        $mainCompanyId = (int) $this->connection->fetchOne(
-            'SELECT people_id
-             FROM people_domain
-             WHERE domain = :domain
-             LIMIT 1',
-            [
-                'domain' => self::MAIN_DOMAIN,
-            ]
-        );
-
-        if ($mainCompanyId <= 0) {
-            throw new \RuntimeException(
-                sprintf('Main company for domain "%s" was not found.', self::MAIN_DOMAIN)
-            );
-        }
-
-        return $mainCompanyId;
     }
 }

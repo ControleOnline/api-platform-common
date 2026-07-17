@@ -43,6 +43,7 @@ abstract class DefaultCommand extends Command
 
         if ($domain) {
             $this->addLog(sprintf('Executando worker para o domínio: %s', $domain));
+            $this->setExecutionDomainContext((string) $domain);
             if ($_ENV['MULTI_TENANCY'])
                 $this->databaseSwitchService->switchDatabaseByDomain($domain);
             $this->discoveryBotUser();
@@ -53,6 +54,7 @@ abstract class DefaultCommand extends Command
 
         foreach ($domains as $domain) {
             $this->addLog(sprintf('Executando migrações para o domínio: %s', $domain));
+            $this->setExecutionDomainContext((string) $domain);
             if ($_ENV['MULTI_TENANCY'])
                 $this->databaseSwitchService->switchDatabaseByDomain($domain);
             $this->discoveryBotUser();
@@ -107,6 +109,20 @@ abstract class DefaultCommand extends Command
                 sprintf('Bot user discovery skipped: %s', $exception->getMessage())
             );
         }
+    }
+
+    private function setExecutionDomainContext(string $domain): void
+    {
+        $domain = trim($domain);
+
+        if ($domain === '') {
+            return;
+        }
+
+        $_ENV['APP_DOMAIN'] = $domain;
+        $_SERVER['APP_DOMAIN'] = $domain;
+        $_SERVER['HTTP_HOST'] = $domain;
+        putenv(sprintf('APP_DOMAIN=%s', $domain));
     }
 
     public function __destruct()

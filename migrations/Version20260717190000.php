@@ -5,12 +5,9 @@ declare(strict_types=1);
 namespace DoctrineMigrations\Common;
 
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
 
-final class Version20260717190000 extends AbstractMigration
+final class Version20260717190000 extends AbstractTenantAwareMigration
 {
-    private const MAIN_DOMAIN = 'api.controleonline.com';
-
     public function getDescription(): string
     {
         return 'Create the cron_jobs table and seed the main-company cron jobs.';
@@ -18,6 +15,8 @@ final class Version20260717190000 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
+        $executionDomain = $this->resolveExecutionDomain();
+
         $this->addSql('CREATE TABLE IF NOT EXISTS `cron_jobs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `people_id` int(11) NOT NULL,
@@ -38,7 +37,7 @@ final class Version20260717190000 extends AbstractMigration
 
         $peopleId = $this->getMainCompanyId();
 
-        foreach ($this->getCronJobsSeed() as $job) {
+        foreach ($this->getCronJobsSeed($executionDomain) as $job) {
             $this->addSql(
                 'INSERT INTO cron_jobs (
                     people_id,
@@ -87,27 +86,6 @@ final class Version20260717190000 extends AbstractMigration
         $this->addSql('DROP TABLE IF EXISTS `cron_jobs`');
     }
 
-    private function getMainCompanyId(): int
-    {
-        $mainCompanyId = (int) $this->connection->fetchOne(
-            'SELECT people_id
-             FROM people_domain
-             WHERE domain = :domain
-             LIMIT 1',
-            [
-                'domain' => self::MAIN_DOMAIN,
-            ]
-        );
-
-        if ($mainCompanyId <= 0) {
-            throw new \RuntimeException(
-                sprintf('Main company for domain "%s" was not found.', self::MAIN_DOMAIN)
-            );
-        }
-
-        return $mainCompanyId;
-    }
-
     /**
      * @return array<int, array{
      *     jobKey: string,
@@ -121,7 +99,7 @@ final class Version20260717190000 extends AbstractMigration
      *     sortOrder: int
      * }>
      */
-    private function getCronJobsSeed(): array
+    private function getCronJobsSeed(string $domain): array
     {
         return [
             [
@@ -132,7 +110,7 @@ final class Version20260717190000 extends AbstractMigration
                 'cronExpression' => '* * * * *',
                 'command' => 'websocket:start',
                 'arguments' => [
-                    '--domain=api.controleonline.com',
+                    '--domain=' . $domain,
                     '-p',
                     '8080',
                     '-b',
@@ -150,7 +128,7 @@ final class Version20260717190000 extends AbstractMigration
                 'command' => 'tenant:messenger:consume',
                 'arguments' => [
                     'async',
-                    '--domain=api.controleonline.com',
+                    '--domain=' . $domain,
                 ],
                 'background' => true,
                 'sortOrder' => 20,
@@ -163,7 +141,7 @@ final class Version20260717190000 extends AbstractMigration
                 'cronExpression' => '* * * * *',
                 'command' => 'tenant:integration:start',
                 'arguments' => [
-                    '--domain=api.controleonline.com',
+                    '--domain=' . $domain,
                 ],
                 'background' => true,
                 'sortOrder' => 30,
@@ -176,7 +154,7 @@ final class Version20260717190000 extends AbstractMigration
                 'cronExpression' => '* * * * *',
                 'command' => 'import:start',
                 'arguments' => [
-                    '--domain=api.controleonline.com',
+                    '--domain=' . $domain,
                 ],
                 'background' => true,
                 'sortOrder' => 40,
@@ -189,7 +167,7 @@ final class Version20260717190000 extends AbstractMigration
                 'cronExpression' => '* * * * *',
                 'command' => 'app:maintenance:run',
                 'arguments' => [
-                    '--domain=api.controleonline.com',
+                    '--domain=' . $domain,
                 ],
                 'background' => true,
                 'sortOrder' => 50,

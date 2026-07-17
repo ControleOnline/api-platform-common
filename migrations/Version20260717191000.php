@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace DoctrineMigrations\Common;
 
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
 
-final class Version20260717191000 extends AbstractMigration
+final class Version20260717191000 extends AbstractTenantAwareMigration
 {
-    private const MAIN_DOMAIN = 'api.controleonline.com';
     private const COMMON_MODULE_ID = 8;
 
     public function getDescription(): string
@@ -60,27 +58,6 @@ final class Version20260717191000 extends AbstractMigration
                 'config_key' => 'maintenance-routines',
             ]
         );
-    }
-
-    private function getMainCompanyId(): int
-    {
-        $mainCompanyId = (int) $this->connection->fetchOne(
-            'SELECT people_id
-             FROM people_domain
-             WHERE domain = :domain
-             LIMIT 1',
-            [
-                'domain' => self::MAIN_DOMAIN,
-            ]
-        );
-
-        if ($mainCompanyId <= 0) {
-            throw new \RuntimeException(
-                sprintf('Main company for domain "%s" was not found.', self::MAIN_DOMAIN)
-            );
-        }
-
-        return $mainCompanyId;
     }
 
     private function getMaintenanceRoutinesSeed(): array
