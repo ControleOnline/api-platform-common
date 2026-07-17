@@ -9,13 +9,11 @@ use ControleOnline\Service\SkyNetService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Lock\LockFactory;
-use Symfony\Component\Scheduler\Attribute\AsCronTask;
 
 #[AsCommand(
     name: 'app:maintenance:run',
     description: 'Executa as rotinas gerais de manutencao configuradas na empresa principal.',
 )]
-#[AsCronTask(expression: '* * * * *', schedule: 'maintenance')]
 class MaintenanceRunCommand extends DefaultCommand
 {
     public function __construct(
