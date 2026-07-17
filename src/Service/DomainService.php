@@ -48,7 +48,7 @@ class DomainService
             return $configuredDomain;
         }
 
-        return 'api.controleonline.com';
+        return '';
     }
 
     private function resolveRequestDomain(Request $request): ?string

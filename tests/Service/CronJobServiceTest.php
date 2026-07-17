@@ -13,6 +13,8 @@ class CronJobServiceTest extends TestCase
 {
     public function testNormalizesConfiguredJobsAndChecksValidity(): void
     {
+        $appDomain = $this->getConfiguredAppDomain();
+
         $service = new CronJobService(
             $this->createStub(CronJobRepository::class),
             $this->createStub(PeopleRoleService::class),
@@ -23,7 +25,7 @@ class CronJobServiceTest extends TestCase
                 'enabled' => '1',
                 'cronExpression' => '*/5 * * * *',
                 'command' => 'websocket:start',
-                'arguments' => '--domain=api.controleonline.com, -p | 8080',
+                'arguments' => '--domain=' . $appDomain . ', -p | 8080',
                 'background' => true,
                 'sortOrder' => 10,
             ],
@@ -37,7 +39,7 @@ class CronJobServiceTest extends TestCase
         self::assertTrue($normalized['websocket_start']['enabled']);
         self::assertSame('websocket:start', $normalized['websocket_start']['command']);
         self::assertSame(
-            ['--domain=api.controleonline.com', '-p', '8080'],
+            ['--domain=' . $appDomain, '-p', '8080'],
             $normalized['websocket_start']['arguments']
         );
         self::assertSame(10, $normalized['websocket_start']['sortOrder']);
@@ -47,6 +49,8 @@ class CronJobServiceTest extends TestCase
 
     public function testReturnsConfiguredJobsFromMainCompany(): void
     {
+        $appDomain = $this->getConfiguredAppDomain();
+
         $mainCompany = $this->createStub(People::class);
 
         $cronJob = $this->createCronJob(
@@ -56,7 +60,7 @@ class CronJobServiceTest extends TestCase
             true,
             '* * * * *',
             'app:maintenance:run',
-            ['--domain=api.controleonline.com'],
+            ['--domain=' . $appDomain],
             true,
             50
         );
@@ -83,8 +87,22 @@ class CronJobServiceTest extends TestCase
         self::assertSame('Manutencao', $jobs['maintenance_run']['title']);
         self::assertSame('app:maintenance:run', $jobs['maintenance_run']['command']);
         self::assertTrue($jobs['maintenance_run']['enabled']);
-        self::assertSame(['--domain=api.controleonline.com'], $jobs['maintenance_run']['arguments']);
+        self::assertSame(['--domain=' . $appDomain], $jobs['maintenance_run']['arguments']);
         self::assertSame(50, $jobs['maintenance_run']['sortOrder']);
+    }
+
+    private function getConfiguredAppDomain(): string
+    {
+        $domain = trim((string) (
+            $_ENV['APP_DOMAIN']
+                ?? $_SERVER['APP_DOMAIN']
+                ?? getenv('APP_DOMAIN')
+                ?? ''
+        ));
+
+        self::assertNotSame('', $domain, 'APP_DOMAIN must be configured for cron job tests.');
+
+        return $domain;
     }
 
     private function createCronJob(
