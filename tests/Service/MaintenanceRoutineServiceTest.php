@@ -50,6 +50,10 @@ class MaintenanceRoutineServiceTest extends TestCase
                 'enabled' => true,
                 'cronExpression' => '* * * * *',
             ],
+            MaintenanceRoutineService::ROUTINE_CLEANUP_EPHEMERAL_INTEGRATIONS => [
+                'enabled' => true,
+                'cronExpression' => '* * * * *',
+            ],
         ]);
 
         $peopleRoleService = $this->createMock(PeopleRoleService::class);
@@ -70,6 +74,10 @@ class MaintenanceRoutineServiceTest extends TestCase
         self::assertSame(
             MaintenanceRoutineService::ROUTINE_CLEANUP_LOGS,
             $dueRoutines[0]['key']
+        );
+        self::assertSame(
+            MaintenanceRoutineService::ROUTINE_CLEANUP_EPHEMERAL_INTEGRATIONS,
+            $dueRoutines[1]['key']
         );
     }
 

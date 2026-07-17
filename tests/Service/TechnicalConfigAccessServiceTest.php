@@ -15,13 +15,13 @@ class TechnicalConfigAccessServiceTest extends TestCase
 {
     public function testAllowsManagingTechnicalConfigOnlyOnMainCompany(): void
     {
-        $mainCompany = $this->createMock(People::class);
+        $mainCompany = $this->createStub(People::class);
         $mainCompany->method('getId')->willReturn(10);
 
-        $peopleRoleService = $this->createMock(PeopleRoleService::class);
+        $peopleRoleService = $this->createStub(PeopleRoleService::class);
         $peopleRoleService->method('getMainCompany')->willReturn($mainCompany);
 
-        $peopleService = $this->createMock(PeopleService::class);
+        $peopleService = $this->createStub(PeopleService::class);
         $peopleService->method('getMyPeople')->willReturn(null);
         $peopleService->method('getMyCompanies')->willReturn([$mainCompany]);
 
@@ -31,6 +31,10 @@ class TechnicalConfigAccessServiceTest extends TestCase
         );
 
         self::assertTrue($service->canAccessMainCompanyTechnicalSettings());
+        $service->assertCanManageConfig(
+            $mainCompany,
+            TechnicalConfigAccessService::GOOGLE_OAUTH_CLIENT_ID_KEY
+        );
         $service->assertCanManageConfig(
             $mainCompany,
             MaintenanceRoutineService::ROUTINES_CONFIG_KEY
@@ -43,16 +47,16 @@ class TechnicalConfigAccessServiceTest extends TestCase
 
     public function testBlocksTechnicalConfigOutsideMainCompany(): void
     {
-        $mainCompany = $this->createMock(People::class);
+        $mainCompany = $this->createStub(People::class);
         $mainCompany->method('getId')->willReturn(10);
 
-        $secondaryCompany = $this->createMock(People::class);
+        $secondaryCompany = $this->createStub(People::class);
         $secondaryCompany->method('getId')->willReturn(20);
 
-        $peopleRoleService = $this->createMock(PeopleRoleService::class);
+        $peopleRoleService = $this->createStub(PeopleRoleService::class);
         $peopleRoleService->method('getMainCompany')->willReturn($mainCompany);
 
-        $peopleService = $this->createMock(PeopleService::class);
+        $peopleService = $this->createStub(PeopleService::class);
         $peopleService->method('getMyPeople')->willReturn(null);
         $peopleService->method('getMyCompanies')->willReturn([$secondaryCompany]);
 

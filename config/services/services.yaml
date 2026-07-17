@@ -29,6 +29,7 @@ services:
     ControleOnline\Filter\:
         resource: '../../src/Filter'
         public: true
+
     _instanceof:
         ControleOnline\Service\Imports\ImportProcessorInterface:
             tags: ['app.import_processor']

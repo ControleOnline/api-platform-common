@@ -21,7 +21,7 @@
  * - Controllers customizados so entram quando a entidade e o fluxo padrao da API Platform realmente nao cobrirem o caso; para listagens internas, a prioridade e manter o comportamento no padrao de entidade/provider/normalizer.
  * - A politica global de logs e alertas de erro deve ficar centralizada em servicos compartilhados deste modulo, usando a empresa principal como dona da configuracao publica.
  * - Captura de excecao backend, persistencia em `log`, filtros de habilitacao e retencao nao devem ser implementados em varios pontos com regras duplicadas.
- * - O cron geral de manutencao e suas rotinas tecnicas devem usar o Scheduler do Symfony e ler a agenda a partir de configuracoes da empresa principal.
+ * - O cron geral de manutencao e suas rotinas tecnicas devem usar o Scheduler do Symfony e ler a agenda a partir da tabela `cron_jobs` da empresa principal.
  * - Chaves tecnicas de `config` como logs, rotinas e credenciais centrais devem ser filtradas no backend e nunca podem ser gravadas fora da `defaultCompany`.
  * - `config.config_key` e lido pelo frontend como chave unica da empresa. Quando existirem linhas duplicadas por `module_id`, salvar uma chave deve sincronizar todas as linhas daquela empresa/chave para evitar que uma leitura posterior recupere valor antigo.
  * - Valores de configuracao que representam listas devem substituir a lista inteira. Lista vazia significa limpar a configuracao anterior, nunca fazer merge com valores antigos.

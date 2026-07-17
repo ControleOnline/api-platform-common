@@ -24,15 +24,11 @@ class MaintenanceRoutineService
                 'key' => self::ROUTINE_CLEANUP_LOGS,
                 'title' => 'Limpeza de logs',
                 'description' => 'Remove logs expirados conforme a politica configurada.',
-                'defaultEnabled' => true,
-                'defaultCronExpression' => '* * * * *',
             ],
             self::ROUTINE_CLEANUP_EPHEMERAL_INTEGRATIONS => [
                 'key' => self::ROUTINE_CLEANUP_EPHEMERAL_INTEGRATIONS,
                 'title' => 'Limpeza de integracoes efemeras',
                 'description' => 'Remove Websocket e PushNotification abertos ha mais de 24 horas.',
-                'defaultEnabled' => true,
-                'defaultCronExpression' => '* * * * *',
             ],
         ];
     }
@@ -64,10 +60,7 @@ class MaintenanceRoutineService
                 ? $configured[$routineKey]
                 : [];
 
-            $cronExpression = trim((string) (
-                $configuredRoutine['cronExpression']
-                ?? $definition['defaultCronExpression']
-            ));
+            $cronExpression = trim((string) ($configuredRoutine['cronExpression'] ?? ''));
 
             $normalized[$routineKey] = [
                 'key' => $routineKey,
@@ -75,13 +68,9 @@ class MaintenanceRoutineService
                 'description' => $definition['description'],
                 'enabled' => array_key_exists('enabled', $configuredRoutine)
                     ? (bool) $configuredRoutine['enabled']
-                    : (bool) $definition['defaultEnabled'],
-                'cronExpression' => $cronExpression !== ''
-                    ? $cronExpression
-                    : $definition['defaultCronExpression'],
-                'isValid' => $this->isValidCronExpression($cronExpression !== ''
-                    ? $cronExpression
-                    : $definition['defaultCronExpression']),
+                    : false,
+                'cronExpression' => $cronExpression,
+                'isValid' => $this->isValidCronExpression($cronExpression),
             ];
         }
 
