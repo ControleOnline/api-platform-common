@@ -176,6 +176,98 @@ class TranslateService
         ];
     }
 
+    public function resolveFromPayload(array $payload): array
+    {
+        if ($payload === []) {
+            throw new BadRequestHttpException('Invalid JSON');
+        }
+
+        $selectedCompany = $this->resolvePeople($payload['people'] ?? null);
+        if (!$selectedCompany instanceof People) {
+            throw new BadRequestHttpException('People not found');
+        }
+        $this->assertCompanyAccess($selectedCompany);
+
+        $language = $this->resolveLanguage($payload['language'] ?? $payload['language.language'] ?? null);
+        if (!$language instanceof Language) {
+            throw new BadRequestHttpException('Language not found');
+        }
+
+        $mainCompany = $this->peopleRoleService->getMainCompany();
+        if (!$mainCompany instanceof People) {
+            throw new BadRequestHttpException('Main company not found');
+        }
+        $canPersistFallback = $this->hasCompanyAccess($mainCompany);
+
+        $requests = $this->normalizeResolveRequests($payload);
+        if ($requests === []) {
+            throw new BadRequestHttpException("Field 'requests' is required");
+        }
+
+        /** @var TranslateRepository $repository */
+        $repository = $this->manager->getRepository(Translate::class);
+
+        $resolvedItems = [];
+        $createdTranslates = [];
+
+        foreach ($requests as $request) {
+            $store = trim((string) ($request['store'] ?? ''));
+            $type = trim((string) ($request['type'] ?? ''));
+            $keys = $this->normalizeRequestedKeys($request['keys'] ?? $request['key'] ?? []);
+
+            if ($store === '' || $type === '' || $keys === []) {
+                continue;
+            }
+
+            $baseFilters = [
+                'store' => $store,
+                'type' => $type,
+                'keys' => $keys,
+            ];
+
+            $companyTranslations = $repository->findForOverview($selectedCompany, $language, $baseFilters);
+            $fallbackTranslations = $selectedCompany->getId() === $mainCompany->getId()
+                ? []
+                : $repository->findForOverview($mainCompany, $language, $baseFilters);
+
+            $companyByKey = $this->indexTranslationsByKey($companyTranslations);
+            $fallbackByKey = $this->indexTranslationsByKey($fallbackTranslations);
+
+            foreach ($keys as $key) {
+                $companyTranslation = $companyByKey[$key] ?? null;
+                $fallbackTranslation = $fallbackByKey[$key] ?? null;
+
+                if (!$companyTranslation instanceof Translate && !$fallbackTranslation instanceof Translate) {
+                    $fallbackTranslation = $this->createMissingFallbackTranslation(
+                        $mainCompany,
+                        $language,
+                        $store,
+                        $type,
+                        $key,
+                        $canPersistFallback
+                    );
+                    if ($canPersistFallback) {
+                        $createdTranslates[] = $fallbackTranslation;
+                    }
+                }
+
+                $resolvedItems[] = $this->formatOverviewItem(
+                    $companyTranslation instanceof Translate ? $companyTranslation : null,
+                    $fallbackTranslation instanceof Translate ? $fallbackTranslation : null,
+                    $selectedCompany,
+                    $mainCompany,
+                    $language
+                );
+            }
+        }
+
+        if ($createdTranslates !== []) {
+            $this->manager->flush();
+        }
+
+        return $resolvedItems;
+    }
+
     private function decodePayload(?string $content): array
     {
         if (!is_string($content) || trim($content) === '') {
@@ -223,6 +315,135 @@ class TranslateService
         return $value;
     }
 
+    private function normalizeResolveRequests(array $payload): array
+    {
+        $requests = $payload['requests'] ?? null;
+        if (is_array($requests) && array_is_list($requests)) {
+            return array_values(array_filter($requests, static fn (mixed $request) => is_array($request)));
+        }
+
+        if (!isset($payload['store']) && !isset($payload['type']) && !isset($payload['keys']) && !isset($payload['key'])) {
+            return [];
+        }
+
+        return [[
+            'store' => $payload['store'] ?? null,
+            'type' => $payload['type'] ?? null,
+            'keys' => $payload['keys'] ?? $payload['key'] ?? null,
+        ]];
+    }
+
+    private function normalizeRequestedKeys(mixed $keys): array
+    {
+        if (is_string($keys)) {
+            $keys = [$keys];
+        }
+
+        if (!is_array($keys)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($keys as $key) {
+            $value = trim((string) $key);
+            if ($value === '' || in_array($value, $normalized, true)) {
+                continue;
+            }
+
+            $normalized[] = $value;
+        }
+
+        return $normalized;
+    }
+
+    private function indexTranslationsByKey(array $translations): array
+    {
+        $indexed = [];
+
+        foreach ($translations as $translation) {
+            if (!$translation instanceof Translate) {
+                continue;
+            }
+
+            $indexed[$translation->getKey()] = $translation;
+        }
+
+        return $indexed;
+    }
+
+    private function createMissingFallbackTranslation(
+        People $mainCompany,
+        Language $language,
+        string $store,
+        string $type,
+        string $key,
+        bool $persist = true
+    ): Translate {
+        /** @var TranslateRepository $repository */
+        $repository = $this->manager->getRepository(Translate::class);
+        $existing = $repository->findOneBy([
+            'people' => $mainCompany,
+            'language' => $language,
+            'store' => $store,
+            'type' => $type,
+            'key' => $key,
+        ]);
+
+        if ($existing instanceof Translate) {
+            return $existing;
+        }
+
+        $translate = new Translate();
+        $translate->setPeople($mainCompany);
+        $translate->setLanguage($language);
+        $translate->setStore($store);
+        $translate->setType($type);
+        $translate->setKey($key);
+        $translate->setTranslate($this->formatMessage($key));
+        $translate->setRevised(false);
+
+        if ($persist) {
+            $this->manager->persist($translate);
+        }
+
+        return $translate;
+    }
+
+    private function hasCompanyAccess(People $company): bool
+    {
+        $token = $this->security->getToken();
+        $user = $token?->getUser();
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        $userPeople = $user->getPeople();
+        if ($userPeople->getId() === $company->getId()) {
+            return true;
+        }
+
+        $link = $this->manager->getRepository(People::class)->getCompanyPeopleLinks(
+            $company,
+            $userPeople,
+            null,
+            1
+        );
+
+        return $link !== null;
+    }
+
+    private function formatMessage(string $key): string
+    {
+        if (trim($key) === '') {
+            return '';
+        }
+
+        $message = preg_replace('/([a-z])([A-Z])/u', '$1 $2', $key);
+        $message = str_replace(['_', '-'], ' ', $message);
+
+        return mb_convert_case(trim((string) $message), MB_CASE_TITLE, 'UTF-8');
+    }
+
     private function resolveNullableBoolean(mixed $value): ?bool
     {
         if ($value === null || $value === '') {
@@ -261,25 +482,7 @@ class TranslateService
 
     private function assertCompanyAccess(People $company): void
     {
-        $token = $this->security->getToken();
-        $user = $token?->getUser();
-        if (!$user instanceof User) {
-            throw new AccessDeniedHttpException('Access denied');
-        }
-
-        $userPeople = $user->getPeople();
-        if ($userPeople->getId() === $company->getId()) {
-            return;
-        }
-
-        $link = $this->manager->getRepository(People::class)->getCompanyPeopleLinks(
-            $company,
-            $userPeople,
-            null,
-            1
-        );
-
-        if ($link === null) {
+        if (!$this->hasCompanyAccess($company)) {
             throw new AccessDeniedHttpException('Access denied for company');
         }
     }
@@ -312,7 +515,17 @@ class TranslateService
         return [
             'rowId' => $companyTranslation instanceof Translate
                 ? 'translate-' . $companyTranslation->getId()
-                : 'fallback-' . $fallbackTranslation?->getId(),
+                : 'fallback-' . (
+                    $fallbackTranslation?->getId()
+                    ?? implode('-', [
+                        $selectedCompany->getId(),
+                        $mainCompany->getId(),
+                        $language->getId(),
+                        $effectiveTranslation->getStore(),
+                        $effectiveTranslation->getType(),
+                        $effectiveTranslation->getKey(),
+                    ])
+                ),
             'translateId' => $companyTranslation?->getId(),
             'fallbackId' => $fallbackTranslation?->getId(),
             'language' => [

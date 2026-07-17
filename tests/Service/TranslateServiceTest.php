@@ -226,6 +226,314 @@ class TranslateServiceTest extends TestCase
         self::assertSame(55, $result->getId());
     }
 
+    public function testResolveFromPayloadUsesCompanyFallbackAndCreatesMissingDefaultTranslation(): void
+    {
+        $selectedCompany = new People();
+        $selectedCompany->setName('Empresa selecionada');
+        $selectedCompany->setAlias('Empresa selecionada');
+        $selectedCompany->setPeopleType('J');
+        $this->setEntityId($selectedCompany, 5);
+
+        $mainCompany = new People();
+        $mainCompany->setName('Empresa principal');
+        $mainCompany->setAlias('Empresa principal');
+        $mainCompany->setPeopleType('J');
+        $this->setEntityId($mainCompany, 1);
+
+        $language = new Language();
+        $language->setLanguage('pt-br');
+        $language->setLocked(false);
+        $this->setEntityId($language, 1);
+
+        $user = new User();
+        $user->setPeople($selectedCompany);
+        $user->setUsername('tester@example.com');
+
+        $token = $this->createMock(TokenInterface::class);
+        $token
+            ->method('getUser')
+            ->willReturn($user);
+
+        $security = $this->createMock(TokenStorageInterface::class);
+        $security
+            ->method('getToken')
+            ->willReturn($token);
+
+        $peopleRepository = $this->createMock(PeopleRepository::class);
+        $peopleRepository
+            ->method('find')
+            ->willReturnCallback(static function (string $id) use ($selectedCompany, $mainCompany) {
+                return match ($id) {
+                    '5' => $selectedCompany,
+                    '1' => $mainCompany,
+                    default => null,
+                };
+            });
+        $peopleRepository
+            ->method('getCompanyPeopleLinks')
+            ->willReturn(new \stdClass());
+
+        $languageRepository = $this->createMock(LanguageRepository::class);
+        $languageRepository
+            ->method('find')
+            ->with('1')
+            ->willReturn($language);
+
+        $companySaveTranslation = new Translate();
+        $companySaveTranslation->setPeople($selectedCompany);
+        $companySaveTranslation->setLanguage($language);
+        $companySaveTranslation->setStore('menu');
+        $companySaveTranslation->setType('label');
+        $companySaveTranslation->setKey('save');
+        $companySaveTranslation->setTranslate('Salvar empresa');
+        $companySaveTranslation->setRevised(true);
+        $this->setEntityId($companySaveTranslation, 11);
+
+        $mainCancelTranslation = new Translate();
+        $mainCancelTranslation->setPeople($mainCompany);
+        $mainCancelTranslation->setLanguage($language);
+        $mainCancelTranslation->setStore('menu');
+        $mainCancelTranslation->setType('label');
+        $mainCancelTranslation->setKey('cancel');
+        $mainCancelTranslation->setTranslate('Cancelar');
+        $mainCancelTranslation->setRevised(true);
+        $this->setEntityId($mainCancelTranslation, 22);
+
+        $translateRepository = $this->createMock(TranslateRepository::class);
+        $translateRepository
+            ->method('findForOverview')
+            ->willReturnCallback(static function (
+                People $people,
+                Language $requestedLanguage,
+                array $filters
+            ) use ($selectedCompany, $mainCompany, $companySaveTranslation, $mainCancelTranslation): array {
+                self::assertSame('pt-br', $requestedLanguage->getLanguage());
+                self::assertSame('menu', $filters['store']);
+                self::assertSame('label', $filters['type']);
+                self::assertSame(['save', 'cancel', 'delete'], $filters['keys']);
+
+                return match ($people->getId()) {
+                    5 => [$companySaveTranslation],
+                    1 => [$mainCancelTranslation],
+                    default => [],
+                };
+            });
+        $translateRepository
+            ->method('findOneBy')
+            ->willReturn(null);
+
+        $persistedTranslations = [];
+        $manager = $this->createMock(EntityManagerInterface::class);
+        $manager
+            ->method('getRepository')
+            ->willReturnCallback(static function (string $class) use (
+                $peopleRepository,
+                $languageRepository,
+                $translateRepository
+            ) {
+                return match ($class) {
+                    People::class => $peopleRepository,
+                    Language::class => $languageRepository,
+                    Translate::class => $translateRepository,
+                    default => throw new \RuntimeException('Unexpected repository: ' . $class),
+                };
+            });
+        $manager
+            ->expects(self::once())
+            ->method('persist')
+            ->with(self::callback(static function ($entity) use (&$persistedTranslations) {
+                self::assertInstanceOf(Translate::class, $entity);
+                $persistedTranslations[] = $entity;
+
+                return true;
+            }));
+        $manager
+            ->expects(self::once())
+            ->method('flush');
+
+        $peopleRoleService = $this->createMock(PeopleRoleService::class);
+        $peopleRoleService
+            ->method('getMainCompany')
+            ->willReturn($mainCompany);
+
+        $service = new TranslateService($manager, $security, $peopleRoleService);
+
+        $result = $service->resolveFromPayload([
+            'people' => '/people/5',
+            'language' => '/languages/1',
+            'requests' => [
+                [
+                    'store' => 'menu',
+                    'type' => 'label',
+                    'keys' => ['save', 'cancel', 'delete'],
+                ],
+            ],
+        ]);
+
+        self::assertCount(3, $result);
+        self::assertSame('save', $result[0]['key']);
+        self::assertSame('Salvar empresa', $result[0]['translate']);
+        self::assertSame('company', $result[0]['source']);
+        self::assertSame('cancel', $result[1]['key']);
+        self::assertSame('Cancelar', $result[1]['translate']);
+        self::assertSame('main_company', $result[1]['source']);
+        self::assertSame('delete', $result[2]['key']);
+        self::assertSame('Delete', $result[2]['translate']);
+        self::assertSame('main_company', $result[2]['source']);
+        self::assertCount(1, $persistedTranslations);
+        self::assertSame('delete', $persistedTranslations[0]->getKey());
+        self::assertSame('Delete', $persistedTranslations[0]->getTranslate());
+        self::assertFalse($persistedTranslations[0]->isRevised());
+    }
+
+    public function testResolveFromPayloadReadsMainCompanyFallbackWithoutPersistingWhenUserCannotWriteDefaultCompany(): void
+    {
+        $selectedCompany = new People();
+        $selectedCompany->setName('Empresa selecionada');
+        $selectedCompany->setAlias('Empresa selecionada');
+        $selectedCompany->setPeopleType('J');
+        $this->setEntityId($selectedCompany, 5);
+
+        $mainCompany = new People();
+        $mainCompany->setName('Empresa principal');
+        $mainCompany->setAlias('Empresa principal');
+        $mainCompany->setPeopleType('J');
+        $this->setEntityId($mainCompany, 1);
+
+        $language = new Language();
+        $language->setLanguage('pt-br');
+        $language->setLocked(false);
+        $this->setEntityId($language, 1);
+
+        $user = new User();
+        $user->setPeople($selectedCompany);
+        $user->setUsername('tester@example.com');
+
+        $token = $this->createMock(TokenInterface::class);
+        $token
+            ->method('getUser')
+            ->willReturn($user);
+
+        $security = $this->createMock(TokenStorageInterface::class);
+        $security
+            ->method('getToken')
+            ->willReturn($token);
+
+        $peopleRepository = $this->createMock(PeopleRepository::class);
+        $peopleRepository
+            ->method('find')
+            ->willReturnCallback(static function (string $id) use ($selectedCompany, $mainCompany) {
+                return match ($id) {
+                    '5' => $selectedCompany,
+                    '1' => $mainCompany,
+                    default => null,
+                };
+            });
+        $peopleRepository
+            ->method('getCompanyPeopleLinks')
+            ->willReturnCallback(static function (
+                People $company,
+                People $userPeople,
+                mixed $linkType = null,
+                mixed $active = null
+            ) use ($selectedCompany) {
+                return $company->getId() === $selectedCompany->getId()
+                    ? new \stdClass()
+                    : null;
+            });
+
+        $languageRepository = $this->createMock(LanguageRepository::class);
+        $languageRepository
+            ->method('find')
+            ->with('1')
+            ->willReturn($language);
+
+        $mainCancelTranslation = new Translate();
+        $mainCancelTranslation->setPeople($mainCompany);
+        $mainCancelTranslation->setLanguage($language);
+        $mainCancelTranslation->setStore('menu');
+        $mainCancelTranslation->setType('label');
+        $mainCancelTranslation->setKey('cancel');
+        $mainCancelTranslation->setTranslate('Cancelar');
+        $mainCancelTranslation->setRevised(true);
+        $this->setEntityId($mainCancelTranslation, 22);
+
+        $translateRepository = $this->createMock(TranslateRepository::class);
+        $translateRepository
+            ->method('findForOverview')
+            ->willReturnCallback(static function (
+                People $people,
+                Language $requestedLanguage,
+                array $filters
+            ) use ($selectedCompany, $mainCompany, $mainCancelTranslation): array {
+                self::assertSame('pt-br', $requestedLanguage->getLanguage());
+                self::assertSame('menu', $filters['store']);
+                self::assertSame('label', $filters['type']);
+                self::assertSame(['save', 'cancel', 'delete'], $filters['keys']);
+
+                return match ($people->getId()) {
+                    5 => [],
+                    1 => [$mainCancelTranslation],
+                    default => [],
+                };
+            });
+        $translateRepository
+            ->method('findOneBy')
+            ->willReturn(null);
+
+        $manager = $this->createMock(EntityManagerInterface::class);
+        $manager
+            ->method('getRepository')
+            ->willReturnCallback(static function (string $class) use (
+                $peopleRepository,
+                $languageRepository,
+                $translateRepository
+            ) {
+                return match ($class) {
+                    People::class => $peopleRepository,
+                    Language::class => $languageRepository,
+                    Translate::class => $translateRepository,
+                    default => throw new \RuntimeException('Unexpected repository: ' . $class),
+                };
+            });
+        $manager
+            ->expects(self::never())
+            ->method('persist');
+        $manager
+            ->expects(self::never())
+            ->method('flush');
+
+        $peopleRoleService = $this->createMock(PeopleRoleService::class);
+        $peopleRoleService
+            ->method('getMainCompany')
+            ->willReturn($mainCompany);
+
+        $service = new TranslateService($manager, $security, $peopleRoleService);
+
+        $result = $service->resolveFromPayload([
+            'people' => '/people/5',
+            'language' => '/languages/1',
+            'requests' => [
+                [
+                    'store' => 'menu',
+                    'type' => 'label',
+                    'keys' => ['save', 'cancel', 'delete'],
+                ],
+            ],
+        ]);
+
+        self::assertCount(3, $result);
+        self::assertSame('save', $result[0]['key']);
+        self::assertSame('Save', $result[0]['translate']);
+        self::assertSame('main_company', $result[0]['source']);
+        self::assertSame('cancel', $result[1]['key']);
+        self::assertSame('Cancelar', $result[1]['translate']);
+        self::assertSame('main_company', $result[1]['source']);
+        self::assertSame('delete', $result[2]['key']);
+        self::assertSame('Delete', $result[2]['translate']);
+        self::assertSame('main_company', $result[2]['source']);
+    }
+
     /**
      * @return array{0: TranslateService, 1: EntityManagerInterface, 2: ?Translate}
      */

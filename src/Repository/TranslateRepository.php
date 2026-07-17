@@ -47,6 +47,22 @@ class TranslateRepository extends ServiceEntityRepository
                 ->setParameter('type', $filters['type']);
         }
 
+        if (!empty($filters['keys']) && is_array($filters['keys'])) {
+            $keys = array_values(array_filter(
+                array_map(
+                    static fn (mixed $key) => trim((string) $key),
+                    $filters['keys']
+                ),
+                static fn (string $key) => $key !== ''
+            ));
+
+            if ($keys !== []) {
+                $queryBuilder
+                    ->andWhere('translate.key IN (:keys)')
+                    ->setParameter('keys', $keys);
+            }
+        }
+
         return $queryBuilder->getQuery()->getResult();
     }
 }
