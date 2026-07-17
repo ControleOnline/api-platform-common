@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations\Common;
 
+use ControleOnline\Migration\TenantAwareMigration;
 use Doctrine\DBAL\Schema\Schema;
 
-final class Version20260717190000 extends AbstractTenantAwareMigration
+final class Version20260717190000 extends TenantAwareMigration
 {
     public function getDescription(): string
     {

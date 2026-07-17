@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations\Common;
 
+use ControleOnline\Migration\TenantAwareMigration;
 use Doctrine\DBAL\Schema\Schema;
 
-final class Version20260717191000 extends AbstractTenantAwareMigration
+final class Version20260717191000 extends TenantAwareMigration
 {
     private const COMMON_MODULE_ID = 8;
 
