@@ -25,7 +25,7 @@ abstract class DefaultCommand extends Command
     protected $databaseSwitchService;
     protected $loggerService;
     protected $skyNetService;
-    protected ?EntityManagerInterface $entityManager = null;
+    protected ?EntityManagerInterface $cronTrackingEntityManager = null;
     protected MessageBusInterface $bus;
     protected EventDispatcherInterface $eventDispatcher;
 
@@ -39,9 +39,9 @@ abstract class DefaultCommand extends Command
     }
 
     #[Required]
-    public function setEntityManager(EntityManagerInterface $entityManager): void
+    public function setCronTrackingEntityManager(EntityManagerInterface $entityManager): void
     {
-        $this->entityManager = $entityManager;
+        $this->cronTrackingEntityManager = $entityManager;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -94,7 +94,7 @@ abstract class DefaultCommand extends Command
 
     private function recordCronJobExecution(string $status): void
     {
-        if (!$this->entityManager) {
+        if (!$this->cronTrackingEntityManager) {
             return;
         }
 
@@ -109,7 +109,7 @@ abstract class DefaultCommand extends Command
         }
 
         try {
-            $this->entityManager->getConnection()->executeStatement(
+            $this->cronTrackingEntityManager->getConnection()->executeStatement(
                 'UPDATE cron_jobs SET last_execution_at = ?, last_status = ? WHERE command = ?',
                 [
                     new \DateTimeImmutable(),
