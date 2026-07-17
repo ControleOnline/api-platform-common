@@ -25,21 +25,8 @@ class CronJobRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('cron_job')
             ->andWhere('cron_job.people = :people')
             ->setParameter('people', $people)
-            ->orderBy('cron_job.sortOrder', 'ASC')
-            ->addOrderBy('cron_job.jobKey', 'ASC')
+            ->orderBy('cron_job.id', 'ASC')
             ->getQuery()
             ->getResult();
-    }
-
-    public function findMainCompanyJob(People $people, string $jobKey): ?CronJob
-    {
-        return $this->createQueryBuilder('cron_job')
-            ->andWhere('cron_job.people = :people')
-            ->andWhere('cron_job.jobKey = :jobKey')
-            ->setParameter('people', $people)
-            ->setParameter('jobKey', trim($jobKey))
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
     }
 }

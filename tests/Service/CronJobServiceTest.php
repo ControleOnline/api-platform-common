@@ -13,6 +13,8 @@ class CronJobServiceTest extends TestCase
 {
     public function testNormalizesConfiguredJobsAndChecksValidity(): void
     {
+        $appDomain = $this->getConfiguredAppDomain();
+
         $service = new CronJobService(
             $this->createStub(CronJobRepository::class),
             $this->createStub(PeopleRoleService::class),
@@ -23,9 +25,7 @@ class CronJobServiceTest extends TestCase
                 'enabled' => '1',
                 'cronExpression' => '*/5 * * * *',
                 'command' => 'websocket:start',
-                'arguments' => '--domain=api.controleonline.com, -p | 8080',
-                'background' => true,
-                'sortOrder' => 10,
+                'arguments' => '--domain=' . $appDomain . ', -p | 8080',
             ],
             'invalid_job' => [
                 'enabled' => false,
@@ -37,7 +37,7 @@ class CronJobServiceTest extends TestCase
         self::assertTrue($normalized['websocket_start']['enabled']);
         self::assertSame('websocket:start', $normalized['websocket_start']['command']);
         self::assertSame(
-            ['--domain=api.controleonline.com', '-p', '8080'],
+            ['--domain=' . $appDomain, '-p', '8080'],
             $normalized['websocket_start']['arguments']
         );
         self::assertSame(10, $normalized['websocket_start']['sortOrder']);
@@ -47,18 +47,18 @@ class CronJobServiceTest extends TestCase
 
     public function testReturnsConfiguredJobsFromMainCompany(): void
     {
+        $appDomain = $this->getConfiguredAppDomain();
+
         $mainCompany = $this->createStub(People::class);
 
         $cronJob = $this->createCronJob(
-            'maintenance_run',
             'Manutencao',
             'Executa as rotinas de manutencao da empresa principal.',
             true,
             '* * * * *',
             'app:maintenance:run',
-            ['--domain=api.controleonline.com'],
-            true,
-            50
+            ['--domain=' . $appDomain],
+            42
         );
         $cronJob->setPeople($mainCompany);
 
@@ -79,36 +79,50 @@ class CronJobServiceTest extends TestCase
 
         $jobs = $service->getConfiguredJobs();
 
-        self::assertArrayHasKey('maintenance_run', $jobs);
-        self::assertSame('Manutencao', $jobs['maintenance_run']['title']);
-        self::assertSame('app:maintenance:run', $jobs['maintenance_run']['command']);
-        self::assertTrue($jobs['maintenance_run']['enabled']);
-        self::assertSame(['--domain=api.controleonline.com'], $jobs['maintenance_run']['arguments']);
-        self::assertSame(50, $jobs['maintenance_run']['sortOrder']);
+        self::assertArrayHasKey(42, $jobs);
+        self::assertSame('Manutencao', $jobs[42]['title']);
+        self::assertSame('app:maintenance:run', $jobs[42]['command']);
+        self::assertTrue($jobs[42]['enabled']);
+        self::assertSame(['--domain=' . $appDomain], $jobs[42]['arguments']);
+    }
+
+    private function getConfiguredAppDomain(): string
+    {
+        $domain = trim((string) (
+            $_ENV['APP_DOMAIN']
+                ?? $_SERVER['APP_DOMAIN']
+                ?? getenv('APP_DOMAIN')
+                ?? ''
+        ));
+
+        self::assertNotSame('', $domain, 'APP_DOMAIN must be configured for cron job tests.');
+
+        return $domain;
     }
 
     private function createCronJob(
-        string $jobKey,
         string $title,
         string $description,
         bool $enabled,
         string $cronExpression,
         string $command,
         array $arguments,
-        bool $background,
-        int $sortOrder
+        int $id = 0
     ): CronJob {
         $cronJob = new CronJob();
         $cronJob
-            ->setJobKey($jobKey)
             ->setTitle($title)
             ->setDescription($description)
             ->setEnabled($enabled)
             ->setCronExpression($cronExpression)
             ->setCommand($command)
-            ->setArguments($arguments)
-            ->setBackground($background)
-            ->setSortOrder($sortOrder);
+            ->setArguments($arguments);
+
+        if ($id > 0) {
+            $reflectionProperty = new \ReflectionProperty(CronJob::class, 'id');
+            $reflectionProperty->setAccessible(true);
+            $reflectionProperty->setValue($cronJob, $id);
+        }
 
         return $cronJob;
     }

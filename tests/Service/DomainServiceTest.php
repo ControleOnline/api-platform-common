@@ -62,6 +62,47 @@ class DomainServiceTest extends TestCase
         self::assertSame('admin.controleonline.com', $service->getDomain());
     }
 
+    public function testGetDomainUsesConfiguredAppDomainWhenThereIsNoRequest(): void
+    {
+        $previousAppDomainEnv = $_ENV['APP_DOMAIN'] ?? null;
+        $previousAppDomainServer = $_SERVER['APP_DOMAIN'] ?? null;
+        $previousHttpHost = $_SERVER['HTTP_HOST'] ?? null;
+
+        try {
+            $_ENV['APP_DOMAIN'] = 'staging.controleonline.com';
+            $_SERVER['APP_DOMAIN'] = 'staging.controleonline.com';
+            $_SERVER['HTTP_HOST'] = 'staging.controleonline.com';
+            putenv('APP_DOMAIN=staging.controleonline.com');
+
+            $service = new DomainService(
+                $this->createStub(EntityManagerInterface::class),
+                new RequestStack(),
+            );
+
+            self::assertSame('staging.controleonline.com', $service->getDomain());
+        } finally {
+            if ($previousAppDomainEnv !== null) {
+                $_ENV['APP_DOMAIN'] = $previousAppDomainEnv;
+            } else {
+                unset($_ENV['APP_DOMAIN']);
+            }
+
+            if ($previousAppDomainServer !== null) {
+                $_SERVER['APP_DOMAIN'] = $previousAppDomainServer;
+            } else {
+                unset($_SERVER['APP_DOMAIN']);
+            }
+
+            if ($previousHttpHost !== null) {
+                $_SERVER['HTTP_HOST'] = $previousHttpHost;
+            } else {
+                unset($_SERVER['HTTP_HOST']);
+            }
+
+            putenv('APP_DOMAIN');
+        }
+    }
+
     public function testGetPeopleDomainRefreshesWhenTheDomainChanges(): void
     {
         $requestStack = new RequestStack();

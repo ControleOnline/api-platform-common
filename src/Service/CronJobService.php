@@ -26,12 +26,22 @@ class CronJobService
         );
     }
 
-    public function getConfiguredJob(string $jobKey): ?array
+    public function getConfiguredJob(string $jobIdentifier): ?array
     {
-        $normalizedKey = $this->normalizeJobKey($jobKey);
+        $normalizedIdentifier = $this->normalizeJobIdentifier($jobIdentifier);
         $jobs = $this->getConfiguredJobs();
 
-        return $jobs[$normalizedKey] ?? null;
+        if ($normalizedIdentifier !== '' && array_key_exists($normalizedIdentifier, $jobs)) {
+            return $jobs[$normalizedIdentifier];
+        }
+
+        foreach ($jobs as $job) {
+            if ($this->normalizeJobIdentifier((string) ($job['command'] ?? '')) === $normalizedIdentifier) {
+                return $job;
+            }
+        }
+
+        return null;
     }
 
     public function normalizeConfiguredJobs(mixed $value): array
@@ -61,20 +71,22 @@ class CronJobService
     private function normalizeConfiguredJob(mixed $jobKey, mixed $definition): ?array
     {
         if ($definition instanceof CronJob) {
-            $jobKey = $definition->getJobKey();
             $cronExpression = trim((string) $definition->getCronExpression());
+            $jobIdentifier = $this->resolveJobIdentifier(
+                $definition->getId(),
+                $definition->getCommand(),
+                ''
+            );
 
             return $this->buildNormalizedJob([
                 'id' => $definition->getId(),
-                'key' => $jobKey,
+                'key' => $jobIdentifier,
                 'title' => $definition->getTitle(),
                 'description' => $definition->getDescription(),
                 'enabled' => $definition->isEnabled(),
                 'cronExpression' => $cronExpression,
                 'command' => $definition->getCommand(),
                 'arguments' => $definition->getArguments(),
-                'background' => $definition->isBackground(),
-                'sortOrder' => $definition->getSortOrder(),
             ]);
         }
 
@@ -82,7 +94,11 @@ class CronJobService
             return null;
         }
 
-        $normalizedKey = $this->normalizeJobKey((string) ($definition['key'] ?? $definition['jobKey'] ?? $jobKey));
+        $normalizedKey = $this->resolveJobIdentifier(
+            $definition['id'] ?? null,
+            (string) ($definition['command'] ?? ''),
+            (string) ($definition['key'] ?? $definition['jobKey'] ?? $jobKey)
+        );
         if ($normalizedKey === '') {
             return null;
         }
@@ -96,14 +112,12 @@ class CronJobService
             'cronExpression' => $definition['cronExpression'] ?? '',
             'command' => $definition['command'] ?? '',
             'arguments' => $definition['arguments'] ?? [],
-            'background' => $definition['background'] ?? false,
-            'sortOrder' => $definition['sortOrder'] ?? 0,
         ]);
     }
 
     private function buildNormalizedJob(array $definition): ?array
     {
-        $normalizedKey = $this->normalizeJobKey((string) ($definition['key'] ?? ''));
+        $normalizedKey = $this->normalizeJobIdentifier((string) ($definition['key'] ?? ''));
         if ($normalizedKey === '') {
             return null;
         }
@@ -119,8 +133,6 @@ class CronJobService
             'cronExpression' => $cronExpression,
             'command' => trim((string) ($definition['command'] ?? '')),
             'arguments' => $this->normalizeArguments($definition['arguments'] ?? []),
-            'background' => $this->normalizeBoolean($definition['background'] ?? false),
-            'sortOrder' => (int) ($definition['sortOrder'] ?? 0),
             'isValid' => $this->isValidCronExpression($cronExpression),
         ];
     }
@@ -141,9 +153,34 @@ class CronJobService
         }
     }
 
-    private function normalizeJobKey(string $jobKey): string
+    private function resolveJobIdentifier(mixed $id, string $command = '', string $fallback = ''): string
     {
-        return trim($jobKey);
+        $normalizedId = filter_var($id, FILTER_VALIDATE_INT, [
+            'options' => [
+                'min_range' => 1,
+            ],
+        ]);
+
+        if (is_int($normalizedId) && $normalizedId > 0) {
+            return (string) $normalizedId;
+        }
+
+        $normalizedFallback = trim($fallback);
+        if ($normalizedFallback !== '') {
+            return $normalizedFallback;
+        }
+
+        $normalizedCommand = trim($command);
+        if ($normalizedCommand !== '') {
+            return $normalizedCommand;
+        }
+
+        return '';
+    }
+
+    private function normalizeJobIdentifier(string $jobIdentifier): string
+    {
+        return trim($jobIdentifier);
     }
 
     private function normalizeBoolean(mixed $value, bool $default = false): bool

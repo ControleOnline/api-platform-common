@@ -2,6 +2,7 @@
 
 namespace ControleOnline\Service;
 
+use ControleOnline\Entity\CronJob;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Process\Process;
 
@@ -63,17 +64,23 @@ class CronJobRunnerService
         );
         $process->setTimeout(null);
 
-        if ($this->isBackgroundJob($job)) {
+        try {
             $process->disableOutput();
             $process->setOptions(['create_new_console' => true]);
             $process->start();
 
-            $this->logInfo(sprintf(
-                '[cron:%s] started | pid=%s | command=%s',
-                $jobKey,
-                (string) ($process->getPid() ?? ''),
-                $process->getCommandLine()
-            ));
+            $this->logInfo(
+                sprintf(
+                    '[cron:%s] started | pid=%s | command=%s',
+                    (string) ($job['id'] ?? $jobKey),
+                    (string) ($process->getPid() ?? ''),
+                    $process->getCommandLine()
+                ),
+                $this->buildLogContext($job, [
+                    'pid' => $process->getPid(),
+                    'commandLine' => $process->getCommandLine(),
+                ])
+            );
 
             return [
                 'key' => $jobKey,
@@ -83,31 +90,17 @@ class CronJobRunnerService
                     'commandLine' => $process->getCommandLine(),
                 ],
             ];
-        }
-
-        try {
-            $process->mustRun();
-
-            $this->logInfo(sprintf(
-                '[cron:%s] completed | exitCode=%d',
-                $jobKey,
-                (int) ($process->getExitCode() ?? 0)
-            ));
-
-            return [
-                'key' => $jobKey,
-                'status' => 'success',
-                'summary' => [
-                    'exitCode' => $process->getExitCode(),
-                    'output' => $process->getOutput(),
-                ],
-            ];
         } catch (\Throwable $exception) {
-            $this->logError(sprintf(
-                '[cron:%s] failed | %s',
-                $jobKey,
-                $exception->getMessage()
-            ));
+            $this->logError(
+                sprintf(
+                    '[cron:%s] failed | %s',
+                    (string) ($job['id'] ?? $jobKey),
+                    $exception->getMessage()
+                ),
+                $this->buildLogContext($job, [
+                    'error' => $exception->getMessage(),
+                ])
+            );
 
             return [
                 'key' => $jobKey,
@@ -119,23 +112,30 @@ class CronJobRunnerService
         }
     }
 
-    private function isBackgroundJob(array $job): bool
+    private function buildLogContext(array $job, array $context = []): array
     {
-        return (bool) ($job['background'] ?? false);
+        return [
+            'entityClass' => CronJob::class,
+            'entityRow' => isset($job['id']) ? (int) $job['id'] : null,
+            'cronJobId' => isset($job['id']) ? (int) $job['id'] : null,
+            'cronJobTitle' => trim((string) ($job['title'] ?? '')),
+            'cronJobCommand' => trim((string) ($job['command'] ?? '')),
+            ...$context,
+        ];
     }
 
-    private function logInfo(string $message): void
+    private function logInfo(string $message, array $context = []): void
     {
         try {
-            $this->loggerService->getLogger('cron-jobs')->info($message);
+            $this->loggerService->getLogger('cron-jobs')->info($message, $context);
         } catch (\Throwable) {
         }
     }
 
-    private function logError(string $message): void
+    private function logError(string $message, array $context = []): void
     {
         try {
-            $this->loggerService->getLogger('cron-jobs')->error($message);
+            $this->loggerService->getLogger('cron-jobs')->error($message, $context);
         } catch (\Throwable) {
         }
     }

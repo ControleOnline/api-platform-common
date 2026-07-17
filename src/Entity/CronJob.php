@@ -42,20 +42,20 @@ use Symfony\Component\Serializer\Attribute\Groups;
     denormalizationContext: ['groups' => ['cron_job:write']]
 )]
 #[ApiFilter(OrderFilter::class, properties: [
-    'sortOrder' => 'ASC',
-    'jobKey' => 'ASC',
+    'id' => 'ASC',
     'title' => 'ASC',
+    'command' => 'ASC',
+    'cronExpression' => 'ASC',
+    'enabled' => 'ASC',
 ])]
 #[ApiFilter(SearchFilter::class, properties: [
     'people' => 'exact',
-    'jobKey' => 'exact',
     'title' => 'partial',
     'command' => 'partial',
     'enabled' => 'exact',
 ])]
 #[ORM\Entity(repositoryClass: CronJobRepository::class)]
 #[ORM\Table(name: 'cron_jobs')]
-#[ORM\UniqueConstraint(name: 'cron_jobs_people_job_key_unique', columns: ['people_id', 'job_key'])]
 class CronJob
 {
     #[Groups(['cron_job:read'])]
@@ -68,10 +68,6 @@ class CronJob
     #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id', nullable: false)]
     #[ORM\ManyToOne(targetEntity: People::class)]
     private ?People $people = null;
-
-    #[Groups(['cron_job:read', 'cron_job:write'])]
-    #[ORM\Column(name: 'job_key', type: 'string', length: 120, nullable: false)]
-    private string $jobKey = '';
 
     #[Groups(['cron_job:read', 'cron_job:write'])]
     #[ORM\Column(name: 'title', type: 'string', length: 255, nullable: false)]
@@ -97,14 +93,6 @@ class CronJob
     #[ORM\Column(name: 'arguments', type: 'json', nullable: false)]
     private array $arguments = [];
 
-    #[Groups(['cron_job:read', 'cron_job:write'])]
-    #[ORM\Column(name: 'background', type: 'boolean', options: ['default' => true])]
-    private bool $background = true;
-
-    #[Groups(['cron_job:read', 'cron_job:write'])]
-    #[ORM\Column(name: 'sort_order', type: 'integer', options: ['default' => 0])]
-    private int $sortOrder = 0;
-
     public function getId(): int
     {
         return $this->id;
@@ -118,18 +106,6 @@ class CronJob
     public function setPeople(?People $people): self
     {
         $this->people = $people;
-
-        return $this;
-    }
-
-    public function getJobKey(): string
-    {
-        return $this->jobKey;
-    }
-
-    public function setJobKey(string $jobKey): self
-    {
-        $this->jobKey = trim($jobKey);
 
         return $this;
     }
@@ -208,30 +184,6 @@ class CronJob
             ),
             static fn(string $argument): bool => $argument !== ''
         ));
-
-        return $this;
-    }
-
-    public function isBackground(): bool
-    {
-        return $this->background;
-    }
-
-    public function setBackground(bool $background): self
-    {
-        $this->background = $background;
-
-        return $this;
-    }
-
-    public function getSortOrder(): int
-    {
-        return $this->sortOrder;
-    }
-
-    public function setSortOrder(int $sortOrder): self
-    {
-        $this->sortOrder = $sortOrder;
 
         return $this;
     }

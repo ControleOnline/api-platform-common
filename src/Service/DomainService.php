@@ -38,7 +38,17 @@ class DomainService
 
     public function getMainDomain()
     {
-        return $this->requestStack->getCurrentRequest()?->server->get('HTTP_HOST') ?: 'api.controleonline.com';
+        $requestHost = $this->requestStack->getCurrentRequest()?->server->get('HTTP_HOST');
+        if (is_string($requestHost) && trim($requestHost) !== '') {
+            return $requestHost;
+        }
+
+        $configuredDomain = $this->resolveConfiguredDomain();
+        if ($configuredDomain !== null) {
+            return $configuredDomain;
+        }
+
+        return '';
     }
 
     private function resolveRequestDomain(Request $request): ?string
@@ -88,6 +98,31 @@ class DomainService
         );
 
         return $candidate !== '' ? $candidate : null;
+    }
+
+    private function resolveConfiguredDomain(): ?string
+    {
+        $candidates = [
+            $_ENV['APP_DOMAIN'] ?? null,
+            $_SERVER['APP_DOMAIN'] ?? null,
+            $_ENV['ADMIN_APP_DOMAIN'] ?? null,
+            $_SERVER['ADMIN_APP_DOMAIN'] ?? null,
+            $_ENV['PUBLIC_APP_DOMAIN'] ?? null,
+            $_SERVER['PUBLIC_APP_DOMAIN'] ?? null,
+            getenv('APP_DOMAIN') ?: null,
+            getenv('ADMIN_APP_DOMAIN') ?: null,
+            getenv('PUBLIC_APP_DOMAIN') ?: null,
+            $_SERVER['HTTP_HOST'] ?? null,
+        ];
+
+        foreach ($candidates as $candidate) {
+            $domain = $this->normalizeDomainCandidate($candidate);
+            if ($domain !== null) {
+                return $domain;
+            }
+        }
+
+        return null;
     }
 
     private function extractHostFromUrl(string $candidate): ?string
