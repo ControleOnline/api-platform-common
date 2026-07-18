@@ -534,6 +534,116 @@ class TranslateServiceTest extends TestCase
         self::assertSame('main_company', $result[2]['source']);
     }
 
+    public function testResolveFromPayloadReusesPendingFallbackForCaseEquivalentKeys(): void
+    {
+        $mainCompany = new People();
+        $mainCompany->setName('Empresa principal');
+        $mainCompany->setAlias('Empresa principal');
+        $mainCompany->setPeopleType('J');
+        $this->setEntityId($mainCompany, 1);
+
+        $language = new Language();
+        $language->setLanguage('pt-br');
+        $language->setLocked(false);
+        $this->setEntityId($language, 1);
+
+        $user = new User();
+        $user->setPeople($mainCompany);
+        $user->setUsername('tester@example.com');
+
+        $token = $this->createMock(TokenInterface::class);
+        $token
+            ->method('getUser')
+            ->willReturn($user);
+
+        $security = $this->createMock(TokenStorageInterface::class);
+        $security
+            ->method('getToken')
+            ->willReturn($token);
+
+        $peopleRepository = $this->createMock(PeopleRepository::class);
+        $peopleRepository
+            ->method('find')
+            ->with('1')
+            ->willReturn($mainCompany);
+
+        $languageRepository = $this->createMock(LanguageRepository::class);
+        $languageRepository
+            ->method('find')
+            ->with('1')
+            ->willReturn($language);
+
+        $translateRepository = $this->createMock(TranslateRepository::class);
+        $translateRepository
+            ->method('findForOverview')
+            ->willReturn([]);
+        $translateRepository
+            ->expects(self::once())
+            ->method('findOneBy')
+            ->with(self::callback(static function (array $criteria): bool {
+                self::assertSame('id', $criteria['key']);
+
+                return true;
+            }))
+            ->willReturn(null);
+
+        $persistedTranslations = [];
+        $manager = $this->createMock(EntityManagerInterface::class);
+        $manager
+            ->method('getRepository')
+            ->willReturnCallback(static function (string $class) use (
+                $peopleRepository,
+                $languageRepository,
+                $translateRepository
+            ) {
+                return match ($class) {
+                    People::class => $peopleRepository,
+                    Language::class => $languageRepository,
+                    Translate::class => $translateRepository,
+                    default => throw new \RuntimeException('Unexpected repository: ' . $class),
+                };
+            });
+        $manager
+            ->expects(self::once())
+            ->method('persist')
+            ->with(self::callback(static function ($entity) use (&$persistedTranslations) {
+                self::assertInstanceOf(Translate::class, $entity);
+                $persistedTranslations[] = $entity;
+
+                return true;
+            }));
+        $manager
+            ->expects(self::once())
+            ->method('flush');
+
+        $peopleRoleService = $this->createMock(PeopleRoleService::class);
+        $peopleRoleService
+            ->method('getMainCompany')
+            ->willReturn($mainCompany);
+
+        $service = new TranslateService($manager, $security, $peopleRoleService);
+
+        $result = $service->resolveFromPayload([
+            'people' => '/people/1',
+            'language' => '/languages/1',
+            'requests' => [
+                [
+                    'store' => 'cron_jobs',
+                    'type' => 'label',
+                    'keys' => ['id', 'ID'],
+                ],
+            ],
+        ]);
+
+        self::assertCount(2, $result);
+        self::assertCount(1, $persistedTranslations);
+        self::assertSame('id', $persistedTranslations[0]->getKey());
+        self::assertSame('id', $result[0]['key']);
+        self::assertSame('ID', $result[1]['key']);
+        self::assertSame('Id', $result[0]['translate']);
+        self::assertSame('Id', $result[1]['translate']);
+    }
+
     /**
      * @return array{0: TranslateService, 1: EntityManagerInterface, 2: ?Translate}
      */
