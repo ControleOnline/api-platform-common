@@ -126,6 +126,30 @@ final class Version20260718194000 extends TenantAwareMigration
                 'sort_order' => 12,
             ]
         );
+
+        $this->addSql(
+            'UPDATE menu
+             SET menu = :menu,
+                 sort_order = :sort_order,
+                 route_id = (
+                     SELECT id
+                     FROM routes
+                     WHERE route = :route_name
+                     LIMIT 1
+                 ),
+                 enabled = 1
+             WHERE app_type = :app_type
+               AND menu_type = :menu_type
+               AND menu_key = :menu_key',
+            [
+                'route_name' => self::MENU_ROUTE_NAME,
+                'menu' => self::MENU_LABEL,
+                'menu_key' => self::MENU_KEY,
+                'app_type' => 'ADMIN',
+                'menu_type' => 'home',
+                'sort_order' => 12,
+            ]
+        );
     }
 
     public function down(Schema $schema): void
