@@ -209,6 +209,7 @@ class TranslateService
 
         $resolvedItems = [];
         $createdTranslates = [];
+        $pendingFallbackByIdentity = [];
 
         foreach ($requests as $request) {
             $store = trim((string) ($request['store'] ?? ''));
@@ -234,8 +235,12 @@ class TranslateService
             $fallbackByKey = $this->indexTranslationsByKey($fallbackTranslations);
 
             foreach ($keys as $key) {
-                $companyTranslation = $companyByKey[$key] ?? null;
-                $fallbackTranslation = $fallbackByKey[$key] ?? null;
+                $normalizedKey = $this->normalizeTranslateIdentityPart($key);
+                $fallbackIdentity = $this->getTranslationIdentity($mainCompany, $language, $store, $type, $key);
+                $companyTranslation = $companyByKey[$normalizedKey] ?? null;
+                $fallbackTranslation = $fallbackByKey[$normalizedKey]
+                    ?? $pendingFallbackByIdentity[$fallbackIdentity]
+                    ?? null;
 
                 if (!$companyTranslation instanceof Translate && !$fallbackTranslation instanceof Translate) {
                     $fallbackTranslation = $this->createMissingFallbackTranslation(
@@ -248,6 +253,7 @@ class TranslateService
                     );
                     if ($canPersistFallback) {
                         $createdTranslates[] = $fallbackTranslation;
+                        $pendingFallbackByIdentity[$fallbackIdentity] = $fallbackTranslation;
                     }
                 }
 
@@ -256,7 +262,8 @@ class TranslateService
                     $fallbackTranslation instanceof Translate ? $fallbackTranslation : null,
                     $selectedCompany,
                     $mainCompany,
-                    $language
+                    $language,
+                    $key
                 );
             }
         }
@@ -365,10 +372,31 @@ class TranslateService
                 continue;
             }
 
-            $indexed[$translation->getKey()] = $translation;
+            $indexed[$this->normalizeTranslateIdentityPart($translation->getKey())] = $translation;
         }
 
         return $indexed;
+    }
+
+    private function getTranslationIdentity(
+        People $people,
+        Language $language,
+        string $store,
+        string $type,
+        string $key
+    ): string {
+        return implode('|', [
+            $people->getId(),
+            $language->getId(),
+            $this->normalizeTranslateIdentityPart($store),
+            $this->normalizeTranslateIdentityPart($type),
+            $this->normalizeTranslateIdentityPart($key),
+        ]);
+    }
+
+    private function normalizeTranslateIdentityPart(mixed $value): string
+    {
+        return mb_strtolower(trim((string) $value), 'UTF-8');
     }
 
     private function createMissingFallbackTranslation(
@@ -502,7 +530,8 @@ class TranslateService
         ?Translate $fallbackTranslation,
         People $selectedCompany,
         People $mainCompany,
-        Language $language
+        Language $language,
+        ?string $requestedKey = null
     ): array {
         $effectiveTranslation = $companyTranslation instanceof Translate
             ? $companyTranslation
@@ -545,7 +574,7 @@ class TranslateService
             ],
             'store' => $effectiveTranslation->getStore(),
             'type' => $effectiveTranslation->getType(),
-            'key' => $effectiveTranslation->getKey(),
+            'key' => $requestedKey ?? $effectiveTranslation->getKey(),
             'translate' => $effectiveTranslation->getTranslate(),
             'revised' => $effectiveTranslation->isRevised(),
             'pendingReview' => !$effectiveTranslation->isRevised(),
