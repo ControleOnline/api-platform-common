@@ -255,6 +255,7 @@ class TranslateService
                         $createdTranslates[] = $fallbackTranslation;
                         $pendingFallbackByIdentity[$fallbackIdentity] = $fallbackTranslation;
                     }
+                    $pendingFallbackByIdentity[$fallbackIdentity] = $fallbackTranslation;
                 }
 
                 $resolvedItems[] = $this->formatOverviewItem(
