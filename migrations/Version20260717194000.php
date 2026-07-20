@@ -22,7 +22,6 @@ final class Version20260717194000 extends TenantAwareMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE `cron_jobs` DROP COLUMN `last_status`');
-        $this->addSql('ALTER TABLE `cron_jobs` DROP COLUMN `last_execution_at`');
+        return;
     }
 }

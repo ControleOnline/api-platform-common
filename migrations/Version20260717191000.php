@@ -46,19 +46,7 @@ final class Version20260717191000 extends TenantAwareMigration
 
     public function down(Schema $schema): void
     {
-        $peopleId = $this->getMainCompanyId();
-
-        $this->addSql(
-            'DELETE FROM config
-             WHERE people_id = :people_id
-               AND module_id = :module_id
-               AND config_key = :config_key',
-            [
-                'people_id' => $peopleId,
-                'module_id' => self::COMMON_MODULE_ID,
-                'config_key' => 'maintenance-routines',
-            ]
-        );
+        return;
     }
 
     private function getMaintenanceRoutinesSeed(): array

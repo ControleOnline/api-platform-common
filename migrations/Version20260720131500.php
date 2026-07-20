@@ -49,22 +49,6 @@ final class Version20260720131500 extends TenantAwareMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql(
-            'DELETE menu_link_type
-             FROM menu_link_type
-             INNER JOIN menu ON menu.id = menu_link_type.menu_id
-             WHERE menu.app_type = :app_type
-               AND menu.menu_type = :menu_type
-               AND menu.menu_key = :menu_key
-               AND menu_link_type.link_type IN (:owner, :director, :manager)',
-            [
-                'owner' => 'owner',
-                'director' => 'director',
-                'manager' => 'manager',
-                'app_type' => 'MANAGER',
-                'menu_type' => 'home',
-                'menu_key' => self::MENU_KEY,
-            ]
-        );
+        return;
     }
 }

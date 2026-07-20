@@ -22,9 +22,6 @@ final class Version20260717193000 extends TenantAwareMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE `cron_jobs` ADD `job_key` varchar(120) CHARACTER SET utf8 NOT NULL AFTER `people_id`');
-        $this->addSql('ALTER TABLE `cron_jobs` ADD `background` tinyint(1) NOT NULL DEFAULT 1 AFTER `arguments`');
-        $this->addSql('ALTER TABLE `cron_jobs` ADD `sort_order` int(11) NOT NULL DEFAULT 0 AFTER `background`');
-        $this->addSql('ALTER TABLE `cron_jobs` ADD UNIQUE KEY `cron_jobs_people_job_key_unique` (`people_id`,`job_key`)');
+        return;
     }
 }

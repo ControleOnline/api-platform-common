@@ -130,16 +130,6 @@ final class Version20260717195000 extends TenantAwareMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql(
-            'DELETE FROM menu
-             WHERE app_type = :app_type
-               AND menu_type = :menu_type
-               AND menu_key = :menu_key',
-            [
-                'app_type' => 'ADMIN',
-                'menu_type' => 'home',
-                'menu_key' => self::MENU_KEY,
-            ]
-        );
+        return;
     }
 }
