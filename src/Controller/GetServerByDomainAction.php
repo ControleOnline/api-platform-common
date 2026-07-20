@@ -2,8 +2,8 @@
 
 namespace ControleOnline\Controller;
 
-use ControleOnline\Service\ServerService;
 use ControleOnline\Service\DomainService;
+use ControleOnline\Service\ServerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

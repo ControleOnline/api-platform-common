@@ -7,17 +7,17 @@ namespace DoctrineMigrations\Common;
 use ControleOnline\Migration\TenantAwareMigration;
 use Doctrine\DBAL\Schema\Schema;
 
-final class Version20260718194000 extends TenantAwareMigration
+final class Version20260720131000 extends TenantAwareMigration
 {
     private const MENU_MODULE_NAME = 'ui-manager';
     private const MENU_CATEGORY_NAME = 'Configuracoes';
-    private const MENU_ROUTE_NAME = 'PeopleDomainsPage';
-    private const MENU_KEY = 'people_domains';
-    private const MENU_LABEL = 'Domínios';
+    private const MENU_ROUTE_NAME = 'ProductShowcasesPage';
+    private const MENU_KEY = 'product_showcases';
+    private const MENU_LABEL = 'Vitrines de preços';
 
     public function getDescription(): string
     {
-        return 'Seed the admin menu entry for people domains.';
+        return 'Seed the manager menu entry for product showcases.';
     }
 
     public function up(Schema $schema): void
@@ -58,8 +58,8 @@ final class Version20260718194000 extends TenantAwareMigration
             [
                 'module_name' => self::MENU_MODULE_NAME,
                 'route' => self::MENU_ROUTE_NAME,
-                'color' => '#0EA5E9',
-                'icon' => 'globe',
+                'color' => '#0F766E',
+                'icon' => 'grid',
             ]
         );
 
@@ -121,33 +121,44 @@ final class Version20260718194000 extends TenantAwareMigration
                 'route_name' => self::MENU_ROUTE_NAME,
                 'menu' => self::MENU_LABEL,
                 'menu_key' => self::MENU_KEY,
-                'app_type' => 'ADMIN',
+                'app_type' => 'MANAGER',
                 'menu_type' => 'home',
-                'sort_order' => 12,
+                'sort_order' => 65,
             ]
         );
 
         $this->addSql(
             'UPDATE menu
-             SET menu = :menu,
-                 sort_order = :sort_order,
+             SET category_id = (
+                     SELECT id
+                     FROM category
+                     WHERE company_id = :company_id
+                       AND context = :context
+                       AND name = :category_name
+                     LIMIT 1
+                 ),
+                 menu = :menu,
                  route_id = (
                      SELECT id
                      FROM routes
                      WHERE route = :route_name
                      LIMIT 1
                  ),
+                 sort_order = :sort_order,
                  enabled = 1
              WHERE app_type = :app_type
                AND menu_type = :menu_type
                AND menu_key = :menu_key',
             [
+                'company_id' => $mainCompanyId,
+                'context' => 'menu',
+                'category_name' => self::MENU_CATEGORY_NAME,
                 'route_name' => self::MENU_ROUTE_NAME,
                 'menu' => self::MENU_LABEL,
                 'menu_key' => self::MENU_KEY,
-                'app_type' => 'ADMIN',
+                'app_type' => 'MANAGER',
                 'menu_type' => 'home',
-                'sort_order' => 12,
+                'sort_order' => 65,
             ]
         );
     }
@@ -160,7 +171,7 @@ final class Version20260718194000 extends TenantAwareMigration
                AND menu_type = :menu_type
                AND menu_key = :menu_key',
             [
-                'app_type' => 'ADMIN',
+                'app_type' => 'MANAGER',
                 'menu_type' => 'home',
                 'menu_key' => self::MENU_KEY,
             ]
