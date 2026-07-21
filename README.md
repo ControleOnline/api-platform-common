@@ -2,6 +2,12 @@
 
 # common
 
+## Identidade operacional do device
+
+- Requisicoes contextualizadas por equipamento usam os headers `DEVICE` e `DEVICE-TYPE`.
+- O tipo de configuracao tambem pode ser informado explicitamente como `deviceType`; o parametro generico `type` permanece reservado aos filtros do recurso solicitado.
+- A visao de aplicativo `POS` usa o tipo operacional canonico `PDV`.
+
 ## Categorias
 
 - Leituras internas de `Category` passam por `CategoryService::securityFilter()` e sao escopadas por `company`.

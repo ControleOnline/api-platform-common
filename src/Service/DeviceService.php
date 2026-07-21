@@ -238,15 +238,20 @@ class DeviceService
             }
         }
 
+        $form = $this->request->request->all();
+        $query = $this->request->query->all();
         $candidates = [
-            $payload['type'] ?? null,
-            $this->request->request->get('type'),
-            $this->request->query->get('type'),
+            $payload['deviceType'] ?? null,
+            $form['deviceType'] ?? null,
+            $query['deviceType'] ?? null,
             $this->request->headers->get('device-type'),
-            $this->request->headers->get('type'),
         ];
 
         foreach ($candidates as $candidate) {
+            if (!is_scalar($candidate)) {
+                continue;
+            }
+
             $normalizedType = strtoupper(trim((string) $candidate));
             if ($normalizedType !== '') {
                 return $normalizedType;
