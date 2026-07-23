@@ -62,14 +62,20 @@ final class CollectionDoctrineQueryDebugExtension implements QueryCollectionExte
         try {
             $query = $queryBuilder->getQuery();
             $sql = $query->getSQL();
-
-            return [
-                'filledQuery' => $this->interpolateParameters($sql, $queryBuilder),
-                'query' => $sql,
-            ];
         } catch (\Throwable) {
             return null;
         }
+
+        try {
+            $filledQuery = $this->interpolateParameters($sql, $queryBuilder);
+        } catch (\Throwable) {
+            $filledQuery = $sql;
+        }
+
+        return [
+            'filledQuery' => $filledQuery,
+            'query' => $sql,
+        ];
     }
 
     private function interpolateParameters(string $sql, QueryBuilder $queryBuilder): string
