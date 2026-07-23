@@ -646,58 +646,6 @@ final class Version20260714190000 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('SET FOREIGN_KEY_CHECKS=0');
-        $this->addSql('DROP VIEW IF EXISTS `vw_devices`');
-        $this->addSql('DROP TABLE IF EXISTS `translate`');
-        $this->addSql('DROP TABLE IF EXISTS `timezones`');
-        $this->addSql('DROP TABLE IF EXISTS `theme`');
-        $this->addSql('DROP TABLE IF EXISTS `street`');
-        $this->addSql('DROP TABLE IF EXISTS `status`');
-        $this->addSql('DROP TABLE IF EXISTS `state`');
-        $this->addSql('DROP TABLE IF EXISTS `spool`');
-        $this->addSql('DROP TABLE IF EXISTS `sessions`');
-        $this->addSql('DROP TABLE IF EXISTS `seo_url`');
-        $this->addSql('DROP TABLE IF EXISTS `routes`');
-        $this->addSql('DROP TABLE IF EXISTS `role`');
-        $this->addSql('DROP TABLE IF EXISTS `retrieve`');
-        $this->addSql('DROP TABLE IF EXISTS `rating`');
-        $this->addSql('DROP TABLE IF EXISTS `operation_patterns`');
-        $this->addSql('DROP TABLE IF EXISTS `oauth`');
-        $this->addSql('DROP TABLE IF EXISTS `notification`');
-        $this->addSql('DROP TABLE IF EXISTS `module_product`');
-        $this->addSql('DROP TABLE IF EXISTS `module_component`');
-        $this->addSql('DROP TABLE IF EXISTS `module`');
-        $this->addSql('DROP TABLE IF EXISTS `model`');
-        $this->addSql('DROP TABLE IF EXISTS `messenger_messages`');
-        $this->addSql('DROP TABLE IF EXISTS `menu_role`');
-        $this->addSql('DROP TABLE IF EXISTS `menu_link_type`');
-        $this->addSql('DROP TABLE IF EXISTS `menu`');
-        $this->addSql('DROP TABLE IF EXISTS `measure_type`');
-        $this->addSql('DROP TABLE IF EXISTS `measure`');
-        $this->addSql('DROP TABLE IF EXISTS `log`');
-        $this->addSql('DROP TABLE IF EXISTS `language_country`');
-        $this->addSql('DROP TABLE IF EXISTS `language`');
-        $this->addSql('DROP TABLE IF EXISTS `labels`');
-        $this->addSql('DROP TABLE IF EXISTS `imports`');
-        $this->addSql('DROP TABLE IF EXISTS `hardware`');
-        $this->addSql('DROP TABLE IF EXISTS `files`');
-        $this->addSql('DROP TABLE IF EXISTS `extra_fields`');
-        $this->addSql('DROP TABLE IF EXISTS `extra_data`');
-        $this->addSql('DROP TABLE IF EXISTS `docs`');
-        $this->addSql('DROP TABLE IF EXISTS `district`');
-        $this->addSql('DROP TABLE IF EXISTS `device_configs`');
-        $this->addSql('DROP TABLE IF EXISTS `device`');
-        $this->addSql('DROP TABLE IF EXISTS `country`');
-        $this->addSql('DROP TABLE IF EXISTS `connections`');
-        $this->addSql('DROP TABLE IF EXISTS `config`');
-        $this->addSql('DROP TABLE IF EXISTS `cms_section_component`');
-        $this->addSql('DROP TABLE IF EXISTS `cms_section`');
-        $this->addSql('DROP TABLE IF EXISTS `cms`');
-        $this->addSql('DROP TABLE IF EXISTS `city`');
-        $this->addSql('DROP TABLE IF EXISTS `cep`');
-        $this->addSql('DROP TABLE IF EXISTS `category_file`');
-        $this->addSql('DROP TABLE IF EXISTS `category`');
-        $this->addSql('DROP TABLE IF EXISTS `address`');
-        $this->addSql('SET FOREIGN_KEY_CHECKS=1');
+        return;
     }
 }

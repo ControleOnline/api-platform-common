@@ -84,7 +84,7 @@ final class Version20260717190000 extends TenantAwareMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('DROP TABLE IF EXISTS `cron_jobs`');
+        return;
     }
 
     /**
