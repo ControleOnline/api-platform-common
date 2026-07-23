@@ -45,20 +45,30 @@ final class CollectionDoctrineQueryDebugExtension implements QueryCollectionExte
             return;
         }
 
+        $debugQuery = $this->buildCompleteQuery($queryBuilder);
+        if (null === $debugQuery) {
+            return;
+        }
+
         $request->attributes->set(self::REQUEST_ATTRIBUTE, [
-            'query' => $this->buildCompleteQuery($queryBuilder),
+            'filledQuery' => $debugQuery['filledQuery'],
+            'parameters' => $request->query->all(),
+            'query' => $debugQuery['query'],
         ]);
     }
 
-    private function buildCompleteQuery(QueryBuilder $queryBuilder): string
+    private function buildCompleteQuery(QueryBuilder $queryBuilder): ?array
     {
         try {
             $query = $queryBuilder->getQuery();
             $sql = $query->getSQL();
 
-            return $this->interpolateParameters($sql, $queryBuilder);
+            return [
+                'filledQuery' => $this->interpolateParameters($sql, $queryBuilder),
+                'query' => $sql,
+            ];
         } catch (\Throwable) {
-            return $queryBuilder->getDQL();
+            return null;
         }
     }
 

@@ -16,6 +16,8 @@ final class CollectionSummaryNormalizerTest extends TestCase
     {
         $request = Request::create('/orders', 'GET');
         $request->attributes->set(CollectionDoctrineQueryDebugExtension::REQUEST_ATTRIBUTE, [
+            'filledQuery' => "SELECT * FROM orders WHERE id = '1'",
+            'parameters' => ['id' => 1],
             'query' => "SELECT * FROM orders WHERE id = 1",
         ]);
 
@@ -48,6 +50,8 @@ final class CollectionSummaryNormalizerTest extends TestCase
         ]);
 
         self::assertSame("SELECT * FROM orders WHERE id = 1", $result['debug']['query'] ?? null);
+        self::assertSame("SELECT * FROM orders WHERE id = '1'", $result['debug']['filledQuery'] ?? null);
+        self::assertSame(['id' => 1], $result['debug']['parameters'] ?? null);
     }
 }
 

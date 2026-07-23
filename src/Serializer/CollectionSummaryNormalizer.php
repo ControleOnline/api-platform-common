@@ -67,7 +67,7 @@ class CollectionSummaryNormalizer implements NormalizerInterface, NormalizerAwar
 
         if (is_array($debugQuery) && array_key_exists('query', $debugQuery)) {
             $debug = isset($data['debug']) && is_array($data['debug']) ? $data['debug'] : [];
-            $debug['query'] = $debugQuery['query'];
+            $debug = array_replace($debug, $debugQuery);
             $data['debug'] = $debug;
         }
 
