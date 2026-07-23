@@ -21,20 +21,13 @@ class TimezoneService
         $this->applyTimezone($timezone);
     }
 
-    public function applyTimezone(string $timezone): void
+    private function applyTimezone(string $timezone): void
     {
         date_default_timezone_set($timezone);
 
-        $this->applyCurrentTimezoneToConnection();
-    }
-
-    public function applyCurrentTimezoneToConnection(): void
-    {
         if (!filter_var($_ENV['MYSQL_USER_TIMEZONE'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
             return;
         }
-
-        $timezone = date_default_timezone_get();
 
         $this->entityManager
             ->getConnection()
