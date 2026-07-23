@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use ApiPlatform\State\Util\RequestParser;
+use ControleOnline\Doctrine\Extension\CollectionDoctrineQueryDebugExtension;
 use ControleOnline\Entity\Order;
 use ControleOnline\Service\CollectionSummaryService;
 use ControleOnline\Service\OrderService;
@@ -29,6 +30,7 @@ class HydratedReadProvider implements ProviderInterface
         private readonly CollectionSummaryService $collectionSummaryService,
         private readonly RequestStack $requestStack,
         private readonly OrderService $orderService,
+        private readonly CollectionDoctrineQueryDebugExtension $queryDebugExtension,
         private readonly iterable $collectionExtensions = [],
     ) {
     }
@@ -84,6 +86,8 @@ class HydratedReadProvider implements ProviderInterface
                 ->select(sprintf('DISTINCT %s', $rootAlias))
                 ->setFirstResult(($page - 1) * $itemsPerPage)
                 ->setMaxResults($itemsPerPage);
+
+            $this->queryDebugExtension->capture($queryBuilder);
 
             $paginator = new Paginator($queryBuilder->getQuery(), false);
             $summary = $this->collectionSummaryService->buildSummary($operation, $uriVariables, $context);

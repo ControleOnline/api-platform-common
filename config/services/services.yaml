@@ -70,6 +70,13 @@ services:
             $handleLinksLocator: !tagged_locator { tag: 'api_platform.doctrine.orm.links_handler', index_by: 'key' }
             $summaryResolverLocator: '@service_container'
 
+    ControleOnline\Doctrine\Extension\CollectionDoctrineQueryDebugExtension:
+        autoconfigure: false
+        arguments:
+            $environment: '%kernel.environment%'
+        tags:
+            - { name: 'api_platform.doctrine.orm.query_extension.collection', priority: -4096 }
+
     ControleOnline\State\HydratedReadProvider:
         autowire: true
         autoconfigure: false

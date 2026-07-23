@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\Resource\Factory\ResourceMetadataCollectionFactoryInter
 use ApiPlatform\State\Util\RequestParser;
 use ApiPlatform\State\Util\StateOptionsTrait;
 use ControleOnline\Attribute\CollectionSummary;
+use ControleOnline\Doctrine\Extension\CollectionDoctrineQueryDebugExtension;
 use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -293,6 +294,7 @@ class CollectionSummaryService
     private function shouldSkipExtension(object $extension): bool
     {
         return $extension instanceof PaginationExtension
+            || $extension instanceof CollectionDoctrineQueryDebugExtension
             || $extension instanceof EagerLoadingExtension
             || $extension instanceof FilterEagerLoadingExtension
             || $extension instanceof OrderExtension;

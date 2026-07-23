@@ -3,7 +3,9 @@
 namespace ControleOnline\Serializer;
 
 use ApiPlatform\Metadata\CollectionOperationInterface;
+use ControleOnline\Doctrine\Extension\CollectionDoctrineQueryDebugExtension;
 use ControleOnline\State\CollectionSummaryResult;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -13,6 +15,10 @@ class CollectionSummaryNormalizer implements NormalizerInterface, NormalizerAwar
     use NormalizerAwareTrait;
 
     private const ALREADY_CALLED = 'controleonline_collection_summary_normalizer_called';
+
+    public function __construct(private readonly RequestStack $requestStack)
+    {
+    }
 
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
@@ -52,6 +58,17 @@ class CollectionSummaryNormalizer implements NormalizerInterface, NormalizerAwar
 
         if (null !== $summary) {
             $data['summary'] = $summary;
+        }
+
+        $debugQuery = $this->requestStack
+            ->getCurrentRequest()
+            ?->attributes
+            ->get(CollectionDoctrineQueryDebugExtension::REQUEST_ATTRIBUTE);
+
+        if (is_array($debugQuery) && array_key_exists('query', $debugQuery)) {
+            $debug = isset($data['debug']) && is_array($data['debug']) ? $data['debug'] : [];
+            $debug['query'] = $debugQuery['query'];
+            $data['debug'] = $debug;
         }
 
         return $data;

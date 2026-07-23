@@ -7,6 +7,7 @@ use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ControleOnline\Doctrine\Extension\CollectionDoctrineQueryDebugExtension;
 use ControleOnline\Entity\Order;
 use ControleOnline\Service\CollectionSummaryService;
 use ControleOnline\Service\OrderService;
@@ -210,6 +211,7 @@ class HydratedReadProviderTest extends TestCase
             $collectionSummaryService,
             $requestStack,
             $orderService,
+            new CollectionDoctrineQueryDebugExtension($requestStack, 'test'),
             $extensions
         );
     }
