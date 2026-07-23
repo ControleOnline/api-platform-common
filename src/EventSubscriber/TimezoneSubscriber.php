@@ -32,7 +32,7 @@ class TimezoneSubscriber implements EventSubscriberInterface
         $user = $this->security->getUser();
         if (!$user) return;
 
-        $timezone = $user->getTimezone();
+        $timezone = $user->getTimezone()->getName() ?? 'UTC';
         date_default_timezone_set($timezone);
         $connection = $this->entityManager->getConnection();
         if (filter_var($_ENV['MYSQL_USER_TIMEZONE'], FILTER_VALIDATE_BOOLEAN))
