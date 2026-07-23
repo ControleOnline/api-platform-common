@@ -3,7 +3,9 @@
 namespace ControleOnline\Common\Tests\Doctrine\Extension;
 
 use ControleOnline\Doctrine\Extension\CollectionDoctrineQueryDebugExtension;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Query;
+use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,16 +28,21 @@ final class CollectionDoctrineQueryDebugExtensionTest extends TestCase
             ->expects(self::once())
             ->method('getSQL')
             ->willReturn('SELECT o0_.id AS id_0 FROM orders o0_ WHERE o0_.provider_id = ?');
+        $query
+            ->expects(self::once())
+            ->method('getParameters')
+            ->willReturn(new ArrayCollection([new Parameter('provider', 2)]));
+        $query
+            ->expects(self::once())
+            ->method('processParameterValue')
+            ->with(2)
+            ->willReturn(2);
 
         $queryBuilder = $this->createMock(QueryBuilder::class);
         $queryBuilder
             ->expects(self::once())
             ->method('getQuery')
             ->willReturn($query);
-        $queryBuilder
-            ->expects(self::once())
-            ->method('getParameters')
-            ->willThrowException(new \RuntimeException('parameter interpolation failed'));
 
         $extension = new CollectionDoctrineQueryDebugExtension($requestStack, 'dev');
         $extension->capture($queryBuilder);
@@ -43,7 +50,7 @@ final class CollectionDoctrineQueryDebugExtensionTest extends TestCase
         $debug = $request->attributes->get(CollectionDoctrineQueryDebugExtension::REQUEST_ATTRIBUTE);
 
         self::assertSame([
-            'filledQuery' => 'SELECT o0_.id AS id_0 FROM orders o0_ WHERE o0_.provider_id = ?',
+            'filledQuery' => 'SELECT o0_.id AS id_0 FROM orders o0_ WHERE o0_.provider_id = 2',
             'parameters' => [
                 'provider' => '/people/2',
                 'itemsPerPage' => '50',

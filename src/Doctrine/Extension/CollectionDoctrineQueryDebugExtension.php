@@ -6,6 +6,7 @@ use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -67,7 +68,7 @@ final class CollectionDoctrineQueryDebugExtension implements QueryCollectionExte
         }
 
         try {
-            $filledQuery = $this->interpolateParameters($sql, $queryBuilder);
+            $filledQuery = $this->interpolateParameters($sql, $queryBuilder, $query);
         } catch (\Throwable) {
             $filledQuery = $sql;
         }
@@ -78,14 +79,14 @@ final class CollectionDoctrineQueryDebugExtension implements QueryCollectionExte
         ];
     }
 
-    private function interpolateParameters(string $sql, QueryBuilder $queryBuilder): string
+    private function interpolateParameters(string $sql, QueryBuilder $queryBuilder, AbstractQuery $query): string
     {
-        foreach ($queryBuilder->getParameters() as $parameter) {
+        foreach ($query->getParameters() as $parameter) {
             if (!$parameter instanceof Parameter) {
                 continue;
             }
 
-            $quotedValue = $this->quoteValue($queryBuilder, $parameter->getValue());
+            $quotedValue = $this->quoteValue($queryBuilder, $query->processParameterValue($parameter->getValue()));
             $name = (string) $parameter->getName();
 
             if (str_contains($sql, '?')) {
