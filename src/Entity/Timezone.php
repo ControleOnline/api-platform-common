@@ -20,12 +20,11 @@ use Symfony\Component\Serializer\Attribute\Groups;
         /**
          * ✅ Endpoint público
          * GET /api/timezones
-         * Retorna apenas enabled = true
+         * Permite filtrar enabled pelo BooleanFilter padrão da API
          */
         new GetCollection(
             uriTemplate: '/timezones',
-            security: "is_granted('ROLE_HUMAN') or is_granted('ROLE_CLIENT')",
-            provider: [TimezoneRepository::class, 'findEnabled']
+            security: "is_granted('ROLE_HUMAN') or is_granted('ROLE_CLIENT')"
         ),
 
         /**
