@@ -71,9 +71,18 @@ class District
         return $this;
     }
 
+    private function uppercaseText(?string $value): string
+    {
+        $normalized = (string) $value;
+
+        return function_exists('mb_strtoupper')
+            ? mb_strtoupper($normalized, 'UTF-8')
+            : strtoupper($normalized);
+    }
+
     public function getDistrict(): string
     {
-        return strtoupper((string) $this->district);
+        return $this->uppercaseText($this->district);
     }
 
     public function setCity(City $city): self

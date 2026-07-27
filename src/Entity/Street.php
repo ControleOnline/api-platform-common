@@ -76,9 +76,18 @@ class Street
         return $this;
     }
 
+    private function uppercaseText(?string $value): string
+    {
+        $normalized = (string) $value;
+
+        return function_exists('mb_strtoupper')
+            ? mb_strtoupper($normalized, 'UTF-8')
+            : strtoupper($normalized);
+    }
+
     public function getStreet()
     {
-        return strtoupper((string) $this->street);
+        return $this->uppercaseText($this->street);
     }
 
     public function setDistrict(District $district = null)

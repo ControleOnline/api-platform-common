@@ -76,9 +76,18 @@ class State
         return $this;
     }
 
+    private function uppercaseText(?string $value): string
+    {
+        $normalized = (string) $value;
+
+        return function_exists('mb_strtoupper')
+            ? mb_strtoupper($normalized, 'UTF-8')
+            : strtoupper($normalized);
+    }
+
     public function getState()
     {
-        return strtoupper((string) $this->state);
+        return $this->uppercaseText($this->state);
     }
 
     public function setUf($uf)
@@ -89,7 +98,7 @@ class State
 
     public function getUf()
     {
-        return strtoupper((string) $this->uf);
+        return $this->uppercaseText($this->uf);
     }
 
     public function setCountry(Country $country = null)

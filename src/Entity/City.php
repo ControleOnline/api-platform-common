@@ -84,9 +84,18 @@ class City
         return $this;
     }
 
+    private function uppercaseText(?string $value): string
+    {
+        $normalized = (string) $value;
+
+        return function_exists('mb_strtoupper')
+            ? mb_strtoupper($normalized, 'UTF-8')
+            : strtoupper($normalized);
+    }
+
     public function getCity()
     {
-        return strtoupper((string) $this->city);
+        return $this->uppercaseText($this->city);
     }
 
     public function setState(State $state = null)

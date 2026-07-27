@@ -119,9 +119,18 @@ class Address
         return $this;
     }
 
+    private function uppercaseText(?string $value): string
+    {
+        $normalized = (string) $value;
+
+        return function_exists('mb_strtoupper')
+            ? mb_strtoupper($normalized, 'UTF-8')
+            : strtoupper($normalized);
+    }
+
     public function getNickname()
     {
-        return strtoupper((string) $this->nickname);
+        return $this->uppercaseText($this->nickname);
     }
 
     public function setComplement($complement)
@@ -132,7 +141,7 @@ class Address
 
     public function getComplement()
     {
-        return strtoupper((string) $this->complement);
+        return $this->uppercaseText($this->complement);
     }
 
     public function setPeople(?People $people = null)
