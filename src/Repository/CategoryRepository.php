@@ -22,9 +22,10 @@ class CategoryRepository extends ServiceEntityRepository
     public function countPublicShopCategories(
         int $companyId,
         string $search = '',
-        bool $requireImage = false
+        bool $requireImage = false,
+        ?int $showcaseId = null
     ): int {
-        $queryBuilder = $this->createPublicShopQuery($companyId, $search, $requireImage);
+        $queryBuilder = $this->createPublicShopQuery($companyId, $search, $requireImage, $showcaseId);
 
         return (int) $queryBuilder
             ->select('COUNT(DISTINCT category.id)')
@@ -40,9 +41,10 @@ class CategoryRepository extends ServiceEntityRepository
         string $search,
         bool $requireImage,
         int $page,
-        int $itemsPerPage
+        int $itemsPerPage,
+        ?int $showcaseId = null
     ): array {
-        return $this->createPublicShopQuery($companyId, $search, $requireImage)
+        return $this->createPublicShopQuery($companyId, $search, $requireImage, $showcaseId)
             ->addSelect('categoryFiles', 'categoryFile')
             ->orderBy('category.name', 'ASC')
             ->setFirstResult(($page - 1) * $itemsPerPage)
@@ -51,9 +53,9 @@ class CategoryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findPublicShopCategory(int $id, int $companyId): ?Category
+    public function findPublicShopCategory(int $id, int $companyId, ?int $showcaseId = null): ?Category
     {
-        return $this->createPublicShopQuery($companyId, '', false)
+        return $this->createPublicShopQuery($companyId, '', false, $showcaseId)
             ->addSelect('categoryFiles', 'categoryFile')
             ->andWhere('category.id = :categoryId')
             ->setParameter('categoryId', $id)
@@ -64,7 +66,8 @@ class CategoryRepository extends ServiceEntityRepository
     private function createPublicShopQuery(
         int $companyId,
         string $search,
-        bool $requireImage
+        bool $requireImage,
+        ?int $showcaseId = null
     ): \Doctrine\ORM\QueryBuilder {
         $queryBuilder = $this->createQueryBuilder('category')
             ->leftJoin('category.categoryFiles', 'categoryFiles')
@@ -73,6 +76,19 @@ class CategoryRepository extends ServiceEntityRepository
             ->andWhere('category.context = :publicShopContext')
             ->setParameter('publicShopCompany', $companyId)
             ->setParameter('publicShopContext', 'products');
+
+        if ($showcaseId !== null) {
+            $queryBuilder
+                ->innerJoin('ControleOnline\Entity\ProductCategory', 'productCategory', 'WITH', 'productCategory.category = category')
+                ->innerJoin('ControleOnline\Entity\ProductShowcaseItem', 'showcaseItem', 'WITH', 'showcaseItem.product = productCategory.product')
+                ->innerJoin('showcaseItem.product', 'showcaseProduct')
+                ->andWhere('IDENTITY(showcaseItem.showcase) = :publicShopShowcase')
+                ->andWhere('showcaseItem.active = true')
+                ->andWhere('showcaseItem.published = true')
+                ->andWhere('showcaseProduct.active = true')
+                ->setParameter('publicShopShowcase', $showcaseId)
+            ;
+        }
 
         if ($search !== '') {
             $queryBuilder

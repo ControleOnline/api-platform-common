@@ -9,6 +9,8 @@ use ControleOnline\Repository\CategoryRepository;
 use ControleOnline\Service\ConfigService;
 use ControleOnline\Service\DomainService;
 use ControleOnline\Service\PublicShopCategoryService;
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 class PublicShopCategoryServiceTest extends TestCase
@@ -19,17 +21,18 @@ class PublicShopCategoryServiceTest extends TestCase
         $repository = $this->createMock(CategoryRepository::class);
         $repository->expects(self::once())
             ->method('findPublicShopCategories')
-            ->with(21, 'bebida', true, 2, 10)
+            ->with(21, 'bebida', true, 2, 10, null)
             ->willReturn([]);
         $repository->expects(self::once())
             ->method('countPublicShopCategories')
-            ->with(21, 'bebida', true)
+            ->with(21, 'bebida', true, null)
             ->willReturn(0);
 
         $result = (new PublicShopCategoryService(
             $domainService,
             $configService,
-            $repository
+            $repository,
+            $this->createEntityManager()
         ))->getCollection(21, 'bebida', true, 2, 10);
 
         self::assertSame(0, $result['totalItems']);
@@ -47,7 +50,8 @@ class PublicShopCategoryServiceTest extends TestCase
         $result = (new PublicShopCategoryService(
             $domainService,
             $configService,
-            $repository
+            $repository,
+            $this->createEntityManager()
         ))->getCollection(99, '', false, 1, 30);
 
         self::assertSame([], $result['items']);
@@ -65,7 +69,8 @@ class PublicShopCategoryServiceTest extends TestCase
         $result = (new PublicShopCategoryService(
             $domainService,
             $configService,
-            $repository
+            $repository,
+            $this->createEntityManager()
         ))->getCollection(3, '', false, 1, 30);
 
         self::assertSame([], $result['items']);
@@ -102,5 +107,16 @@ class PublicShopCategoryServiceTest extends TestCase
         $reflection = new \ReflectionObject($entity);
         $property = $reflection->getProperty('id');
         $property->setValue($entity, $id);
+    }
+
+    private function createEntityManager(): EntityManagerInterface
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn(false);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->method('getConnection')->willReturn($connection);
+
+        return $entityManager;
     }
 }
