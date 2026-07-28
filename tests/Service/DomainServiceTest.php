@@ -46,6 +46,23 @@ class DomainServiceTest extends TestCase
         self::assertSame('admin.controleonline.com', $service->getDomain());
     }
 
+    public function testGetDomainUsesTheOriginHostWhenTheAppDomainIsUndefined(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push($this->createRequest(
+            domain: 'undefined',
+            uri: 'https://api.controleonline.com/create-account',
+            origin: 'https://erp.jaguncos.com.br',
+        ));
+
+        $service = new DomainService(
+            $this->createStub(EntityManagerInterface::class),
+            $requestStack,
+        );
+
+        self::assertSame('erp.jaguncos.com.br', $service->getDomain());
+    }
+
     public function testGetDomainUsesTheRefererHostWhenTheAppDomainIsMissing(): void
     {
         $requestStack = new RequestStack();

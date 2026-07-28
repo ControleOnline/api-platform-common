@@ -85,6 +85,10 @@ class DomainService
             return null;
         }
 
+        if (in_array(strtolower($candidate), ['undefined', 'null', 'false'], true)) {
+            return null;
+        }
+
         $parsedHost = $this->extractHostFromUrl($candidate);
         if ($parsedHost !== null) {
             return $parsedHost;
@@ -96,6 +100,10 @@ class DomainService
             '',
             $candidate,
         );
+
+        if (in_array(strtolower($candidate), ['undefined', 'null', 'false'], true)) {
+            return null;
+        }
 
         return $candidate !== '' ? $candidate : null;
     }

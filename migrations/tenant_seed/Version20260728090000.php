@@ -14,6 +14,7 @@ final class Version20260728090000 extends TenantAwareMigration
     private const JAGUNCOS_COMPANY_NAME = 'Jagunços';
     private const MENU_CATEGORY_NAME = 'Configuracoes';
     private const MENU_CATEGORY_CONTEXT = 'menu';
+    private const DEFAULT_THEME = 'DEFAULT';
 
     public function getDescription(): string
     {
@@ -27,6 +28,7 @@ final class Version20260728090000 extends TenantAwareMigration
 
         $this->seedLanguages();
         $this->seedMainCompany($domain, $companyName);
+        $this->seedDefaultTheme();
         $this->seedPeopleDomain($domain, $companyName);
 
         $this->seedModules();
@@ -111,8 +113,9 @@ final class Version20260728090000 extends TenantAwareMigration
     {
         $this->addSql(
             'INSERT INTO people_domain (people_id, domain, theme_id, domain_type)
-             SELECT people.id, :domain, NULL, :domain_type
+             SELECT people.id, :domain, theme.id, :domain_type
              FROM people
+             INNER JOIN theme ON theme.theme = :theme
              WHERE people.alias = :alias
                AND people.people_type = :people_type
                AND NOT EXISTS (
@@ -123,8 +126,40 @@ final class Version20260728090000 extends TenantAwareMigration
             [
                 'domain' => $domain,
                 'domain_type' => 'ERP',
+                'theme' => self::DEFAULT_THEME,
                 'alias' => $companyName,
                 'people_type' => 'J',
+            ]
+        );
+
+        $this->addSql(
+            'UPDATE people_domain
+             INNER JOIN theme ON theme.theme = :theme
+             SET people_domain.theme_id = theme.id
+             WHERE people_domain.domain = :domain
+               AND people_domain.theme_id IS NULL',
+            [
+                'domain' => $domain,
+                'theme' => self::DEFAULT_THEME,
+            ]
+        );
+    }
+
+    private function seedDefaultTheme(): void
+    {
+        $this->addSql(
+            'INSERT INTO theme (theme, background, colors)
+             SELECT :theme, NULL, :colors
+             FROM DUAL
+             WHERE NOT EXISTS (
+                 SELECT 1 FROM theme WHERE theme = :theme
+             )',
+            [
+                'theme' => self::DEFAULT_THEME,
+                'colors' => json_encode(
+                    $this->getDefaultThemeColors(),
+                    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                ),
             ]
         );
     }
@@ -142,6 +177,40 @@ final class Version20260728090000 extends TenantAwareMigration
                 $module
             );
         }
+    }
+
+    private function getDefaultThemeColors(): array
+    {
+        return [
+            'primary' => '#1C8FBD',
+            'secondary' => '#1C8FBD',
+            'accent' => '#FEBC1D',
+            'background' => '#F3F7FB',
+            'surface' => '#FFFFFF',
+            'cardBackground' => '#FFFFFF',
+            'cardBorder' => '#D7E1EC',
+            'textPrimary' => '#111827',
+            'textSecondary' => '#6C7787',
+            'headerText' => '#0F172A',
+            'linkText' => '#1C8FBD',
+            'buttonBackground' => '#1C8FBD',
+            'buttonText' => '#FFFFFF',
+            'buttonIcon' => '#1C8FBD',
+            'navigationBackground' => '#F1F8FB',
+            'navigationText' => '#6C7787',
+            'navigationActiveText' => '#1C8FBD',
+            'navigationActiveIcon' => '#1C8FBD',
+            'inputBackground' => '#F1F5F9',
+            'inputBorder' => '#E2E8F0',
+            'inputText' => '#0F172A',
+            'inputPlaceholderText' => '#6C7787',
+            'success' => '#10B981',
+            'warning' => '#F2C037',
+            'error' => '#C10015',
+            'info' => '#31CCEC',
+            'positive' => '#4CAF50',
+            'negative' => '#C10015',
+        ];
     }
 
     private function seedMenuCategory(string $domain): void

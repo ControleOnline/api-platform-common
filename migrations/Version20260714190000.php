@@ -609,12 +609,12 @@ final class Version20260714190000 extends AbstractMigration
         $this->addSql('CREATE TABLE IF NOT EXISTS `theme` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `theme` varchar(64) CHARACTER SET utf8 NOT NULL DEFAULT \'Default\',
-  `background` int(11) NOT NULL,
+  `background` int(11) DEFAULT NULL,
   `colors` longtext CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `theme` (`theme`),
   KEY `background` (`background`),
-  CONSTRAINT `theme_ibfk_1` FOREIGN KEY (`background`) REFERENCES `files` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `theme_ibfk_1` FOREIGN KEY (`background`) REFERENCES `files` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
         $this->addSql('CREATE TABLE IF NOT EXISTS `timezones` (
   `id` smallint(10) unsigned NOT NULL AUTO_INCREMENT,
