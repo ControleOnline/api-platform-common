@@ -11,13 +11,11 @@ final class Version20260717190000 extends TenantAwareMigration
 {
     public function getDescription(): string
     {
-        return 'Create the cron_jobs table and seed the main-company cron jobs.';
+        return 'Create the cron_jobs table.';
     }
 
     public function up(Schema $schema): void
     {
-        $executionDomain = $this->resolveExecutionDomain();
-
         $this->addSql('CREATE TABLE IF NOT EXISTS `cron_jobs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `people_id` int(11) NOT NULL,
@@ -32,54 +30,8 @@ final class Version20260717190000 extends TenantAwareMigration
   `sort_order` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `cron_jobs_people_job_key_unique` (`people_id`,`job_key`),
-  KEY `cron_jobs_people_id_idx` (`people_id`),
-  CONSTRAINT `cron_jobs_people_id_fk` FOREIGN KEY (`people_id`) REFERENCES `people` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `cron_jobs_people_id_idx` (`people_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
-
-        $peopleId = $this->getMainCompanyId();
-
-        foreach ($this->getCronJobsSeed($executionDomain) as $job) {
-            $this->addSql(
-                'INSERT INTO cron_jobs (
-                    people_id,
-                    job_key,
-                    title,
-                    description,
-                    enabled,
-                    cron_expression,
-                    command,
-                    arguments,
-                    background,
-                    sort_order
-                ) VALUES (
-                    :people_id,
-                    :job_key,
-                    :title,
-                    :description,
-                    :enabled,
-                    :cron_expression,
-                    :command,
-                    :arguments,
-                    :background,
-                    :sort_order
-                )',
-                [
-                    'people_id' => $peopleId,
-                    'job_key' => $job['jobKey'],
-                    'title' => $job['title'],
-                    'description' => $job['description'],
-                    'enabled' => $job['enabled'] ? 1 : 0,
-                    'cron_expression' => $job['cronExpression'],
-                    'command' => $job['command'],
-                    'arguments' => json_encode(
-                        $job['arguments'],
-                        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-                    ),
-                    'background' => $job['background'] ? 1 : 0,
-                    'sort_order' => $job['sortOrder'],
-                ]
-            );
-        }
     }
 
     public function down(Schema $schema): void
@@ -87,92 +39,4 @@ final class Version20260717190000 extends TenantAwareMigration
         return;
     }
 
-    /**
-     * @return array<int, array{
-     *     jobKey: string,
-     *     title: string,
-     *     description: string,
-     *     enabled: bool,
-     *     cronExpression: string,
-     *     command: string,
-     *     arguments: array<int, string>,
-     *     background: bool,
-     *     sortOrder: int
-     * }>
-     */
-    private function getCronJobsSeed(string $domain): array
-    {
-        return [
-            [
-                'jobKey' => 'websocket_start',
-                'title' => 'Servidor WebSocket',
-                'description' => 'Mantem o servidor WebSocket da API ativo.',
-                'enabled' => true,
-                'cronExpression' => '* * * * *',
-                'command' => 'websocket:start',
-                'arguments' => [
-                    '--domain=' . $domain,
-                    '-p',
-                    '8080',
-                    '-b',
-                    '0.0.0.0',
-                ],
-                'background' => true,
-                'sortOrder' => 10,
-            ],
-            [
-                'jobKey' => 'tenant_messenger_consume',
-                'title' => 'Consumer async',
-                'description' => 'Mantem o consumer async por tenant ativo.',
-                'enabled' => true,
-                'cronExpression' => '* * * * *',
-                'command' => 'tenant:messenger:consume',
-                'arguments' => [
-                    'async',
-                    '--domain=' . $domain,
-                ],
-                'background' => true,
-                'sortOrder' => 20,
-            ],
-            [
-                'jobKey' => 'tenant_integration_start',
-                'title' => 'Integracoes por tenant',
-                'description' => 'Processa a fila de integracoes por tenant.',
-                'enabled' => true,
-                'cronExpression' => '* * * * *',
-                'command' => 'tenant:integration:start',
-                'arguments' => [
-                    '--domain=' . $domain,
-                ],
-                'background' => true,
-                'sortOrder' => 30,
-            ],
-            [
-                'jobKey' => 'import_start',
-                'title' => 'Importacoes',
-                'description' => 'Processa a fila de importacoes pendentes.',
-                'enabled' => true,
-                'cronExpression' => '* * * * *',
-                'command' => 'import:start',
-                'arguments' => [
-                    '--domain=' . $domain,
-                ],
-                'background' => true,
-                'sortOrder' => 40,
-            ],
-            [
-                'jobKey' => 'maintenance_run',
-                'title' => 'Manutencao',
-                'description' => 'Executa as rotinas de manutencao da empresa principal.',
-                'enabled' => true,
-                'cronExpression' => '* * * * *',
-                'command' => 'app:maintenance:run',
-                'arguments' => [
-                    '--domain=' . $domain,
-                ],
-                'background' => true,
-                'sortOrder' => 50,
-            ],
-        ];
-    }
 }
