@@ -53,7 +53,7 @@ class ConfigService
         People $people,
         string $key,
         $values,
-        ?Module $module,
+        Module $module,
         ?string $visibility = 'private'
     ) {
         $this->technicalConfigAccessService->assertCanManageConfig($people, $key);
@@ -114,7 +114,7 @@ class ConfigService
             $this->resolvePeopleReference($payload['people'] ?? ''),
             $payload['configKey'],
             $this->decodeConfigValue($payload['configValue'] ?? null),
-            $this->resolveModuleReference($payload['module'] ?? ''),
+            $this->resolveModuleReference($payload['module'] ?? '') ?? $this->resolveConfigModule(),
             $payload['visibility'] ?? 'public'
         );
     }
@@ -127,7 +127,7 @@ class ConfigService
     public function addConfigsFromPayload(array $payload): array
     {
         $people = $this->resolvePeopleReference($payload['people'] ?? '');
-        $module = $this->resolveModuleReference($payload['module'] ?? '');
+        $module = $this->resolveModuleReference($payload['module'] ?? '') ?? $this->resolveConfigModule();
         $visibility = $payload['visibility'] ?? 'public';
         $configs = is_array($payload['configs'] ?? null) ? $payload['configs'] : [];
         $savedItems = [];
@@ -185,6 +185,27 @@ class ConfigService
         return $this->manager->getRepository(Module::class)->find(
             $this->normalizeReferenceId($moduleReference)
         );
+    }
+
+    private function resolveConfigModule(): Module
+    {
+        $repository = $this->manager->getRepository(Module::class);
+
+        foreach (['financial', 'config', 'common', 'ui-manager'] as $moduleName) {
+            $module = $repository->findOneBy(['name' => $moduleName]);
+
+            if ($module instanceof Module) {
+                return $module;
+            }
+        }
+
+        $module = $repository->findOneBy([], ['id' => 'ASC']);
+
+        if ($module instanceof Module) {
+            return $module;
+        }
+
+        throw new \RuntimeException('No module available to attach discovered configs.');
     }
 
     public function resolveDeviceReference(mixed $deviceReference): ?Device
@@ -340,10 +361,7 @@ class ConfigService
             'installments' => 'single',
             'paymentCode' => null
         ]];
-        /**
-         * @todo Module need be variable
-         */
-        $module = $this->manager->getRepository(Module::class)->find(8);
+        $module = $this->resolveConfigModule();
         $wallet = $this->walletService->discoverWallet($company, 'Caixa');
         $this->addConfig(
             $company,
@@ -372,10 +390,7 @@ class ConfigService
         ]];
 
         $this->walletService->discoverWallet($company, 'Reserva');
-        /**
-         * @todo Module need be variable
-         */
-        $module = $this->manager->getRepository(Module::class)->find(8);
+        $module = $this->resolveConfigModule();
         $wallet = $this->walletService->discoverWallet($company, 'Reserva');
         $this->addConfig(
             $company,
@@ -416,10 +431,7 @@ class ConfigService
         ];
 
 
-        /**
-         * @todo Module need be variable
-         */
-        $module = $this->manager->getRepository(Module::class)->find(8);
+        $module = $this->resolveConfigModule();
         $wallet = $this->walletService->discoverWallet($company, 'Infine Pay');
         $this->addConfig(
             $company,
@@ -456,10 +468,7 @@ class ConfigService
             );
         }
 
-        /**
-         * @todo Module need be variable
-         */
-        $module = $this->manager->getRepository(Module::class)->find(8);
+        $module = $this->resolveConfigModule();
         $wallet = $this->walletService->discoverWallet($company, 'Cielo');
         $this->addConfig(
             $company,

@@ -129,9 +129,15 @@ class ConfigServiceTest extends TestCase
 
         $moduleRepository = $this->createMock(EntityRepository::class);
         $moduleRepository
+            ->method('findOneBy')
+            ->willReturnCallback(
+                static fn(array $criteria): ?Module => ($criteria['name'] ?? null) === 'financial'
+                    ? new Module()
+                    : null
+            );
+        $moduleRepository
             ->method('find')
-            ->with(8)
-            ->willReturn(new Module());
+            ->willReturn(null);
 
         $manager = $this->createMock(EntityManagerInterface::class);
         $manager
