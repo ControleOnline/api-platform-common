@@ -53,7 +53,7 @@ class ConfigService
         People $people,
         string $key,
         $values,
-        Module $module,
+        ?Module $module,
         ?string $visibility = 'private'
     ) {
         $this->technicalConfigAccessService->assertCanManageConfig($people, $key);
