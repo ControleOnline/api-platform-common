@@ -1,0 +1,3 @@
+controleonline_common:
+    resource: ../../src/Controller/
+    type: attribute
