@@ -63,6 +63,22 @@ class DomainServiceTest extends TestCase
         self::assertSame('erp.jaguncos.com.br', $service->getDomain());
     }
 
+    public function testGetDomainPrefersTheHeaderOverQueryString(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push($this->createRequest(
+            domain: 'loja.jaguncos.com.br',
+            uri: 'https://s.controleonline.com/people/company/default?app-domain=s.controleonline.com',
+        ));
+
+        $service = new DomainService(
+            $this->createStub(EntityManagerInterface::class),
+            $requestStack,
+        );
+
+        self::assertSame('loja.jaguncos.com.br', $service->getDomain());
+    }
+
     public function testGetDomainUsesTheRefererHostWhenTheAppDomainIsMissing(): void
     {
         $requestStack = new RequestStack();

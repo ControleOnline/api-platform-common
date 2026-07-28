@@ -54,11 +54,11 @@ class DomainService
     private function resolveRequestDomain(Request $request): ?string
     {
         $candidateValues = [
+            $request->headers->get('app-domain'),
             $request->attributes->get('App-domain'),
             $request->attributes->get('app-domain'),
             $request->query->get('App-domain'),
             $request->query->get('app-domain'),
-            $request->headers->get('app-domain'),
             $request->headers->get('origin'),
             $request->headers->get('referer'),
         ];
