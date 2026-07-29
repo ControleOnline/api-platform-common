@@ -57,11 +57,16 @@ class DomainService
             $request->headers->get('app-domain'),
             $request->attributes->get('App-domain'),
             $request->attributes->get('app-domain'),
-            $request->query->get('App-domain'),
-            $request->query->get('app-domain'),
             $request->headers->get('origin'),
             $request->headers->get('referer'),
         ];
+
+        if ($this->allowsDomainQueryParam($request)) {
+            array_splice($candidateValues, 3, 0, [
+                $request->query->get('App-domain'),
+                $request->query->get('app-domain'),
+            ]);
+        }
 
         foreach ($candidateValues as $candidate) {
             $domain = $this->normalizeDomainCandidate($candidate);
@@ -72,6 +77,11 @@ class DomainService
         }
 
         return null;
+    }
+
+    private function allowsDomainQueryParam(Request $request): bool
+    {
+        return preg_match('#^/files/\d+/download$#', $request->getPathInfo()) === 1;
     }
 
     private function normalizeDomainCandidate(mixed $candidate): ?string

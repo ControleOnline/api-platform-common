@@ -79,6 +79,37 @@ class DomainServiceTest extends TestCase
         self::assertSame('loja.jaguncos.com.br', $service->getDomain());
     }
 
+    public function testGetDomainIgnoresQueryStringOnApiRequests(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push($this->createRequest(
+            uri: 'https://s.controleonline.com/people/company/default?app-domain=loja.jaguncos.com.br',
+            origin: 'https://cardapio.jaguncos.com.br',
+        ));
+
+        $service = new DomainService(
+            $this->createStub(EntityManagerInterface::class),
+            $requestStack,
+        );
+
+        self::assertSame('cardapio.jaguncos.com.br', $service->getDomain());
+    }
+
+    public function testGetDomainAllowsQueryStringForFileDownloads(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push($this->createRequest(
+            uri: 'https://api.controleonline.com/files/8405/download?app-domain=loja.jaguncos.com.br',
+        ));
+
+        $service = new DomainService(
+            $this->createStub(EntityManagerInterface::class),
+            $requestStack,
+        );
+
+        self::assertSame('loja.jaguncos.com.br', $service->getDomain());
+    }
+
     public function testGetDomainUsesTheRefererHostWhenTheAppDomainIsMissing(): void
     {
         $requestStack = new RequestStack();
