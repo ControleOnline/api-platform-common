@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -29,7 +30,11 @@ class GetFileDataAction
      */
     private $kernel;
 
-    public function __construct(EntityManagerInterface $entityManager, KernelInterface $appKernel)
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        KernelInterface $appKernel,
+        private readonly AuthorizationCheckerInterface $authorizationChecker
+    )
     {
         $this->kernel  = $appKernel;
         $this->manager = $entityManager;
@@ -44,6 +49,16 @@ class GetFileDataAction
             if (!$file)
                 throw new \Exception('Not found', 404);
 
+            if (!$this->canDownloadFile($file)) {
+                return new JsonResponse([
+                    'response' => [
+                        'data'    => [],
+                        'count'   => 0,
+                        'error'   => 'Access denied',
+                        'success' => false,
+                    ],
+                ], 403);
+            }
 
             $content  = $file->getContent(true);
             $response = new StreamedResponse(function () use ($content) {
@@ -76,5 +91,14 @@ class GetFileDataAction
                 ],
             ]);
         }
+    }
+
+    private function canDownloadFile(File $file): bool
+    {
+        if ($file->isPublic() && strtolower((string) $file->getFileType()) === 'image') {
+            return true;
+        }
+
+        return $this->authorizationChecker->isGranted('ROLE_HUMAN');
     }
 }

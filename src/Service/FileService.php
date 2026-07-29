@@ -63,13 +63,15 @@ class FileService
     return [
       'id'     => $file->getId(),
       'domain' => $this->domainService->getMainDomain(),
-      'url'    => '/files/' . $file->getId() . '/download'
+      'url'    => '/files/' . $file->getId() . '/download',
+      'fileType' => $file->getFileType(),
+      'public' => $file->isPublic()
     ];
   }
 
-  public function addFile(?People $people, string  $content, string $context, ?string $fileName = null, ?string $fileType = null, ?string $extension = null): File
+  public function addFile(?People $people, string $content, string $context, ?string $fileName = null, ?string $fileType = null, ?string $extension = null, bool $public = false): File
   {
-    return $this->manager->getRepository(File::class)->addFile($people, $content, $context, $fileName, $fileType, $extension);
+    return $this->manager->getRepository(File::class)->addFile($people, $content, $context, $fileName, $fileType, $extension, $public);
   }
 
   public function resolvePeopleReference(mixed $peopleReference): ?People

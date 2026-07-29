@@ -105,6 +105,10 @@ class File
     #[Column(type: 'string', length: 255, nullable: false)]
     private string $content;
 
+    #[Groups(['file:read', 'file_item:read', 'file:write', 'product_file:read', 'people:read'])]
+    #[Column(name: 'public', type: 'boolean', options: ['default' => false])]
+    private bool $public = false;
+
     #[Groups(['spool_item:read', 'file_item:read', 'file:write', 'file:read', 'order_file:read'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['people' => 'exact'])]
     #[JoinColumn(name: 'people_id', referencedColumnName: 'id', nullable: true)]
@@ -185,6 +189,22 @@ class File
     public function setContext(string $context): self
     {
         $this->context = $context;
+        return $this;
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->public;
+    }
+
+    public function getPublic(): bool
+    {
+        return $this->isPublic();
+    }
+
+    public function setPublic(bool $public): self
+    {
+        $this->public = $public;
         return $this;
     }
 }

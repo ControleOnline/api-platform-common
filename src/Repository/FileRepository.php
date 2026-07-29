@@ -20,7 +20,7 @@ class FileRepository extends ServiceEntityRepository
         parent::__construct($registry, File::class);
     }
 
-    public function addFile(People $people, string  $content, string $context, string $fileName, string $fileType, string $extension): File
+    public function addFile(People $people, string $content, string $context, string $fileName, string $fileType, string $extension, bool $public = false): File
     {
 
         $file = new File();
@@ -30,6 +30,7 @@ class FileRepository extends ServiceEntityRepository
         $file->setFileType($fileType);
         $file->setExtension($extension);
         $file->setPeople($people);
+        $file->setPublic($public && strtolower($fileType) === 'image');
         
         $em = $this->getEntityManager();
         $em->persist($file);
