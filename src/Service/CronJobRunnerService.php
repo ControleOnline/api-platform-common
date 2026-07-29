@@ -25,35 +25,28 @@ class CronJobRunnerService
             ];
         }
 
-        if (!($job['enabled'] ?? false)) {
-            return [
-                'key' => $jobKey,
-                'status' => 'ignored',
-                'summary' => ['message' => 'Cron job is disabled.'],
-            ];
-        }
+        return $this->runConfiguredJob($job);
+    }
+
+    public function runConfiguredJob(array $job): array
+    {
+        $jobKey = (string) ($job['key'] ?? $job['id'] ?? '');
 
         if (!($job['isValid'] ?? false)) {
-            return [
-                'key' => $jobKey,
-                'status' => 'ignored',
-                'summary' => ['message' => 'Cron expression is invalid.'],
-            ];
+            return $this->finishIgnoredJob($job, $jobKey, 'Cron expression is invalid.');
         }
 
         $command = trim((string) ($job['command'] ?? ''));
         if ($command === '') {
-            return [
-                'key' => $jobKey,
-                'status' => 'ignored',
-                'summary' => ['message' => 'Cron job command is empty.'],
-            ];
+            return $this->finishIgnoredJob($job, $jobKey, 'Cron job command is empty.');
         }
 
-        $arguments = array_map(
-            static fn(string $argument): string => trim($argument),
-            $job['arguments'] ?? []
-        );
+        if (!($job['enabled'] ?? false)) {
+            return $this->finishIgnoredJob($job, $jobKey, 'Cron job is disabled.');
+        }
+
+        $arguments = $this->buildExecutionArguments($job);
+        $startedAt = new \DateTimeImmutable();
 
         $process = new Process(
             array_merge(
@@ -65,32 +58,61 @@ class CronJobRunnerService
         $process->setTimeout(null);
 
         try {
-            $process->disableOutput();
-            $process->setOptions(['create_new_console' => true]);
-            $process->start();
+            $process->run();
+
+            $finishedAt = new \DateTimeImmutable();
+            $status = $process->isSuccessful() ? 'success' : 'failure';
+            $summary = [
+                'exitCode' => $process->getExitCode(),
+                'commandLine' => $process->getCommandLine(),
+                'output' => $process->getOutput(),
+                'errorOutput' => $process->getErrorOutput(),
+            ];
+
+            $this->cronJobService->recordExecution(
+                $job,
+                $status,
+                $startedAt,
+                $finishedAt,
+                $process->getExitCode(),
+                $summary
+            );
 
             $this->logInfo(
                 sprintf(
-                    '[cron:%s] started | pid=%s | command=%s',
+                    '[cron:%s] finished | status=%s | command=%s',
                     (string) ($job['id'] ?? $jobKey),
-                    (string) ($process->getPid() ?? ''),
+                    $status,
                     $process->getCommandLine()
                 ),
                 $this->buildLogContext($job, [
-                    'pid' => $process->getPid(),
+                    'status' => $status,
+                    'exitCode' => $process->getExitCode(),
                     'commandLine' => $process->getCommandLine(),
                 ])
             );
 
             return [
                 'key' => $jobKey,
-                'status' => 'started',
-                'summary' => [
-                    'pid' => $process->getPid(),
-                    'commandLine' => $process->getCommandLine(),
-                ],
+                'status' => $status,
+                'summary' => $summary,
             ];
         } catch (\Throwable $exception) {
+            $finishedAt = new \DateTimeImmutable();
+            $summary = [
+                'message' => $exception->getMessage(),
+                'commandLine' => $process->getCommandLine(),
+            ];
+
+            $this->cronJobService->recordExecution(
+                $job,
+                'error',
+                $startedAt,
+                $finishedAt,
+                null,
+                $summary
+            );
+
             $this->logError(
                 sprintf(
                     '[cron:%s] failed | %s',
@@ -110,6 +132,44 @@ class CronJobRunnerService
                 ],
             ];
         }
+    }
+
+    private function finishIgnoredJob(array $job, string $jobKey, string $message): array
+    {
+        $now = new \DateTimeImmutable();
+        $summary = ['message' => $message];
+
+        $this->cronJobService->recordExecution($job, 'ignored', $now, $now, null, $summary);
+
+        return [
+            'key' => $jobKey,
+            'status' => 'ignored',
+            'summary' => $summary,
+        ];
+    }
+
+    private function buildExecutionArguments(array $job): array
+    {
+        $arguments = array_values(array_filter(
+            array_map(
+                static fn(mixed $argument): string => trim((string) $argument),
+                $job['arguments'] ?? []
+            ),
+            static fn(string $argument): bool => $argument !== ''
+        ));
+
+        $domain = trim((string) ($job['domain'] ?? ''));
+        if ($domain === '') {
+            return $arguments;
+        }
+
+        $arguments = array_values(array_filter(
+            $arguments,
+            static fn(string $argument): bool => !str_starts_with($argument, '--domain')
+        ));
+        $arguments[] = '--domain=' . $domain;
+
+        return $arguments;
     }
 
     private function buildLogContext(array $job, array $context = []): array

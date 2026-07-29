@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ControleOnline\Controller\DiscoveryCronJobCommandsAction;
 use ControleOnline\Repository\CronJobRepository;
+use ControleOnline\State\CronJobProvider;
 use ControleOnline\State\CronJobPersistProcessor;
 use Cron\CronExpression;
 use Doctrine\ORM\Mapping as ORM;
@@ -20,8 +21,14 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     operations: [
-        new Get(security: 'is_granted(\'ROLE_SUPER\')'),
-        new GetCollection(security: 'is_granted(\'ROLE_SUPER\')'),
+        new Get(
+            security: 'is_granted(\'ROLE_SUPER\')',
+            provider: CronJobProvider::class
+        ),
+        new GetCollection(
+            security: 'is_granted(\'ROLE_SUPER\')',
+            provider: CronJobProvider::class
+        ),
         new Post(
             security: 'is_granted(\'ROLE_SUPER\')',
             processor: CronJobPersistProcessor::class
@@ -30,7 +37,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
             security: 'is_granted(\'ROLE_SUPER\')',
             processor: CronJobPersistProcessor::class
         ),
-        new Delete(security: 'is_granted(\'ROLE_SUPER\')'),
+        new Delete(
+            security: 'is_granted(\'ROLE_SUPER\')',
+            processor: CronJobPersistProcessor::class
+        ),
         new GetCollection(
             uriTemplate: '/cron_jobs/commands',
             controller: DiscoveryCronJobCommandsAction::class,
@@ -65,9 +75,21 @@ class CronJob
     private int $id = 0;
 
     #[Groups(['cron_job:read'])]
-    #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'people_id', referencedColumnName: 'id', nullable: true)]
     #[ORM\ManyToOne(targetEntity: People::class)]
     private ?People $people = null;
+
+    #[Groups(['cron_job:read', 'cron_job:write'])]
+    #[ORM\Column(name: 'database_id', type: 'integer', nullable: true)]
+    private ?int $databaseId = null;
+
+    #[Groups(['cron_job:read', 'cron_job:write'])]
+    #[ORM\Column(name: 'server_id', type: 'integer', nullable: true)]
+    private ?int $serverId = null;
+
+    #[Groups(['cron_job:read', 'cron_job:write'])]
+    #[ORM\Column(name: 'scope', type: 'string', length: 20, nullable: false, options: ['default' => 'tenant'])]
+    private string $scope = 'tenant';
 
     #[Groups(['cron_job:read', 'cron_job:write'])]
     #[ORM\Column(name: 'title', type: 'string', length: 255, nullable: false)]
@@ -93,9 +115,24 @@ class CronJob
     #[ORM\Column(name: 'arguments', type: 'json', nullable: false)]
     private array $arguments = [];
 
+    #[Groups(['cron_job:read'])]
+    #[ORM\Column(name: 'last_execution_at', type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $lastExecutionAt = null;
+
+    #[Groups(['cron_job:read'])]
+    #[ORM\Column(name: 'last_status', type: 'string', length: 20, nullable: true)]
+    private ?string $lastStatus = null;
+
     public function getId(): int
     {
         return $this->id;
+    }
+
+    public function setId(int $id): self
+    {
+        $this->id = max(0, $id);
+
+        return $this;
     }
 
     public function getPeople(): ?People
@@ -106,6 +143,43 @@ class CronJob
     public function setPeople(?People $people): self
     {
         $this->people = $people;
+
+        return $this;
+    }
+
+    public function getDatabaseId(): ?int
+    {
+        return $this->databaseId;
+    }
+
+    public function setDatabaseId(?int $databaseId): self
+    {
+        $this->databaseId = $databaseId !== null && $databaseId > 0 ? $databaseId : null;
+
+        return $this;
+    }
+
+    public function getServerId(): ?int
+    {
+        return $this->serverId;
+    }
+
+    public function setServerId(?int $serverId): self
+    {
+        $this->serverId = $serverId !== null && $serverId > 0 ? $serverId : null;
+
+        return $this;
+    }
+
+    public function getScope(): string
+    {
+        return $this->scope;
+    }
+
+    public function setScope(string $scope): self
+    {
+        $scope = strtolower(trim($scope));
+        $this->scope = in_array($scope, ['master', 'tenant'], true) ? $scope : 'tenant';
 
         return $this;
     }
@@ -184,6 +258,54 @@ class CronJob
             ),
             static fn(string $argument): bool => $argument !== ''
         ));
+
+        return $this;
+    }
+
+    public function getLastExecutionAt(): ?\DateTimeImmutable
+    {
+        return $this->lastExecutionAt;
+    }
+
+    public function setLastExecutionAt(mixed $lastExecutionAt): self
+    {
+        if ($lastExecutionAt instanceof \DateTimeImmutable) {
+            $this->lastExecutionAt = $lastExecutionAt;
+
+            return $this;
+        }
+
+        if ($lastExecutionAt instanceof \DateTimeInterface) {
+            $this->lastExecutionAt = \DateTimeImmutable::createFromInterface($lastExecutionAt);
+
+            return $this;
+        }
+
+        $lastExecutionAt = trim((string) $lastExecutionAt);
+        if ($lastExecutionAt === '') {
+            $this->lastExecutionAt = null;
+
+            return $this;
+        }
+
+        try {
+            $this->lastExecutionAt = new \DateTimeImmutable($lastExecutionAt);
+        } catch (\Throwable) {
+            $this->lastExecutionAt = null;
+        }
+
+        return $this;
+    }
+
+    public function getLastStatus(): ?string
+    {
+        return $this->lastStatus;
+    }
+
+    public function setLastStatus(?string $lastStatus): self
+    {
+        $lastStatus = trim((string) $lastStatus);
+        $this->lastStatus = $lastStatus !== '' ? $lastStatus : null;
 
         return $this;
     }

@@ -3,10 +3,10 @@
 namespace ControleOnline\Tests\Service;
 
 use ControleOnline\Entity\CronJob;
-use ControleOnline\Entity\People;
-use ControleOnline\Repository\CronJobRepository;
 use ControleOnline\Service\CronJobService;
-use ControleOnline\Service\PeopleRoleService;
+use ControleOnline\Service\DatabaseSwitchService;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Result;
 use PHPUnit\Framework\TestCase;
 
 class CronJobServiceTest extends TestCase
@@ -16,8 +16,8 @@ class CronJobServiceTest extends TestCase
         $appDomain = $this->getConfiguredAppDomain();
 
         $service = new CronJobService(
-            $this->createStub(CronJobRepository::class),
-            $this->createStub(PeopleRoleService::class),
+            $this->createStub(Connection::class),
+            $this->createStub(DatabaseSwitchService::class),
         );
 
         $normalized = $service->normalizeConfiguredJobs([
@@ -40,41 +40,41 @@ class CronJobServiceTest extends TestCase
             ['--domain=' . $appDomain, '-p', '8080'],
             $normalized['websocket_start']['arguments']
         );
-        self::assertSame(10, $normalized['websocket_start']['sortOrder']);
+        self::assertSame('tenant', $normalized['websocket_start']['scope']);
         self::assertTrue($normalized['websocket_start']['isValid']);
         self::assertFalse($normalized['invalid_job']['isValid']);
     }
 
-    public function testReturnsConfiguredJobsFromMainCompany(): void
+    public function testReturnsConfiguredJobsFromCentralTable(): void
     {
         $appDomain = $this->getConfiguredAppDomain();
+        $result = $this->createMock(Result::class);
+        $result->expects(self::once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'id' => 42,
+                    'database_id' => null,
+                    'server_id' => null,
+                    'scope' => 'tenant',
+                    'title' => 'Manutencao',
+                    'description' => 'Executa as rotinas de manutencao da empresa principal.',
+                    'enabled' => 1,
+                    'cronExpression' => '* * * * *',
+                    'command' => 'app:maintenance:run',
+                    'arguments' => json_encode(['--domain=' . $appDomain]),
+                ],
+            ]);
 
-        $mainCompany = $this->createStub(People::class);
-
-        $cronJob = $this->createCronJob(
-            'Manutencao',
-            'Executa as rotinas de manutencao da empresa principal.',
-            true,
-            '* * * * *',
-            'app:maintenance:run',
-            ['--domain=' . $appDomain],
-            42
-        );
-        $cronJob->setPeople($mainCompany);
-
-        $cronJobRepository = $this->createMock(CronJobRepository::class);
-        $cronJobRepository
-            ->expects(self::once())
-            ->method('findMainCompanyJobs')
-            ->with($mainCompany)
-            ->willReturn([$cronJob]);
-
-        $peopleRoleService = $this->createStub(PeopleRoleService::class);
-        $peopleRoleService->method('getMainCompany')->willReturn($mainCompany);
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn(1);
+        $connection->expects(self::once())
+            ->method('executeQuery')
+            ->willReturn($result);
 
         $service = new CronJobService(
-            $cronJobRepository,
-            $peopleRoleService,
+            $connection,
+            $this->createStub(DatabaseSwitchService::class),
         );
 
         $jobs = $service->getConfiguredJobs();

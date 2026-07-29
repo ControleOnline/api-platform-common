@@ -16,6 +16,10 @@ final class Version20260717193000 extends TenantAwareMigration
 
     public function up(Schema $schema): void
     {
+        if (!$this->tableExists('cron_jobs')) {
+            return;
+        }
+
         $this->addSql('ALTER TABLE `cron_jobs` DROP INDEX `cron_jobs_people_job_key_unique`');
         $this->addSql('ALTER TABLE `cron_jobs` DROP COLUMN `job_key`, DROP COLUMN `background`, DROP COLUMN `sort_order`');
     }
@@ -23,5 +27,16 @@ final class Version20260717193000 extends TenantAwareMigration
     public function down(Schema $schema): void
     {
         return;
+    }
+
+    private function tableExists(string $tableName): bool
+    {
+        return (int) $this->connection->fetchOne(
+            'SELECT COUNT(*)
+             FROM information_schema.TABLES
+             WHERE TABLE_SCHEMA = DATABASE()
+               AND TABLE_NAME = ?',
+            [$tableName]
+        ) > 0;
     }
 }

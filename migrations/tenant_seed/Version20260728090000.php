@@ -36,8 +36,6 @@ final class Version20260728090000 extends TenantAwareMigration
         $this->seedMenuLinkTypes();
         $this->seedMediaTypes();
         $this->seedTimezones();
-        $this->ensureCronJobsForeignKey();
-        $this->seedCronJobs($domain);
         $this->seedMaintenanceConfig($domain);
     }
 
@@ -299,65 +297,6 @@ final class Version20260728090000 extends TenantAwareMigration
         }
     }
 
-    private function seedCronJobs(string $domain): void
-    {
-        foreach ($this->getCronJobsSeed($domain) as $job) {
-            $this->addSql(
-                'INSERT INTO cron_jobs (
-                    people_id,
-                    title,
-                    description,
-                    enabled,
-                    cron_expression,
-                    command,
-                    arguments
-                )
-                SELECT
-                    people_domain.people_id,
-                    :title,
-                    :description,
-                    :enabled,
-                    :cron_expression,
-                    :command,
-                    :arguments
-                FROM people_domain
-                WHERE people_domain.domain = :domain
-                  AND NOT EXISTS (
-                    SELECT 1
-                    FROM cron_jobs
-                    WHERE people_id = people_domain.people_id
-                      AND command = :command
-                )',
-                [
-                    'domain' => $domain,
-                    'title' => $job['title'],
-                    'description' => $job['description'],
-                    'enabled' => $job['enabled'] ? 1 : 0,
-                    'cron_expression' => $job['cronExpression'],
-                    'command' => $job['command'],
-                    'arguments' => json_encode(
-                        $job['arguments'],
-                        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-                    ),
-                ]
-            );
-        }
-    }
-
-    private function ensureCronJobsForeignKey(): void
-    {
-        if ($this->foreignKeyExists('cron_jobs', 'cron_jobs_people_id_fk')) {
-            return;
-        }
-
-        $this->addSql(
-            'ALTER TABLE cron_jobs
-             ADD CONSTRAINT cron_jobs_people_id_fk
-             FOREIGN KEY (people_id) REFERENCES people (id)
-             ON DELETE CASCADE ON UPDATE CASCADE'
-        );
-    }
-
     private function seedMaintenanceConfig(string $domain): void
     {
         $this->addSql(
@@ -528,52 +467,6 @@ final class Version20260728090000 extends TenantAwareMigration
             ['name' => 'America/Guayaquil', 'utc_offset' => 'UTC -05:00', 'enabled' => 0],
             ['name' => 'Pacific/Galapagos', 'utc_offset' => 'UTC -06:00', 'enabled' => 0],
             ['name' => 'Pacific/Easter', 'utc_offset' => 'UTC -06:00', 'enabled' => 0],
-        ];
-    }
-
-    private function getCronJobsSeed(string $domain): array
-    {
-        return [
-            [
-                'title' => 'Servidor WebSocket',
-                'description' => 'Mantem o servidor WebSocket da API ativo.',
-                'enabled' => true,
-                'cronExpression' => '* * * * *',
-                'command' => 'websocket:start',
-                'arguments' => ['--domain=' . $domain, '-p', '8080', '-b', '0.0.0.0'],
-            ],
-            [
-                'title' => 'Consumer async',
-                'description' => 'Mantem o consumer async por tenant ativo.',
-                'enabled' => true,
-                'cronExpression' => '* * * * *',
-                'command' => 'tenant:messenger:consume',
-                'arguments' => ['async', '--domain=' . $domain],
-            ],
-            [
-                'title' => 'Integracoes por tenant',
-                'description' => 'Processa a fila de integracoes por tenant.',
-                'enabled' => true,
-                'cronExpression' => '* * * * *',
-                'command' => 'tenant:integration:start',
-                'arguments' => ['--domain=' . $domain],
-            ],
-            [
-                'title' => 'Importacoes',
-                'description' => 'Processa a fila de importacoes pendentes.',
-                'enabled' => true,
-                'cronExpression' => '* * * * *',
-                'command' => 'import:start',
-                'arguments' => ['--domain=' . $domain],
-            ],
-            [
-                'title' => 'Manutencao',
-                'description' => 'Executa as rotinas de manutencao da empresa principal.',
-                'enabled' => true,
-                'cronExpression' => '* * * * *',
-                'command' => 'app:maintenance:run',
-                'arguments' => ['--domain=' . $domain],
-            ],
         ];
     }
 
