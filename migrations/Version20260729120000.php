@@ -32,17 +32,19 @@ final class Version20260729120000 extends TenantAwareMigration
 
     private function tableExists(string $tableName): bool
     {
-        return (int) $this->connection->fetchOne(
-            'SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?',
+        return false !== $this->connection->fetchAssociative(
+            'SHOW TABLES LIKE ?',
             [$tableName]
-        ) > 0;
+        );
     }
 
     private function columnExists(string $tableName, string $columnName): bool
     {
-        return (int) $this->connection->fetchOne(
-            'SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?',
-            [$tableName, $columnName]
-        ) > 0;
+        $tableName = str_replace('`', '``', $tableName);
+
+        return false !== $this->connection->fetchAssociative(
+            sprintf('SHOW COLUMNS FROM `%s` LIKE ?', $tableName),
+            [$columnName]
+        );
     }
 }
