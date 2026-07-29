@@ -87,6 +87,49 @@ class ConfigServiceTest extends TestCase
         self::assertNull($service->getConfig(null, 'OAUTH_IFOOD_CLIENT_ID'));
     }
 
+    public function testDiscoveryModuleCreatesMissingModule(): void
+    {
+        $repository = $this->createMock(EntityRepository::class);
+        $repository
+            ->method('findOneBy')
+            ->with(['name' => 'integration'])
+            ->willReturn(null);
+
+        $manager = $this->createMock(EntityManagerInterface::class);
+        $manager
+            ->method('getRepository')
+            ->with(Module::class)
+            ->willReturn($repository);
+        $manager
+            ->expects(self::once())
+            ->method('persist')
+            ->with(self::callback(static function (Module $module): bool {
+                return $module->getName() === 'integration'
+                    && $module->getColor() === '$primary'
+                    && $module->getIcon() === 'link'
+                    && $module->getDescription() === 'Integracoes';
+            }));
+        $manager
+            ->expects(self::once())
+            ->method('flush');
+
+        $service = new ConfigService(
+            $manager,
+            $this->createStub(WalletService::class),
+            $this->createStub(PeopleService::class),
+            $this->createStub(TechnicalConfigAccessService::class)
+        );
+
+        $module = $service->discoveryModule(
+            'integration',
+            '$primary',
+            'link',
+            'Integracoes'
+        );
+
+        self::assertSame('integration', $module->getName());
+    }
+
     public function testDiscoveryMainConfigsMakesGatewayWalletsPublic(): void
     {
         $company = new People();

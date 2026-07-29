@@ -187,6 +187,36 @@ class ConfigService
         );
     }
 
+    public function discoveryModule(
+        string $name,
+        string $color = '$primary',
+        string $icon = 'settings',
+        ?string $description = null
+    ): Module {
+        $name = trim($name);
+        if ($name === '') {
+            throw new \InvalidArgumentException('Module name is required.');
+        }
+
+        $repository = $this->manager->getRepository(Module::class);
+        $module = $repository->findOneBy(['name' => $name]);
+
+        if ($module instanceof Module) {
+            return $module;
+        }
+
+        $module = new Module();
+        $module->setName($name);
+        $module->setColor($color);
+        $module->setIcon($icon);
+        $module->setDescription($description);
+
+        $this->manager->persist($module);
+        $this->manager->flush();
+
+        return $module;
+    }
+
     private function resolveConfigModule(): Module
     {
         $repository = $this->manager->getRepository(Module::class);
