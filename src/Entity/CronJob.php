@@ -80,14 +80,6 @@ class CronJob
     private ?People $people = null;
 
     #[Groups(['cron_job:read', 'cron_job:write'])]
-    #[ORM\Column(name: 'database_id', type: 'integer', nullable: true)]
-    private ?int $databaseId = null;
-
-    #[Groups(['cron_job:read', 'cron_job:write'])]
-    #[ORM\Column(name: 'server_id', type: 'integer', nullable: true)]
-    private ?int $serverId = null;
-
-    #[Groups(['cron_job:read', 'cron_job:write'])]
     #[ORM\Column(name: 'scope', type: 'string', length: 20, nullable: false, options: ['default' => 'tenant'])]
     private string $scope = 'tenant';
 
@@ -143,30 +135,6 @@ class CronJob
     public function setPeople(?People $people): self
     {
         $this->people = $people;
-
-        return $this;
-    }
-
-    public function getDatabaseId(): ?int
-    {
-        return $this->databaseId;
-    }
-
-    public function setDatabaseId(?int $databaseId): self
-    {
-        $this->databaseId = $databaseId !== null && $databaseId > 0 ? $databaseId : null;
-
-        return $this;
-    }
-
-    public function getServerId(): ?int
-    {
-        return $this->serverId;
-    }
-
-    public function setServerId(?int $serverId): self
-    {
-        $this->serverId = $serverId !== null && $serverId > 0 ? $serverId : null;
 
         return $this;
     }

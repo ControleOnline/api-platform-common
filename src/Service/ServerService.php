@@ -26,13 +26,14 @@ class ServerService
         try {
             $server = $this->connection->fetchAssociative(
                 'SELECT
-                    app_host,
-                    host,
-                    `user` AS server_user,
-                    port,
-                    driver
-                 FROM `servers`
-                 WHERE app_host = :app_host
+                    servers.`host`,
+                    servers.`user` AS server_user,
+                    servers.`port`,
+                    servers.`driver`
+                 FROM `tenancies`
+                 INNER JOIN `servers`
+                    ON servers.`id` = tenancies.`server_id`
+                 WHERE tenancies.`app_host` = :app_host
                  LIMIT 1',
                 [
                     'app_host' => $normalizedDomain,
@@ -49,7 +50,7 @@ class ServerService
         }
 
         return [
-            'appHost' => trim((string) ($server['app_host'] ?? $normalizedDomain)),
+            'appHost' => $normalizedDomain,
             'host' => trim((string) ($server['host'] ?? '')),
             'user' => trim((string) ($server['server_user'] ?? '')),
             'port' => (int) ($server['port'] ?? 0),

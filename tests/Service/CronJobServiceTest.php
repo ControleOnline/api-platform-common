@@ -54,8 +54,6 @@ class CronJobServiceTest extends TestCase
             ->willReturn([
                 [
                     'id' => 42,
-                    'database_id' => null,
-                    'server_id' => null,
                     'scope' => 'tenant',
                     'title' => 'Manutencao',
                     'description' => 'Executa as rotinas de manutencao da empresa principal.',

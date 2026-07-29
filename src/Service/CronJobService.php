@@ -67,6 +67,7 @@ class CronJobService
             foreach ($this->getTargetTenants($job) as $tenant) {
                 $executions[] = $job + [
                     'databaseId' => (int) $tenant['id'],
+                    'serverId' => $this->normalizeNullableInt($tenant['server_id'] ?? null),
                     'domain' => trim((string) $tenant['app_host']),
                 ];
             }
@@ -85,7 +86,7 @@ class CronJobService
     ): void {
         $this->databaseSwitchService->switchBackToOriginalDatabase();
 
-        if (!$this->tableExists('cron_job_logs')) {
+        if (!$this->tableExists('log')) {
             return;
         }
 
@@ -95,8 +96,6 @@ class CronJobService
         }
 
         $jobId = $this->normalizeNullableInt($job['id'] ?? null);
-        $databaseId = $this->normalizeNullableInt($job['databaseId'] ?? null);
-        $serverId = $this->normalizeNullableInt($job['serverId'] ?? null);
         $message = trim((string) ($summary['message'] ?? ''));
         $output = trim((string) (($summary['output'] ?? '') . "\n" . ($summary['errorOutput'] ?? '')));
         $durationMs = max(0, ((int) $finishedAt->format('Uv')) - ((int) $startedAt->format('Uv')));
@@ -123,53 +122,48 @@ class CronJobService
             );
         }
 
+        $payload = [
+            'cronJobId' => $jobId,
+            'databaseId' => $this->normalizeNullableInt($job['databaseId'] ?? null),
+            'serverId' => $this->normalizeNullableInt($job['serverId'] ?? null),
+            'domain' => trim((string) ($job['domain'] ?? '')),
+            'status' => $status,
+            'exitCode' => $exitCode,
+            'message' => $message !== '' ? $message : null,
+            'output' => $output !== '' ? mb_substr($output, 0, 60000) : null,
+            'startedAt' => $startedAt->format(\DateTimeInterface::ATOM),
+            'finishedAt' => $finishedAt->format(\DateTimeInterface::ATOM),
+            'durationMs' => $durationMs,
+            'commandLine' => $summary['commandLine'] ?? null,
+        ];
+
         $this->connection->executeStatement(
-            'INSERT INTO `cron_job_logs` (
-                `cron_job_id`,
-                `database_id`,
-                `server_id`,
-                `status`,
-                `exit_code`,
-                `message`,
-                `output`,
-                `started_at`,
-                `finished_at`,
-                `duration_ms`
+            'INSERT INTO `log` (
+                `type`,
+                `row`,
+                `action`,
+                `class`,
+                `object`
              ) VALUES (
-                :cron_job_id,
-                :database_id,
-                :server_id,
-                :status,
-                :exit_code,
-                :message,
-                :output,
-                :started_at,
-                :finished_at,
-                :duration_ms
+                :type,
+                :row,
+                :action,
+                :class,
+                :object
              )',
             [
-                'cron_job_id' => $jobId,
-                'database_id' => $databaseId,
-                'server_id' => $serverId,
-                'status' => $status,
-                'exit_code' => $exitCode,
-                'message' => $message !== '' ? $message : null,
-                'output' => $output !== '' ? mb_substr($output, 0, 60000) : null,
-                'started_at' => $startedAt,
-                'finished_at' => $finishedAt,
-                'duration_ms' => $durationMs,
+                'type' => 'cron',
+                'row' => $jobId,
+                'action' => $status,
+                'class' => CronJob::class,
+                'object' => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             ],
             [
-                'cron_job_id' => $jobId === null ? ParameterType::NULL : ParameterType::INTEGER,
-                'database_id' => $databaseId === null ? ParameterType::NULL : ParameterType::INTEGER,
-                'server_id' => $serverId === null ? ParameterType::NULL : ParameterType::INTEGER,
-                'status' => ParameterType::STRING,
-                'exit_code' => $exitCode === null ? ParameterType::NULL : ParameterType::INTEGER,
-                'message' => $message !== '' ? ParameterType::STRING : ParameterType::NULL,
-                'output' => $output !== '' ? ParameterType::STRING : ParameterType::NULL,
-                'started_at' => Types::DATETIME_IMMUTABLE,
-                'finished_at' => Types::DATETIME_IMMUTABLE,
-                'duration_ms' => ParameterType::INTEGER,
+                'type' => ParameterType::STRING,
+                'row' => $jobId === null ? ParameterType::NULL : ParameterType::INTEGER,
+                'action' => ParameterType::STRING,
+                'class' => ParameterType::STRING,
+                'object' => ParameterType::STRING,
             ]
         );
     }
@@ -178,7 +172,7 @@ class CronJobService
     {
         $this->databaseSwitchService->switchBackToOriginalDatabase();
 
-        if (!$this->tableExists('cron_job_logs')) {
+        if (!$this->tableExists('log')) {
             return 0;
         }
 
@@ -186,7 +180,7 @@ class CronJobService
         $cutoff = (new \DateTimeImmutable(sprintf('-%d days', $retentionDays)));
 
         return $this->connection->executeStatement(
-            'DELETE FROM `cron_job_logs` WHERE `created_at` < :cutoff',
+            'DELETE FROM `log` WHERE `type` = "cron" AND `created_at` < :cutoff',
             ['cutoff' => $cutoff],
             ['cutoff' => Types::DATETIME_IMMUTABLE]
         );
@@ -203,8 +197,6 @@ class CronJobService
         $row = $this->connection->fetchAssociative(
             'SELECT
                 `id`,
-                `database_id`,
-                `server_id`,
                 `scope`,
                 `title`,
                 `description`,
@@ -248,8 +240,6 @@ class CronJobService
         }
 
         $payload = [
-            'database_id' => $cronJob->getDatabaseId(),
-            'server_id' => $cronJob->getServerId(),
             'scope' => $cronJob->getScope(),
             'title' => $cronJob->getTitle(),
             'description' => $cronJob->getDescription(),
@@ -259,8 +249,6 @@ class CronJobService
             'arguments' => json_encode($cronJob->getArguments(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
         ];
         $types = [
-            'database_id' => $payload['database_id'] === null ? ParameterType::NULL : ParameterType::INTEGER,
-            'server_id' => $payload['server_id'] === null ? ParameterType::NULL : ParameterType::INTEGER,
             'scope' => ParameterType::STRING,
             'title' => ParameterType::STRING,
             'description' => ParameterType::STRING,
@@ -273,9 +261,7 @@ class CronJobService
         if ($cronJob->getId() > 0) {
             $this->connection->executeStatement(
                 'UPDATE `cron_jobs`
-                 SET `database_id` = :database_id,
-                     `server_id` = :server_id,
-                     `scope` = :scope,
+                 SET `scope` = :scope,
                      `title` = :title,
                      `description` = :description,
                      `enabled` = :enabled,
@@ -293,8 +279,6 @@ class CronJobService
 
         $this->connection->executeStatement(
             'INSERT INTO `cron_jobs` (
-                `database_id`,
-                `server_id`,
                 `scope`,
                 `title`,
                 `description`,
@@ -303,8 +287,6 @@ class CronJobService
                 `command`,
                 `arguments`
              ) VALUES (
-                :database_id,
-                :server_id,
                 :scope,
                 :title,
                 :description,
@@ -373,8 +355,6 @@ class CronJobService
             return $this->buildNormalizedJob([
                 'id' => $definition->getId(),
                 'key' => $jobIdentifier,
-                'databaseId' => $definition->getDatabaseId(),
-                'serverId' => $definition->getServerId(),
                 'scope' => $definition->getScope(),
                 'title' => $definition->getTitle(),
                 'description' => $definition->getDescription(),
@@ -403,8 +383,6 @@ class CronJobService
         return $this->buildNormalizedJob([
             'id' => $definition['id'] ?? null,
             'key' => $normalizedKey,
-            'databaseId' => $definition['database_id'] ?? $definition['databaseId'] ?? null,
-            'serverId' => $definition['server_id'] ?? $definition['serverId'] ?? null,
             'scope' => $definition['scope'] ?? 'tenant',
             'title' => $definition['title'] ?? '',
             'description' => $definition['description'] ?? '',
@@ -429,8 +407,6 @@ class CronJobService
         return [
             'id' => isset($definition['id']) ? (int) $definition['id'] : null,
             'key' => $normalizedKey,
-            'databaseId' => $this->normalizeNullableInt($definition['databaseId'] ?? null),
-            'serverId' => $this->normalizeNullableInt($definition['serverId'] ?? null),
             'scope' => $this->normalizeScope($definition['scope'] ?? 'tenant'),
             'title' => trim((string) ($definition['title'] ?? '')),
             'description' => trim((string) ($definition['description'] ?? '')),
@@ -452,41 +428,20 @@ class CronJobService
             return [];
         }
 
-        $params = [];
-        $types = [];
-        $where = ['1 = 1'];
-        $joinServers = $this->tableExists('servers');
-
-        if ($serverHost !== null && trim($serverHost) !== '' && $joinServers) {
-            $where[] = '(`cron_jobs`.`server_id` IS NULL OR `servers`.`app_host` = :server_host OR `servers`.`host` = :server_host)';
-            $params['server_host'] = trim($serverHost);
-            $types['server_host'] = ParameterType::STRING;
-        }
-
         return $this->connection->executeQuery(
-            sprintf(
-                'SELECT
-                    `cron_jobs`.`id`,
-                    `cron_jobs`.`database_id`,
-                    `cron_jobs`.`server_id`,
-                    `cron_jobs`.`scope`,
-                    `cron_jobs`.`title`,
-                    `cron_jobs`.`description`,
-                    `cron_jobs`.`enabled`,
-                    `cron_jobs`.`cron_expression` AS `cronExpression`,
-                    `cron_jobs`.`command`,
-                    `cron_jobs`.`arguments`,
-                    `cron_jobs`.`last_execution_at` AS `lastExecutionAt`,
-                    `cron_jobs`.`last_status` AS `lastStatus`
-                 FROM `cron_jobs`
-                 %s
-                 WHERE %s
-                 ORDER BY `cron_jobs`.`id` ASC',
-                $joinServers ? 'LEFT JOIN `servers` ON `servers`.`id` = `cron_jobs`.`server_id`' : '',
-                implode(' AND ', $where)
-            ),
-            $params,
-            $types
+            'SELECT
+                `id`,
+                `scope`,
+                `title`,
+                `description`,
+                `enabled`,
+                `cron_expression` AS `cronExpression`,
+                `command`,
+                `arguments`,
+                `last_execution_at` AS `lastExecutionAt`,
+                `last_status` AS `lastStatus`
+             FROM `cron_jobs`
+             ORDER BY `id` ASC'
         )->fetchAllAssociative();
     }
 
@@ -494,7 +449,7 @@ class CronJobService
     {
         $this->databaseSwitchService->switchBackToOriginalDatabase();
 
-        if (!$this->tableExists('databases')) {
+        if (!$this->tableExists('tenancies')) {
             return [];
         }
 
@@ -502,19 +457,14 @@ class CronJobService
         $types = [];
         $where = ['TRIM(COALESCE(`app_host`, "")) <> ""'];
 
-        $databaseId = $this->normalizeNullableInt($job['databaseId'] ?? null);
-        if ($databaseId !== null) {
-            $where[] = '`id` = :database_id';
-            $params['database_id'] = $databaseId;
-            $types['database_id'] = ParameterType::INTEGER;
-        } elseif ($this->columnExists('databases', 'instalation_status')) {
-            $where[] = '`instalation_status` = "installed"';
+        if ($this->columnExists('tenancies', 'installation_status')) {
+            $where[] = '`installation_status` = "installed"';
         }
 
         return $this->connection->executeQuery(
             sprintf(
-                'SELECT `id`, `app_host`
-                 FROM `databases`
+                'SELECT `id`, `server_id`, `app_host`
+                 FROM `tenancies`
                  WHERE %s
                  ORDER BY `id` ASC',
                 implode(' AND ', $where)
@@ -667,8 +617,6 @@ class CronJobService
 
         return (new CronJob())
             ->setId((int) ($job['id'] ?? 0))
-            ->setDatabaseId($job['databaseId'] ?? null)
-            ->setServerId($job['serverId'] ?? null)
             ->setScope((string) ($job['scope'] ?? 'tenant'))
             ->setTitle((string) ($job['title'] ?? ''))
             ->setDescription((string) ($job['description'] ?? ''))

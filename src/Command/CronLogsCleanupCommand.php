@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'app:cron:logs:cleanup',
-    description: 'Remove logs antigos da tabela central cron_job_logs.',
+    description: 'Remove logs antigos de cron da tabela central de logs.',
 )]
 class CronLogsCleanupCommand extends Command
 {
