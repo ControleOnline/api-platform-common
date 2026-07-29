@@ -32,7 +32,7 @@ class DomainService
         $domain = $this->normalizeDomainCandidate($domainSource);
 
         if ($domain === null)
-            throw new InvalidArgumentException('Please define header or get param "app-domain"', 301);
+            throw new InvalidArgumentException('Please define header or path param "app-domain"', 301);
         return $domain;
     }
 
@@ -57,16 +57,10 @@ class DomainService
             $request->headers->get('app-domain'),
             $request->attributes->get('App-domain'),
             $request->attributes->get('app-domain'),
+            $this->resolvePathDomain($request),
             $request->headers->get('origin'),
             $request->headers->get('referer'),
         ];
-
-        if ($this->allowsDomainQueryParam($request)) {
-            array_splice($candidateValues, 3, 0, [
-                $request->query->get('App-domain'),
-                $request->query->get('app-domain'),
-            ]);
-        }
 
         foreach ($candidateValues as $candidate) {
             $domain = $this->normalizeDomainCandidate($candidate);
@@ -79,9 +73,13 @@ class DomainService
         return null;
     }
 
-    private function allowsDomainQueryParam(Request $request): bool
+    private function resolvePathDomain(Request $request): ?string
     {
-        return preg_match('#^/files/\d+/download$#', $request->getPathInfo()) === 1;
+        if (preg_match('#^/([^/]+)/files/\d+/download$#', $request->getPathInfo(), $matches) === 1) {
+            return urldecode((string) $matches[1]);
+        }
+
+        return null;
     }
 
     private function normalizeDomainCandidate(mixed $candidate): ?string

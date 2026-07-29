@@ -95,11 +95,11 @@ class DomainServiceTest extends TestCase
         self::assertSame('cardapio.jaguncos.com.br', $service->getDomain());
     }
 
-    public function testGetDomainAllowsQueryStringForFileDownloads(): void
+    public function testGetDomainUsesPathDomainForFileDownloads(): void
     {
         $requestStack = new RequestStack();
         $requestStack->push($this->createRequest(
-            uri: 'https://api.controleonline.com/files/8405/download?app-domain=loja.jaguncos.com.br',
+            uri: 'https://api.controleonline.com/loja.jaguncos.com.br/files/8405/download',
         ));
 
         $service = new DomainService(

@@ -36,7 +36,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
         ),
         new Get(
             security: 'is_granted(\'PUBLIC_ACCESS\')',
-            uriTemplate: '/files/{id}/download',
+            uriTemplate: '/{appDomain}/files/{id}/download',
             controller: GetFileDataAction::class
         ),
         new Delete(security: 'is_granted(\'ROLE_HUMAN\')'),
