@@ -79,7 +79,20 @@ class CategoryRepository extends ServiceEntityRepository
 
         if ($showcaseId !== null) {
             $queryBuilder
-                ->innerJoin('ControleOnline\Entity\ProductCategory', 'productCategory', 'WITH', 'productCategory.category = category')
+                ->leftJoin('ControleOnline\Entity\Category', 'publicShopChild1', 'WITH', 'publicShopChild1.parent = category')
+                ->leftJoin('ControleOnline\Entity\Category', 'publicShopChild2', 'WITH', 'publicShopChild2.parent = publicShopChild1')
+                ->leftJoin('ControleOnline\Entity\Category', 'publicShopChild3', 'WITH', 'publicShopChild3.parent = publicShopChild2')
+                ->leftJoin('ControleOnline\Entity\Category', 'publicShopChild4', 'WITH', 'publicShopChild4.parent = publicShopChild3')
+                ->innerJoin(
+                    'ControleOnline\Entity\ProductCategory',
+                    'productCategory',
+                    'WITH',
+                    'productCategory.category = category'
+                    . ' OR productCategory.category = publicShopChild1'
+                    . ' OR productCategory.category = publicShopChild2'
+                    . ' OR productCategory.category = publicShopChild3'
+                    . ' OR productCategory.category = publicShopChild4'
+                )
                 ->innerJoin('ControleOnline\Entity\ProductShowcaseItem', 'showcaseItem', 'WITH', 'showcaseItem.product = productCategory.product')
                 ->innerJoin('showcaseItem.product', 'showcaseProduct')
                 ->andWhere('IDENTITY(showcaseItem.showcase) = :publicShopShowcase')
