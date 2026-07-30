@@ -38,7 +38,8 @@ class DomainService
 
     public function getMainDomain()
     {
-        $requestHost = $this->requestStack->getCurrentRequest()?->server->get('HTTP_HOST');
+        $request = $this->requestStack->getCurrentRequest();
+        $requestHost = $request?->server->get('HTTP_HOST') ?: $request?->getHost();
         if (is_string($requestHost) && trim($requestHost) !== '') {
             return $requestHost;
         }
@@ -60,6 +61,7 @@ class DomainService
             $this->resolvePathDomain($request),
             $request->headers->get('origin'),
             $request->headers->get('referer'),
+            $this->getMainDomain(),
         ];
 
         foreach ($candidateValues as $candidate) {

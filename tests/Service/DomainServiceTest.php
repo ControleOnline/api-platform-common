@@ -30,7 +30,7 @@ class DomainServiceTest extends TestCase
         self::assertSame('admin.controleonline.com', $service->getDomain());
     }
 
-    public function testGetDomainUsesTheOriginHostWhenTheAppDomainIsMissing(): void
+    public function testGetDomainUsesRequestHostBeforeOriginWhenTheAppDomainIsMissing(): void
     {
         $requestStack = new RequestStack();
         $requestStack->push($this->createRequest(
@@ -43,10 +43,43 @@ class DomainServiceTest extends TestCase
             $requestStack,
         );
 
-        self::assertSame('admin.controleonline.com', $service->getDomain());
+        self::assertSame('s.controleonline.com', $service->getDomain());
     }
 
-    public function testGetDomainUsesTheOriginHostWhenTheAppDomainIsUndefined(): void
+    public function testGetDomainUsesRequestHostWhenOnlyLocalOriginExists(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push($this->createRequest(
+            uri: 'https://api.controleonline.com/people/company/default',
+            origin: 'http://localhost:8081',
+        ));
+
+        $service = new DomainService(
+            $this->createStub(EntityManagerInterface::class),
+            $requestStack,
+        );
+
+        self::assertSame('api.controleonline.com', $service->getDomain());
+    }
+
+    public function testGetDomainAllowsExplicitAppDomainHeader(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push($this->createRequest(
+            domain: 'localhost:3003',
+            uri: 'https://api.controleonline.com/people/company/default',
+            origin: 'http://localhost:8081',
+        ));
+
+        $service = new DomainService(
+            $this->createStub(EntityManagerInterface::class),
+            $requestStack,
+        );
+
+        self::assertSame('localhost:3003', $service->getDomain());
+    }
+
+    public function testGetDomainUsesRequestHostBeforeOriginWhenTheAppDomainIsUndefined(): void
     {
         $requestStack = new RequestStack();
         $requestStack->push($this->createRequest(
@@ -60,7 +93,7 @@ class DomainServiceTest extends TestCase
             $requestStack,
         );
 
-        self::assertSame('erp.jaguncos.com.br', $service->getDomain());
+        self::assertSame('api.controleonline.com', $service->getDomain());
     }
 
     public function testGetDomainPrefersTheHeaderOverQueryString(): void
@@ -79,7 +112,7 @@ class DomainServiceTest extends TestCase
         self::assertSame('loja.jaguncos.com.br', $service->getDomain());
     }
 
-    public function testGetDomainIgnoresQueryStringOnApiRequests(): void
+    public function testGetDomainUsesRequestHostBeforeQueryStringAndOriginOnApiRequests(): void
     {
         $requestStack = new RequestStack();
         $requestStack->push($this->createRequest(
@@ -92,7 +125,7 @@ class DomainServiceTest extends TestCase
             $requestStack,
         );
 
-        self::assertSame('cardapio.jaguncos.com.br', $service->getDomain());
+        self::assertSame('s.controleonline.com', $service->getDomain());
     }
 
     public function testGetDomainUsesPathDomainForFileDownloads(): void
@@ -110,7 +143,7 @@ class DomainServiceTest extends TestCase
         self::assertSame('loja.jaguncos.com.br', $service->getDomain());
     }
 
-    public function testGetDomainUsesTheRefererHostWhenTheAppDomainIsMissing(): void
+    public function testGetDomainUsesRequestHostBeforeRefererWhenTheAppDomainIsMissing(): void
     {
         $requestStack = new RequestStack();
         $requestStack->push($this->createRequest(
@@ -123,7 +156,7 @@ class DomainServiceTest extends TestCase
             $requestStack,
         );
 
-        self::assertSame('admin.controleonline.com', $service->getDomain());
+        self::assertSame('s.controleonline.com', $service->getDomain());
     }
 
     public function testGetDomainUsesConfiguredAppDomainWhenThereIsNoRequest(): void
