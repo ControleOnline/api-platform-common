@@ -52,7 +52,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     denormalizationContext: ['groups' => ['category:write']]
 )]
 #[ApiFilter(filterClass: ExistsFilter::class, properties: ['parent'])]
-#[ApiFilter(filterClass: OrderFilter::class, properties: ['name'])]
+#[ApiFilter(filterClass: OrderFilter::class, properties: [
+    'sortOrder' => ['nulls_comparison' => 'nulls_always_last'],
+    'name',
+    'id',
+])]
 #[ApiFilter(CustomOrFilter::class, properties: ['name', 'id', 'icon', 'color'])]
 #[ORM\Table(name: 'category')]
 
@@ -110,6 +114,10 @@ class Category
     #[Assert\Type(type: 'string')]
     #[Groups(['category:read', 'category:write', 'company_expense:read', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read', 'order:read', 'order_details:read'])]
     private $color;
+
+    #[ORM\Column(name: 'sort_order', type: 'integer', nullable: true)]
+    #[Groups(['category:read', 'category:write', 'product_category:read', 'tracking:read'])]
+    private ?int $sortOrder = null;
 
     public function __construct()
     {
@@ -184,6 +192,17 @@ class Category
     public function setColor($color): self
     {
         $this->color = $color;
+        return $this;
+    }
+
+    public function getSortOrder(): ?int
+    {
+        return $this->sortOrder;
+    }
+
+    public function setSortOrder(?int $sortOrder): self
+    {
+        $this->sortOrder = $sortOrder;
         return $this;
     }
 
