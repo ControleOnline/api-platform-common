@@ -48,6 +48,7 @@ class MenuConfigService
             ->leftJoin('menu.category', 'category')
             ->addOrderBy('menu.appType', 'ASC')
             ->addOrderBy('menu.menuType', 'ASC')
+            ->addOrderBy('category.sortOrder', 'ASC')
             ->addOrderBy('category.name', 'ASC')
             ->addOrderBy('menu.sortOrder', 'ASC')
             ->addOrderBy('menu.menu', 'ASC')
@@ -285,6 +286,11 @@ class MenuConfigService
             $category->setColor($this->limitString((string) $payload['color'], 50));
         }
 
+        if (array_key_exists('sortOrder', $payload) || array_key_exists('sort_order', $payload)) {
+            $rawSortOrder = $payload['sortOrder'] ?? $payload['sort_order'];
+            $category->setSortOrder($rawSortOrder === null || $rawSortOrder === '' ? null : (int) $rawSortOrder);
+        }
+
         $this->manager->persist($category);
         if ($flush) {
             $this->manager->flush();
@@ -328,6 +334,7 @@ class MenuConfigService
                 'name' => $category->getName(),
                 'icon' => $category->getIcon(),
                 'color' => $category->getColor(),
+                'sortOrder' => $category->getSortOrder(),
             ] : null,
             'linkTypes' => $this->normalizeMenuLinkTypes($menu),
         ];
@@ -341,6 +348,7 @@ class MenuConfigService
             'name' => $category->getName(),
             'icon' => $category->getIcon(),
             'color' => $category->getColor(),
+            'sortOrder' => $category->getSortOrder(),
         ];
     }
 
@@ -403,6 +411,7 @@ class MenuConfigService
             ->from(Category::class, 'category')
             ->andWhere('category.context = :context')
             ->setParameter('context', 'menu')
+            ->addOrderBy('category.sortOrder', 'ASC')
             ->addOrderBy('category.name', 'ASC')
             ->getQuery()
             ->getResult();
@@ -474,6 +483,10 @@ class MenuConfigService
             $modules[$categoryId]['label'] = $menu['category_label'];
             $modules[$categoryId]['color'] = $menu['category_color'];
             $modules[$categoryId]['icon'] = $menu['category_icon'];
+            $categorySortOrder = $menu['category_sort_order'] ?? null;
+            $modules[$categoryId]['sortOrder'] = $categorySortOrder === null
+                ? null
+                : (int) $categorySortOrder;
             $modules[$categoryId]['menus'][] = [
                 'id' => (int) $menu['id'],
                 'menuKey' => $menu['menu_key'],

@@ -38,6 +38,7 @@ class MenuRepository extends ServiceEntityRepository
             category.name AS category_label,
             category.color AS category_color,
             category.icon AS category_icon,
+            category.sort_order AS category_sort_order,
             routes.route AS route,
             routes.color AS color,
             routes.icon AS icon,
@@ -75,7 +76,7 @@ class MenuRepository extends ServiceEntityRepository
       $params['menuType'] = $normalizedMenuType;
     }
 
-    $sql .= ' ORDER BY category.name ASC, menu.sort_order ASC, menu.menu ASC';
+    $sql .= ' ORDER BY category.sort_order ASC, category.name ASC, menu.sort_order ASC, menu.menu ASC';
 
     return $connection->executeQuery($sql, $params, $types)->fetchAllAssociative();
   }
