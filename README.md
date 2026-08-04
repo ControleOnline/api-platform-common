@@ -15,13 +15,11 @@
 - As rotas publicas exigem `PeopleDomain.domainType=SHOP`, aceitam somente a empresa do dominio ou empresas publicadas na configuracao e retornam apenas o contexto `products`.
 
 
-`composer require controleonline/common:dev-master`
+## Instalacao
+[Instalacao na wiki](https://github.com/ControleOnline/api-platform-common/wiki/Instalacao)
 
+## Links obrigatorios
 
-Add Service import:
-config\services.yaml
-
-```yaml
-imports:
-    - { resource: "../modules/controleonline/common/config/services/services.yaml" }    
-```
+- [Documentacao para clientes](http://ajuda.controleonline.com/)
+- [Site institucional](http://controleonline.com/)
+- [Wiki tecnica](https://github.com/ControleOnline/api-platform-common/wiki)
