@@ -5,6 +5,8 @@ namespace ControleOnline\Service;
 use ControleOnline\Entity\File;
 use ControleOnline\Entity\People;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 
@@ -14,9 +16,45 @@ class FileService
   public function __construct(
     private EntityManagerInterface $manager,
     private DomainService $domainService,
-    private PdfService $pdfService
-
+    private PdfService $pdfService,
+    private PeopleService $peopleService,
+    private RequestStack $requestStack,
   ) {}
+
+  /**
+   * Scope File collection/item queries to companies the current user can access.
+   * File.people is the ownership/company pointer (app-community#296).
+   */
+  public function securityFilter(
+    QueryBuilder $queryBuilder,
+    $resourceClass = null,
+    $applyTo = null,
+    $rootAlias = null
+  ): void {
+    $rootAlias ??= $queryBuilder->getRootAliases()[0] ?? null;
+    if (!$rootAlias) {
+      $queryBuilder->andWhere('1 = 0');
+      return;
+    }
+
+    $companies = $this->peopleService->getMyCompanies();
+    if (empty($companies)) {
+      $queryBuilder->andWhere('1 = 0');
+      return;
+    }
+
+    $queryBuilder->andWhere(sprintf('%s.people IN(:fileSecurityCompanies)', $rootAlias));
+    $queryBuilder->setParameter('fileSecurityCompanies', $companies);
+
+    $request = $this->requestStack->getCurrentRequest();
+    if ($people = $request?->query->get('people', null)) {
+      $peopleId = (int) preg_replace('/\D+/', '', (string) $people);
+      if ($peopleId > 0) {
+        $queryBuilder->andWhere(sprintf('%s.people = :fileSecurityPeople', $rootAlias));
+        $queryBuilder->setParameter('fileSecurityPeople', $peopleId);
+      }
+    }
+  }
 
 
   public function getFileUrl(People $people): ?array

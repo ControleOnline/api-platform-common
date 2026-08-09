@@ -33,3 +33,10 @@
 - Empresas que nao sao a principal precisam conseguir consultar a traducao da empresa principal como referencia para criar a propria sobrescrita.
 - Somente usuarios com acesso a uma empresa podem criar ou alterar traducoes vinculadas a ela.
 - A consulta no contexto de empresa secundaria nao deve permitir alterar a traducao da empresa principal indiretamente; a sobrescrita precisa ser gravada na propria empresa secundaria.
+
+## File authorization (app-community#296)
+
+- `File` collection and item reads are scoped by `FileService::securityFilter()` via `FileSecurityExtension`.
+- Ownership pointer is `File.people` (company/people the file belongs to).
+- Only companies from `PeopleService::getMyCompanies()` are visible; optional `?people=` further restricts.
+- Public download (`PUBLIC_ACCESS`) remains for files marked public; authenticated list/get use the filter.
