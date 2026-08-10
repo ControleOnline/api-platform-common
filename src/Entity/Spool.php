@@ -53,7 +53,7 @@ class Spool
     private $device;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
     #[Groups(['spool_item:read', 'spool:read', 'spool:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['user' => 'exact'])]
     private $user;
@@ -86,13 +86,13 @@ class Spool
         return $this->id;
     }
 
-    public function setUser(User $user): self
+    public function setUser(?User $user): self
     {
         $this->user = $user;
         return $this;
     }
 
-    public function getUser(): User
+    public function getUser(): ?User
     {
         return $this->user;
     }
