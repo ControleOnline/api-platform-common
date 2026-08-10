@@ -1,0 +1,119 @@
+# Single deploy for this submodule (dev / staging / master).
+# Prefer deploying via parent api-community; this is for module-only hotfixes.
+# Step 1 configures env; step 2 deploys. LaveGo is out of scope here.
+name: Deploy
+
+on:
+  push:
+    branches: [dev, staging, master]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Environment to deploy"
+        required: true
+        type: choice
+        options: [dev, staging, master]
+
+concurrency:
+  group: deploy-common-${{ github.event.inputs.target || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  configure:
+    name: "1 · Configure environment"
+    runs-on: ubuntu-latest
+    outputs:
+      env: ${{ steps.set.outputs.env }}
+      branch: ${{ steps.set.outputs.branch }}
+      remote_path: ${{ steps.set.outputs.remote_path }}
+      auth_mode: ${{ steps.set.outputs.auth_mode }}
+      github_environment: ${{ steps.set.outputs.github_environment }}
+    steps:
+      - id: set
+        run: |
+          set -e
+          REF="${{ github.event.inputs.target || github.ref_name }}"
+          case "$REF" in
+            dev)
+              echo "env=dev" >> "$GITHUB_OUTPUT"
+              echo "branch=dev" >> "$GITHUB_OUTPUT"
+              echo "remote_path=/var/www/api-community-dev/modules/controleonline/common" >> "$GITHUB_OUTPUT"
+              echo "auth_mode=password" >> "$GITHUB_OUTPUT"
+              echo "github_environment=dev" >> "$GITHUB_OUTPUT"
+              ;;
+            staging)
+              echo "env=staging" >> "$GITHUB_OUTPUT"
+              echo "branch=staging" >> "$GITHUB_OUTPUT"
+              echo "remote_path=/var/www/api-community/modules/controleonline/common" >> "$GITHUB_OUTPUT"
+              echo "auth_mode=password" >> "$GITHUB_OUTPUT"
+              echo "github_environment=staging" >> "$GITHUB_OUTPUT"
+              ;;
+            master)
+              echo "env=master" >> "$GITHUB_OUTPUT"
+              echo "branch=master" >> "$GITHUB_OUTPUT"
+              echo "remote_path=~/sistemas/controleonline/api/modules/controleonline/common" >> "$GITHUB_OUTPUT"
+              echo "auth_mode=key" >> "$GITHUB_OUTPUT"
+              echo "github_environment=production" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Unsupported: $REF"; exit 1
+              ;;
+          esac
+
+  deploy:
+    name: "2 · Deploy (${{ needs.configure.outputs.env }})"
+    needs: configure
+    runs-on: ubuntu-latest
+    environment: ${{ needs.configure.outputs.github_environment }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Validate secrets
+        run: |
+          set -e
+          ENV="${{ needs.configure.outputs.env }}"
+          case "$ENV" in
+            dev)
+              test -n "${{ secrets.DEV_HOST }}" || { echo "Missing DEV_HOST"; exit 1; }
+              ;;
+            staging)
+              test -n "${{ secrets.STAGING_HOST }}" || { echo "Missing STAGING_HOST"; exit 1; }
+              ;;
+            master)
+              test -n "${{ secrets.API_HOST }}" || { echo "Missing API_HOST"; exit 1; }
+              ;;
+          esac
+
+      - name: Deploy submodule over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ needs.configure.outputs.env == 'dev' && secrets.DEV_HOST || needs.configure.outputs.env == 'staging' && secrets.STAGING_HOST || secrets.API_HOST }}
+          username: ${{ needs.configure.outputs.env == 'dev' && secrets.DEV_USER || needs.configure.outputs.env == 'staging' && secrets.STAGING_USER || secrets.USER }}
+          password: ${{ needs.configure.outputs.auth_mode == 'password' && (needs.configure.outputs.env == 'dev' && secrets.DEV_PASS || secrets.STAGING_PASS) || '' }}
+          key: ${{ needs.configure.outputs.auth_mode == 'key' && secrets.CONTROLEONLINE || '' }}
+          port: ${{ needs.configure.outputs.auth_mode == 'key' && secrets.PORT || 22 }}
+          script_stop: true
+          envs: DEPLOY_BRANCH,REMOTE_PATH
+          script: |
+            set -e
+            export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+            BRANCH="${DEPLOY_BRANCH}"
+            TARGET="${REMOTE_PATH}"
+            TARGET="${TARGET/#\~/$HOME}"
+            cd "$TARGET"
+            git fetch origin
+            if git show-ref --verify --quiet "refs/heads/${BRANCH}"; then
+              git checkout "$BRANCH"
+            else
+              git checkout -B "$BRANCH" "origin/${BRANCH}"
+            fi
+            git reset --hard "origin/${BRANCH}"
+            git clean -ffd
+            ROOT="$(git -C "$TARGET" rev-parse --show-toplevel 2>/dev/null || true)"
+            if [ -n "$ROOT" ] && [ -f "$ROOT/bin/console" ]; then
+              php "$ROOT/bin/console" cache:clear --no-interaction || true
+            fi
+            echo "common deployed: $(git rev-parse --short HEAD) @ ${BRANCH}"
+        env:
+          DEPLOY_BRANCH: ${{ needs.configure.outputs.branch }}
+          REMOTE_PATH: ${{ needs.configure.outputs.remote_path }}
