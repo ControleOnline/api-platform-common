@@ -1,16 +1,13 @@
 # Deploy (api-platform-common)
 
-Submodule de `api-community`. **Deploy preferencial** = push no parent `api-community` (dev/staging/master),
-que já faz `submodule foreach` no branch correto.
+Submodule de `api-community`. Deploy preferencial = push no parent.
 
-| Workflow | Branch | Path remoto |
-|----------|--------|-------------|
-| `deploy-dev.yml` | `dev` | `/var/www/api-community-dev/modules/controleonline/common` |
-| `deploy-staging.yml` | `staging` | `/var/www/api-community/modules/controleonline/common` |
-| `deploy-master.yml` | `master` | `~/sistemas/controleonline/api/modules/controleonline/common` |
+| Workflow | Branch | Path remoto | Secrets |
+|----------|--------|-------------|---------|
+| `deploy-dev.yml` | `dev` | `/var/www/api-community-dev/modules/controleonline/common` | `DEV_HOST`, `DEV_USER`, `DEV_PASS` |
+| `deploy-staging.yml` | `staging` | `/var/www/api-community/modules/controleonline/common` | `STAGING_HOST`, `STAGING_USER`, `STAGING_PASS` |
+| `deploy-master.yml` | `master` | `~/sistemas/controleonline/api/modules/controleonline/common` | `API_HOST`, `USER`, `CONTROLEONLINE`, `PORT` |
 
-Secrets necessários neste repo (ou org):
-- Dev/Staging: `DEV_HOST`, `DEV_USER`, `DEV_PASS`
-- Master: `API_HOST`, `USER`, `CONTROLEONLINE`, `PORT`
+**Staging não usa `DEV_*`.**
 
-Se os secrets estiverem vazios, o job falha imediatamente (não usa dados de outro ambiente).
+Secrets devem existir neste repositório (ou org secrets com acesso a ele).
