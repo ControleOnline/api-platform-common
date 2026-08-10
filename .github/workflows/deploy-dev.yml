@@ -1,11 +1,11 @@
-# Deploy do submodule api-platform-common → ambiente staging
+# Deploy do submodule api-platform-common → ambiente dev
 # Preferencial: deploy via parent api-community (atualiza todos os submodules).
 # Este workflow existe para hotfixes só neste módulo.
 # Secrets devem estar configurados NESTE repositório (ou org secrets com acesso).
-name: Deploy Staging
+name: Deploy Dev
 on:
   push:
-    branches: [staging]
+    branches: [dev]
   workflow_dispatch:
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: Deploy common → staging
+      - name: Deploy common → dev
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.DEV_HOST }}
@@ -22,18 +22,18 @@ jobs:
           script: |
             set -e
             export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
-            MODULE="/var/www/api-community/modules/controleonline/common"
+            MODULE="/var/www/api-community-dev/modules/controleonline/common"
             cd "$MODULE"
             git fetch origin
-            if git show-ref --verify --quiet refs/heads/staging; then
-              git checkout staging
+            if git show-ref --verify --quiet refs/heads/dev; then
+              git checkout dev
             else
-              git checkout -B staging origin/staging
+              git checkout -B dev origin/dev
             fi
-            git reset --hard origin/staging
+            git reset --hard origin/dev
             git clean -ffd
             cd "$(git rev-parse --show-toplevel 2>/dev/null || echo /var/www/api-community)"
             if [ -f bin/console ]; then
               php bin/console cache:clear --no-interaction || true
             fi
-            echo "api-platform-common deployed: $(cd $MODULE && git rev-parse --short HEAD) (staging)"
+            echo "api-platform-common deployed: $(cd $MODULE && git rev-parse --short HEAD) (dev)"
