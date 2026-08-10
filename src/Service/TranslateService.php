@@ -186,7 +186,6 @@ class TranslateService
         if (!$selectedCompany instanceof People) {
             throw new BadRequestHttpException('People not found');
         }
-        $this->assertCompanyAccess($selectedCompany);
 
         $language = $this->resolveLanguage($payload['language'] ?? $payload['language.language'] ?? null);
         if (!$language instanceof Language) {
@@ -197,6 +196,17 @@ class TranslateService
         if (!$mainCompany instanceof People) {
             throw new BadRequestHttpException('Main company not found');
         }
+
+        // Resolve is a read path: any authenticated user may read the main-company
+        // catalog so current→main fallback works for non-superadmin tenants.
+        // Persist of missing keys remains gated by hasCompanyAccess(main).
+        $isMainCompanyRequest = $selectedCompany->getId() === $mainCompany->getId();
+        if ($isMainCompanyRequest) {
+            $this->assertAuthenticatedUser();
+        } else {
+            $this->assertCompanyAccess($selectedCompany);
+        }
+
         $canPersistFallback = $this->hasCompanyAccess($mainCompany);
 
         $requests = $this->normalizeResolveRequests($payload);
@@ -507,6 +517,15 @@ class TranslateService
         $repository = $this->manager->getRepository(Language::class);
 
         return $repository->findOneByCode((string) $reference);
+    }
+
+    private function assertAuthenticatedUser(): void
+    {
+        $token = $this->security->getToken();
+        $user = $token?->getUser();
+        if (!$user instanceof User) {
+            throw new AccessDeniedHttpException('Access denied for company');
+        }
     }
 
     private function assertCompanyAccess(People $company): void
