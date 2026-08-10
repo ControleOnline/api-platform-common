@@ -16,9 +16,9 @@ jobs:
       - name: Deploy common → staging
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.DEV_HOST }}
-          username: ${{ secrets.DEV_USER }}
-          password: ${{ secrets.DEV_PASS }}
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          password: ${{ secrets.STAGING_PASS }}
           script: |
             set -e
             export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
