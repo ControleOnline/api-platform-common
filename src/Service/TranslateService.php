@@ -186,7 +186,6 @@ class TranslateService
         if (!$selectedCompany instanceof People) {
             throw new BadRequestHttpException('People not found');
         }
-        $this->assertCompanyAccess($selectedCompany);
 
         $language = $this->resolveLanguage($payload['language'] ?? $payload['language.language'] ?? null);
         if (!$language instanceof Language) {
@@ -197,6 +196,12 @@ class TranslateService
         if (!$mainCompany instanceof People) {
             throw new BadRequestHttpException('Main company not found');
         }
+
+        // Resolve is a pure READ path: any authenticated user may resolve
+        // translations for current and/or main company catalogs.
+        // Persist of missing keys remains gated by hasCompanyAccess(main).
+        $this->assertAuthenticatedUser();
+
         $canPersistFallback = $this->hasCompanyAccess($mainCompany);
 
         $requests = $this->normalizeResolveRequests($payload);
@@ -507,6 +512,15 @@ class TranslateService
         $repository = $this->manager->getRepository(Language::class);
 
         return $repository->findOneByCode((string) $reference);
+    }
+
+    private function assertAuthenticatedUser(): void
+    {
+        $token = $this->security->getToken();
+        $user = $token?->getUser();
+        if (!$user instanceof User) {
+            throw new AccessDeniedHttpException('Access denied for company');
+        }
     }
 
     private function assertCompanyAccess(People $company): void
