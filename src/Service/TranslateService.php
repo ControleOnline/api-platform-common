@@ -197,15 +197,10 @@ class TranslateService
             throw new BadRequestHttpException('Main company not found');
         }
 
-        // Resolve is a read path: any authenticated user may read the main-company
-        // catalog so current→main fallback works for non-superadmin tenants.
+        // Resolve is a pure READ path: any authenticated user may resolve
+        // translations for current and/or main company catalogs.
         // Persist of missing keys remains gated by hasCompanyAccess(main).
-        $isMainCompanyRequest = $selectedCompany->getId() === $mainCompany->getId();
-        if ($isMainCompanyRequest) {
-            $this->assertAuthenticatedUser();
-        } else {
-            $this->assertCompanyAccess($selectedCompany);
-        }
+        $this->assertAuthenticatedUser();
 
         $canPersistFallback = $this->hasCompanyAccess($mainCompany);
 
