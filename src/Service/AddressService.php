@@ -225,6 +225,28 @@ class AddressService
 
   public function getCountry(string $countryCode): Country
   {
-    return $this->manager->getRepository(Country::class)->findOneBy(['countrycode' => $countryCode]);
+    $code = strtoupper(trim($countryCode));
+    $aliases = [
+      'BRASIL' => 'BR',
+      'BRAZIL' => 'BR',
+      'BRA' => 'BR',
+    ];
+    if (isset($aliases[$code])) {
+      $code = $aliases[$code];
+    } elseif (strlen($code) > 2 && isset($aliases[strtoupper($countryCode)])) {
+      $code = $aliases[strtoupper($countryCode)];
+    }
+    // also try original name match
+    $country = $this->manager->getRepository(Country::class)->findOneBy(['countrycode' => $code]);
+    if (!$country) {
+      $country = $this->manager->getRepository(Country::class)->findOneBy(['countrycode' => strtoupper(trim($countryCode))]);
+    }
+    if (!$country) {
+      $country = $this->manager->getRepository(Country::class)->findOneBy(['countryname' => $countryCode]);
+    }
+    if (!$country) {
+      throw new Exception(sprintf('Country not found for code/name: %s', $countryCode));
+    }
+    return $country;
   }
 }
