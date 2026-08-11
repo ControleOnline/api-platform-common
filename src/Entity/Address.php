@@ -4,12 +4,14 @@ namespace ControleOnline\Entity;
 
 use Symfony\Component\Serializer\Attribute\Groups;
 use ControleOnline\State\AddressDiscoveryProcessor;
+use ControleOnline\State\AddressDiscoveryInput;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 
 use ControleOnline\Repository\AddressRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,7 +20,9 @@ use Doctrine\ORM\Mapping as ORM;
     operations: [
         new Get(security: 'is_granted(\'ROLE_HUMAN\')'),
         new GetCollection(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Put(security: 'is_granted(\'ROLE_HUMAN\')'),
         new Post(
+            input: AddressDiscoveryInput::class,
             processor: AddressDiscoveryProcessor::class,
             security: 'is_granted(\'ROLE_HUMAN\')'
         ),
