@@ -5,6 +5,7 @@ namespace ControleOnline\Common\Tests\State;
 use ApiPlatform\Metadata\ApiResource;
 use ControleOnline\Entity\Address;
 use ControleOnline\State\AddressDiscoveryInput;
+use ControleOnline\State\AddressUpdateInput;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
@@ -57,6 +58,6 @@ final class AddressDiscoveryInputTest extends TestCase
         self::assertNotNull($post);
         self::assertNotNull($put);
         self::assertSame(AddressDiscoveryInput::class, $post->getInput());
-        self::assertNull($put->getInput());
+        self::assertSame(AddressUpdateInput::class, $put->getInput());
     }
 }
