@@ -40,4 +40,10 @@ final class AddressUpdateInput
 
     #[Groups(['address:write'])]
     public ?string $cep = null;
+
+    #[Groups(['address:write'])]
+    public float|string|null $latitude = null;
+
+    #[Groups(['address:write'])]
+    public float|string|null $longitude = null;
 }
