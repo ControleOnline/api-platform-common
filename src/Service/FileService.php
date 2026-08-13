@@ -133,16 +133,48 @@ class FileService
     ?People $people = null,
     ?string $context = null
   ): File {
-    $content = file_get_contents($uploadedFile->getPathname());
-    $mimeType = explode('/', (string) $uploadedFile->getClientMimeType());
+    if (!$uploadedFile->isValid()) {
+      throw new \InvalidArgumentException(
+        'Upload invalido: ' . $uploadedFile->getErrorMessage()
+      );
+    }
+
+    $pathname = (string) $uploadedFile->getPathname();
+    if ($pathname === '' || !is_readable($pathname)) {
+      throw new \InvalidArgumentException(
+        'Arquivo temporario de upload ausente ou ilegivel.'
+      );
+    }
+
+    $content = file_get_contents($pathname);
+    if ($content === false || $content === '') {
+      throw new \InvalidArgumentException('Conteudo do arquivo vazio ou ilegivel.');
+    }
+
+    // Prefer client-provided MIME; avoid FileinfoMimeTypeGuesser on empty paths.
+    $clientMime = (string) $uploadedFile->getClientMimeType();
+    if ($clientMime === '' || !str_contains($clientMime, '/')) {
+      $ext = strtolower((string) $uploadedFile->getClientOriginalExtension());
+      $clientMime = match ($ext) {
+        'png' => 'image/png',
+        'jpg', 'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'webp' => 'image/webp',
+        'svg' => 'image/svg+xml',
+        'pdf' => 'application/pdf',
+        'csv' => 'text/csv',
+        default => 'application/octet-stream',
+      };
+    }
+    $mimeType = explode('/', $clientMime, 2);
 
     return $this->addFile(
       $people,
       $content,
       (string) ($context ?: ''),
       $uploadedFile->getClientOriginalName(),
-      $mimeType[0] ?? null,
-      $mimeType[1] ?? strtolower($uploadedFile->getClientOriginalExtension())
+      $mimeType[0] ?? 'application',
+      $mimeType[1] ?? strtolower($uploadedFile->getClientOriginalExtension() ?: 'bin')
     );
   }
 
