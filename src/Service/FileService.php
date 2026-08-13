@@ -168,22 +168,14 @@ class FileService
     }
     $mimeType = explode('/', $clientMime, 2);
 
-    $fileType = $mimeType[0] ?? 'application';
-    $extension = $mimeType[1] ?? strtolower($uploadedFile->getClientOriginalExtension() ?: 'bin');
-    $resolvedContext = (string) ($context ?: '');
-    // Browser <img>/RN Image cannot send API-TOKEN; private downloads fail in Network.
-    // Avatar and CRM people_media images are display assets — allow public image download.
-    $makePublic = strtolower((string) $fileType) === 'image'
-      && in_array(strtolower($resolvedContext), ['people_media', 'people-media', 'avatar'], true);
-
     return $this->addFile(
       $people,
       $content,
-      $resolvedContext,
+      (string) ($context ?: ''),
       $uploadedFile->getClientOriginalName(),
-      $fileType,
-      $extension,
-      $makePublic
+      $mimeType[0] ?? 'application',
+      $mimeType[1] ?? strtolower($uploadedFile->getClientOriginalExtension() ?: 'bin'),
+      false
     );
   }
 
