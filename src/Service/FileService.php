@@ -6,19 +6,63 @@ use ControleOnline\Entity\File;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\PeopleMedia;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class FileService
 {
-
   public function __construct(
     private EntityManagerInterface $manager,
     private DomainService $domainService,
-    private PdfService $pdfService
-
+    private PdfService $pdfService,
+    private PeopleService $peopleService,
+    private RequestStack $requestStack,
   ) {}
 
+  /**
+   * File reads are tenant-scoped by the owning People record.
+   *
+   * The upload library accepts context/people query parameters from the client,
+   * so those values must only narrow the set of companies already granted by
+   * PeopleService::getMyCompanies(); they must never expand visibility.
+   */
+  public function securityFilter(
+    QueryBuilder $queryBuilder,
+    $resourceClass = null,
+    $applyTo = null,
+    $rootAlias = null
+  ): void {
+    $rootAlias ??= $queryBuilder->getRootAliases()[0] ?? null;
+    if (!$rootAlias) {
+      $queryBuilder->andWhere('1 = 0');
+      return;
+    }
+
+    $companies = $this->peopleService->getMyCompanies();
+    if ($companies === []) {
+      $queryBuilder->andWhere('1 = 0');
+      return;
+    }
+
+    $queryBuilder->andWhere(sprintf('%s.people IN(:fileSecurityCompanies)', $rootAlias));
+    $queryBuilder->setParameter('fileSecurityCompanies', $companies);
+
+    $request = $this->requestStack->getCurrentRequest();
+    $requestedPeople = $request?->query->get('people');
+    if ($requestedPeople === null || $requestedPeople === '') {
+      return;
+    }
+
+    $peopleId = (int) preg_replace('/\D+/', '', (string) $requestedPeople);
+    if ($peopleId <= 0) {
+      $queryBuilder->andWhere('1 = 0');
+      return;
+    }
+
+    $queryBuilder->andWhere(sprintf('%s.people = :fileSecurityPeople', $rootAlias));
+    $queryBuilder->setParameter('fileSecurityPeople', $peopleId);
+  }
 
   public function getFileUrl(People $people): ?array
   {
