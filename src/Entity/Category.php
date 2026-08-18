@@ -67,14 +67,14 @@ class Category
     #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[Groups(['category:read', 'company_expense:read', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'task:read', 'order:read', 'order_details:read', 'order_invoice_invoice:read'])]
+    #[Groups(['category:read', 'people_category:read', 'company_expense:read', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'task:read', 'order:read', 'order_details:read', 'order_invoice_invoice:read'])]
     private $id;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['name' => 'partial'])]
     #[ORM\Column(name: 'name', type: 'string', length: 100, nullable: false)]
     #[Assert\NotBlank]
     #[Assert\Type(type: 'string')]
-    #[Groups(['category:read', 'category:write', 'company_expense:read', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read', 'order:read', 'order_details:read', 'order_invoice_invoice:read'])]
+    #[Groups(['category:read', 'category:write', 'people_category:read', 'company_expense:read', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read', 'order:read', 'order_details:read', 'order_invoice_invoice:read'])]
     private $name;
 
     #[ApiFilter(filterClass: ExistsFilter::class, properties: ['categoryFiles'])]
@@ -87,7 +87,7 @@ class Category
     #[ORM\Column(name: 'context', type: 'string', length: 100, nullable: false)]
     #[Assert\NotBlank]
     #[Assert\Type(type: 'string')]
-    #[Groups(['category:read', 'category:write', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read', 'order_invoice_invoice:read'])]
+    #[Groups(['category:read', 'category:write', 'people_category:read', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'logistic:read', 'menu:read', 'model:read', 'model_detail:read', 'product_category:read', 'queue:read', 'task:read', 'order_invoice_invoice:read'])]
     private $context;
 
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['parent' => 'exact'])]
