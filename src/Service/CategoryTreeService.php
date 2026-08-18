@@ -8,8 +8,10 @@ class CategoryTreeService
 {
     /**
      * @param Category[] $categories
-     * @param int[]|null $projectedIds IDs authorized by the consuming module;
-     *                                 null keeps the compatible unprojected view.
+     * @param int[]|null $projectedIds IDs authorized by a trusted server-side
+     *                                 consumer; null keeps the compatible
+     *                                 unprojected view. Public request parameters
+     *                                 must never be passed here as authority.
      *
      * @return array{items: Category[], totalItems: int, page: int, itemsPerPage: int}
      */

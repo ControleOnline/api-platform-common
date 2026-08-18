@@ -17,13 +17,11 @@ class PublicShopCategoryService
         private ConfigService $configService,
         private CategoryRepository $categoryRepository,
         private CategoryTreeService $categoryTreeService,
+        private CategoryPayloadService $categoryPayloadService,
     ) {
     }
 
     /**
-     * @param int[]|null $projectedCategoryIds IDs supplied by the commercial
-     *                                             module after publication checks.
-     *
      * @return array{items: Category[], totalItems: int, page: int, itemsPerPage: int}
      */
     public function getCollection(
@@ -31,8 +29,7 @@ class PublicShopCategoryService
         string $search,
         bool $requireImage,
         int $page,
-        int $itemsPerPage,
-        ?array $projectedCategoryIds = null
+        int $itemsPerPage
     ): array {
         $companyId = $this->resolvePublicShopCompanyId($requestedCompanyId);
         if ($companyId === null) {
@@ -48,7 +45,7 @@ class PublicShopCategoryService
             $this->categoryRepository->findTreeCandidates($companyId, self::CATEGORY_CONTEXT),
             $companyId,
             self::CATEGORY_CONTEXT,
-            $projectedCategoryIds,
+            null,
             $search,
             $requireImage,
             $page,
@@ -56,14 +53,8 @@ class PublicShopCategoryService
         );
     }
 
-    /**
-     * @param int[]|null $projectedCategoryIds
-     */
-    public function getItem(
-        int $id,
-        ?int $requestedCompanyId,
-        ?array $projectedCategoryIds = null
-    ): ?Category {
+    public function getItem(int $id, ?int $requestedCompanyId): ?Category
+    {
         $companyId = $this->resolvePublicShopCompanyId($requestedCompanyId);
         if ($companyId === null) {
             return null;
@@ -73,7 +64,7 @@ class PublicShopCategoryService
             $this->categoryRepository->findTreeCandidates($companyId, self::CATEGORY_CONTEXT),
             $companyId,
             self::CATEGORY_CONTEXT,
-            $projectedCategoryIds,
+            null,
             '',
             false,
             1,
@@ -91,42 +82,7 @@ class PublicShopCategoryService
 
     public function serializeCategory(Category $category): array
     {
-        $files = [];
-        foreach ($category->getCategoryFiles() as $categoryFile) {
-            $file = $categoryFile->getFile();
-            $files[] = [
-                '@id' => '/category_files/' . $categoryFile->getId(),
-                'id' => $categoryFile->getId(),
-                'file' => [
-                    '@id' => '/files/' . $file->getId(),
-                    'id' => $file->getId(),
-                    'fileType' => $file->getFileType(),
-                    'fileName' => $file->getFileName(),
-                    'context' => $file->getContext(),
-                    'extension' => $file->getExtension(),
-                ],
-            ];
-        }
-
-        $parent = $category->getParent();
-
-        return [
-            '@id' => '/shop/categories/' . $category->getId(),
-            '@type' => 'Category',
-            'id' => $category->getId(),
-            'name' => $category->getName(),
-            'categoryFiles' => $files,
-            'context' => $category->getContext(),
-            'parent' => $parent ? [
-                '@id' => '/shop/categories/' . $parent->getId(),
-                'id' => $parent->getId(),
-                'name' => $parent->getName(),
-            ] : null,
-            'company' => '/people/' . $category->getCompany()->getId(),
-            'icon' => $category->getIcon(),
-            'color' => $category->getColor(),
-            'sortOrder' => $category->getSortOrder(),
-        ];
+        return $this->categoryPayloadService->serialize($category, '/shop/categories');
     }
 
     private function resolvePublicShopCompanyId(?int $requestedCompanyId): ?int
