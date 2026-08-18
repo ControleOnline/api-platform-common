@@ -2,6 +2,7 @@
 
 namespace ControleOnline\Controller;
 
+use ControleOnline\Service\CategoryProjectionRequestParser;
 use ControleOnline\Service\PublicShopCategoryService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,6 +14,7 @@ class GetPublicShopCategoriesAction
 
     public function __construct(
         private PublicShopCategoryService $categoryService,
+        private CategoryProjectionRequestParser $projectionRequestParser,
     ) {
     }
 
@@ -37,7 +39,8 @@ class GetPublicShopCategoriesAction
             $search,
             $requireImage,
             $page,
-            $itemsPerPage
+            $itemsPerPage,
+            $this->projectionRequestParser->parse($request)
         );
         $items = array_map(
             fn ($category): array => $this->categoryService->serializeCategory($category),
@@ -61,4 +64,5 @@ class GetPublicShopCategoriesAction
 
         return $id > 0 ? $id : null;
     }
+
 }
