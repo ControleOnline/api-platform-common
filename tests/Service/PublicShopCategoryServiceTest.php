@@ -7,6 +7,7 @@ use ControleOnline\Entity\Config;
 use ControleOnline\Entity\People;
 use ControleOnline\Entity\PeopleDomain;
 use ControleOnline\Repository\CategoryRepository;
+use ControleOnline\Service\CategoryPayloadService;
 use ControleOnline\Service\CategoryTreeService;
 use ControleOnline\Service\ConfigService;
 use ControleOnline\Service\DomainService;
@@ -25,7 +26,7 @@ class PublicShopCategoryServiceTest extends TestCase
             ->willReturn([]);
 
         $result = $this->service($domainService, $configService, $repository)
-            ->getCollection(21, 'bebida', true, 2, 10, [4, 5]);
+            ->getCollection(21, 'bebida', true, 2, 10);
 
         self::assertSame(0, $result['totalItems']);
         self::assertSame(2, $result['page']);
@@ -77,7 +78,7 @@ class PublicShopCategoryServiceTest extends TestCase
         self::assertSame(7, $payload['sortOrder']);
     }
 
-    public function testItemIsLimitedToProjectedCategoryAndItsAncestors(): void
+    public function testItemUsesCompatibleUnprojectedPublicTree(): void
     {
         [$domainService, $configService] = $this->createPublicScope([]);
         $repository = $this->createMock(CategoryRepository::class);
@@ -89,8 +90,8 @@ class PublicShopCategoryServiceTest extends TestCase
         $repository->method('findTreeCandidates')->willReturn([$unrelated, $child, $root]);
         $service = $this->service($domainService, $configService, $repository);
 
-        self::assertSame($root, $service->getItem(1, 3, [2]));
-        self::assertNull($service->getItem(3, 3, [2]));
+        self::assertSame($root, $service->getItem(1, 3));
+        self::assertSame($unrelated, $service->getItem(3, 3));
     }
 
     /**
@@ -134,7 +135,8 @@ class PublicShopCategoryServiceTest extends TestCase
             $domainService,
             $configService,
             $repository,
-            new CategoryTreeService()
+            new CategoryTreeService(),
+            new CategoryPayloadService()
         );
     }
 

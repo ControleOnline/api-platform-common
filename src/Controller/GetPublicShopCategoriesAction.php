@@ -2,7 +2,7 @@
 
 namespace ControleOnline\Controller;
 
-use ControleOnline\Service\CategoryProjectionRequestParser;
+use ControleOnline\Service\PublicCategoryProjectionGuard;
 use ControleOnline\Service\PublicShopCategoryService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,12 +14,14 @@ class GetPublicShopCategoriesAction
 
     public function __construct(
         private PublicShopCategoryService $categoryService,
-        private CategoryProjectionRequestParser $projectionRequestParser,
+        private PublicCategoryProjectionGuard $projectionGuard,
     ) {
     }
 
     public function __invoke(Request $request): JsonResponse
     {
+        $this->projectionGuard->rejectClientProjection($request);
+
         $page = max(1, (int) $request->query->get('page', 1));
         $itemsPerPage = max(1, min(
             self::MAX_ITEMS_PER_PAGE,
@@ -39,8 +41,7 @@ class GetPublicShopCategoriesAction
             $search,
             $requireImage,
             $page,
-            $itemsPerPage,
-            $this->projectionRequestParser->parse($request)
+            $itemsPerPage
         );
         $items = array_map(
             fn ($category): array => $this->categoryService->serializeCategory($category),
