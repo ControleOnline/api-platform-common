@@ -3,6 +3,7 @@
 namespace ControleOnline\Controller;
 
 use ControleOnline\Library\Postalcode\PostalcodeProviderBalancer;
+use ControleOnline\Library\Utils\GMaps;
 use Doctrine\ORM\EntityManagerInterface;
 use ControleOnline\Entity\Country;
 use ControleOnline\Entity\State;
@@ -12,6 +13,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * Address geo endpoints (CEP lookup, countries, states).
+ * app-community#283: when CEP providers (Postmon/ViaCEP) omit coordinates,
+ * enrich via Google Maps geocode so Address.latitude/longitude are populated.
+ */
 #[AsController]
 class AddressGeoController extends AbstractController
 {
@@ -39,9 +45,11 @@ class AddressGeoController extends AbstractController
             $payload['provider'] = $payload['provider'] ?? $provider;
             $payload['cep'] = $digits;
 
+            $gmapsKey = $_ENV['GMAPS_KEY'] ?? getenv('GMAPS_KEY') ?: null;
+            $payload = $this->enrichCoordinatesFromGoogleMaps($payload, $digits, $gmapsKey);
+
             $lat = $payload['latitude'] ?? null;
             $lng = $payload['longitude'] ?? null;
-            $gmapsKey = $_ENV['GMAPS_KEY'] ?? getenv('GMAPS_KEY') ?: null;
             $payload['map'] = null;
             $payload['facade'] = null;
             $payload['hasMapsKey'] = (bool) $gmapsKey;
@@ -62,7 +70,13 @@ class AddressGeoController extends AbstractController
                     ),
                 ];
             } elseif ($gmapsKey) {
-                $q = urlencode(trim(sprintf('%s, %s, %s, %s, Brasil', $payload['street'] ?? '', $payload['district'] ?? '', $payload['city'] ?? '', $payload['uf'] ?? '')));
+                $q = urlencode(trim(sprintf(
+                    '%s, %s, %s, %s, Brasil',
+                    $payload['street'] ?? '',
+                    $payload['district'] ?? '',
+                    $payload['city'] ?? '',
+                    $payload['uf'] ?? ''
+                )));
                 if ($q !== '') {
                     $payload['map'] = [
                         'staticUrl' => sprintf(
@@ -77,6 +91,55 @@ class AddressGeoController extends AbstractController
         } catch (\Throwable $e) {
             return new JsonResponse(['title' => 'Postal code lookup failed', 'detail' => $e->getMessage(), 'status' => 502], 502);
         }
+    }
+
+    /**
+     * When primary CEP providers leave lat/lng empty, geocode via Google Maps
+     * so franchise/address creation persists real coordinates (app-community#283).
+     */
+    private function enrichCoordinatesFromGoogleMaps(array $payload, string $cepDigits, ?string $gmapsKey): array
+    {
+        $lat = $payload['latitude'] ?? null;
+        $lng = $payload['longitude'] ?? null;
+        if ($lat !== null && $lat !== '' && $lng !== null && $lng !== '') {
+            return $payload;
+        }
+        if (!$gmapsKey) {
+            return $payload;
+        }
+
+        GMaps::setKey($gmapsKey);
+
+        $queryParts = array_filter([
+            $payload['street'] ?? null,
+            $payload['district'] ?? null,
+            $payload['city'] ?? null,
+            $payload['uf'] ?? $payload['state'] ?? null,
+            $cepDigits,
+            'Brasil',
+        ], static fn ($v) => $v !== null && trim((string) $v) !== '');
+
+        $query = implode(', ', $queryParts);
+        if ($query === '') {
+            $query = $cepDigits . ', Brasil';
+        }
+
+        $result = GMaps::geocode($query);
+        if ($result === null || empty($result->results[0]->geometry->location)) {
+            // Fallback: geocode CEP alone
+            $result = GMaps::geocode($cepDigits . ', Brasil');
+        }
+
+        if ($result !== null && !empty($result->results[0]->geometry->location)) {
+            $loc = $result->results[0]->geometry->location;
+            $payload['latitude'] = isset($loc->lat) ? (float) $loc->lat : null;
+            $payload['longitude'] = isset($loc->lng) ? (float) $loc->lng : null;
+            if (empty($payload['provider']) || $payload['provider'] === 'postmon' || $payload['provider'] === 'viacep') {
+                $payload['provider'] = ($payload['provider'] ?? 'cep') . '+googlemaps';
+            }
+        }
+
+        return $payload;
     }
 
     #[Route(path: '/address-geo/countries', name: 'address_geo_countries', methods: ['GET'])]
