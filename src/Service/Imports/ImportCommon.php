@@ -12,7 +12,10 @@ abstract class ImportCommon implements ImportProcessorInterface
     {
         return array_map(function ($header) {
             $header = is_string($header) ? trim($header) : '';
-            return ltrim($header, "\xEF\xBB\xBF");
+            $header = ltrim($header, "\xEF\xBB\xBF");
+            // Example CSV templates mark required columns with a trailing '*'.
+            // Strip it so the same file remains a valid upload template.
+            return rtrim($header, '*');
         }, $headers);
     }
 
