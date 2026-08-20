@@ -2,6 +2,9 @@
 
 namespace ControleOnline\Controller;
 
+use ControleOnline\Library\Postalcode\Exception\InvalidParameterException;
+use ControleOnline\Library\Postalcode\Exception\PostalcodeNotFoundException;
+use ControleOnline\Library\Postalcode\Exception\ProviderRequestException;
 use ControleOnline\Library\Postalcode\PostalcodeProviderBalancer;
 use ControleOnline\Library\Utils\GMaps;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,9 +17,13 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Address geo endpoints (CEP lookup, countries, states).
- * app-community#283: when CEP providers (Postmon/ViaCEP) omit coordinates,
- * enrich via Google Maps geocode so Address.latitude/longitude are populated.
+ * Geo / postal-code helpers for address forms.
+ *
+ * GET /postal-codes/{cep} — centralized CEP lookup (does not persist).
+ * Contract (normalized):
+ *   cep, street, district, city, state, uf, country, latitude?, longitude?, provider?, map?, facade?
+ *
+ * app-community#283: when CEP providers omit coordinates, enrich via Google Maps geocode.
  */
 #[AsController]
 class AddressGeoController extends AbstractController
@@ -30,7 +37,12 @@ class AddressGeoController extends AbstractController
     {
         $digits = preg_replace('/\D+/', '', $cep) ?? '';
         if (strlen($digits) !== 8) {
-            return new JsonResponse(['title' => 'Invalid CEP', 'detail' => 'CEP must have 8 digits', 'status' => 400], 400);
+            return new JsonResponse([
+                'title' => 'Invalid CEP',
+                'detail' => 'CEP must have exactly 8 digits',
+                'status' => 400,
+                'type' => 'invalid_cep',
+            ], 400);
         }
 
         try {
@@ -42,20 +54,33 @@ class AddressGeoController extends AbstractController
             }
 
             $payload = method_exists($address, 'toArray') ? $address->toArray() : [];
-            $payload['provider'] = $payload['provider'] ?? $provider;
-            $payload['cep'] = $digits;
+            $normalized = [
+                'cep' => $digits,
+                'street' => $payload['street'] ?? '',
+                'district' => $payload['district'] ?? '',
+                'city' => $payload['city'] ?? '',
+                'state' => $payload['state'] ?? ($payload['uf'] ?? ''),
+                'uf' => $payload['uf'] ?? ($payload['state'] ?? ''),
+                'country' => $payload['country'] ?? 'Brasil',
+                'number' => $payload['number'] ?? '',
+                'complement' => $payload['complement'] ?? '',
+                'latitude' => $payload['latitude'] ?? null,
+                'longitude' => $payload['longitude'] ?? null,
+                'provider' => $payload['provider'] ?? $provider,
+                'formatted' => $payload['formatted'] ?? null,
+            ];
 
             $gmapsKey = $_ENV['GMAPS_KEY'] ?? getenv('GMAPS_KEY') ?: null;
-            $payload = $this->enrichCoordinatesFromGoogleMaps($payload, $digits, $gmapsKey);
+            $normalized = $this->enrichCoordinatesFromGoogleMaps($normalized, $digits, $gmapsKey);
 
-            $lat = $payload['latitude'] ?? null;
-            $lng = $payload['longitude'] ?? null;
-            $payload['map'] = null;
-            $payload['facade'] = null;
-            $payload['hasMapsKey'] = (bool) $gmapsKey;
+            $lat = $normalized['latitude'] ?? null;
+            $lng = $normalized['longitude'] ?? null;
+            $normalized['map'] = null;
+            $normalized['facade'] = null;
+            $normalized['hasMapsKey'] = (bool) $gmapsKey;
 
             if ($gmapsKey && $lat !== null && $lng !== null) {
-                $payload['map'] = [
+                $normalized['map'] = [
                     'latitude' => (float) $lat,
                     'longitude' => (float) $lng,
                     'staticUrl' => sprintf(
@@ -63,7 +88,7 @@ class AddressGeoController extends AbstractController
                         $lat, $lng, $lat, $lng, $gmapsKey
                     ),
                 ];
-                $payload['facade'] = [
+                $normalized['facade'] = [
                     'streetViewUrl' => sprintf(
                         'https://maps.googleapis.com/maps/api/streetview?size=640x360&location=%s,%s&fov=80&heading=0&pitch=0&key=%s',
                         $lat, $lng, $gmapsKey
@@ -72,13 +97,13 @@ class AddressGeoController extends AbstractController
             } elseif ($gmapsKey) {
                 $q = urlencode(trim(sprintf(
                     '%s, %s, %s, %s, Brasil',
-                    $payload['street'] ?? '',
-                    $payload['district'] ?? '',
-                    $payload['city'] ?? '',
-                    $payload['uf'] ?? ''
+                    $normalized['street'],
+                    $normalized['district'],
+                    $normalized['city'],
+                    $normalized['uf']
                 )));
                 if ($q !== '') {
-                    $payload['map'] = [
+                    $normalized['map'] = [
                         'staticUrl' => sprintf(
                             'https://maps.googleapis.com/maps/api/staticmap?center=%s&zoom=16&size=640x360&maptype=roadmap&key=%s',
                             $q, $gmapsKey
@@ -87,9 +112,35 @@ class AddressGeoController extends AbstractController
                 }
             }
 
-            return new JsonResponse($payload, 200);
+            return new JsonResponse($normalized, 200);
+        } catch (InvalidParameterException $e) {
+            return new JsonResponse([
+                'title' => 'Invalid CEP',
+                'detail' => $e->getMessage(),
+                'status' => 400,
+                'type' => 'invalid_cep',
+            ], 400);
+        } catch (PostalcodeNotFoundException $e) {
+            return new JsonResponse([
+                'title' => 'CEP not found',
+                'detail' => $e->getMessage(),
+                'status' => 404,
+                'type' => 'cep_not_found',
+            ], 404);
+        } catch (ProviderRequestException $e) {
+            return new JsonResponse([
+                'title' => 'Postal code lookup unavailable',
+                'detail' => 'External providers failed; fill address manually',
+                'status' => 502,
+                'type' => 'provider_unavailable',
+            ], 502);
         } catch (\Throwable $e) {
-            return new JsonResponse(['title' => 'Postal code lookup failed', 'detail' => $e->getMessage(), 'status' => 502], 502);
+            return new JsonResponse([
+                'title' => 'Postal code lookup failed',
+                'detail' => 'Unexpected error during CEP lookup',
+                'status' => 502,
+                'type' => 'lookup_failed',
+            ], 502);
         }
     }
 
@@ -126,7 +177,6 @@ class AddressGeoController extends AbstractController
 
         $result = GMaps::geocode($query);
         if ($result === null || empty($result->results[0]->geometry->location)) {
-            // Fallback: geocode CEP alone
             $result = GMaps::geocode($cepDigits . ', Brasil');
         }
 
