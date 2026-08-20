@@ -91,14 +91,29 @@ class FileService
   ): File {
     $content = file_get_contents($uploadedFile->getPathname());
     $mimeType = explode('/', (string) $uploadedFile->getClientMimeType());
+    $fileType = $mimeType[0] ?? null;
+    $extension = $mimeType[1] ?? strtolower($uploadedFile->getClientOriginalExtension());
+    $resolvedContext = (string) ($context ?: '');
+
+    // Images used as people_media / avatar must be publicly downloadable:
+    // browser <Image> cannot send Authorization on web → otherwise 403.
+    // GetFileDataAction allows public image downloads without ROLE_HUMAN.
+    $isImage = strtolower((string) $fileType) === 'image';
+    $peopleMediaContext = in_array(
+      strtolower($resolvedContext),
+      ['people_media', 'avatar', 'logo', 'people'],
+      true
+    );
+    $public = $isImage && $peopleMediaContext;
 
     return $this->addFile(
       $people,
       $content,
-      (string) ($context ?: ''),
+      $resolvedContext,
       $uploadedFile->getClientOriginalName(),
-      $mimeType[0] ?? null,
-      $mimeType[1] ?? strtolower($uploadedFile->getClientOriginalExtension())
+      $fileType,
+      $extension,
+      $public
     );
   }
 
