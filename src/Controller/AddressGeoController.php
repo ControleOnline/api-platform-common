@@ -6,6 +6,7 @@ use ControleOnline\Library\Postalcode\Exception\InvalidParameterException;
 use ControleOnline\Library\Postalcode\Exception\PostalcodeNotFoundException;
 use ControleOnline\Library\Postalcode\Exception\ProviderRequestException;
 use ControleOnline\Library\Postalcode\PostalcodeProviderBalancer;
+use ControleOnline\Library\Utils\GMaps;
 use Doctrine\ORM\EntityManagerInterface;
 use ControleOnline\Entity\Country;
 use ControleOnline\Entity\State;
@@ -21,6 +22,8 @@ use Symfony\Component\Routing\Attribute\Route;
  * GET /postal-codes/{cep} — centralized CEP lookup (does not persist).
  * Contract (normalized):
  *   cep, street, district, city, state, uf, country, latitude?, longitude?, provider?, map?, facade?
+ *
+ * app-community#283: when CEP providers omit coordinates, enrich via Google Maps geocode.
  */
 #[AsController]
 class AddressGeoController extends AbstractController
@@ -51,7 +54,6 @@ class AddressGeoController extends AbstractController
             }
 
             $payload = method_exists($address, 'toArray') ? $address->toArray() : [];
-            // Stable contract keys expected by UI clients
             $normalized = [
                 'cep' => $digits,
                 'street' => $payload['street'] ?? '',
@@ -68,9 +70,11 @@ class AddressGeoController extends AbstractController
                 'formatted' => $payload['formatted'] ?? null,
             ];
 
-            $lat = $normalized['latitude'];
-            $lng = $normalized['longitude'];
             $gmapsKey = $_ENV['GMAPS_KEY'] ?? getenv('GMAPS_KEY') ?: null;
+            $normalized = $this->enrichCoordinatesFromGoogleMaps($normalized, $digits, $gmapsKey);
+
+            $lat = $normalized['latitude'] ?? null;
+            $lng = $normalized['longitude'] ?? null;
             $normalized['map'] = null;
             $normalized['facade'] = null;
             $normalized['hasMapsKey'] = (bool) $gmapsKey;
@@ -138,6 +142,54 @@ class AddressGeoController extends AbstractController
                 'type' => 'lookup_failed',
             ], 502);
         }
+    }
+
+    /**
+     * When primary CEP providers leave lat/lng empty, geocode via Google Maps
+     * so franchise/address creation persists real coordinates (app-community#283).
+     */
+    private function enrichCoordinatesFromGoogleMaps(array $payload, string $cepDigits, ?string $gmapsKey): array
+    {
+        $lat = $payload['latitude'] ?? null;
+        $lng = $payload['longitude'] ?? null;
+        if ($lat !== null && $lat !== '' && $lng !== null && $lng !== '') {
+            return $payload;
+        }
+        if (!$gmapsKey) {
+            return $payload;
+        }
+
+        GMaps::setKey($gmapsKey);
+
+        $queryParts = array_filter([
+            $payload['street'] ?? null,
+            $payload['district'] ?? null,
+            $payload['city'] ?? null,
+            $payload['uf'] ?? $payload['state'] ?? null,
+            $cepDigits,
+            'Brasil',
+        ], static fn ($v) => $v !== null && trim((string) $v) !== '');
+
+        $query = implode(', ', $queryParts);
+        if ($query === '') {
+            $query = $cepDigits . ', Brasil';
+        }
+
+        $result = GMaps::geocode($query);
+        if ($result === null || empty($result->results[0]->geometry->location)) {
+            $result = GMaps::geocode($cepDigits . ', Brasil');
+        }
+
+        if ($result !== null && !empty($result->results[0]->geometry->location)) {
+            $loc = $result->results[0]->geometry->location;
+            $payload['latitude'] = isset($loc->lat) ? (float) $loc->lat : null;
+            $payload['longitude'] = isset($loc->lng) ? (float) $loc->lng : null;
+            if (empty($payload['provider']) || $payload['provider'] === 'postmon' || $payload['provider'] === 'viacep') {
+                $payload['provider'] = ($payload['provider'] ?? 'cep') . '+googlemaps';
+            }
+        }
+
+        return $payload;
     }
 
     #[Route(path: '/address-geo/countries', name: 'address_geo_countries', methods: ['GET'])]
