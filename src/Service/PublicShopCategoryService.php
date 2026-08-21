@@ -5,19 +5,19 @@ namespace ControleOnline\Service;
 use ControleOnline\Entity\Category;
 use ControleOnline\Entity\Config;
 use ControleOnline\Entity\People;
-use ControleOnline\Entity\PeopleDomain;
 use ControleOnline\Repository\CategoryRepository;
-use Doctrine\ORM\EntityManagerInterface;
 
 class PublicShopCategoryService
 {
+    private const CATEGORY_CONTEXT = 'products';
     private const VISIBLE_COMPANY_IDS_CONFIG_KEY = 'shop-franchise-visible-company-ids';
 
     public function __construct(
         private DomainService $domainService,
         private ConfigService $configService,
         private CategoryRepository $categoryRepository,
-        private EntityManagerInterface $entityManager,
+        private CategoryTreeService $categoryTreeService,
+        private CategoryPayloadService $categoryPayloadService,
     ) {
     }
 
@@ -31,8 +31,8 @@ class PublicShopCategoryService
         int $page,
         int $itemsPerPage
     ): array {
-        $scope = $this->resolvePublicShopScope($requestedCompanyId);
-        if ($scope === null) {
+        $companyId = $this->resolvePublicShopCompanyId($requestedCompanyId);
+        if ($companyId === null) {
             return [
                 'items' => [],
                 'totalItems' => 0,
@@ -41,79 +41,51 @@ class PublicShopCategoryService
             ];
         }
 
-        return [
-            'items' => $this->categoryRepository->findPublicShopCategories(
-                $scope['companyId'],
-                $search,
-                $requireImage,
-                $page,
-                $itemsPerPage,
-                $scope['showcaseId']
-            ),
-            'totalItems' => $this->categoryRepository->countPublicShopCategories(
-                $scope['companyId'],
-                $search,
-                $requireImage,
-                $scope['showcaseId']
-            ),
-            'page' => $page,
-            'itemsPerPage' => $itemsPerPage,
-        ];
+        return $this->categoryTreeService->build(
+            $this->categoryRepository->findTreeCandidates($companyId, self::CATEGORY_CONTEXT),
+            $companyId,
+            self::CATEGORY_CONTEXT,
+            null,
+            $search,
+            $requireImage,
+            $page,
+            $itemsPerPage
+        );
     }
 
     public function getItem(int $id, ?int $requestedCompanyId): ?Category
     {
-        $scope = $this->resolvePublicShopScope($requestedCompanyId);
-        if ($scope === null) {
+        $companyId = $this->resolvePublicShopCompanyId($requestedCompanyId);
+        if ($companyId === null) {
             return null;
         }
 
-        return $this->categoryRepository->findPublicShopCategory($id, $scope['companyId'], $scope['showcaseId']);
+        $result = $this->categoryTreeService->build(
+            $this->categoryRepository->findTreeCandidates($companyId, self::CATEGORY_CONTEXT),
+            $companyId,
+            self::CATEGORY_CONTEXT,
+            null,
+            '',
+            false,
+            1,
+            PHP_INT_MAX
+        );
+
+        foreach ($result['items'] as $category) {
+            if ((int) $category->getId() === $id) {
+                return $category;
+            }
+        }
+
+        return null;
     }
 
     public function serializeCategory(Category $category): array
     {
-        $files = [];
-        foreach ($category->getCategoryFiles() as $categoryFile) {
-            $file = $categoryFile->getFile();
-            $files[] = [
-                '@id' => '/category_files/' . $categoryFile->getId(),
-                'id' => $categoryFile->getId(),
-                'file' => [
-                    '@id' => '/files/' . $file->getId(),
-                    'id' => $file->getId(),
-                    'fileType' => $file->getFileType(),
-                    'fileName' => $file->getFileName(),
-                    'context' => $file->getContext(),
-                    'extension' => $file->getExtension(),
-                ],
-            ];
-        }
-
-        $parent = $category->getParent();
-
-        return [
-            '@id' => '/shop/categories/' . $category->getId(),
-            '@type' => 'Category',
-            'id' => $category->getId(),
-            'name' => $category->getName(),
-            'categoryFiles' => $files,
-            'context' => $category->getContext(),
-            'parent' => $parent ? [
-                '@id' => '/shop/categories/' . $parent->getId(),
-                'id' => $parent->getId(),
-                'name' => $parent->getName(),
-            ] : null,
-            'company' => '/people/' . $category->getCompany()->getId(),
-            'icon' => $category->getIcon(),
-            'color' => $category->getColor(),
-        ];
+        return $this->categoryPayloadService->serialize($category, '/shop/categories');
     }
 
-    /**
-     * @return array{companyId: int, showcaseId: ?int}|null
-     */
-    private function resolvePublicShopScope(?int $requestedCompanyId): ?array
+    private function resolvePublicShopCompanyId(?int $requestedCompanyId): ?int
     {
         $peopleDomain = $this->domainService->getPeopleDomain();
         if (strtoupper(trim((string) $peopleDomain->getDomainType())) !== 'SHOP') {
@@ -145,50 +117,7 @@ class PublicShopCategoryService
         $allowedCompanyIds = array_values(array_unique($allowedCompanyIds));
         $companyId = $requestedCompanyId ?: $domainCompanyId;
 
-        if (!in_array($companyId, $allowedCompanyIds, true)) {
-            return null;
-        }
-
-        return [
-            'companyId' => $companyId,
-            'showcaseId' => $this->resolveDomainShowcaseId($companyId, $peopleDomain),
-        ];
-    }
-
-    private function resolveDomainShowcaseId(int $companyId, PeopleDomain $peopleDomain): ?int
-    {
-        if ($peopleDomain->getId() <= 0) {
-            return null;
-        }
-
-        $connection = $this->entityManager->getConnection();
-        $schemaManager = method_exists($connection, 'createSchemaManager')
-            ? $connection->createSchemaManager()
-            : $connection->getSchemaManager();
-
-        if (!$schemaManager->tablesExist(['product_showcase'])) {
-            return null;
-        }
-
-        $showcaseId = $connection->fetchOne(
-            <<<'SQL'
-SELECT id
-FROM product_showcase
-WHERE company_id = :companyId
-  AND people_domain_id = :peopleDomainId
-  AND integration_key = :integrationKey
-  AND active = 1
-ORDER BY id ASC
-LIMIT 1
-SQL,
-            [
-                'companyId' => $companyId,
-                'peopleDomainId' => $peopleDomain->getId(),
-                'integrationKey' => 'shop',
-            ]
-        );
-
-        return $showcaseId === false ? null : (int) $showcaseId;
+        return in_array($companyId, $allowedCompanyIds, true) ? $companyId : null;
     }
 
     /**
