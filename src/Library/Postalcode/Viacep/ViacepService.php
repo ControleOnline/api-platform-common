@@ -44,6 +44,10 @@ class ViacepService implements PostalcodeService
       $response = $client->request('GET',sprintf('%s/%s/%s', $this->endpoint, $cep, $format));
       $result   = json_decode($response->getBody());
 
+      if (isset($result->erro) && $result->erro) {
+        throw new ProviderRequestException('CEP not found');
+      }
+
       if (isset($result->cep)) {
         return $result;
       }
