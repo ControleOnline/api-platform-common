@@ -12,6 +12,11 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class ImportService
 {
+    /**
+     * Minutos após os quais um import em "processing" é considerado
+     * estagnado e elegível a reprocessamento pelo worker.
+     */
+    public const STALE_PROCESSING_MINUTES = 15;
 
     public function __construct(
         private ImportRepository $repository,
@@ -20,6 +25,9 @@ class ImportService
         private StatusService $statusService
     ) {}
 
+    /**
+     * @deprecated Prefer getImportsToProcess() — mantido por compatibilidade.
+     */
     public function getAllOpenImports(int $limit)
     {
         $status = $this->statusService->discoveryStatus(
@@ -29,6 +37,39 @@ class ImportService
         );
 
         return $this->repository->getImportsByStatus($status, $limit);
+    }
+
+    /**
+     * Fila do worker: imports open + processing estagnados (> STALE_PROCESSING_MINUTES).
+     * Evita registros presos para sempre quando o processo morre após marcar processing.
+     *
+     * @return Import[]
+     */
+    public function getImportsToProcess(int $limit): array
+    {
+        $openStatus = $this->statusService->discoveryStatus(
+            'open',
+            'open',
+            'integration'
+        );
+
+        $processingStatus = $this->statusService->discoveryStatus(
+            'pending',
+            'processing',
+            'integration'
+        );
+
+        $staleBefore = new \DateTime(sprintf(
+            '-%d minutes',
+            self::STALE_PROCESSING_MINUTES
+        ));
+
+        return $this->repository->getImportsToProcess(
+            $openStatus,
+            $processingStatus,
+            $staleBefore,
+            $limit
+        );
     }
 
     public function executeImport(Import $import): void
