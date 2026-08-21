@@ -47,7 +47,7 @@ class ImportCommand extends DefaultCommand
 
         $this->addLog('Iniciando processamento da fila de importações...');
 
-        $imports = $this->importService->getAllOpenImports(50);
+        $imports = $this->importService->getImportsToProcess(50);
 
         foreach ($imports as $import) {
 
