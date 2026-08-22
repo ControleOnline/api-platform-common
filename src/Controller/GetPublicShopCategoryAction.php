@@ -2,6 +2,7 @@
 
 namespace ControleOnline\Controller;
 
+use ControleOnline\Service\PublicCategoryProjectionGuard;
 use ControleOnline\Service\PublicShopCategoryService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -10,11 +11,14 @@ class GetPublicShopCategoryAction
 {
     public function __construct(
         private PublicShopCategoryService $categoryService,
+        private PublicCategoryProjectionGuard $projectionGuard,
     ) {
     }
 
     public function __invoke(Request $request, int $id): JsonResponse
     {
+        $this->projectionGuard->rejectClientProjection($request);
+
         $companyId = $this->normalizeId($request->query->get('company'));
         $category = $this->categoryService->getItem($id, $companyId);
 
@@ -35,4 +39,5 @@ class GetPublicShopCategoryAction
 
         return $id > 0 ? $id : null;
     }
+
 }
