@@ -32,22 +32,36 @@ class StatusService
 
     public function discoveryStatus($realStatus, $name, $context): Status
     {
-        $status =  $this->manager->getRepository(Status::class)->findOneBy([
+        $status = $this->manager->getRepository(Status::class)->findOneBy([
             'realStatus' => $realStatus,
             'status' => $name,
             'context' => $context,
         ]);
 
-        if (!$status) {
-            $status = new Status();
-            $status->setRealStatus($realStatus);
-            $status->setStatus($name);
-            $status->setContext($context);
-
-            $this->manager->persist($status);
-            $this->manager->flush();
+        if ($status instanceof Status) {
+            return $status;
         }
 
+        // Prefer an existing row with the same realStatus + context (any label).
+        $status = $this->manager->getRepository(Status::class)->findOneBy([
+            'realStatus' => $realStatus,
+            'context' => $context,
+        ]);
+        if ($status instanceof Status) {
+            return $status;
+        }
+
+        $status = new Status();
+        $status->setRealStatus($realStatus);
+        $status->setStatus($name);
+        $status->setContext($context);
+        $status->setVisibility('1');
+        $status->setNotify(1);
+        $status->setSystem(0);
+        $status->setColor('');
+
+        $this->manager->persist($status);
+        $this->manager->flush();
 
         return $status;
     }
