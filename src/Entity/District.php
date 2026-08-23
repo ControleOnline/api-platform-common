@@ -82,7 +82,8 @@ class District
 
     public function getDistrict(): string
     {
-        return $this->uppercaseText($this->district);
+        // Preserve stored case (app-community#376).
+        return (string) ($this->district ?? '');
     }
 
     public function setCity(City $city): self

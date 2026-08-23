@@ -95,7 +95,8 @@ class City
 
     public function getCity()
     {
-        return $this->uppercaseText($this->city);
+        // Preserve stored case (app-community#376).
+        return (string) ($this->city ?? '');
     }
 
     public function setState(State $state = null)
