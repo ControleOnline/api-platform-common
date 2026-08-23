@@ -14,6 +14,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
 
 use ControleOnline\Repository\AddressRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -32,6 +33,7 @@ use Doctrine\ORM\Mapping as ORM;
             processor: AddressDiscoveryProcessor::class,
             security: 'is_granted(\'ROLE_HUMAN\')'
         ),
+        new Delete(security: 'is_granted(\'ROLE_HUMAN\')'),
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']],
     normalizationContext: ['groups' => ['address:read']],
