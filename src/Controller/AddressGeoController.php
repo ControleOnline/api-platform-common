@@ -2,10 +2,12 @@
 
 namespace ControleOnline\Controller;
 
-use ControleOnline\Library\Postalcode\PostalcodeProviderBalancer;
-use Doctrine\ORM\EntityManagerInterface;
 use ControleOnline\Entity\Country;
 use ControleOnline\Entity\State;
+use ControleOnline\Library\Postalcode\Exception\InvalidParameterException;
+use ControleOnline\Library\Postalcode\Exception\ProviderRequestException;
+use ControleOnline\Library\Postalcode\PostalcodeProviderBalancer;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +26,12 @@ class AddressGeoController extends AbstractController
     {
         $digits = preg_replace('/\D+/', '', $cep) ?? '';
         if (strlen($digits) !== 8) {
-            return new JsonResponse(['title' => 'Invalid CEP', 'detail' => 'CEP must have 8 digits', 'status' => 400], 400);
+            return new JsonResponse([
+                'title' => 'Invalid CEP',
+                'detail' => 'CEP must have exactly 8 digits',
+                'status' => 400,
+                'type' => 'invalid_cep',
+            ], 400);
         }
 
         try {
@@ -36,47 +43,166 @@ class AddressGeoController extends AbstractController
             }
 
             $payload = method_exists($address, 'toArray') ? $address->toArray() : [];
-            $payload['provider'] = $payload['provider'] ?? $provider;
-            $payload['cep'] = $digits;
+            $normalized = [
+                'cep' => $digits,
+                'street' => (string) ($payload['street'] ?? ''),
+                'district' => (string) ($payload['district'] ?? ''),
+                'city' => (string) ($payload['city'] ?? ''),
+                'state' => (string) ($payload['state'] ?? ($payload['uf'] ?? '')),
+                'uf' => (string) ($payload['uf'] ?? ($payload['state'] ?? '')),
+                'country' => (string) ($payload['country'] ?? 'Brasil'),
+                'number' => (string) ($payload['number'] ?? ''),
+                'complement' => (string) ($payload['complement'] ?? ''),
+                'latitude' => $payload['latitude'] ?? null,
+                'longitude' => $payload['longitude'] ?? null,
+                'provider' => $payload['provider'] ?? $provider,
+                'formatted' => $payload['formatted'] ?? null,
+            ];
 
-            $lat = $payload['latitude'] ?? null;
-            $lng = $payload['longitude'] ?? null;
+            // Geocode with FULL address text (Nominatim does not work well with CEP-only).
+            $normalized = $this->enrichCoordinatesFromNominatim($normalized, $digits);
+
+            $lat = $normalized['latitude'] ?? null;
+            $lng = $normalized['longitude'] ?? null;
             $gmapsKey = $_ENV['GMAPS_KEY'] ?? getenv('GMAPS_KEY') ?: null;
-            $payload['map'] = null;
-            $payload['facade'] = null;
-            $payload['hasMapsKey'] = (bool) $gmapsKey;
+            $normalized['map'] = null;
+            $normalized['facade'] = null;
+            $normalized['hasMapsKey'] = (bool) $gmapsKey;
 
-            if ($gmapsKey && $lat !== null && $lng !== null) {
-                $payload['map'] = [
+            if ($this->isValidCoord($lat) && $this->isValidCoord($lng)) {
+                $normalized['map'] = [
                     'latitude' => (float) $lat,
                     'longitude' => (float) $lng,
-                    'staticUrl' => sprintf(
+                ];
+                if ($gmapsKey) {
+                    $normalized['map']['staticUrl'] = sprintf(
                         'https://maps.googleapis.com/maps/api/staticmap?center=%s,%s&zoom=16&size=640x360&maptype=roadmap&markers=color:red%%7C%s,%s&key=%s',
                         $lat, $lng, $lat, $lng, $gmapsKey
-                    ),
-                ];
-                $payload['facade'] = [
-                    'streetViewUrl' => sprintf(
-                        'https://maps.googleapis.com/maps/api/streetview?size=640x360&location=%s,%s&fov=80&heading=0&pitch=0&key=%s',
-                        $lat, $lng, $gmapsKey
-                    ),
-                ];
-            } elseif ($gmapsKey) {
-                $q = urlencode(trim(sprintf('%s, %s, %s, %s, Brasil', $payload['street'] ?? '', $payload['district'] ?? '', $payload['city'] ?? '', $payload['uf'] ?? '')));
-                if ($q !== '') {
-                    $payload['map'] = [
-                        'staticUrl' => sprintf(
-                            'https://maps.googleapis.com/maps/api/staticmap?center=%s&zoom=16&size=640x360&maptype=roadmap&key=%s',
-                            $q, $gmapsKey
+                    );
+                    $normalized['facade'] = [
+                        'streetViewUrl' => sprintf(
+                            'https://maps.googleapis.com/maps/api/streetview?size=640x360&location=%s,%s&fov=80&heading=0&pitch=0&key=%s',
+                            $lat, $lng, $gmapsKey
                         ),
                     ];
                 }
             }
 
-            return new JsonResponse($payload, 200);
+            return new JsonResponse($normalized, 200);
+        } catch (InvalidParameterException $e) {
+            return new JsonResponse([
+                'title' => 'Invalid CEP',
+                'detail' => $e->getMessage(),
+                'status' => 400,
+                'type' => 'invalid_cep',
+            ], 400);
         } catch (\Throwable $e) {
-            return new JsonResponse(['title' => 'Postal code lookup failed', 'detail' => $e->getMessage(), 'status' => 502], 502);
+            // Preserve balancer-style messages when available
+            $detail = $e->getMessage() ?: 'Postal code lookup failed';
+            if (str_contains(strtolower($detail), 'not available') || $e instanceof ProviderRequestException) {
+                return new JsonResponse([
+                    'title' => 'Postal code lookup failed',
+                    'detail' => $detail,
+                    'status' => 502,
+                    'type' => 'provider_unavailable',
+                ], 502);
+            }
+            if (str_contains(strtolower($detail), 'not found')) {
+                return new JsonResponse([
+                    'title' => 'CEP not found',
+                    'detail' => $detail,
+                    'status' => 404,
+                    'type' => 'not_found',
+                ], 404);
+            }
+            return new JsonResponse([
+                'title' => 'Postal code lookup failed',
+                'detail' => 'Unexpected error during CEP lookup',
+                'status' => 502,
+                'type' => 'lookup_failed',
+            ], 502);
         }
+    }
+
+    /**
+     * Resolve lat/lng via Nominatim using the FULL address string.
+     * CEP-only queries are unreliable; always send street + district + city + UF + CEP + country.
+     */
+    private function enrichCoordinatesFromNominatim(array $payload, string $cepDigits): array
+    {
+        if ($this->isValidCoord($payload['latitude'] ?? null) && $this->isValidCoord($payload['longitude'] ?? null)) {
+            return $payload;
+        }
+
+        $query = $this->buildFullAddressQuery($payload, $cepDigits);
+        if ($query === '') {
+            return $payload;
+        }
+
+        try {
+            $client = new \GuzzleHttp\Client([
+                'timeout' => 8,
+                'connect_timeout' => 4,
+                'headers' => [
+                    'User-Agent' => 'ControleOnline-AddressGeo/1.0 (app-community#430; nominatim-geocode)',
+                    'Accept' => 'application/json',
+                ],
+            ]);
+            $response = $client->request('GET', 'https://nominatim.openstreetmap.org/search', [
+                'query' => [
+                    'format' => 'json',
+                    'limit' => 1,
+                    'q' => $query,
+                ],
+            ]);
+            $data = json_decode((string) $response->getBody(), true);
+            if (is_array($data) && !empty($data[0]['lat']) && !empty($data[0]['lon'])) {
+                $payload['latitude'] = (float) $data[0]['lat'];
+                $payload['longitude'] = (float) $data[0]['lon'];
+                $payload['provider'] = ($payload['provider'] ?? 'cep') . '+nominatim';
+                if (!empty($data[0]['display_name'])) {
+                    $payload['formatted'] = (string) $data[0]['display_name'];
+                }
+            }
+        } catch (\Throwable $e) {
+            // Keep CEP text fields; coordinates stay null
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Example: "Rua Antônio Bonini, Vila Santista, Atibaia, SP, 12941-040, Brasil"
+     */
+    private function buildFullAddressQuery(array $payload, string $cepDigits): string
+    {
+        $cepFormatted = strlen($cepDigits) === 8
+            ? substr($cepDigits, 0, 5) . '-' . substr($cepDigits, 5)
+            : $cepDigits;
+
+        $parts = array_filter([
+            trim((string) ($payload['street'] ?? '')),
+            trim((string) ($payload['district'] ?? '')),
+            trim((string) ($payload['city'] ?? '')),
+            trim((string) ($payload['uf'] ?? $payload['state'] ?? '')),
+            $cepFormatted,
+            'Brasil',
+        ], static fn ($v) => $v !== '');
+
+        return implode(', ', $parts);
+    }
+
+    private function isValidCoord($value): bool
+    {
+        if ($value === null || $value === '') {
+            return false;
+        }
+        if (!is_numeric($value)) {
+            return false;
+        }
+        $n = (float) $value;
+        // 0,0 is the entity default "empty" — treat as missing
+        return abs($n) > 0.000001;
     }
 
     #[Route(path: '/address-geo/countries', name: 'address_geo_countries', methods: ['GET'])]
