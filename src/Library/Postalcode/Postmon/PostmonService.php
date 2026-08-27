@@ -40,7 +40,7 @@ class PostmonService implements PostalcodeService
   private function search(string $cep, string $format = 'json'): object
   {
     try {
-      $client   = new Client(['verify' => false]);
+      $client   = new Client(['verify' => false, 'timeout' => 6, 'connect_timeout' => 3]);
       $response = $client->request('GET',sprintf('%s/%s?format=%s', $this->endpoint, $cep, $format));
       $result   = json_decode($response->getBody());
 

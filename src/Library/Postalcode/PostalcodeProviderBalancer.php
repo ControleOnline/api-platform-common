@@ -2,6 +2,7 @@
 
 namespace ControleOnline\Library\Postalcode;
 
+use ControleOnline\Library\Postalcode\BrasilApi\BrasilApiServiceProvider;
 use ControleOnline\Library\Postalcode\Entity\Address;
 use ControleOnline\Library\Postalcode\Exception\InvalidParameterException;
 use ControleOnline\Library\Postalcode\Exception\PostalcodeNotFoundException;
@@ -12,14 +13,16 @@ use ControleOnline\Library\Postalcode\Viacep\ViacepServiceProvider;
 
 /**
  * CEP lookup balancer.
- * Order (priority): Postmon → ViaCEP → Google Maps.
+ * Order (priority): ViaCEP → BrasilAPI → Postmon → Google Maps.
+ * Postmon has been unreliable (HTTP 503); keep as tertiary fallback only.
  * Does not persist any address; pure external lookup.
  */
 class PostalcodeProviderBalancer
 {
   private array $providers = [
-    'postmon'    => PostmonServiceProvider::class,
     'viacep'     => ViacepServiceProvider::class,
+    'brasilapi'  => BrasilApiServiceProvider::class,
+    'postmon'    => PostmonServiceProvider::class,
     'googlemaps' => GoogleMapsServiceProvider::class,
   ];
 

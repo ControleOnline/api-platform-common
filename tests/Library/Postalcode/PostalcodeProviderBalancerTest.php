@@ -25,17 +25,30 @@ class PostalcodeProviderBalancerTest extends TestCase
 
     public function testNormalizesDigitsFromFormattedCep(): void
     {
-        // Will hit real providers or fail controlled — only assert normalization path for invalid length after strip
         $balancer = new PostalcodeProviderBalancer();
         $this->expectException(InvalidParameterException::class);
-        $balancer->search('12.345-67'); // 7 digits after strip
+        $balancer->search('12.345-67');
+    }
+
+    public function testProviderPriorityOrderPrefersViacepAndBrasilApi(): void
+    {
+        $balancer = new PostalcodeProviderBalancer();
+        $ref = new \ReflectionClass($balancer);
+        $prop = $ref->getProperty('providers');
+        $prop->setAccessible(true);
+        $keys = array_keys($prop->getValue($balancer));
+        $this->assertSame(
+            ['viacep', 'brasilapi', 'postmon', 'googlemaps'],
+            $keys,
+            'CEP provider order must prefer ViaCEP/BrasilAPI over Postmon'
+        );
     }
 
     public function testSearchReturnsAddressShapeWhenProviderAvailable(): void
     {
         $balancer = new PostalcodeProviderBalancer();
         try {
-            $address = $balancer->search('01310100'); // Av. Paulista region — known valid
+            $address = $balancer->search('01310100');
             $this->assertInstanceOf(Address::class, $address);
             $arr = $address->toArray();
             $this->assertArrayHasKey('postalCode', $arr);
@@ -45,7 +58,6 @@ class PostalcodeProviderBalancerTest extends TestCase
             $this->assertArrayHasKey('country', $arr);
             $this->assertNotEmpty($balancer->getProviderCodeName());
         } catch (\Throwable $e) {
-            // External providers may be offline in CI — controlled failure is acceptable
             $this->assertTrue(
                 $e instanceof \ControleOnline\Library\Postalcode\Exception\ProviderRequestException
                 || $e instanceof \ControleOnline\Library\Postalcode\Exception\PostalcodeNotFoundException,

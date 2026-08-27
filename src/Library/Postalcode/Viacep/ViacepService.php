@@ -40,7 +40,7 @@ class ViacepService implements PostalcodeService
   private function search(string $cep, string $format = 'json'): object
   {
     try {
-      $client   = new Client(['verify' => false]);
+      $client   = new Client(['verify' => false, 'timeout' => 8, 'connect_timeout' => 4]);
       $response = $client->request('GET',sprintf('%s/%s/%s', $this->endpoint, $cep, $format));
       $result   = json_decode($response->getBody());
 
