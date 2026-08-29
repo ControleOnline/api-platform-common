@@ -16,8 +16,11 @@ class ImportProcessorResolver
     public function resolve(string $type): ImportProcessorInterface
     {
         if (!isset($this->processors[$type])) {
-            print_r($this->processors);
-            throw new \Exception('Processor not found for type: ' . $type);
+            throw new \RuntimeException(sprintf(
+                'Processor not found for type: %s. Available: %s',
+                $type,
+                implode(', ', array_keys($this->processors)) ?: '(none)'
+            ));
         }
 
         return $this->processors[$type];
