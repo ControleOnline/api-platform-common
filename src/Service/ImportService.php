@@ -9,9 +9,22 @@ use ControleOnline\Repository\ImportRepository;
 use ControleOnline\Service\Imports\ImportProcessorResolver;
 use ControleOnline\Service\StatusService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ImportService
 {
+    private const FORBIDDEN_EXTENSIONS = ['*', '*.*', '', '.', '.*'];
+
+    private const EXTENSIONS_BY_TYPE = [
+        'csv' => ['csv'],
+        'product' => ['csv'],
+        'people' => ['csv'],
+        'client' => ['csv'],
+        'provider' => ['csv'],
+        'prospect' => ['csv'],
+        'invoice_tax' => ['xml', 'zip'],
+        'xml' => ['xml', 'zip'],
+    ];
 
     public function __construct(
         private ImportRepository $repository,
@@ -47,7 +60,6 @@ class ImportService
         $this->entityManager->flush();
 
         try {
-
             $processor->process($import);
 
             $statusDone = $this->statusService->discoveryStatus(
@@ -58,7 +70,6 @@ class ImportService
 
             $import->setStatus($statusDone);
         } catch (\Throwable $e) {
-
             $statusError = $this->statusService->discoveryStatus(
                 'pending',
                 'error',
@@ -82,11 +93,55 @@ class ImportService
         return $processor->getExampleCsv();
     }
 
+    /**
+     * @return list<string>
+     */
+    public function allowedExtensionsForType(string $importType): array
+    {
+        $type = strtolower(trim($importType));
+        $extensions = self::EXTENSIONS_BY_TYPE[$type] ?? ['csv'];
+        $clean = [];
+
+        foreach ($extensions as $extension) {
+            $normalized = strtolower(ltrim((string) $extension, '.'));
+            if ($normalized === '' || in_array($normalized, self::FORBIDDEN_EXTENSIONS, true) || str_contains($normalized, '*')) {
+                continue;
+            }
+            $clean[] = $normalized;
+        }
+
+        if ($clean === []) {
+            throw new BadRequestHttpException('Tipo de importacao sem allowlist valida. Importar *.* nao e permitido.');
+        }
+
+        return array_values(array_unique($clean));
+    }
+
     public function createCsvImport(
         File $file,
         ?People $people,
         string $importType
     ): Import {
+        return $this->createImport($file, $people, $importType, 'csv');
+    }
+
+    public function createImport(
+        File $file,
+        ?People $people,
+        string $importType,
+        string $fileFormat
+    ): Import {
+        $allowed = $this->allowedExtensionsForType($importType);
+        $format = strtolower(ltrim($fileFormat, '.'));
+
+        if (!in_array($format, $allowed, true)) {
+            throw new BadRequestHttpException(sprintf(
+                'Formato %s nao permitido para %s.',
+                $format,
+                $importType
+            ));
+        }
+
         $status = $this->statusService->discoveryStatus(
             'open',
             'open',
@@ -95,7 +150,7 @@ class ImportService
 
         $import = new Import();
         $import->setImportType($importType);
-        $import->setFileFormat('csv');
+        $import->setFileFormat($format);
         $import->setFile($file);
         $import->setStatus($status);
 
