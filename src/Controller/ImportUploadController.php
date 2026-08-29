@@ -19,38 +19,39 @@ class ImportUploadController extends AbstractController
 
     public function __invoke(Request $request): Response
     {
-
-        $importType = $request->request->get('importType');
+        $importType = trim((string) $request->request->get('importType'));
         $peopleId = $request->request->get('people');
-
-
         $uploadedFile = $request->files->get('file');
 
         if (!$peopleId) {
             throw new BadRequestHttpException('people is required');
         }
-        if (!$importType) {
+        if ($importType === '') {
             throw new BadRequestHttpException('importType is required');
         }
-
-
         if (!$uploadedFile) {
-            throw new BadRequestHttpException('CSV file is required');
+            throw new BadRequestHttpException('Arquivo de importacao e obrigatorio');
         }
 
-        $extension = strtolower($uploadedFile->getClientOriginalExtension());
+        $extension = strtolower((string) $uploadedFile->getClientOriginalExtension());
+        $allowedExtensions = $this->importService->allowedExtensionsForType($importType);
 
-        if ($extension !== 'csv') {
-            throw new BadRequestHttpException('Only CSV files are allowed');
+        if ($extension === '' || in_array($extension, ['*', '*.*'], true) || !in_array($extension, $allowedExtensions, true)) {
+            throw new BadRequestHttpException(sprintf(
+                'Extensao nao permitida. Aceitas para %s: %s.',
+                $importType,
+                implode(', ', $allowedExtensions)
+            ));
         }
 
         $people = $this->fileService->resolvePeopleReference($peopleId);
         $file = $this->fileService->addUploadedFile($uploadedFile, $people, 'import');
-        $import = $this->importService->createCsvImport($file, $people, $importType);
+        $import = $this->importService->createImport($file, $people, $importType, $extension);
 
         $data = [
             'id' => $import->getId(),
             'importType' => $import->getImportType(),
+            'fileFormat' => $import->getFileFormat(),
             'fileName' => $import->getFile()->getFileName(),
             'status' => $import->getStatus()->getStatus(),
         ];
