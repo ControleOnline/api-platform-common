@@ -140,7 +140,8 @@ class Address
 
     public function getNickname()
     {
-        return $this->uppercaseText($this->nickname);
+        // Preserve stored case (app-community#376).
+        return (string) ($this->nickname ?? '');
     }
 
     public function setComplement($complement)
@@ -151,7 +152,8 @@ class Address
 
     public function getComplement()
     {
-        return $this->uppercaseText($this->complement);
+        // Preserve stored case (app-community#376).
+        return (string) ($this->complement ?? '');
     }
 
     public function setPeople(?People $people = null)

@@ -19,6 +19,7 @@ class MaintenanceRoutineServiceTest extends TestCase
             $this->createMock(PeopleRoleService::class),
             $this->createMock(LogCleanupService::class),
             $this->createMock(IntegrationService::class),
+            null,
         );
 
         $normalized = $service->normalizeConfiguredRoutines([
@@ -64,6 +65,7 @@ class MaintenanceRoutineServiceTest extends TestCase
             $peopleRoleService,
             $this->createMock(LogCleanupService::class),
             $this->createMock(IntegrationService::class),
+            null,
         );
 
         $dueRoutines = $service->getDueRoutines(
@@ -93,6 +95,7 @@ class MaintenanceRoutineServiceTest extends TestCase
             $this->createMock(PeopleRoleService::class),
             $cleanupService,
             $this->createMock(IntegrationService::class),
+            null,
         );
 
         $result = $service->runRoutine(
@@ -116,6 +119,7 @@ class MaintenanceRoutineServiceTest extends TestCase
             $this->createMock(PeopleRoleService::class),
             $this->createMock(LogCleanupService::class),
             $integrationService,
+            null,
         );
 
         $result = $service->runRoutine(
@@ -124,5 +128,46 @@ class MaintenanceRoutineServiceTest extends TestCase
 
         self::assertSame('success', $result['status']);
         self::assertSame(7, $result['summary']['deletedTotal']);
+    }
+
+    public function testRunsOpenOverdueOpportunitiesRoutineWhenServiceAvailable(): void
+    {
+        $overdueService = $this->createMock(\ControleOnline\Service\OverdueOpportunityMaintenanceService::class);
+        $overdueService
+            ->expects(self::once())
+            ->method('openPendingOpportunities')
+            ->willReturn(['updatedTotal' => 4, 'taskIds' => [1, 2, 3, 4]]);
+
+        $service = new MaintenanceRoutineService(
+            $this->createMock(ConfigService::class),
+            $this->createMock(PeopleRoleService::class),
+            $this->createMock(LogCleanupService::class),
+            $this->createMock(IntegrationService::class),
+            $overdueService,
+        );
+
+        $result = $service->runRoutine(
+            MaintenanceRoutineService::ROUTINE_OPEN_OVERDUE_OPPORTUNITIES
+        );
+
+        self::assertSame('success', $result['status']);
+        self::assertSame(4, $result['summary']['updatedTotal']);
+    }
+
+    public function testIgnoresOpenOverdueOpportunitiesWhenServiceMissing(): void
+    {
+        $service = new MaintenanceRoutineService(
+            $this->createMock(ConfigService::class),
+            $this->createMock(PeopleRoleService::class),
+            $this->createMock(LogCleanupService::class),
+            $this->createMock(IntegrationService::class),
+            null,
+        );
+
+        $result = $service->runRoutine(
+            MaintenanceRoutineService::ROUTINE_OPEN_OVERDUE_OPPORTUNITIES
+        );
+
+        self::assertSame('ignored', $result['status']);
     }
 }

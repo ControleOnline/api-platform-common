@@ -8,6 +8,7 @@ use ControleOnline\Service\HydratorService;
 use Symfony\Component\HttpFoundation\Request;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class DiscoveryMainConfigsAction
 {
@@ -25,7 +26,10 @@ class DiscoveryMainConfigsAction
       );
       return new JsonResponse($this->hydratorService->collectionData($configs, Config::class, 'config:read'));
     } catch (\InvalidArgumentException $e) {
-      return new JsonResponse(['error' => $e->getMessage()], 400);
+      return new JsonResponse(
+        $this->hydratorService->error($e),
+        Response::HTTP_BAD_REQUEST
+      );
     } catch (Exception $e) {
       return new JsonResponse($this->hydratorService->error($e));
     }

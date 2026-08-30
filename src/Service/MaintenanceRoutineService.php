@@ -9,12 +9,14 @@ class MaintenanceRoutineService
     public const ROUTINES_CONFIG_KEY = 'maintenance-routines';
     public const ROUTINE_CLEANUP_LOGS = 'cleanup_logs';
     public const ROUTINE_CLEANUP_EPHEMERAL_INTEGRATIONS = 'cleanup_ephemeral_integrations';
+    public const ROUTINE_OPEN_OVERDUE_OPPORTUNITIES = 'open_overdue_opportunities';
 
     public function __construct(
         private ConfigService $configService,
         private PeopleRoleService $peopleRoleService,
         private LogCleanupService $logCleanupService,
         private ?IntegrationService $integrationService = null,
+        private ?OverdueOpportunityMaintenanceService $overdueOpportunityMaintenanceService = null,
     ) {}
 
     public function getRoutineDefinitions(): array
@@ -29,6 +31,11 @@ class MaintenanceRoutineService
                 'key' => self::ROUTINE_CLEANUP_EPHEMERAL_INTEGRATIONS,
                 'title' => 'Limpeza de integracoes efemeras',
                 'description' => 'Remove Websocket e PushNotification abertos ha mais de 24 horas.',
+            ],
+            self::ROUTINE_OPEN_OVERDUE_OPPORTUNITIES => [
+                'key' => self::ROUTINE_OPEN_OVERDUE_OPPORTUNITIES,
+                'title' => 'Oportunidades vencidas para aberto',
+                'description' => 'Move oportunidades de CRM de pendente para aberto quando a data de retorno ja passou.',
             ],
         ];
     }
@@ -101,6 +108,15 @@ class MaintenanceRoutineService
                 'summary' => $this->integrationService instanceof IntegrationService
                     ? $this->integrationService->cleanupExpiredEphemeralIntegrations()
                     : ['message' => 'IntegrationService indisponivel.'],
+            ],
+            self::ROUTINE_OPEN_OVERDUE_OPPORTUNITIES => [
+                'key' => $routineKey,
+                'status' => $this->overdueOpportunityMaintenanceService instanceof OverdueOpportunityMaintenanceService
+                    ? 'success'
+                    : 'ignored',
+                'summary' => $this->overdueOpportunityMaintenanceService instanceof OverdueOpportunityMaintenanceService
+                    ? $this->overdueOpportunityMaintenanceService->openPendingOpportunities()
+                    : ['message' => 'OverdueOpportunityMaintenanceService indisponivel.'],
             ],
             default => [
                 'key' => $routineKey,
