@@ -27,6 +27,10 @@ class GetThemeColorsAction
         }
 
         $theme = $peopleDomain->getTheme();
+        if (!$theme) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
+
         $css = ':root{' . PHP_EOL;
         foreach ($theme->getColors(true) as $index => $color) {
             $css .= '    --q-' . $index . ': ' . $color . ';' . PHP_EOL;

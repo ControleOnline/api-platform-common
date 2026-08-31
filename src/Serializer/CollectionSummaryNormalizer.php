@@ -16,7 +16,7 @@ class CollectionSummaryNormalizer implements NormalizerInterface, NormalizerAwar
 
     private const ALREADY_CALLED = 'controleonline_collection_summary_normalizer_called';
 
-    public function __construct(private readonly RequestStack $requestStack)
+    public function __construct(private readonly ?RequestStack $requestStack = null)
     {
     }
 
@@ -61,7 +61,7 @@ class CollectionSummaryNormalizer implements NormalizerInterface, NormalizerAwar
         }
 
         $debugQuery = $this->requestStack
-            ->getCurrentRequest()
+            ?->getCurrentRequest()
             ?->attributes
             ->get(CollectionDoctrineQueryDebugExtension::REQUEST_ATTRIBUTE);
 

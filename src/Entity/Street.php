@@ -87,7 +87,8 @@ class Street
 
     public function getStreet()
     {
-        return $this->uppercaseText($this->street);
+        // Preserve stored case (app-community#376).
+        return (string) ($this->street ?? '');
     }
 
     public function setDistrict(District $district = null)

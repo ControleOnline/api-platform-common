@@ -87,7 +87,9 @@ class State
 
     public function getState()
     {
-        return $this->uppercaseText($this->state);
+        // Preserve stored case for state name (app-community#376).
+        // UF remains uppercased (technical code).
+        return (string) ($this->state ?? '');
     }
 
     public function setUf($uf)

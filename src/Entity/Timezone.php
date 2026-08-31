@@ -24,7 +24,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
          */
         new GetCollection(
             uriTemplate: '/timezones',
-            security: "is_granted('ROLE_HUMAN') or is_granted('ROLE_CLIENT')"
+            security: "is_granted('PUBLIC_ACCESS')"
         ),
 
         /**
