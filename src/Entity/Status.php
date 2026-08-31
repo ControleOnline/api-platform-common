@@ -54,14 +54,14 @@ class Status
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     #[Groups([
-        'contract:read','import:read', 'task:read', 'display_queue:read', 'display:read', 'order_product_queue:read', 'order:read', 'order_details:read', 'order_product:read', 'order:write',
+        'invoice_tax:read', 'contract:read','import:read', 'task:read', 'display_queue:read', 'display:read', 'order_product_queue:read', 'order:read', 'order_details:read', 'order_product:read', 'order:write',
         'orders-queue:read', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'connections:read','status:read','spool_item:read', 'spool:read', 'spool:write', 'status:write', 'order_detail_status:read', 'logistic:read', 'queue:read', 'queue_people_queue:read', 'order_invoice_invoice:read', 'tracking:read'
     ])]
     private $id;
 
     #[ORM\Column(name: 'status', type: 'string', nullable: false)]
     #[Groups([
-        'contract:read','import:read', 'task:read', 'display_queue:read', 'display:read', 'order_product_queue:read', 'order:read', 'order_details:read', 'order_product:read', 'order:write', 
+        'invoice_tax:read', 'contract:read','import:read', 'task:read', 'display_queue:read', 'display:read', 'order_product_queue:read', 'order:read', 'order_details:read', 'order_product:read', 'order:write', 
         'orders-queue:read', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'connections:read','status:read','spool_item:read', 'spool:read', 'spool:write', 'status:write', 'order_detail_status:read', 'logistic:read', 'queue:read', 'queue_people_queue:read', 'order_invoice_invoice:read', 'tracking:read'
     ])]
     #[Assert\NotBlank]
@@ -70,7 +70,7 @@ class Status
 
     #[ORM\Column(name: 'real_status', type: 'string', nullable: false)]
     #[Groups([
-        'contract:read','import:read', 'task:read', 'display_queue:read', 'display:read', 'order_product_queue:read', 'order:read', 'order_details:read', 'order_product:read', 'order:write', 
+        'invoice_tax:read', 'contract:read','import:read', 'task:read', 'display_queue:read', 'display:read', 'order_product_queue:read', 'order:read', 'order_details:read', 'order_product:read', 'order:write', 
         'orders-queue:read', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'connections:read','status:read','spool_item:read', 'spool:read', 'spool:write', 'status:write', 'order_detail_status:read', 'logistic:read', 'queue:read', 'queue_people_queue:read', 'order_invoice_invoice:read', 'tracking:read'
     ])]
     private $realStatus;
@@ -98,14 +98,14 @@ class Status
 
     #[ORM\Column(name: 'color', type: 'string', nullable: false)]
     #[Groups([
-        'contract:read','import:read', 'task:read', 'display_queue:read', 'display:read', 'order_product_queue:read', 'order:read', 'order_details:read', 'order_product:read', 'order:write', 
+        'invoice_tax:read', 'contract:read','import:read', 'task:read', 'display_queue:read', 'display:read', 'order_product_queue:read', 'order:read', 'order_details:read', 'order_product:read', 'order:write', 
         'orders-queue:read', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'connections:read','status:read','spool_item:read', 'spool:read', 'spool:write', 'status:write', 'order_detail_status:read', 'logistic:read', 'queue:read', 'queue_people_queue:read', 'tracking:read'
     ])]
     private $color = '';
 
     #[ORM\Column(name: 'context', type: 'string', nullable: false)]
     #[Groups([
-        'contract:read','import:read', 'task:read', 'display_queue:read', 'display:read', 'order_product_queue:read', 'order:read', 'order_details:read', 'order_product:read', 'order:write', 
+        'invoice_tax:read', 'contract:read','import:read', 'task:read', 'display_queue:read', 'display:read', 'order_product_queue:read', 'order:read', 'order_details:read', 'order_product:read', 'order:write', 
         'orders-queue:read', 'invoice:read', 'invoice_list:read', 'invoice_details:read', 'connections:read','status:read','spool_item:read', 'spool:read', 'spool:write', 'status:write', 'order_detail_status:read', 'logistic:read', 'queue:read', 'queue_people_queue:read'
     ])]
     private $context;
