@@ -54,8 +54,8 @@ services:
 
     ControleOnline\Listener\LogListener:
         tags:
-            - { name: 'doctrine.event_listener', event: 'onFlush' }
-            - { name: 'doctrine.event_listener', event: 'postFlush' }
+            - { name: 'doctrine.event_listener', event: 'onFlush', method: 'onFlush' }
+            - { name: 'doctrine.event_listener', event: 'postFlush', method: 'postFlush' }
 
 
     ControleOnline\Serializer\ExtraDataNormalizer:
