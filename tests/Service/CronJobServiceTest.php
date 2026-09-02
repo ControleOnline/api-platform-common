@@ -84,6 +84,56 @@ class CronJobServiceTest extends TestCase
         self::assertSame(['--domain=' . $appDomain], $jobs[42]['arguments']);
     }
 
+    public function testDueTenantJobsAreFilteredByCurrentServer(): void
+    {
+        $jobsResult = $this->createMock(Result::class);
+        $jobsResult->expects(self::once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                [
+                    'id' => 3,
+                    'scope' => 'tenant',
+                    'title' => 'Integracoes',
+                    'description' => 'Processa integracoes pendentes.',
+                    'enabled' => 1,
+                    'cronExpression' => '* * * * *',
+                    'command' => 'tenant:integration:start',
+                    'arguments' => '[]',
+                    'lastExecutionAt' => null,
+                    'lastStatus' => null,
+                ],
+            ]);
+
+        $tenantsResult = $this->createMock(Result::class);
+        $tenantsResult->expects(self::once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                ['id' => 19, 'server_id' => 7, 'app_host' => 'app.gyrosgreekbbq.com.br'],
+            ]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(self::exactly(4))
+            ->method('fetchOne')
+            ->willReturnOnConsecutiveCalls(1, 1, 1, 7);
+        $connection->expects(self::exactly(2))
+            ->method('executeQuery')
+            ->willReturnOnConsecutiveCalls($jobsResult, $tenantsResult);
+
+        $service = new CronJobService(
+            $connection,
+            $this->createStub(DatabaseSwitchService::class),
+        );
+
+        $executions = $service->getDueJobExecutions(
+            new \DateTimeImmutable('2026-09-02 14:15:00'),
+            'api.controleonline.com',
+        );
+
+        self::assertCount(1, $executions);
+        self::assertSame('app.gyrosgreekbbq.com.br', $executions[0]['domain']);
+        self::assertSame(7, $executions[0]['serverId']);
+    }
+
     private function getConfiguredAppDomain(): string
     {
         $domain = trim((string) (

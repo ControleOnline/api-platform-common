@@ -64,7 +64,7 @@ class CronJobService
                 continue;
             }
 
-            foreach ($this->getTargetTenants($job) as $tenant) {
+            foreach ($this->getTargetTenants($job, $serverHost) as $tenant) {
                 $executions[] = $job + [
                     'databaseId' => (int) $tenant['id'],
                     'serverId' => $this->normalizeNullableInt($tenant['server_id'] ?? null),
@@ -445,7 +445,7 @@ class CronJobService
         )->fetchAllAssociative();
     }
 
-    private function getTargetTenants(array $job): array
+    private function getTargetTenants(array $job, ?string $serverHost = null): array
     {
         $this->databaseSwitchService->switchBackToOriginalDatabase();
 
@@ -456,9 +456,31 @@ class CronJobService
         $params = [];
         $types = [];
         $where = ['TRIM(COALESCE(`app_host`, "")) <> ""'];
+        $serverHost = trim((string) $serverHost);
 
         if ($this->columnExists('tenancies', 'installation_status')) {
             $where[] = '`installation_status` = "installed"';
+        }
+
+        if ($serverHost !== '') {
+            $serverId = $this->connection->fetchOne(
+                'SELECT `server_id`
+                 FROM `tenancies`
+                 WHERE `app_host` = :server_host
+                   AND `server_id` IS NOT NULL
+                 LIMIT 1',
+                ['server_host' => $serverHost],
+                ['server_host' => ParameterType::STRING]
+            );
+
+            $serverId = $this->normalizeNullableInt($serverId);
+            if ($serverId === null) {
+                return [];
+            }
+
+            $where[] = '`server_id` = :server_id';
+            $params['server_id'] = $serverId;
+            $types['server_id'] = ParameterType::INTEGER;
         }
 
         return $this->connection->executeQuery(
