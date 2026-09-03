@@ -45,7 +45,7 @@ class CronJobRunnerService
             return $this->finishIgnoredJob($job, $jobKey, 'Cron job is disabled.');
         }
 
-        $arguments = $this->buildExecutionArguments($job);
+        $arguments = $this->buildExecutionArguments($job, $command);
         $startedAt = new \DateTimeImmutable();
 
         $process = new Process(
@@ -195,7 +195,7 @@ class CronJobRunnerService
         ];
     }
 
-    private function buildExecutionArguments(array $job): array
+    private function buildExecutionArguments(array $job, string $command): array
     {
         $arguments = array_values(array_filter(
             array_map(
