@@ -4,3 +4,10 @@
 - Regras transversais de qualidade, modularizacao e limites de componente vivem em `https://github.com/ControleOnline/agents-mcp/blob/master/skills/shared/code-quality.md`.
 - Quando houver detalhe especifico de implementacao, prefira comentar no codigo em ingles perto da regra.
 - Este arquivo deve ficar curto e servir apenas como ponte para as fontes oficiais.
+
+## Wiki técnica (ponte)
+
+| Página | Link |
+| --- | --- |
+| Home | https://github.com/ControleOnline/api-platform-common/wiki |
+| Status — grupos de serialização (InvoiceTax / CT-e) | https://github.com/ControleOnline/api-platform-common/wiki/Status-Serialization-Groups |
