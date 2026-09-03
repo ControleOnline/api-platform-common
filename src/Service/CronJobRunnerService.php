@@ -78,11 +78,22 @@ class CronJobRunnerService
                     ];
                 }
 
-                $process->start();
+                $detachedCommand = implode(' ', array_map(
+                    static fn(string $part): string => escapeshellarg($part),
+                    array_merge(
+                        [PHP_BINARY, $this->kernel->getProjectDir() . '/bin/console', $command],
+                        $arguments
+                    )
+                ));
+                $launcher = Process::fromShellCommandline(
+                    'nohup ' . $detachedCommand . ' >/dev/null 2>&1 &',
+                    $this->kernel->getProjectDir()
+                );
+                $launcher->run();
                 $finishedAt = new \DateTimeImmutable();
                 $summary = [
                     'exitCode' => 0,
-                    'commandLine' => $process->getCommandLine(),
+                    'commandLine' => $detachedCommand,
                     'message' => 'Long-lived process started by the central scheduler.',
                 ];
                 $this->cronJobService->recordExecution($job, 'success', $startedAt, $finishedAt, 0, $summary);
