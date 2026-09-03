@@ -249,7 +249,7 @@ class CronJobRunnerService
                 continue;
             }
 
-            if ($domain === '' || str_contains($line, '--domain=' . $domain)) {
+            if ($command === 'websocket:start' || $domain === '' || str_contains($line, '--domain=' . $domain)) {
                 return true;
             }
         }
