@@ -159,6 +159,13 @@ class CronJobRunnerService
         ));
 
         $domain = trim((string) ($job['domain'] ?? ''));
+        if (strtolower($command) === 'tenant:messenger:consume') {
+            // TenantConsumeCommand is the single rotating worker. The cron
+            // job is expanded per tenant for reporting, but the process must
+            // not receive a tenant domain and must be started only once.
+            return $arguments;
+        }
+
         if ($domain === '') {
             return $arguments;
         }
