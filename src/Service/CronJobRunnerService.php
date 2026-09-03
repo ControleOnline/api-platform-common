@@ -58,6 +58,25 @@ class CronJobRunnerService
         $process->setTimeout(null);
 
         try {
+            // websocket:start is a long-lived service. The central scheduler
+            // must launch it and continue with the remaining due jobs.
+            if (strtolower($command) === 'websocket:start') {
+                $process->start();
+                $finishedAt = new \DateTimeImmutable();
+                $summary = [
+                    'exitCode' => 0,
+                    'commandLine' => $process->getCommandLine(),
+                    'message' => 'WebSocket process started by the central scheduler.',
+                ];
+                $this->cronJobService->recordExecution($job, 'success', $startedAt, $finishedAt, 0, $summary);
+
+                return [
+                    'key' => $jobKey,
+                    'status' => 'success',
+                    'summary' => $summary,
+                ];
+            }
+
             $process->run();
 
             $finishedAt = new \DateTimeImmutable();
