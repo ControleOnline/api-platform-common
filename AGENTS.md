@@ -11,3 +11,4 @@
 | --- | --- |
 | Home | https://github.com/ControleOnline/api-platform-common/wiki |
 | Status — grupos de serialização (InvoiceTax / CT-e) | https://github.com/ControleOnline/api-platform-common/wiki/Status-Serialization-Groups |
+| Cron central — filtro de tenants por servidor | https://github.com/ControleOnline/api-platform-common/wiki/Cron-Central-Filter-Tenants-By-Server |
