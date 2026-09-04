@@ -79,10 +79,16 @@ class ExtraDataService
             $code
         );
 
-        if ($extraData)
-            return $this->manager->getRepository($class->getName())->find($extraData->getEntityId());
+        if (!$extraData) {
+            return null;
+        }
 
-        return null;
+        try {
+            return $this->manager->getRepository($class->getName())->find($extraData->getEntityId());
+        } catch (\ReflectionException | \Doctrine\Persistence\Mapping\MappingException | \Doctrine\ORM\Mapping\MappingException $exception) {
+            // Stale Doctrine metadata (e.g. Document::$vehicle) must not 500 webhooks.
+            return null;
+        }
     }
 
     public function discoveryExtraData(object $entity, string $context, string $fieldName, string $code, ?string $source = null)
