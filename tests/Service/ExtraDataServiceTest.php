@@ -251,6 +251,60 @@ class ExtraDataServiceTest extends TestCase
         self::assertSame($people, $resolved);
     }
 
+    public function testGetEntityByExtraDataReturnsNullWhenDoctrineMetadataIsOrphan(): void
+    {
+        $extraFields = $this->createExtraFields(44, 'code', 'iFood');
+        $extraData = new ExtraData();
+        $extraData->setEntityId(9);
+        $extraData->setEntityName('People');
+        $extraData->setValue('merchant-1');
+        $extraData->setExtraFields($extraFields);
+
+        $extraFieldsRepository = $this->getMockBuilder(ExtraFieldsRepository::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['findOneByContextNameType'])
+            ->getMock();
+        $extraFieldsRepository->expects(self::once())
+            ->method('findOneByContextNameType')
+            ->with('iFood', 'code', 'text')
+            ->willReturn($extraFields);
+
+        $extraDataRepository = $this->getMockBuilder(ExtraDataRepository::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['findOneByExtraFieldsEntityNameValue'])
+            ->getMock();
+        $extraDataRepository->expects(self::once())
+            ->method('findOneByExtraFieldsEntityNameValue')
+            ->with($extraFields, 'People', 'merchant-1')
+            ->willReturn($extraData);
+
+        $peopleRepository = $this->getMockBuilder(EntityRepository::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['find', 'findOneBy'])
+            ->getMock();
+        $peopleRepository->expects(self::once())
+            ->method('find')
+            ->with(9)
+            ->willThrowException(new \ReflectionException('Property ControleOnline\\Entity\\Document::$vehicle does not exist'));
+
+        $manager = $this->createMock(EntityManagerInterface::class);
+        $manager->expects(self::exactly(3))
+            ->method('getRepository')
+            ->willReturnOnConsecutiveCalls($extraFieldsRepository, $extraDataRepository, $peopleRepository);
+
+        $service = new ExtraDataService(
+            $manager,
+            $this->createStub(RequestStack::class),
+            $this->createStub(TokenStorageInterface::class),
+            $this->createStub(DeviceService::class),
+            $this->createStub(SkyNetService::class),
+        );
+
+        $resolved = $service->getEntityByExtraData('iFood', 'code', 'merchant-1', People::class);
+
+        self::assertNull($resolved);
+    }
+
     private function createUser(int $id, string $username): User
     {
         $user = new User();
