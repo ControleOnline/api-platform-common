@@ -20,8 +20,21 @@ final class Version20260717193000 extends TenantAwareMigration
             return;
         }
 
-        $this->addSql('ALTER TABLE `cron_jobs` DROP INDEX `cron_jobs_people_job_key_unique`');
-        $this->addSql('ALTER TABLE `cron_jobs` DROP COLUMN `job_key`, DROP COLUMN `background`, DROP COLUMN `sort_order`');
+        if ($this->indexExists('cron_jobs', 'cron_jobs_people_job_key_unique')) {
+            $this->addSql('ALTER TABLE `cron_jobs` DROP INDEX `cron_jobs_people_job_key_unique`');
+        }
+
+        $columns = array_values(array_filter(
+            ['job_key', 'background', 'sort_order'],
+            fn (string $column): bool => $this->columnExists('cron_jobs', $column)
+        ));
+
+        if ($columns !== []) {
+            $this->addSql(sprintf(
+                'ALTER TABLE `cron_jobs` %s',
+                implode(', ', array_map(static fn (string $column): string => sprintf('DROP COLUMN `%s`', $column), $columns))
+            ));
+        }
     }
 
     public function down(Schema $schema): void
@@ -37,6 +50,30 @@ final class Version20260717193000 extends TenantAwareMigration
              WHERE TABLE_SCHEMA = DATABASE()
                AND TABLE_NAME = ?',
             [$tableName]
+        ) > 0;
+    }
+
+    private function indexExists(string $tableName, string $indexName): bool
+    {
+        return (int) $this->connection->fetchOne(
+            'SELECT COUNT(*)
+             FROM information_schema.STATISTICS
+             WHERE TABLE_SCHEMA = DATABASE()
+               AND TABLE_NAME = ?
+               AND INDEX_NAME = ?',
+            [$tableName, $indexName]
+        ) > 0;
+    }
+
+    private function columnExists(string $tableName, string $columnName): bool
+    {
+        return (int) $this->connection->fetchOne(
+            'SELECT COUNT(*)
+             FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE()
+               AND TABLE_NAME = ?
+               AND COLUMN_NAME = ?',
+            [$tableName, $columnName]
         ) > 0;
     }
 }

@@ -75,7 +75,9 @@ class AddressUpdateProcessor implements ProcessorInterface
             $address->setNumber((int) $data->number);
         }
         if ($data->complement !== null) {
-            $address->setComplement($data->complement);
+            $address->setComplement($data->complement !== null
+                ? mb_strtoupper((string) $data->complement, 'UTF-8')
+                : null);
         }
     }
 

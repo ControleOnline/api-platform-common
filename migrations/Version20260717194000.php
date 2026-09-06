@@ -20,8 +20,13 @@ final class Version20260717194000 extends TenantAwareMigration
             return;
         }
 
-        $this->addSql('ALTER TABLE `cron_jobs` ADD `last_execution_at` DATETIME DEFAULT NULL AFTER `arguments`');
-        $this->addSql('ALTER TABLE `cron_jobs` ADD `last_status` VARCHAR(20) DEFAULT NULL AFTER `last_execution_at`');
+        if (!$this->columnExists('cron_jobs', 'last_execution_at')) {
+            $this->addSql('ALTER TABLE `cron_jobs` ADD `last_execution_at` DATETIME DEFAULT NULL AFTER `arguments`');
+        }
+
+        if (!$this->columnExists('cron_jobs', 'last_status')) {
+            $this->addSql('ALTER TABLE `cron_jobs` ADD `last_status` VARCHAR(20) DEFAULT NULL AFTER `last_execution_at`');
+        }
     }
 
     public function down(Schema $schema): void
@@ -37,6 +42,18 @@ final class Version20260717194000 extends TenantAwareMigration
              WHERE TABLE_SCHEMA = DATABASE()
                AND TABLE_NAME = ?',
             [$tableName]
+        ) > 0;
+    }
+
+    private function columnExists(string $tableName, string $columnName): bool
+    {
+        return (int) $this->connection->fetchOne(
+            'SELECT COUNT(*)
+             FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE()
+               AND TABLE_NAME = ?
+               AND COLUMN_NAME = ?',
+            [$tableName, $columnName]
         ) > 0;
     }
 }
