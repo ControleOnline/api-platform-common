@@ -61,7 +61,7 @@ class AddressService
       $address = new Address();
       $address->setNumber($streetNumber);
       $address->setNickname($nickName);
-      $address->setComplement($complement);
+      $address->setComplement($complement !== null ? mb_strtoupper($complement, 'UTF-8') : null);
       $address->setStreet($street);
       $address->setPeople($people);
     }
