@@ -40,6 +40,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
             requirements: ['appDomain' => '[^/]+'],
             controller: GetFileDataAction::class
         ),
+        // Alias used by FileService + ui-common after #432 (env hosts are not path-injected).
+        // GET /files/{id}/download resolves tenant via app-domain header, not URL prefix.
+        new Get(
+            security: 'is_granted(\'PUBLIC_ACCESS\')',
+            uriTemplate: '/files/{id}/download',
+            controller: GetFileDataAction::class
+        ),
         new Delete(security: 'is_granted(\'ROLE_HUMAN\')'),
         new Post(
             security: 'is_granted(\'ROLE_HUMAN\')',
