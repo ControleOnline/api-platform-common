@@ -40,6 +40,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
             requirements: ['appDomain' => '[^/]+'],
             controller: GetFileDataAction::class
         ),
+        // Canonical path used by FileService::buildFileUrl and SPA (UserAvatar/DefaultFile).
+        // Without this op, GET /files/{id}/download is unmatched → 404 (app-community#796/#805).
+        new Get(
+            security: 'is_granted(\'PUBLIC_ACCESS\')',
+            uriTemplate: '/files/{id}/download',
+            controller: GetFileDataAction::class
+        ),
         new Delete(security: 'is_granted(\'ROLE_HUMAN\')'),
         new Post(
             security: 'is_granted(\'ROLE_HUMAN\')',
