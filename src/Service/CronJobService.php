@@ -55,10 +55,6 @@ class CronJobService
                 continue;
             }
 
-            if (strtolower((string) ($job['command'] ?? '')) === 'websocket:start') {
-                continue;
-            }
-
             if (($job['scope'] ?? 'tenant') === 'master') {
                 $executions[] = $job + ['domain' => null];
                 continue;

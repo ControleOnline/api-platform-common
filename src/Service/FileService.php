@@ -41,11 +41,19 @@ class FileService
 
     $companies = $this->peopleService->getMyCompanies();
     if ($companies === []) {
-      $queryBuilder->andWhere('1 = 0');
+      // Still allow public image files (people_media logos/icons) by primary key.
+      $queryBuilder->andWhere(sprintf('%s.public = true', $rootAlias));
       return;
     }
 
-    $queryBuilder->andWhere(sprintf('%s.people IN(:fileSecurityCompanies)', $rootAlias));
+    // Tenant scope OR public files. Public people_media images must resolve via
+    // IRI (/files/{id}) for people_media attach; otherwise API Platform throws
+    // "Item not found for /files/{id}" during denormalization / GET item.
+    $queryBuilder->andWhere(sprintf(
+      '(%s.people IN (:fileSecurityCompanies) OR %s.public = true)',
+      $rootAlias,
+      $rootAlias
+    ));
     $queryBuilder->setParameter('fileSecurityCompanies', $companies);
 
     $request = $this->requestStack->getCurrentRequest();
@@ -104,10 +112,19 @@ class FileService
       return null;
     }
 
+    // Prefer tenant-prefixed download path — matches File ApiResource route
+    // /{appDomain}/files/{id}/download. Bare /files/{id}/download 404s on
+    // staging until/unless that op is deployed (app-community#796).
+    $domain = (string) ($this->domainService->getMainDomain() ?? '');
+    $relative = '/files/' . $file->getId() . '/download';
+    $url = $domain !== ''
+      ? '/' . rawurlencode($domain) . $relative
+      : $relative;
+
     return [
       'id'     => $file->getId(),
-      'domain' => $this->domainService->getMainDomain(),
-      'url'    => '/files/' . $file->getId() . '/download',
+      'domain' => $domain !== '' ? $domain : null,
+      'url'    => $url,
       'fileType' => $file->getFileType(),
       'public' => $file->isPublic()
     ];

@@ -58,6 +58,53 @@ class CronJobRunnerService
         $process->setTimeout(null);
 
         try {
+            // Messenger consumers and websocket servers are long-lived services.
+            // The central scheduler must start them without waiting, and must
+            // not create a duplicate process on the next one-minute tick.
+            if ($this->isLongLivedCommand($command)) {
+                if ($this->isProcessAlreadyRunning($command, $arguments)) {
+                    $finishedAt = new \DateTimeImmutable();
+                    $summary = [
+                        'exitCode' => 0,
+                        'commandLine' => $process->getCommandLine(),
+                        'message' => 'Long-lived process is already running.',
+                    ];
+                    $this->cronJobService->recordExecution($job, 'success', $startedAt, $finishedAt, 0, $summary);
+
+                    return [
+                        'key' => $jobKey,
+                        'status' => 'success',
+                        'summary' => $summary,
+                    ];
+                }
+
+                $detachedCommand = implode(' ', array_map(
+                    static fn(string $part): string => escapeshellarg($part),
+                    array_merge(
+                        [PHP_BINARY, $this->kernel->getProjectDir() . '/bin/console', $command],
+                        $arguments
+                    )
+                ));
+                $launcher = Process::fromShellCommandline(
+                    'nohup ' . $detachedCommand . ' >/dev/null 2>&1 &',
+                    $this->kernel->getProjectDir()
+                );
+                $launcher->run();
+                $finishedAt = new \DateTimeImmutable();
+                $summary = [
+                    'exitCode' => 0,
+                    'commandLine' => $detachedCommand,
+                    'message' => 'Long-lived process started by the central scheduler.',
+                ];
+                $this->cronJobService->recordExecution($job, 'success', $startedAt, $finishedAt, 0, $summary);
+
+                return [
+                    'key' => $jobKey,
+                    'status' => 'success',
+                    'summary' => $summary,
+                ];
+            }
+
             $process->run();
 
             $finishedAt = new \DateTimeImmutable();
@@ -177,6 +224,44 @@ class CronJobRunnerService
         $arguments[] = '--domain=' . $domain;
 
         return $arguments;
+    }
+
+    private function isLongLivedCommand(string $command): bool
+    {
+        return in_array(strtolower($command), [
+            'tenant:messenger:consume',
+            'websocket:start',
+        ], true);
+    }
+
+    private function isProcessAlreadyRunning(string $command, array $arguments): bool
+    {
+        $process = new Process(['ps', '-eo', 'args=']);
+        $process->run();
+        if (!$process->isSuccessful()) {
+            return false;
+        }
+
+        $needle = 'bin/console ' . $command;
+        $domain = '';
+        foreach ($arguments as $argument) {
+            if (str_starts_with($argument, '--domain=')) {
+                $domain = substr($argument, strlen('--domain='));
+                break;
+            }
+        }
+
+        foreach (preg_split('/\R/', $process->getOutput()) ?: [] as $line) {
+            if (!str_contains($line, $needle)) {
+                continue;
+            }
+
+            if ($command === 'websocket:start' || $domain === '' || str_contains($line, '--domain=' . $domain)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function buildLogContext(array $job, array $context = []): array

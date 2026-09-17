@@ -13,6 +13,10 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ImportService
 {
+    /**
+     * Minutos após os quais um import em "processing" é considerado
+     * estagnado e elegível a reprocessamento pelo worker.
+     */
     public const STALE_PROCESSING_MINUTES = 15;
 
     private const FORBIDDEN_EXTENSIONS = ['*', '*.*', '', '.', '.*'];
@@ -35,6 +39,9 @@ class ImportService
         private StatusService $statusService
     ) {}
 
+    /**
+     * @deprecated Prefer getImportsToProcess() — mantido por compatibilidade.
+     */
     public function getAllOpenImports(int $limit)
     {
         $status = $this->statusService->discoveryStatus(
@@ -46,6 +53,9 @@ class ImportService
         return $this->repository->getImportsByStatus($status, $limit);
     }
 
+    /**
+     * @return Import[]
+     */
     public function getImportsToProcess(int $limit): array
     {
         $openStatus = $this->statusService->discoveryStatus(
@@ -122,6 +132,9 @@ class ImportService
         return $processor->getExampleCsv();
     }
 
+    /**
+     * @return list<string>
+     */
     public function allowedExtensionsForType(string $importType): array
     {
         $type = strtolower(trim($importType));

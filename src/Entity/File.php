@@ -40,8 +40,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
             requirements: ['appDomain' => '[^/]+'],
             controller: GetFileDataAction::class
         ),
-        // Alias used by FileService + ui-common after #432 (env hosts are not path-injected).
-        // GET /files/{id}/download resolves tenant via app-domain header, not URL prefix.
+        // Canonical path used by FileService::buildFileUrl and SPA (UserAvatar/DefaultFile).
+        // Without this op, GET /files/{id}/download is unmatched → 404 (app-community#796/#805).
         new Get(
             security: 'is_granted(\'PUBLIC_ACCESS\')',
             uriTemplate: '/files/{id}/download',
