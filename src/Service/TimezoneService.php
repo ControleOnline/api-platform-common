@@ -23,6 +23,7 @@ class TimezoneService
 
     private function applyTimezone(string $timezone): void
     {
+        $timezone = $this->normalizeTimezone($timezone);
         date_default_timezone_set($timezone);
 
         if (!filter_var($_ENV['MYSQL_USER_TIMEZONE'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
@@ -42,5 +43,19 @@ class TimezoneService
         $offset = abs($offset);
 
         return sprintf('%s%02d:%02d', $sign, intdiv($offset, 3600), intdiv($offset % 3600, 60));
+    }
+
+    private function normalizeTimezone(string $timezone): string
+    {
+        $timezone = trim($timezone);
+        $timezone = preg_replace('/\s*\(UTC[+-]\d{1,2}(?::\d{2})?\)\s*$/i', '', $timezone) ?? $timezone;
+
+        try {
+            new \DateTimeZone($timezone);
+        } catch (\DateInvalidTimeZoneException) {
+            return 'UTC';
+        }
+
+        return $timezone;
     }
 }
