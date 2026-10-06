@@ -58,6 +58,10 @@ services:
             - { name: 'doctrine.event_listener', event: 'postFlush', method: 'postFlush' }
 
 
+    ControleOnline\Serializer\FileMetadataNormalizer:
+        tags:
+            - { name: serializer.normalizer, priority: 1100 }
+
     ControleOnline\Serializer\ExtraDataNormalizer:
         tags:
             - { name: serializer.normalizer, priority: 1000 }

@@ -39,7 +39,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Delete(security: 'is_granted(\'ROLE_HUMAN\')'),
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_HUMAN\')'),
-        new GetCollection(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new GetCollection(security: 'is_granted(\'ROLE_HUMAN\')', fetchPartial: true),
         new GetCollection(
             uriTemplate: '/shop/categories',
             controller: GetPublicShopCategoriesAction::class,
