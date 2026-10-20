@@ -97,8 +97,14 @@ services:
         arguments:
             $inner: '@ControleOnline\State\CollectionSummaryProvider.inner'
 
+    ControleOnline\Service\CollectionReadBatchHydrator:
+        autowire: true
+        autoconfigure: false
+
     ControleOnline\Serializer\CollectionSummaryNormalizer:
         autowire: true
         autoconfigure: false
+        arguments:
+            $batchHydrator: '@ControleOnline\Service\CollectionReadBatchHydrator'
         tags:
             - { name: serializer.normalizer, priority: 1100 }

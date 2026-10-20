@@ -29,7 +29,7 @@ class ExtraDataNormalizer implements NormalizerInterface, NormalizerAwareInterfa
         // Share reads across branches of this serialization only, never requests.
         $context['_extra_data_cache'] ??= new \WeakMap();
         $context['exclude_from_cache_key'] = array_unique(array_merge(
-            $context['exclude_from_cache_key'] ?? [], ['_extra_data_cache', '_extra_data_applied'],
+            $context['exclude_from_cache_key'] ?? [], ['_extra_data_cache', '_extra_data_applied', '_extra_data_preloaded'],
         ));
         if (is_array($object)) {
             return $this->normalizer->normalize($object, $format, $context);
@@ -43,7 +43,10 @@ class ExtraDataNormalizer implements NormalizerInterface, NormalizerAwareInterfa
             return $this->normalizer->normalize($object, $format, $context);
         }
 
-        $extraDataEntities = $this->extraDataService->getExtraDataFromEntity($object);
+        $preloaded = $context['_extra_data_preloaded'] ?? null;
+        $extraDataEntities = $preloaded instanceof \WeakMap && isset($preloaded[$object])
+            ? $preloaded[$object]
+            : $this->extraDataService->getExtraDataFromEntity($object);
 
         $extraDataArray = [];
         foreach ($extraDataEntities as $extraData) {
