@@ -10,6 +10,18 @@ use Symfony\Component\Serializer\Serializer;
 
 final class ExtraDataNormalizerTest extends TestCase
 {
+    public function testUsesBatchResultsIncludingEmptyResultsWithoutIndividualReads(): void
+    {
+        $first = new ExtraDataFixture(1); $second = new ExtraDataFixture(2);
+        $preloaded = new \WeakMap(); $preloaded[$first] = []; $preloaded[$second] = [];
+        $service = $this->createMock(ExtraDataService::class);
+        $service->expects(self::never())->method('getExtraDataFromEntity');
+        $serializer = new Serializer([new ExtraDataNormalizer($service), new ObjectNormalizer()]);
+        self::assertSame([
+            ['extraData' => [], 'id' => 1], ['extraData' => [], 'id' => 2],
+        ], $serializer->normalize([$first, $second], null, ['_extra_data_preloaded' => $preloaded]));
+    }
+
     public function testReadsEachRepeatedEntityOnceAndPreservesTheFullResponse(): void
     {
         $entities = array_map(fn ($id) => new ExtraDataFixture($id), range(1, 22));
