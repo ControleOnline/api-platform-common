@@ -83,6 +83,24 @@ class Connection
     #[Column(name: 'channel', type: 'string', columnDefinition: "ENUM('whatsapp')", nullable: false)]
     private string $channel;
 
+    /**
+     * Transport provider for this connection.
+     * unofficial = Baileys / WHATSAPP_SERVER (default, backwards compatible)
+     * official   = Meta WhatsApp Cloud API (PHP calls Graph directly)
+     */
+    #[Groups(['connections:read', 'connections:write'])]
+    #[ApiFilter(filterClass: SearchFilter::class, properties: ['provider' => 'exact'])]
+    #[Column(name: 'provider', type: 'string', length: 30, nullable: true, options: ['default' => 'unofficial'])]
+    private ?string $provider = 'unofficial';
+
+    /**
+     * Optional JSON bag for official credentials (phone_number_id, access_token masked on read, api_version).
+     * Prefer ConfigService for long-lived secrets when available; this column keeps connection-scoped values.
+     */
+    #[Groups(['connections:write'])]
+    #[Column(name: 'provider_config', type: 'text', nullable: true)]
+    private ?string $providerConfig = null;
+
     // Getters e Setters
 
     public function getId(): int
@@ -154,6 +172,56 @@ class Connection
     {
         $this->type = $type;
 
+        return $this;
+    }
+
+    public function getProvider(): string
+    {
+        $value = $this->provider ?? 'unofficial';
+        return $value === 'official' ? 'official' : 'unofficial';
+    }
+
+    public function setProvider(?string $provider): self
+    {
+        if ($provider === null || $provider === '') {
+            $this->provider = 'unofficial';
+        } else {
+            $this->provider = $provider === 'official' ? 'official' : 'unofficial';
+        }
+        return $this;
+    }
+
+    public function isOfficialProvider(): bool
+    {
+        return $this->getProvider() === 'official';
+    }
+
+    public function getProviderConfig(): ?string
+    {
+        return $this->providerConfig;
+    }
+
+    public function setProviderConfig(?string $providerConfig): self
+    {
+        $this->providerConfig = $providerConfig;
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getProviderConfigArray(): array
+    {
+        if (!$this->providerConfig) {
+            return [];
+        }
+        $decoded = json_decode($this->providerConfig, true);
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    public function setProviderConfigArray(array $config): self
+    {
+        $this->providerConfig = $config === [] ? null : json_encode($config, JSON_UNESCAPED_UNICODE);
         return $this;
     }
 }
