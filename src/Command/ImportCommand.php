@@ -5,6 +5,7 @@ namespace ControleOnline\Command;
 use ControleOnline\Service\StatusService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Lock\LockFactory;
 use ControleOnline\Service\DatabaseSwitchService;
 use ControleOnline\Service\DomainService;
@@ -13,6 +14,7 @@ use ControleOnline\Service\LoggerService;
 use ControleOnline\Service\SkyNetService;
 use Throwable;
 
+#[AsCommand(name: 'import:start', description: 'Processa a fila de importações pendentes')]
 class ImportCommand extends DefaultCommand
 {
     public function __construct(

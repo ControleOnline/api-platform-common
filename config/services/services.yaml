@@ -58,6 +58,10 @@ services:
             - { name: 'doctrine.event_listener', event: 'postFlush', method: 'postFlush' }
 
 
+    ControleOnline\Serializer\FileMetadataNormalizer:
+        tags:
+            - { name: serializer.normalizer, priority: 1100 }
+
     ControleOnline\Serializer\ExtraDataNormalizer:
         tags:
             - { name: serializer.normalizer, priority: 1000 }
@@ -93,8 +97,14 @@ services:
         arguments:
             $inner: '@ControleOnline\State\CollectionSummaryProvider.inner'
 
+    ControleOnline\Service\CollectionReadBatchHydrator:
+        autowire: true
+        autoconfigure: false
+
     ControleOnline\Serializer\CollectionSummaryNormalizer:
         autowire: true
         autoconfigure: false
+        arguments:
+            $batchHydrator: '@ControleOnline\Service\CollectionReadBatchHydrator'
         tags:
             - { name: serializer.normalizer, priority: 1100 }

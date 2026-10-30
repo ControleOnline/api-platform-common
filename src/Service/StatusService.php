@@ -4,6 +4,7 @@ namespace ControleOnline\Service;
 
 use ControleOnline\Entity\Status;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class StatusService
 {
@@ -12,6 +13,7 @@ class StatusService
     protected $request;
     public function __construct(
         private EntityManagerInterface $manager,
+        private ?RequestStack $requestStack = null,
 
     ) {}
 
@@ -32,6 +34,12 @@ class StatusService
 
     public function discoveryStatus($realStatus, $name, $context): Status
     {
+        $request = $this->requestStack?->getCurrentRequest();
+        $key = '_status_lookup_' . spl_object_id($this->manager) . '_' . hash('sha256', serialize([$realStatus, $name, $context]));
+        $cached = $request?->attributes->get($key);
+        if ($cached instanceof Status && $cached->getRealStatus() === $realStatus && $cached->getContext() === $context) {
+            return $cached;
+        }
         $status = $this->manager->getRepository(Status::class)->findOneBy([
             'realStatus' => $realStatus,
             'status' => $name,
@@ -39,6 +47,7 @@ class StatusService
         ]);
 
         if ($status instanceof Status) {
+            $request?->attributes->set($key, $status);
             return $status;
         }
 
@@ -48,6 +57,7 @@ class StatusService
             'context' => $context,
         ]);
         if ($status instanceof Status) {
+            $request?->attributes->set($key, $status);
             return $status;
         }
 
@@ -63,6 +73,7 @@ class StatusService
         $this->manager->persist($status);
         $this->manager->flush();
 
+        $request?->attributes->set($key, $status);
         return $status;
     }
 }
