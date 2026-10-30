@@ -15,7 +15,6 @@ use ApiPlatform\Metadata\Put;
 use ControleOnline\Repository\ConnectionRepository;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\EntityListeners;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\JoinColumn;
@@ -38,10 +37,15 @@ use Doctrine\ORM\Mapping\Table;
     denormalizationContext: ['groups' => ['connections:write']]
 )]
 #[Table(name: 'connections')]
-
 #[Entity(repositoryClass: ConnectionRepository::class)]
 class Connection
 {
+    /** Baileys / WHATSAPP_SERVER (default, backwards compatible). */
+    public const CHANNEL_WHATSAPP = 'whatsapp';
+
+    /** Meta WhatsApp Cloud API (PHP calls Graph directly). */
+    public const CHANNEL_WHATSAPP_OFFICIAL = 'whatsapp_official';
+
     #[Groups(['connections:read'])]
     #[Column(name: 'id', type: 'integer', nullable: false)]
     #[Id]
@@ -65,12 +69,10 @@ class Connection
     #[Column(name: 'name', type: 'string', length: 50, nullable: false)]
     private string $name;
 
-
     #[Groups(['connections:read', 'connections:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['type' => 'exact'])]
     #[Column(name: 'type', type: 'string', length: 50, nullable: true)]
     private string $type;
-
 
     #[Groups(['connections:read', 'connections:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['phone' => 'exact'])]
@@ -78,12 +80,28 @@ class Connection
     #[ManyToOne(targetEntity: Phone::class)]
     private ?Phone $phone = null;
 
+    /**
+     * Transport channel:
+     * - whatsapp = unofficial (Baileys)
+     * - whatsapp_official = Meta Cloud API
+     */
     #[Groups(['connections:read', 'connections:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['channel' => 'exact'])]
-    #[Column(name: 'channel', type: 'string', columnDefinition: "ENUM('whatsapp')", nullable: false)]
-    private string $channel;
+    #[Column(
+        name: 'channel',
+        type: 'string',
+        columnDefinition: "ENUM('whatsapp','whatsapp_official')",
+        nullable: false
+    )]
+    private string $channel = self::CHANNEL_WHATSAPP;
 
-    // Getters e Setters
+    /**
+     * Optional JSON for channel-specific credentials (official: access_token, phone_number_id, api_version).
+     * Write-only in API groups — never expose token on read listings.
+     */
+    #[Groups(['connections:write'])]
+    #[Column(name: 'channel_config', type: 'text', nullable: true)]
+    private ?string $channelConfig = null;
 
     public function getId(): int
     {
@@ -141,8 +159,17 @@ class Connection
 
     public function setChannel(string $channel): self
     {
-        $this->channel = $channel;
+        if ($channel === self::CHANNEL_WHATSAPP_OFFICIAL) {
+            $this->channel = self::CHANNEL_WHATSAPP_OFFICIAL;
+        } else {
+            $this->channel = self::CHANNEL_WHATSAPP;
+        }
         return $this;
+    }
+
+    public function isOfficialWhatsApp(): bool
+    {
+        return $this->channel === self::CHANNEL_WHATSAPP_OFFICIAL;
     }
 
     public function getType(): ?string
@@ -153,7 +180,35 @@ class Connection
     public function setType(?string $type): self
     {
         $this->type = $type;
+        return $this;
+    }
 
+    public function getChannelConfig(): ?string
+    {
+        return $this->channelConfig;
+    }
+
+    public function setChannelConfig(?string $channelConfig): self
+    {
+        $this->channelConfig = $channelConfig;
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getChannelConfigArray(): array
+    {
+        if (!$this->channelConfig) {
+            return [];
+        }
+        $decoded = json_decode($this->channelConfig, true);
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    public function setChannelConfigArray(array $config): self
+    {
+        $this->channelConfig = $config === [] ? null : json_encode($config, JSON_UNESCAPED_UNICODE);
         return $this;
     }
 }
