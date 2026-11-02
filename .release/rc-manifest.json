@@ -1,14 +1,13 @@
 {
-  "version": "1.0.2",
+  "branch": "rc/1.10.89-rc.1",
+  "version": "1.10.89",
   "rc": 1,
-  "branch": "rc/1.0.2-rc.1",
-  "baseMaster": "e6aa5c79003e6b383380ffe83abef752c81b3cdc",
+  "frozen": true,
+  "baseMaster": "360fee249d7beb6942b4eb877abfb9c2d2dab8c2",
   "tasks": [
-    167
+    1221
   ],
   "repositories": {
-    "ControleOnline/api-platform-common": "8f18389ae9667f2e543064f521e194530ca51fd0"
-  },
-  "frozen": true,
-  "notes": "#167 vendor paths + remove modules deploy"
+    "ControleOnline/api-platform-common": "d3a0a7ecedaa0ed044b441c8c016ee4e16ebdc56"
+  }
 }
