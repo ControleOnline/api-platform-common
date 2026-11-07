@@ -5,6 +5,7 @@ namespace ControleOnline\Serializer;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ControleOnline\Doctrine\Extension\CollectionDoctrineQueryDebugExtension;
 use ControleOnline\State\CollectionSummaryResult;
+use ControleOnline\Service\CollectionReadBatchHydrator;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
@@ -16,7 +17,9 @@ class CollectionSummaryNormalizer implements NormalizerInterface, NormalizerAwar
 
     private const ALREADY_CALLED = 'controleonline_collection_summary_normalizer_called';
 
-    public function __construct(private readonly ?RequestStack $requestStack = null)
+    public function __construct(private readonly ?RequestStack $requestStack = null,
+        private readonly ?CollectionReadBatchHydrator $batchHydrator = null,
+    )
     {
     }
 
@@ -47,6 +50,13 @@ class CollectionSummaryNormalizer implements NormalizerInterface, NormalizerAwar
             $collection = $object->getCollection();
         }
 
+        $operation = $context['operation'] ?? $context['api_operation'] ?? null;
+        if ($this->batchHydrator && is_iterable($collection) && $operation instanceof CollectionOperationInterface) {
+            $context['_extra_data_preloaded'] = $this->batchHydrator->prepare($collection, (string) $operation->getClass(), $context);
+            $context['exclude_from_cache_key'] = array_unique(array_merge(
+                $context['exclude_from_cache_key'] ?? [], ['_extra_data_preloaded'],
+            ));
+        }
         $context[self::ALREADY_CALLED] = true;
         $data = $this->normalizer->normalize($collection, $format, $context);
 
@@ -78,7 +88,8 @@ class CollectionSummaryNormalizer implements NormalizerInterface, NormalizerAwar
     {
         return [
             CollectionSummaryResult::class => true,
-            'iterable' => false,
+            'object' => false,
+            'array' => false,
         ];
     }
 

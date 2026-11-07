@@ -12,6 +12,41 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 final class CollectionSummaryNormalizerTest extends TestCase
 {
+    public function testSymfonySelectsBatchNormalizerForPlainCollection(): void
+    {
+        $collection = new \ArrayIterator([new \ControleOnline\Entity\People()]);
+        $hydrator = $this->createMock(\ControleOnline\Service\CollectionReadBatchHydrator::class);
+        $hydrator->expects(self::once())->method('prepare')->with($collection, \ControleOnline\Entity\People::class)->willReturn(new \WeakMap());
+        $delegate = new class implements NormalizerInterface {
+            public function getSupportedTypes(?string $format): array { return ['object' => false, 'array' => false]; }
+            public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool { return is_iterable($data); }
+            public function normalize(mixed $object, ?string $format = null, array $context = []): array { return ['member' => [], 'totalItems' => 1]; }
+        };
+        $serializer = new \Symfony\Component\Serializer\Serializer([new CollectionSummaryNormalizer(null, $hydrator), $delegate]);
+        self::assertSame(['member' => [], 'totalItems' => 1], $serializer->normalize($collection, 'jsonld', ['operation' => new GetCollection(class: \ControleOnline\Entity\People::class)]));
+    }
+
+    public function testBatchingPreservesTheOriginalFilteredPaginatorSummaryAndContext(): void
+    {
+        $collection = new \ArrayIterator([new \ControleOnline\Entity\Product()]);
+        $wrapper = new \ControleOnline\State\CollectionSummaryResult($collection, ['total' => 91]);
+        $preloaded = new \WeakMap();
+        $hydrator = $this->createMock(\ControleOnline\Service\CollectionReadBatchHydrator::class);
+        $hydrator->expects(self::once())->method('prepare')
+            ->with($collection, \ControleOnline\Entity\Product::class)->willReturn($preloaded);
+        $delegate = $this->createMock(NormalizerInterface::class);
+        $operation = new GetCollection(class: \ControleOnline\Entity\Product::class);
+        $delegate->expects(self::once())->method('normalize')->with($collection, 'jsonld', self::callback(
+            static fn(array $context) => $context['operation'] === $operation
+                && $context['filters'] === ['company' => '/people/3']
+                && $context['_extra_data_preloaded'] === $preloaded
+        ))->willReturn(['hydra:member' => [['id' => 7]], 'hydra:totalItems' => 27]);
+        $normalizer = new CollectionSummaryNormalizer(null, $hydrator);
+        $normalizer->setNormalizer($delegate);
+        self::assertSame(['member' => [['id' => 7]], 'totalItems' => 27, 'summary' => ['total' => 91]],
+            $normalizer->normalize($wrapper, 'jsonld', ['operation' => $operation, 'filters' => ['company' => '/people/3']]));
+    }
+
     public function testAddsDebugQueryFromCurrentRequest(): void
     {
         $request = Request::create('/orders', 'GET');

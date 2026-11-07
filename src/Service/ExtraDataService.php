@@ -40,6 +40,48 @@ class ExtraDataService
         );
     }
 
+    /**
+     * Batch only objects already selected for this response. No shared cache survives
+     * serialization; absent metadata is cached too, avoiding one empty query per row.
+     * @return \WeakMap<object, array>
+     */
+    public function getExtraDataFromEntities(array $entities): \WeakMap
+    {
+        $cache = new \WeakMap();
+        $groups = [];
+        foreach ($entities as $entity) {
+            if (!is_object($entity) || !method_exists($entity, 'setExtraData') || !method_exists($entity, 'getId')) {
+                continue;
+            }
+            if (isset($cache[$entity])) {
+                continue;
+            }
+            $cache[$entity] = [];
+            $id = (int) $entity->getId();
+            if ($id > 0) {
+                $groups[$this->getEntityName($entity)->getShortName()][(string) $id][] = $entity;
+            }
+        }
+        foreach ($groups as $name => $objectsById) {
+            foreach (array_chunk(array_keys($objectsById), 100) as $ids) {
+                $rows = $this->extraDataRepository()->createQueryBuilder('batch_extra')
+                    ->leftJoin('batch_extra.extra_fields', 'batch_fields')->addSelect('batch_fields')
+                    ->andWhere('batch_extra.entity_name = :entityName')
+                    ->andWhere('batch_extra.entity_id IN (:entityIds)')
+                    ->setParameter('entityName', $name)->setParameter('entityIds', $ids)
+                    ->orderBy('batch_extra.id', 'ASC')->getQuery()->getResult();
+                foreach ($rows as $row) {
+                    foreach ($objectsById[(string) $row->getEntityId()] ?? [] as $entity) {
+                        $values = $cache[$entity];
+                        $values[] = $row;
+                        $cache[$entity] = $values;
+                    }
+                }
+            }
+        }
+        return $cache;
+    }
+
     public function getExtraDataFromEntity(object $entity)
     {
         $class = $this->getEntityName($entity);
@@ -48,7 +90,7 @@ class ExtraDataService
             $entity->getId()
         );
     }
-    
+
 
     public function getEntityByExtraData(string $context, string $fieldName, string $code, object|string $entity)
     {
@@ -158,6 +200,13 @@ class ExtraDataService
 
         if ($context === '' || $entityName === '' || $fieldName === '') {
             return null;
+        }
+
+        $readRequest = $this->requestStack->getCurrentRequest();
+        if (MarketplaceExtraDataRead::supports($readRequest)) {
+            return MarketplaceExtraDataRead::read(
+                $this->manager, $readRequest, $context, $entityName, $entityId, $fieldName, $fieldType
+            );
         }
 
         $extraFields = $this->extraFieldsRepository()->findOneByContextNameType(

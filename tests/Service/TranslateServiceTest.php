@@ -386,7 +386,7 @@ class TranslateServiceTest extends TestCase
         self::assertFalse($persistedTranslations[0]->isRevised());
     }
 
-    public function testResolveFromPayloadReadsMainCompanyFallbackWithoutPersistingWhenUserCannotWriteDefaultCompany(): void
+    public function testResolveFromPayloadReadsMainCompanyFallbackWithoutPersistingWhenUserCannotWriteMainCompany(): void
     {
         $selectedCompany = new People();
         $selectedCompany->setName('Empresa selecionada');
