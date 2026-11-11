@@ -1,0 +1,34 @@
+{
+  "version": "1.0.10",
+  "rc": 2,
+  "branch": "rc/1.0.10-rc.2",
+  "baseMaster": "04e864bb069f5534baddfc9a2dccb1e0b3279c32",
+  "tasks": [
+    108,
+    830,
+    1496
+  ],
+  "taskRepository": "ControleOnline/app-community",
+  "frozen": true,
+  "repositories": {
+    "ControleOnline/api-platform-common": "5add09a3041b2a6420db96eb2694caa259cc73be"
+  },
+  "validation": {
+    "devCommit": "4309a832df5c63a0644ff74acb65a29add214327",
+    "taskSource": "51a461d323779828745601cfe9c156f29b2e0626",
+    "isolatedDeltaBase": "fdc43540fb9266a1570f11c79fdf84d871b2bf94",
+    "isolatedDeltaTip": "0fb4e5f8956fdadc61c16c8a5725a14c990145c3",
+    "preservedStaging": "682d3ee31eb693c2998521415da4d774bbdbd558",
+    "checks": "164 theme + 52 Home/navigation + 2 i18n + 15 PHP tests (125 assertions); mocked database only",
+    "databaseMigrationExecuted": false,
+    "databaseWrites": false,
+    "deploymentMode": "source-only-no-runtime-activation",
+    "apiCommonRuntimePin": "1.0.9",
+    "runtimeActivationRequiresSeparateAuthorization": true,
+    "preservedLegacyTasks": {
+      "108": "existing staging mainCompany terminology (two lines)",
+      "830": "existing staging ROLE_CLIENT Address reads and own-person security filter"
+    },
+    "isolation": "Apply only nine-file task delta against current master merged with existing staging; do not import unrelated dev changes from installed v1.0.9 history."
+  }
+}
