@@ -140,6 +140,7 @@ class MenuConfigService
 
     public function updateMenu(Menu $menu, array $payload): Menu
     {
+        $appearance = MenuAppearanceProperties::changes($payload, true);
         if (array_key_exists('menu', $payload) || array_key_exists('label', $payload)) {
             $menu->setMenu($this->limitString((string) ($payload['menu'] ?? $payload['label']), 50));
         }
@@ -184,6 +185,8 @@ class MenuConfigService
 
         $route = $menu->getRoute();
         if ($route instanceof Routes) {
+            MenuAppearanceProperties::apply($route, $appearance);
+            if ($appearance !== []) $this->manager->persist($route);
             if (array_key_exists('icon', $payload) || array_key_exists('routeIcon', $payload)) {
                 $route->setIcon($this->limitString((string) ($payload['icon'] ?? $payload['routeIcon']), 50));
                 $this->manager->persist($route);
@@ -274,6 +277,7 @@ class MenuConfigService
 
     public function updateCategory(Category $category, array $payload, bool $flush = true): Category
     {
+        MenuAppearanceProperties::apply($category, MenuAppearanceProperties::changes($payload));
         if (array_key_exists('name', $payload) || array_key_exists('label', $payload)) {
             $category->setName($this->limitString((string) ($payload['name'] ?? $payload['label']), 100));
         }
@@ -318,12 +322,14 @@ class MenuConfigService
             'enabled' => $menu->getEnabled(),
             'icon' => $route instanceof Routes ? $route->getIcon() : null,
             'color' => $route instanceof Routes ? $route->getColor() : null,
+            ...($route instanceof Routes ? MenuAppearanceProperties::values($route, true) : []),
             'route' => $route instanceof Routes ? [
                 '@id' => '/routes/' . $route->getId(),
                 'id' => $route->getId(),
                 'route' => $route->getRoute(),
                 'icon' => $route->getIcon(),
                 'color' => $route->getColor(),
+                ...MenuAppearanceProperties::values($route, true),
                 'module' => is_object($module) && method_exists($module, 'getName')
                     ? $module->getName()
                     : null,
@@ -334,6 +340,7 @@ class MenuConfigService
                 'name' => $category->getName(),
                 'icon' => $category->getIcon(),
                 'color' => $category->getColor(),
+                ...MenuAppearanceProperties::values($category),
                 'sortOrder' => $category->getSortOrder(),
             ] : null,
             'linkTypes' => $this->normalizeMenuLinkTypes($menu),
@@ -348,12 +355,14 @@ class MenuConfigService
             'name' => $category->getName(),
             'icon' => $category->getIcon(),
             'color' => $category->getColor(),
+            ...MenuAppearanceProperties::values($category),
             'sortOrder' => $category->getSortOrder(),
         ];
     }
 
     private function updateRouteAppearance(Routes $route, array $payload, bool $flush = true): Routes
     {
+        MenuAppearanceProperties::apply($route, MenuAppearanceProperties::changes($payload, true));
         if (array_key_exists('icon', $payload)) {
             $route->setIcon($this->limitString((string) $payload['icon'], 50));
         }
@@ -390,6 +399,8 @@ class MenuConfigService
                         'name' => $category['name'] ?? 'Sem categoria',
                         'icon' => $category['icon'] ?? null,
                         'color' => $category['color'] ?? null,
+                        'textColor' => $category['textColor'] ?? null,
+                        'iconColor' => $category['iconColor'] ?? null,
                     ],
                     'menus' => [],
                 ];
@@ -453,6 +464,7 @@ class MenuConfigService
                 'route' => $route->getRoute(),
                 'icon' => $route->getIcon(),
                 'color' => $route->getColor(),
+                ...MenuAppearanceProperties::values($route, true),
                 'module' => is_object($module) && method_exists($module, 'getName')
                     ? $module->getName()
                     : null,
@@ -483,6 +495,8 @@ class MenuConfigService
             $modules[$categoryId]['label'] = $menu['category_label'];
             $modules[$categoryId]['color'] = $menu['category_color'];
             $modules[$categoryId]['icon'] = $menu['category_icon'];
+            $modules[$categoryId]['textColor'] = $menu['category_text_color'] ?? null;
+            $modules[$categoryId]['iconColor'] = $menu['category_icon_color'] ?? null;
             $categorySortOrder = $menu['category_sort_order'] ?? null;
             $modules[$categoryId]['sortOrder'] = $categorySortOrder === null
                 ? null
@@ -495,6 +509,9 @@ class MenuConfigService
                 'label' => $menu['menu'],
                 'icon' => $menu['icon'],
                 'color' => $menu['color'],
+                'textColor' => $menu['text_color'] ?? null,
+                'iconColor' => $menu['icon_color'] ?? null,
+                'iconBackgroundColor' => $menu['icon_background_color'] ?? null,
                 'route' => $menu['route'],
                 'routeParams' => $routeParams,
                 'sortOrder' => (int) $menu['sort_order'],
