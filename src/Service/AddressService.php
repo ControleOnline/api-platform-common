@@ -11,6 +11,8 @@ use ControleOnline\Entity\People;
 use ControleOnline\Entity\State;
 use ControleOnline\Entity\Street;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use DateTime;
 use Exception;
 
@@ -19,8 +21,35 @@ class AddressService
 
 
   public function __construct(
-    private  EntityManagerInterface $manager
+    private EntityManagerInterface $manager,
+    private PeopleService $peopleService,
+    private AuthorizationCheckerInterface $authorizationChecker,
   ) {}
+
+  /**
+   * Align with Phone/Email: ROLE_HUMAN sees all (extension may still scope via people filter);
+   * ROLE_CLIENT (POS/self-service) only sees addresses of the authenticated person.
+   * app-community#830 — profile addresses Access Denied on Cielo POS.
+   */
+  public function securityFilter(
+    QueryBuilder $queryBuilder,
+    $resourceClass = null,
+    $applyTo = null,
+    $rootAlias = null
+  ): void {
+    if ($this->authorizationChecker->isGranted('ROLE_HUMAN')) {
+      return;
+    }
+
+    $people = $this->peopleService->getMyPeople();
+    if (!$people || !$rootAlias) {
+      $queryBuilder->andWhere('1 = 0');
+      return;
+    }
+
+    $queryBuilder->andWhere(sprintf('%s.people = :addressSecurityPeople', $rootAlias));
+    $queryBuilder->setParameter('addressSecurityPeople', $people);
+  }
 
   public function discoveryAddress(
     string|int $postalCode,

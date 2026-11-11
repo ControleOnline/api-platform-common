@@ -119,6 +119,14 @@ class Category
     #[Groups(['category:read', 'category:write', 'product_category:read', 'tracking:read'])]
     private ?int $sortOrder = null;
 
+    #[ORM\Column(name: 'text_color', type: 'string', length: 50, nullable: true)]
+    #[Groups(['menu:read'])]
+    private ?string $textColor = null;
+
+    #[ORM\Column(name: 'icon_color', type: 'string', length: 50, nullable: true)]
+    #[Groups(['menu:read'])]
+    private ?string $iconColor = null;
+
     public function __construct()
     {
         $this->categoryFiles = new ArrayCollection();
@@ -209,5 +217,21 @@ class Category
     public function getCategoryFiles(): Collection
     {
         return $this->categoryFiles;
+    }
+
+    public function getTextColor(): ?string { return $this->textColor; }
+
+    public function setTextColor(?string $value): self
+    {
+        $this->textColor = $value;
+        return $this;
+    }
+
+    public function getIconColor(): ?string { return $this->iconColor; }
+
+    public function setIconColor(?string $value): self
+    {
+        $this->iconColor = $value;
+        return $this;
     }
 }
