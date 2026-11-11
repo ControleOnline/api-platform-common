@@ -41,3 +41,9 @@ Resultado: 15 testes, 125 asserções aprovadas; quatro depreciações preexiste
 4. Publicar o app e validar leitura/gravação/recarregamento autorizado e chave ligada/desligada, preservando vínculos e dados existentes.
 
 Os commits desta preparação são somente locais e pertencem à mesma task ControleOnline/app-community#1496. Não foram publicados pacotes, alterados composer.json/composer.lock da API, executadas migrações, gravados dados ou feitos pushes. As futuras integrações em dev/staging dependem de autorização de publicação e da ordem de ativação descrita acima.
+
+## Integração de fonte em dev/staging — task #1496
+
+Após a preparação local descrita acima, foi autorizada a publicação das branches e integração do código em dev/staging, mantendo a mesma task. Isso não autoriza ativar o novo mapeamento nos servidores, executar a migração ou gravar dados. Os merges de integração deste pacote/API devem conter `[skip ci] [skip-db-migrations]` para não disparar deploy, bootstrap ou migrações automáticas. O app permanece compatível com a API anterior, mostrando como prévia os campos ainda não suportados.
+
+Não criar tag estável nem atualizar o pin `controleonline/common` da API nesta etapa. A liberação efetiva das novas propriedades depende da autorização posterior da migração e da ativação coordenada do pacote, com o tráfego suspenso até o schema estar pronto. Nenhum aceite desta integração de fonte equivale a homologação de persistência em banco.
