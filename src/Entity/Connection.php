@@ -46,6 +46,11 @@ class Connection
     /** Meta WhatsApp Cloud API (PHP calls Graph directly). */
     public const CHANNEL_WHATSAPP_OFFICIAL = 'whatsapp_official';
 
+    /** Mailbox: IMAP to read customer e-mails, SMTP to answer (credentials in channel_config). */
+    public const CHANNEL_EMAIL = 'email';
+
+    public const CHANNELS = [self::CHANNEL_WHATSAPP, self::CHANNEL_WHATSAPP_OFFICIAL, self::CHANNEL_EMAIL];
+
     #[Groups(['connections:read'])]
     #[Column(name: 'id', type: 'integer', nullable: false)]
     #[Id]
@@ -90,7 +95,7 @@ class Connection
     #[Column(
         name: 'channel',
         type: 'string',
-        columnDefinition: "ENUM('whatsapp','whatsapp_official')",
+        columnDefinition: "ENUM('whatsapp','whatsapp_official','email')",
         nullable: false
     )]
     private string $channel = self::CHANNEL_WHATSAPP;
@@ -159,12 +164,18 @@ class Connection
 
     public function setChannel(string $channel): self
     {
-        if ($channel === self::CHANNEL_WHATSAPP_OFFICIAL) {
-            $this->channel = self::CHANNEL_WHATSAPP_OFFICIAL;
-        } else {
-            $this->channel = self::CHANNEL_WHATSAPP;
-        }
+        $this->channel = in_array($channel, self::CHANNELS, true) ? $channel : self::CHANNEL_WHATSAPP;
         return $this;
+    }
+
+    public function isEmail(): bool
+    {
+        return $this->channel === self::CHANNEL_EMAIL;
+    }
+
+    public function isWhatsApp(): bool
+    {
+        return $this->channel !== self::CHANNEL_EMAIL;
     }
 
     public function isOfficialWhatsApp(): bool
