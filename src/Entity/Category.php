@@ -39,7 +39,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Delete(security: 'is_granted(\'ROLE_HUMAN\')'),
         new Post(securityPostDenormalize: 'is_granted(\'ROLE_HUMAN\')'),
-        new GetCollection(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new GetCollection(security: 'is_granted(\'ROLE_HUMAN\')', fetchPartial: true),
         new GetCollection(
             uriTemplate: '/shop/categories',
             controller: GetPublicShopCategoriesAction::class,
@@ -118,6 +118,14 @@ class Category
     #[ORM\Column(name: 'sort_order', type: 'integer', nullable: true)]
     #[Groups(['category:read', 'category:write', 'product_category:read', 'tracking:read'])]
     private ?int $sortOrder = null;
+
+    #[ORM\Column(name: 'text_color', type: 'string', length: 50, nullable: true)]
+    #[Groups(['menu:read'])]
+    private ?string $textColor = null;
+
+    #[ORM\Column(name: 'icon_color', type: 'string', length: 50, nullable: true)]
+    #[Groups(['menu:read'])]
+    private ?string $iconColor = null;
 
     public function __construct()
     {
@@ -209,5 +217,21 @@ class Category
     public function getCategoryFiles(): Collection
     {
         return $this->categoryFiles;
+    }
+
+    public function getTextColor(): ?string { return $this->textColor; }
+
+    public function setTextColor(?string $value): self
+    {
+        $this->textColor = $value;
+        return $this;
+    }
+
+    public function getIconColor(): ?string { return $this->iconColor; }
+
+    public function setIconColor(?string $value): self
+    {
+        $this->iconColor = $value;
+        return $this;
     }
 }

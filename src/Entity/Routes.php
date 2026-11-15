@@ -62,6 +62,18 @@ class Routes
     #[Groups(['menu:read', 'route:read', 'route:write'])]
     private $icon;
 
+    #[ORM\Column(name: 'text_color', type: 'string', length: 50, nullable: true)]
+    #[Groups(['menu:read'])]
+    private ?string $textColor = null;
+
+    #[ORM\Column(name: 'icon_color', type: 'string', length: 50, nullable: true)]
+    #[Groups(['menu:read'])]
+    private ?string $iconColor = null;
+
+    #[ORM\Column(name: 'icon_background_color', type: 'string', length: 50, nullable: true)]
+    #[Groups(['menu:read'])]
+    private ?string $iconBackgroundColor = null;
+
     public function getId()
     {
         return $this->id;
@@ -114,6 +126,30 @@ class Routes
     public function setIcon($icon): self
     {
         $this->icon = $icon;
+        return $this;
+    }
+
+    public function getTextColor(): ?string { return $this->textColor; }
+
+    public function setTextColor(?string $value): self
+    {
+        $this->textColor = $value;
+        return $this;
+    }
+
+    public function getIconColor(): ?string { return $this->iconColor; }
+
+    public function setIconColor(?string $value): self
+    {
+        $this->iconColor = $value;
+        return $this;
+    }
+
+    public function getIconBackgroundColor(): ?string { return $this->iconBackgroundColor; }
+
+    public function setIconBackgroundColor(?string $value): self
+    {
+        $this->iconBackgroundColor = $value;
         return $this;
     }
 }

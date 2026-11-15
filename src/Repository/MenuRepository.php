@@ -38,10 +38,15 @@ class MenuRepository extends ServiceEntityRepository
             category.name AS category_label,
             category.color AS category_color,
             category.icon AS category_icon,
+            category.text_color AS category_text_color,
+            category.icon_color AS category_icon_color,
             category.sort_order AS category_sort_order,
             routes.route AS route,
             routes.color AS color,
             routes.icon AS icon,
+            routes.text_color AS text_color,
+            routes.icon_color AS icon_color,
+            routes.icon_background_color AS icon_background_color,
             routes.module_id AS module
             FROM menu
             INNER JOIN category ON category.id = menu.category_id

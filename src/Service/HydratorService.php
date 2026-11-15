@@ -83,7 +83,8 @@ class HydratorService
 
     public function data($data, $groups)
     {
-        $analisesSerialized = $this->serializer->serialize($data, 'jsonld', ['groups' => $groups]);
+        $analisesSerialized = $this->serializer->serialize($data, 'jsonld', ['groups' => $groups, '_extra_data_cache' => new \WeakMap(),
+            'exclude_from_cache_key' => ['_extra_data_cache', '_extra_data_applied']]);
         return json_decode($analisesSerialized);
     }
 

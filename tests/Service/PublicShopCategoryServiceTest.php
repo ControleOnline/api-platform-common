@@ -16,6 +16,34 @@ use PHPUnit\Framework\TestCase;
 
 class PublicShopCategoryServiceTest extends TestCase
 {
+    public function testPublicCompanyContractDefaultsToShopDomainCompany(): void
+    {
+        [$domainService, $configService] = $this->createPublicScope([]);
+        $service = $this->service($domainService, $configService, $this->createMock(CategoryRepository::class));
+
+        self::assertSame(3, $service->resolvePublicShopCompanyId(null));
+        self::assertSame(3, $service->resolvePublicShopCompanyId(3));
+    }
+
+    public function testPublicCompanyContractAllowsOnlyConfiguredFranchise(): void
+    {
+        [$domainService, $configService] = $this->createPublicScope([21]);
+        $service = $this->service($domainService, $configService, $this->createMock(CategoryRepository::class));
+
+        self::assertSame(21, $service->resolvePublicShopCompanyId(21));
+        self::assertNull($service->resolvePublicShopCompanyId(99));
+    }
+
+    public function testPublicCompanyContractRejectsNonShopDomain(): void
+    {
+        [$domainService, $configService, $peopleDomain] = $this->createPublicScope([21]);
+        $peopleDomain->setDomainType('ERP');
+        $service = $this->service($domainService, $configService, $this->createMock(CategoryRepository::class));
+
+        self::assertNull($service->resolvePublicShopCompanyId(3));
+        self::assertNull($service->resolvePublicShopCompanyId(21));
+    }
+
     public function testCollectionAllowsDomainCompanyAndConfiguredPublicFranchise(): void
     {
         [$domainService, $configService] = $this->createPublicScope([21]);

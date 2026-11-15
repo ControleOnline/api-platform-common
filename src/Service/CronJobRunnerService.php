@@ -205,6 +205,17 @@ class CronJobRunnerService
             static fn(string $argument): bool => $argument !== ''
         ));
 
+        // Environments sharing a host (dev/staging) need distinct websocket ports: WEBSOCKET_PORT
+        // in the environment overrides the job's --port.
+        $port = trim((string) ($_SERVER['WEBSOCKET_PORT'] ?? $_ENV['WEBSOCKET_PORT'] ?? getenv('WEBSOCKET_PORT') ?: ''));
+        if (strtolower($command) === 'websocket:start' && ctype_digit($port)) {
+            $arguments = array_values(array_filter(
+                $arguments,
+                static fn(string $argument): bool => !str_starts_with($argument, '--port') && !str_starts_with($argument, '-p')
+            ));
+            $arguments[] = '--port=' . $port;
+        }
+
         $domain = trim((string) ($job['domain'] ?? ''));
         if (strtolower($command) === 'tenant:messenger:consume') {
             // TenantConsumeCommand is the single rotating worker. The cron
@@ -236,7 +247,7 @@ class CronJobRunnerService
 
     private function isProcessAlreadyRunning(string $command, array $arguments): bool
     {
-        $process = new Process(['ps', '-eo', 'args=']);
+        $process = new Process(['ps', '-eo', 'pid=,args=']);
         $process->run();
         if (!$process->isSuccessful()) {
             return false;
@@ -244,24 +255,52 @@ class CronJobRunnerService
 
         $needle = 'bin/console ' . $command;
         $domain = '';
+        $port = '';
         foreach ($arguments as $argument) {
             if (str_starts_with($argument, '--domain=')) {
                 $domain = substr($argument, strlen('--domain='));
-                break;
+            }
+            if (str_starts_with($argument, '--port=')) {
+                $port = substr($argument, strlen('--port='));
             }
         }
 
         foreach (preg_split('/\R/', $process->getOutput()) ?: [] as $line) {
-            if (!str_contains($line, $needle)) {
+            if (!str_contains($line, $needle) || !preg_match('/^\s*(\d+)\s+(.*)$/', $line, $match)) {
                 continue;
             }
+            [, $pid, $args] = $match;
 
-            if ($command === 'websocket:start' || $domain === '' || str_contains($line, '--domain=' . $domain)) {
+            // A websocket already bound to the same port blocks a new one whichever project owns it.
+            if ($command === 'websocket:start' && $port !== '' && str_contains($args, '--port=' . $port)) {
+                return true;
+            }
+            // Other environments on the same host (dev/staging) run their own copies: only this
+            // project's processes count.
+            if (!$this->belongsToThisProject((int) $pid, $args)) {
+                continue;
+            }
+            if ($command === 'websocket:start' || $domain === '' || str_contains($args, '--domain=' . $domain)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private function belongsToThisProject(int $pid, string $args): bool
+    {
+        $projectDir = rtrim($this->kernel->getProjectDir(), '/');
+        if (str_contains($args, $projectDir . '/bin/console')) {
+            return true;
+        }
+        $cwd = @readlink('/proc/' . $pid . '/cwd');
+        if (!is_string($cwd)) {
+            return false;
+        }
+        $real = realpath($projectDir) ?: $projectDir;
+
+        return rtrim($cwd, '/') === $projectDir || rtrim($cwd, '/') === rtrim($real, '/');
     }
 
     private function buildLogContext(array $job, array $context = []): array

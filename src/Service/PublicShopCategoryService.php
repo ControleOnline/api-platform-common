@@ -85,7 +85,8 @@ class PublicShopCategoryService
         return $this->categoryPayloadService->serialize($category, '/shop/categories');
     }
 
-    private function resolvePublicShopCompanyId(?int $requestedCompanyId): ?int
+    /** Shared public catalog scope; callers must establish a trusted Shop domain first. */
+    public function resolvePublicShopCompanyId(?int $requestedCompanyId): ?int
     {
         $peopleDomain = $this->domainService->getPeopleDomain();
         if (strtoupper(trim((string) $peopleDomain->getDomainType())) !== 'SHOP') {
