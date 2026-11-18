@@ -13,7 +13,7 @@ final class MenuAppearanceProperties
     public static function fields(bool $route = false): array
     {
         return $route
-            ? ['textColor', 'iconColor', 'iconBackgroundColor', 'routeCardBackground', 'routeCardIcon', 'routeCardIconBackground', 'routeCardText', 'routeCardBorder']
+            ? ['textColor', 'iconColor', 'iconBackgroundColor', 'routeCardBackground', 'routeCardIcon', 'routeCardIconBackground', 'routeCardText', 'routeCardBorder', 'routeMenuBackground', 'routeMenuIcon', 'routeMenuText']
             : ['textColor', 'iconColor', 'categoryCardBackground', 'categoryCardText', 'categoryCardMenu'];
     }
 

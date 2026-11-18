@@ -40,7 +40,7 @@ class MenuCategoryCardColorsTest extends TestCase
 
     public function testRoutesExposeRouteCardColorsOnly(): void
     {
-        self::assertSame(['textColor', 'iconColor', 'iconBackgroundColor', 'routeCardBackground', 'routeCardIcon', 'routeCardIconBackground', 'routeCardText', 'routeCardBorder'], MenuAppearanceProperties::fields(true));
+        self::assertSame(['textColor', 'iconColor', 'iconBackgroundColor', 'routeCardBackground', 'routeCardIcon', 'routeCardIconBackground', 'routeCardText', 'routeCardBorder', 'routeMenuBackground', 'routeMenuIcon', 'routeMenuText'], MenuAppearanceProperties::fields(true));
     }
 
     public function testRouteCardColorsAreAppliedAndSerialized(): void
@@ -52,6 +52,9 @@ class MenuCategoryCardColorsTest extends TestCase
             'routeCardIconBackground' => 'rgb(1, 2, 3)',
             'routeCardText' => '#445566',
             'routeCardBorder' => '',
+            'routeMenuBackground' => '#abcdef',
+            'routeMenuIcon' => '$primary',
+            'routeMenuText' => '#fedcba',
         ], true);
         MenuAppearanceProperties::apply($route, $changes);
 
@@ -61,6 +64,9 @@ class MenuCategoryCardColorsTest extends TestCase
         self::assertSame('rgb(1, 2, 3)', $values['routeCardIconBackground']);
         self::assertSame('#445566', $values['routeCardText']);
         self::assertNull($values['routeCardBorder']);
+        self::assertSame('#abcdef', $values['routeMenuBackground']);
+        self::assertSame('$primary', $values['routeMenuIcon']);
+        self::assertSame('#fedcba', $values['routeMenuText']);
     }
 
     public function testInvalidRouteCardColorIsRejected(): void

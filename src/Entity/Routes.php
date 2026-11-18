@@ -94,6 +94,18 @@ class Routes
     #[Groups(['menu:read'])]
     private ?string $routeCardBorder = null;
 
+    #[ORM\Column(name: 'routeMenuBackground', type: 'string', length: 50, nullable: true)]
+    #[Groups(['menu:read'])]
+    private ?string $routeMenuBackground = null;
+
+    #[ORM\Column(name: 'routeMenuIcon', type: 'string', length: 50, nullable: true)]
+    #[Groups(['menu:read'])]
+    private ?string $routeMenuIcon = null;
+
+    #[ORM\Column(name: 'routeMenuText', type: 'string', length: 50, nullable: true)]
+    #[Groups(['menu:read'])]
+    private ?string $routeMenuText = null;
+
     public function getId()
     {
         return $this->id;
@@ -210,6 +222,30 @@ class Routes
     public function setRouteCardBorder(?string $value): self
     {
         $this->routeCardBorder = $value;
+        return $this;
+    }
+
+    public function getRouteMenuBackground(): ?string { return $this->routeMenuBackground; }
+
+    public function setRouteMenuBackground(?string $value): self
+    {
+        $this->routeMenuBackground = $value;
+        return $this;
+    }
+
+    public function getRouteMenuIcon(): ?string { return $this->routeMenuIcon; }
+
+    public function setRouteMenuIcon(?string $value): self
+    {
+        $this->routeMenuIcon = $value;
+        return $this;
+    }
+
+    public function getRouteMenuText(): ?string { return $this->routeMenuText; }
+
+    public function setRouteMenuText(?string $value): self
+    {
+        $this->routeMenuText = $value;
         return $this;
     }
 }

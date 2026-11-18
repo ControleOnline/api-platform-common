@@ -55,6 +55,9 @@ class MenuRepository extends ServiceEntityRepository
             routes.routeCardIconBackground AS route_routeCardIconBackground,
             routes.routeCardText AS route_routeCardText,
             routes.routeCardBorder AS route_routeCardBorder,
+            routes.routeMenuBackground AS route_routeMenuBackground,
+            routes.routeMenuIcon AS route_routeMenuIcon,
+            routes.routeMenuText AS route_routeMenuText,
             routes.module_id AS module
             FROM menu
             INNER JOIN category ON category.id = menu.category_id
