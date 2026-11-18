@@ -38,8 +38,34 @@ class MenuCategoryCardColorsTest extends TestCase
         MenuAppearanceProperties::changes(['categoryCardText' => 'not-a-color']);
     }
 
-    public function testRoutesDoNotExposeCategoryCardColors(): void
+    public function testRoutesExposeRouteCardColorsOnly(): void
     {
-        self::assertSame(['textColor', 'iconColor', 'iconBackgroundColor'], MenuAppearanceProperties::fields(true));
+        self::assertSame(['textColor', 'iconColor', 'iconBackgroundColor', 'routeCardBackground', 'routeCardIcon', 'routeCardIconBackground', 'routeCardText', 'routeCardBorder'], MenuAppearanceProperties::fields(true));
+    }
+
+    public function testRouteCardColorsAreAppliedAndSerialized(): void
+    {
+        $route = new \ControleOnline\Entity\Routes();
+        $changes = MenuAppearanceProperties::changes([
+            'routeCardBackground' => '#112233',
+            'routeCardIcon' => '$primary',
+            'routeCardIconBackground' => 'rgb(1, 2, 3)',
+            'routeCardText' => '#445566',
+            'routeCardBorder' => '',
+        ], true);
+        MenuAppearanceProperties::apply($route, $changes);
+
+        $values = MenuAppearanceProperties::values($route, true);
+        self::assertSame('#112233', $values['routeCardBackground']);
+        self::assertSame('$primary', $values['routeCardIcon']);
+        self::assertSame('rgb(1, 2, 3)', $values['routeCardIconBackground']);
+        self::assertSame('#445566', $values['routeCardText']);
+        self::assertNull($values['routeCardBorder']);
+    }
+
+    public function testInvalidRouteCardColorIsRejected(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        MenuAppearanceProperties::changes(['routeCardBorder' => 'nope'], true);
     }
 }
