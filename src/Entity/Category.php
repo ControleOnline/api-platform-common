@@ -127,6 +127,18 @@ class Category
     #[Groups(['menu:read'])]
     private ?string $iconColor = null;
 
+    #[ORM\Column(name: 'categoryCardBackground', type: 'string', length: 50, nullable: true)]
+    #[Groups(['category:read', 'category:write', 'menu:read'])]
+    private ?string $categoryCardBackground = null;
+
+    #[ORM\Column(name: 'categoryCardText', type: 'string', length: 50, nullable: true)]
+    #[Groups(['category:read', 'category:write', 'menu:read'])]
+    private ?string $categoryCardText = null;
+
+    #[ORM\Column(name: 'categoryCardMenu', type: 'string', length: 50, nullable: true)]
+    #[Groups(['category:read', 'category:write', 'menu:read'])]
+    private ?string $categoryCardMenu = null;
+
     public function __construct()
     {
         $this->categoryFiles = new ArrayCollection();
@@ -232,6 +244,30 @@ class Category
     public function setIconColor(?string $value): self
     {
         $this->iconColor = $value;
+        return $this;
+    }
+
+    public function getCategoryCardBackground(): ?string { return $this->categoryCardBackground; }
+
+    public function setCategoryCardBackground(?string $value): self
+    {
+        $this->categoryCardBackground = $value;
+        return $this;
+    }
+
+    public function getCategoryCardText(): ?string { return $this->categoryCardText; }
+
+    public function setCategoryCardText(?string $value): self
+    {
+        $this->categoryCardText = $value;
+        return $this;
+    }
+
+    public function getCategoryCardMenu(): ?string { return $this->categoryCardMenu; }
+
+    public function setCategoryCardMenu(?string $value): self
+    {
+        $this->categoryCardMenu = $value;
         return $this;
     }
 }

@@ -497,6 +497,9 @@ class MenuConfigService
             $modules[$categoryId]['icon'] = $menu['category_icon'];
             $modules[$categoryId]['textColor'] = $menu['category_text_color'] ?? null;
             $modules[$categoryId]['iconColor'] = $menu['category_icon_color'] ?? null;
+            $modules[$categoryId]['categoryCardBackground'] = $menu['category_card_background'] ?? null;
+            $modules[$categoryId]['categoryCardText'] = $menu['category_card_text'] ?? null;
+            $modules[$categoryId]['categoryCardMenu'] = $menu['category_card_menu'] ?? null;
             $categorySortOrder = $menu['category_sort_order'] ?? null;
             $modules[$categoryId]['sortOrder'] = $categorySortOrder === null
                 ? null
