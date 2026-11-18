@@ -7,7 +7,7 @@ namespace DoctrineMigrations\Common;
 use ControleOnline\Migration\TenantAwareMigration;
 use Doctrine\DBAL\Schema\Schema;
 
-final class Version20261117120000 extends TenantAwareMigration
+final class Version20261117130000 extends TenantAwareMigration
 {
     public function getDescription(): string
     {
