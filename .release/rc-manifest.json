@@ -1,15 +1,19 @@
 {
-  "version": "1.0.12",
+  "version": "1.0.14",
   "rc": 1,
-  "branch": "rc/1.0.12-rc.1",
-  "baseMaster": "04e864bb069f5534baddfc9a2dccb1e0b3279c32",
-  "baseTag": "v1.0.11",
+  "branch": "rc/1.0.14-rc.1",
+  "baseMaster": "2f33231bfebf351781ad4adc518deadec8baa73f",
   "tasks": [
-    61,
-    64
+    1644,
+    1650
   ],
+  "taskRepository": "ControleOnline/app-community",
   "frozen": true,
   "repositories": {
-    "ControleOnline/api-platform-common": "3a1a94c2d53ce0b6f7747d78d56a591f40ec2511"
+    "ControleOnline/api-platform-common": "fad3862d5ad113964c4ac8d565ba3cfb2ae3b3ce"
+  },
+  "validation": {
+    "scope": "master v1.0.13 + v1.0.17 (fast-forward): category categoryCard* columns (task 1644) and routes routeCard*/routeMenu* columns (task 1650) with migrations Version20261117130000, Version20261118120000, Version20261118130000. Purely additive: 424 insertions, 2 deletions, no file removed.",
+    "publishedTag": "v1.0.17 (already consumed by staging api-community rc.13)"
   }
 }

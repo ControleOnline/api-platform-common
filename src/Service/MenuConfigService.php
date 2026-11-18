@@ -497,6 +497,9 @@ class MenuConfigService
             $modules[$categoryId]['icon'] = $menu['category_icon'];
             $modules[$categoryId]['textColor'] = $menu['category_text_color'] ?? null;
             $modules[$categoryId]['iconColor'] = $menu['category_icon_color'] ?? null;
+            $modules[$categoryId]['categoryCardBackground'] = $menu['category_card_background'] ?? null;
+            $modules[$categoryId]['categoryCardText'] = $menu['category_card_text'] ?? null;
+            $modules[$categoryId]['categoryCardMenu'] = $menu['category_card_menu'] ?? null;
             $categorySortOrder = $menu['category_sort_order'] ?? null;
             $modules[$categoryId]['sortOrder'] = $categorySortOrder === null
                 ? null
@@ -512,6 +515,14 @@ class MenuConfigService
                 'textColor' => $menu['text_color'] ?? null,
                 'iconColor' => $menu['icon_color'] ?? null,
                 'iconBackgroundColor' => $menu['icon_background_color'] ?? null,
+                'routeCardBackground' => $menu['route_routeCardBackground'] ?? null,
+                'routeCardIcon' => $menu['route_routeCardIcon'] ?? null,
+                'routeCardIconBackground' => $menu['route_routeCardIconBackground'] ?? null,
+                'routeCardText' => $menu['route_routeCardText'] ?? null,
+                'routeCardBorder' => $menu['route_routeCardBorder'] ?? null,
+                'routeMenuBackground' => $menu['route_routeMenuBackground'] ?? null,
+                'routeMenuIcon' => $menu['route_routeMenuIcon'] ?? null,
+                'routeMenuText' => $menu['route_routeMenuText'] ?? null,
                 'route' => $menu['route'],
                 'routeParams' => $routeParams,
                 'sortOrder' => (int) $menu['sort_order'],

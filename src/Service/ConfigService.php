@@ -12,6 +12,42 @@ use Doctrine\ORM\QueryBuilder;
 
 class ConfigService
 {
+    /**
+     * Credentials are never public: public configs are served without login by
+     * /people/company/default. Keys that look like secrets are always stored private,
+     * whatever the client sends (api-platform-common#71).
+     */
+    public const SENSITIVE_KEY_PATTERN = '/(secret|token|password|passwd|senha|credential|api[-_]?key|access[-_]?key|(^|[-_])key$|^ai-providers$)/i';
+
+    /** Values that browsers must read by design (restricted by referrer/app on the provider side). */
+    public const PUBLIC_BY_DESIGN_PATTERN = '/(google-maps|google-tag-manager|site[-_]?key)/i';
+
+    public static function isSensitiveKey(?string $key): bool
+    {
+        $key = (string) $key;
+
+        return $key !== ''
+            && preg_match(self::SENSITIVE_KEY_PATTERN, $key) === 1
+            && preg_match(self::PUBLIC_BY_DESIGN_PATTERN, $key) !== 1;
+    }
+
+    public static function safeVisibility(?string $key, ?string $visibility): string
+    {
+        return self::isSensitiveKey($key) ? 'private' : ((string) $visibility ?: 'private');
+    }
+
+    public function prePersist(Config $config): Config
+    {
+        $config->setVisibility(self::safeVisibility($config->getConfigKey(), $config->getVisibility()));
+
+        return $config;
+    }
+
+    public function preUpdate(Config $config): Config
+    {
+        return $this->prePersist($config);
+    }
+
     public function __construct(
         private EntityManagerInterface $manager,
         private WalletService $walletService,
@@ -74,7 +110,7 @@ class ConfigService
 
         foreach ($configs as $config) {
             $this->applyConfigValue($config, $values);
-            $config->setVisibility($visibility);
+            $config->setVisibility(self::safeVisibility($key, $visibility));
 
             if ($shouldUpdateModule) {
                 $config->setModule($module);
