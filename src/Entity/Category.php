@@ -128,15 +128,15 @@ class Category
     private ?string $iconColor = null;
 
     #[ORM\Column(name: 'categoryCardBackground', type: 'string', length: 50, nullable: true)]
-    #[Groups(['category:read', 'category:write', 'menu:read'])]
+    #[Groups(['menu:read'])]
     private ?string $categoryCardBackground = null;
 
     #[ORM\Column(name: 'categoryCardText', type: 'string', length: 50, nullable: true)]
-    #[Groups(['category:read', 'category:write', 'menu:read'])]
+    #[Groups(['menu:read'])]
     private ?string $categoryCardText = null;
 
     #[ORM\Column(name: 'categoryCardMenu', type: 'string', length: 50, nullable: true)]
-    #[Groups(['category:read', 'category:write', 'menu:read'])]
+    #[Groups(['menu:read'])]
     private ?string $categoryCardMenu = null;
 
     public function __construct()
