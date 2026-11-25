@@ -168,7 +168,8 @@ class ImportService
         File $file,
         ?People $people,
         string $importType,
-        string $fileFormat
+        string $fileFormat,
+        ?People $createdBy = null
     ): Import {
         $allowed = $this->allowedExtensionsForType($importType);
         $format = strtolower(ltrim($fileFormat, '.'));
@@ -195,6 +196,10 @@ class ImportService
 
         if ($people instanceof People) {
             $import->setPeople($people);
+        }
+
+        if ($createdBy instanceof People) {
+            $import->setCreatedBy($createdBy);
         }
 
         $this->entityManager->persist($import);
