@@ -46,7 +46,9 @@ class ImportUploadController extends AbstractController
 
         $people = $this->fileService->resolvePeopleReference($peopleId);
         $file = $this->fileService->addUploadedFile($uploadedFile, $people, 'import');
-        $import = $this->importService->createImport($file, $people, $importType, $extension);
+        $user = $this->getUser();
+        $createdBy = $user && method_exists($user, 'getPeople') ? $user->getPeople() : null;
+        $import = $this->importService->createImport($file, $people, $importType, $extension, $createdBy);
 
         $data = [
             'id' => $import->getId(),
