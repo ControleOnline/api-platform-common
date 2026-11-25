@@ -86,6 +86,14 @@ class Import
     #[ManyToOne(targetEntity: People::class)]
     private ?People $people = null;
 
+    // Who uploaded the file (the logged user's people). Lets processors act on
+    // behalf of the uploader, e.g. prospects imported by a seller go straight to
+    // his own portfolio instead of the company distribution queue.
+    #[Groups(['import:read'])]
+    #[JoinColumn(name: 'created_by', referencedColumnName: 'id', nullable: true)]
+    #[ManyToOne(targetEntity: People::class)]
+    private ?People $createdBy = null;
+
     #[Groups(['import:read', 'import:write'])]
     #[ApiFilter(filterClass: SearchFilter::class, properties: ['fileFormat' => 'exact'])]
     #[Column(name: 'file_format', type: 'string', length: 10)]
@@ -150,6 +158,17 @@ class Import
     public function setPeople(?People $people): self
     {
         $this->people = $people;
+        return $this;
+    }
+
+    public function getCreatedBy(): ?People
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?People $createdBy): self
+    {
+        $this->createdBy = $createdBy;
         return $this;
     }
 

@@ -33,13 +33,14 @@ abstract class ImportCommon implements ImportProcessorInterface
 
         fwrite($handle, $content);
         rewind($handle);
+        $delimiter = $this->detectDelimiter($content);
 
         $headers = null;
         $lineNumber = 0;
         $successCount = 0;
         $errorMessages = [];
 
-        while (($row = fgetcsv($handle)) !== false) {
+        while (($row = fgetcsv($handle, null, $delimiter)) !== false) {
             $lineNumber++;
 
             if ($row === [null] || $this->isEmptyRow($row)) {
@@ -81,6 +82,24 @@ abstract class ImportCommon implements ImportProcessorInterface
         }
 
         $import->setFeedback(sprintf('%d linha(s) importada(s) com sucesso.', $successCount));
+    }
+
+    // Spreadsheets saved by Excel in pt-BR use ';' as separator; pick whichever
+    // of ';' or ',' splits the header line into more columns.
+    protected function detectDelimiter(string $content): string
+    {
+        $content = ltrim($content, "﻿");
+        foreach (preg_split('/
+||
+/', $content) as $line) {
+            if (trim($line) === '') {
+                continue;
+            }
+
+            return count(str_getcsv($line, ';')) > count(str_getcsv($line, ',')) ? ';' : ',';
+        }
+
+        return ',';
     }
 
     protected function validateHeaders(array $headers): void
