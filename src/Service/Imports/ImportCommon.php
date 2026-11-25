@@ -88,10 +88,8 @@ abstract class ImportCommon implements ImportProcessorInterface
     // of ';' or ',' splits the header line into more columns.
     protected function detectDelimiter(string $content): string
     {
-        $content = ltrim($content, "﻿");
-        foreach (preg_split('/
-||
-/', $content) as $line) {
+        $content = ltrim($content, "\xEF\xBB\xBF");
+        foreach (preg_split('/\r\n|\r|\n/', $content) as $line) {
             if (trim($line) === '') {
                 continue;
             }
