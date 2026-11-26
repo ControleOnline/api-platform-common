@@ -2,8 +2,6 @@
 
 namespace ControleOnline\Service;
 
-use Symfony\Component\HttpFoundation\RequestStack;
-
 use ControleOnline\Entity\People;
 
 class SystemLogConfigService
@@ -26,7 +24,6 @@ class SystemLogConfigService
     public function __construct(
         private ConfigService $configService,
         private PeopleRoleService $peopleRoleService,
-        private ?RequestStack $requestStack = null,
     ) {}
 
     public function getMainCompany(): ?People
@@ -54,14 +51,6 @@ class SystemLogConfigService
 
     public function getLogPolicy(): array
     {
-        $request = $this->requestStack?->getCurrentRequest();
-        // Only order mutations: configuration writes must keep reading their latest policy.
-        $cacheable = $request && in_array($request->getMethod(), ['POST', 'PUT', 'PATCH'], true)
-            && preg_match('~^/orders(?:/|$)~', $request->getPathInfo());
-        $key = '_order_log_policy_' . spl_object_id($this);
-        if ($cacheable && $request->attributes->has($key)) {
-            return $request->attributes->get($key);
-        }
         $policy = self::getDefaultPolicy();
         $savedPolicy = $this->normalizePolicy(
             $this->getMainCompanyConfig(self::POLICY_CONFIG_KEY)
@@ -75,9 +64,6 @@ class SystemLogConfigService
             $policy[$policyKey] = array_merge($policy[$policyKey], $config);
         }
 
-        if ($cacheable) {
-            $request->attributes->set($key, $policy);
-        }
         return $policy;
     }
 
