@@ -15,10 +15,6 @@ class ExtraDataNormalizer implements NormalizerInterface, NormalizerAwareInterfa
 
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
-        if (is_array($data)) {
-            return !isset($context['_extra_data_cache']);
-        }
-
         return is_object($data)
             && method_exists($data, 'setExtraData')
             && empty($context['_extra_data_applied'][spl_object_id($data)]);
@@ -26,27 +22,10 @@ class ExtraDataNormalizer implements NormalizerInterface, NormalizerAwareInterfa
 
     public function normalize(mixed $object, ?string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
     {
-        // Share reads across branches of this serialization only, never requests.
-        $context['_extra_data_cache'] ??= new \WeakMap();
-        $context['exclude_from_cache_key'] = array_unique(array_merge(
-            $context['exclude_from_cache_key'] ?? [], ['_extra_data_cache', '_extra_data_applied', '_extra_data_preloaded'],
-        ));
-        if (is_array($object)) {
-            return $this->normalizer->normalize($object, $format, $context);
-        }
-        $cache = $context['_extra_data_cache'];
         $objectId = spl_object_id($object);
         $context['_extra_data_applied'][$objectId] = true;
 
-        if (isset($cache[$object])) {
-            $object->setExtraData($cache[$object]);
-            return $this->normalizer->normalize($object, $format, $context);
-        }
-
-        $preloaded = $context['_extra_data_preloaded'] ?? null;
-        $extraDataEntities = $preloaded instanceof \WeakMap && isset($preloaded[$object])
-            ? $preloaded[$object]
-            : $this->extraDataService->getExtraDataFromEntity($object);
+        $extraDataEntities = $this->extraDataService->getExtraDataFromEntity($object);
 
         $extraDataArray = [];
         foreach ($extraDataEntities as $extraData) {
@@ -67,7 +46,6 @@ class ExtraDataNormalizer implements NormalizerInterface, NormalizerAwareInterfa
             ];
         }
 
-        $cache[$object] = $extraDataArray;
         $object->setExtraData($extraDataArray);
 
         return $this->normalizer->normalize($object, $format, $context);
@@ -76,7 +54,6 @@ class ExtraDataNormalizer implements NormalizerInterface, NormalizerAwareInterfa
     public function getSupportedTypes(?string $format): array
     {
         return [
-            '*' => false,
             'object' => false,
         ];
     }

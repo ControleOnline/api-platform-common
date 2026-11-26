@@ -145,7 +145,7 @@ class HydratedReadProviderTest extends TestCase
         $orderService = $this->createMock(OrderService::class);
         $orderService
             ->expects(self::once())
-            ->method('prepareOrderDetailsRead')
+            ->method('normalizeOrderProductGroupLinks')
             ->with($order)
             ->willReturn(true);
 

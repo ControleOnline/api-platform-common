@@ -101,7 +101,6 @@ class LogListener
         $logs = $this->pendingLogs;
         $this->pendingLogs = [];
 
-        $records = [];
         foreach ($logs as $logData) {
             $rowId = $logData['row'];
             $object = $logData['object'];
@@ -120,12 +119,14 @@ class LogListener
                 continue;
             }
 
-            $records[] = [
-                'type' => 'entity', 'action' => $logData['action'],
-                'class' => $logData['class'], 'row' => $rowId, 'payload' => $object,
-            ];
+            $this->systemLogWriter->write(
+                'entity',
+                $logData['action'],
+                $logData['class'],
+                $rowId,
+                $object
+            );
         }
-        $this->systemLogWriter->writeMany($records);
     }
 
     private function extractEntityState(object $entity, EntityManagerInterface $em): array

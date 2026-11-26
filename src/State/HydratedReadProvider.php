@@ -126,7 +126,7 @@ class HydratedReadProvider implements ProviderInterface
 
         if ($item instanceof Order) {
             // Mantem o mesmo preprocessamento usado pelo controller atual do detalhe de pedido.
-            $this->orderService->prepareOrderDetailsRead($item);
+            $this->orderService->normalizeOrderProductGroupLinks($item);
         }
 
         return $item;

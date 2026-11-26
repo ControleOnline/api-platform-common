@@ -21,8 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ApiResource(
     operations: [
-        new Get(security: 'is_granted(\'ROLE_HUMAN\')'),
-        new GetCollection(security: 'is_granted(\'ROLE_HUMAN\')'),
+        new Get(security: "is_granted('ROLE_HUMAN') or is_granted('ROLE_CLIENT')"),
+        new GetCollection(security: "is_granted('ROLE_HUMAN') or is_granted('ROLE_CLIENT')"),
         new Put(
             input: AddressUpdateInput::class,
             processor: AddressUpdateProcessor::class,
